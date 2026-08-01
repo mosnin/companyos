@@ -34,6 +34,15 @@ launch, observation, heartbeats, terminal receipts, cancellation, telemetry,
 and reconciliation must be attributable and idempotent before a result can be
 accepted.
 
+Evidence bytes are published once under a project-local SHA-256 content
+address. Governed records bind that immutable snapshot; the original source
+path remains descriptive and may evolve without silently changing accepted
+proof. A drifted legacy or expired current record can be replaced only while
+the instance is paused and unscheduled, with no lease or running cycle, and
+only through an independently signed `supersede-evidence` transition. The full
+predecessor, exact reviewed payload, grant, and linear successor relation stay
+auditable. Completed-cycle and accepted-fabric evidence cannot be rewritten.
+
 Schema 9 implements the observation trust boundary. Version 0.3 adds the
 single-host transactional control substrate without enabling runtime launch.
 Legacy JSON instances continue to use the write-ahead pair until an explicit,

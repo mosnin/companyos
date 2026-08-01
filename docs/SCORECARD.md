@@ -12,7 +12,7 @@ the current stage appear operational.
 | Distribution integrity | 9.0 | Content-addressed manifest and exact installed-source comparison. |
 | Reproducible bootstrap | 9.0 | Clean temporary project initialization and fail-closed audit test. |
 | Change safety | 9.0 | Existing changed installs reject by default; staged replacement rolls back; state/event pairs recover from a partial replace. |
-| Test strength | 9.0 | Repository, 101-controller, 8 canonical-integration, 10 reference, validator, and compile gates. |
+| Test strength | 9.0 | Repository, 112-controller, 8 canonical-integration, 10 reference, validator, and compile gates. |
 | Evidence truthfulness | 9.0 | Reference, canonical, mock, runtime, and client evidence remain distinct. |
 | Documentation and handoff | 8.5 | Architecture, roadmap, program contracts, and append-only ledger are colocated. |
 
@@ -38,6 +38,25 @@ version 0.3.0. They do not certify provider execution or distributed control.
 
 Phase 1B passes its applicable gate. Authority, durability, cancellation,
 isolation, and evidence integrity meet the required 9/10 threshold.
+
+## Phase 1C evidence-integrity dimensions
+
+These scores cover the locally verified evidence and phase-control slice only.
+They do not certify a provider runtime or unattended operation.
+
+| Dimension | Score | Evidence |
+| --- | ---: | --- |
+| Evidence immutability | 9.0 | SHA-256-addressed snapshots use create-if-absent publication and every audit rehashes retained bytes. |
+| Recovery authority | 9.0 | A distinct external reviewer signs the exact predecessor, successor bytes, bindings, metadata, and reason. |
+| History integrity | 9.0 | Full predecessor records and grants remain audit-valid in a linear, cycle-free chain across repeated replacements. |
+| Fail-closed safety | 9.0 | Active scheduling, leases, cancellation, running cycles, completed-cycle references, accepted-fabric references, missing snapshots, and corrupt snapshots reject. |
+| Quality freshness | 9.0 | Scores citing replaced proof are cleared; critical dimensions require 9 and applicable noncritical dimensions require 8. |
+| Phase integrity | 9.0 | Active work cannot leave its current phase until current applicable quality passes; target-phase scores are reset. |
+| Crash semantics | 9.0 | A pre-transaction snapshot can remain only as an unreferenced orphan and never becomes governed evidence. |
+| Regression strength | 9.0 | 112 controller, 20 transactional, 8 observation-integration, 10 frozen-reference, and 4 distribution tests plus compile, manifest, and validator gates. |
+
+Phase 1C passes only after independent review, the canonical manifest, exact
+installed distribution, and self-host evidence repair are all verified.
 
 ## Operational dimensions — not passed
 

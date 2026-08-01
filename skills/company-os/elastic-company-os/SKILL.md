@@ -103,10 +103,10 @@ The controller rejects:
 - unsigned, replayed, proposal-mismatched, or self-approved adaptations;
 - recursive meta-loops;
 - core promotion without evidence from three independent projects;
-- stage completion with missing evidence or any applicable quality score below 9.
+- stage completion with missing evidence, any applicable critical quality score below 9, or any applicable noncritical score below 8;
 - direct goal edits that do not increment the program version;
 - stale work, evidence, leases, or certification from another program version;
-- evidence without a project-local artifact, matching SHA-256 digest, freshness, decision impact, and independent review;
+- evidence without an immutable project-local SHA-256 snapshot, freshness, decision impact, and independent review;
 - static allocation claims contradicted by actual cycle cost or time;
 - a paused/cancelled instance with scheduling enabled;
 - cancellation that leaves an active lease or work item;
@@ -123,8 +123,9 @@ Use controller commands for every state transition:
   idempotency keys.
 
 - `replace-program` versions a changed mandate, archives evidence, cancels stale work, revokes leases, and returns to paused reality audit.
-- `record-evidence` hashes and binds an artifact to the project and program; completion evidence must additionally bind the committed outcome, work, cycle, and rubric.
-- `advance-phase` moves exactly one evidenced stage.
+- `record-evidence` publishes the artifact under its project-local SHA-256 content address and binds that immutable snapshot to the project and program; completion evidence must additionally bind the committed outcome, work, cycle, and rubric.
+- `supersede-evidence` repairs an invalid current record only while paused, unscheduled, lease-free, uncancelled, and cycle-idle. An external independent grant binds the old and new digests, exact successor ID and metadata, source path, bindings, bucket, and reason. The command preserves the full predecessor and grant, rejects completed-cycle or accepted-fabric references, and clears every quality score that cited the predecessor.
+- `advance-phase` moves exactly one evidenced stage, refuses to leave active work before current applicable quality passes, and clears scores for the new phase.
 - `commit-outcome` and `queue-work` create the governed portfolio.
 - `score-quality` requires separate signed grants for scorer and reviewer; its canonical payload hash binds the score, evidence IDs, actors, outcome, work, cycle, artifact digest, and rubric.
 - `certify` requires a command-specific signed certifier grant whose payload hash binds the exact canonical `governance_digest`, reviewer, and accepted decision. It rejects every actor already involved in the work, evidence, cycle review, or quality review.

@@ -637,6 +637,68 @@ def project_local_path(project: Path, relative: Any) -> Path | None:
     return resolved
 
 
+EVIDENCE_SNAPSHOT_ROOT = ".company-os/evidence/sha256"
+
+
+def evidence_is_active(item: dict[str, Any]) -> bool:
+    """Omitted flags describe legacy records, which remain current until replaced."""
+    return item.get("active", True) is True
+
+
+def evidence_snapshot_path(project: Path, digest: str) -> Path:
+    return project.resolve() / EVIDENCE_SNAPSHOT_ROOT / digest
+
+
+def _snapshot_relative_path(project: Path, digest: str) -> str:
+    return str(evidence_snapshot_path(project, digest).relative_to(project.resolve()))
+
+
+def publish_evidence_snapshot(project: Path, content: bytes, digest: str) -> str:
+    """Durably publish immutable evidence without replacing an existing digest.
+
+    A crash before the state transaction leaves only an orphan blob.  It is not
+    authoritative because no governed evidence record references it.
+    """
+    if _bytes_sha256(content) != digest:
+        raise ValueError("evidence snapshot digest does not match its content")
+    directory = project.resolve() / EVIDENCE_SNAPSHOT_ROOT
+    directory.mkdir(parents=True, exist_ok=True)
+    if directory.is_symlink() or directory.resolve() != directory:
+        raise ValueError("evidence snapshot directory must not traverse a symlink")
+    target = evidence_snapshot_path(project, digest)
+
+    def verify_target() -> bool:
+        if target.is_symlink() or not target.is_file():
+            raise ValueError("content-addressed evidence snapshot is not an immutable regular file")
+        if sha256_file(target) != digest:
+            raise ValueError("content-addressed evidence snapshot bytes do not match its digest")
+        return True
+
+    if target.exists():
+        verify_target()
+        return _snapshot_relative_path(project, digest)
+    temporary = directory / f".{digest}.{uuid.uuid4().hex}.tmp"
+    try:
+        _write_bytes_fsync(temporary, content)
+        try:
+            # link(2) has create-if-absent semantics.  Unlike replace(), it
+            # cannot make a malicious or racing writer's bytes authoritative.
+            os.link(temporary, target)
+        except FileExistsError:
+            verify_target()
+        else:
+            verify_target()
+        _fsync_directory(directory)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+    return _snapshot_relative_path(project, digest)
+
+
+def evidence_snapshot_fields(item: dict[str, Any]) -> bool:
+    return "snapshot_path" in item or "snapshot_sha256" in item
+
+
 def governance_digest(state: dict[str, Any]) -> str:
     """Hash all governable state, excluding only self-referential or live lease fields."""
     payload = deepcopy(state)
@@ -991,6 +1053,49 @@ def clear_quality_scores(state: dict[str, Any]) -> None:
         item["evidence"] = []
 
 
+def clear_quality_scores_citing(state: dict[str, Any], evidence_id: str) -> None:
+    """Invalidate only scores whose proof set includes superseded evidence."""
+    for item in state.get("quality", {}).get("dimensions", {}).values():
+        if not isinstance(item, dict) or evidence_id not in item.get("evidence", []):
+            continue
+        for field in ("score", "rubric_version", "scored_by", "reviewed_by", "scorer_grant", "reviewer_grant", "binding"):
+            item[field] = None
+        item["evidence"] = []
+
+
+def supersede_evidence_review_payload(
+    args: Any,
+    *,
+    predecessor: dict[str, Any],
+    replacement_id: str,
+    artifact_digest: str,
+    bucket: str,
+    source_artifact_path: str,
+) -> dict[str, Any]:
+    getter = args.get if isinstance(args, dict) else lambda key, default=None: getattr(args, key, default)
+    def replacement_value(key: str) -> Any:
+        value = getter(key)
+        return predecessor.get(key) if value is None else value
+
+    return {
+        "evidence_id": getter("evidence_id"),
+        "old_artifact_sha256": predecessor.get("artifact_sha256"),
+        "replacement_evidence_id": replacement_id,
+        "new_artifact_sha256": artifact_digest,
+        "outcome": bucket,
+        "source_artifact_path": source_artifact_path,
+        "source": getter("source"), "decision_impact": getter("decision_impact"),
+        "author": getter("author"), "reviewer": getter("reviewer"), "reason": getter("reason"),
+        "freshness_days": replacement_value("freshness_days"),
+        "quality_dimensions": replacement_value("quality_dimensions"),
+        "outcome_id": replacement_value("outcome_id"),
+        "work_id": replacement_value("work_id"),
+        "cycle_id": replacement_value("cycle_id"),
+        "rubric_version": replacement_value("rubric_version"),
+        "id": replacement_id,
+    }
+
+
 def validate_fabric_report_payload(
     state: dict[str, Any],
     manager_id: str,
@@ -1115,12 +1220,13 @@ def current_fabric_evidence(
         item.get("id"): item
         for bucket in state.get("evidence", {}).values()
         for item in bucket
-        if isinstance(item, dict) and isinstance(item.get("id"), str)
+        if isinstance(item, dict) and evidence_is_active(item) and isinstance(item.get("id"), str)
     }
     now = datetime.now(timezone.utc)
     valid: set[str] = set()
     for evidence_id, item in evidence_by_id.items():
-        artifact = project_local_path(project, item.get("artifact_path"))
+        artifact = project_local_path(project, item.get("snapshot_path")) if evidence_snapshot_fields(item) else project_local_path(project, item.get("artifact_path"))
+        expected_digest = item.get("snapshot_sha256") if evidence_snapshot_fields(item) else item.get("artifact_sha256")
         time_errors: list[str] = []
         observed = parse_time(item.get("observed_at"), "fabric evidence observed_at", time_errors)
         freshness = item.get("freshness_days")
@@ -1128,8 +1234,9 @@ def current_fabric_evidence(
             item.get("project_id") == state.get("instance", {}).get("project_id")
             and item.get("program_version") == state.get("strategy", {}).get("program_version")
             and artifact is not None
+            and not artifact.is_symlink()
             and artifact.is_file()
-            and item.get("artifact_sha256") == sha256_file(artifact)
+            and expected_digest == sha256_file(artifact)
             and not time_errors
             and observed is not None
             and isinstance(freshness, int)
@@ -1947,24 +2054,55 @@ def validate_state(
                 errors.append(f"evidence id {evidence_id} is duplicated")
             else:
                 evidence_by_id[evidence_id] = item
+            active = item.get("active", True)
+            if not isinstance(active, bool):
+                errors.append(f"{label}.active must be a boolean when supplied")
+            elif active is not True:
+                errors.append(f"{label} is inactive and must be retained only in archived evidence")
             if item.get("outcome") != bucket:
                 errors.append(f"{label}.outcome must be {bucket}")
             if item.get("project_id") != instance.get("project_id"):
                 errors.append(f"{label} is not bound to this project")
-            if item.get("program_version") != program_version:
+            if evidence_is_active(item) and item.get("program_version") != program_version:
                 errors.append(f"{label} is stale for the current program")
             for field in ("source", "decision_impact", "author", "reviewer"):
                 if not isinstance(item.get(field), str) or not item.get(field).strip():
                     errors.append(f"{label}.{field} is required")
             if item.get("author") and item.get("author") == item.get("reviewer"):
                 errors.append(f"{label} lacks independent review")
-            artifact = project_local_path(project_root, item.get("artifact_path"))
-            if artifact is None:
-                errors.append(f"{label}.artifact_path must stay inside the project")
-            elif not artifact.is_file():
-                errors.append(f"{label}.artifact_path does not exist")
-            elif item.get("artifact_sha256") != sha256_file(artifact):
-                errors.append(f"{label}.artifact_sha256 does not match the artifact")
+            snapshot_present = evidence_snapshot_fields(item)
+            if snapshot_present:
+                digest = item.get("snapshot_sha256")
+                snapshot = project_local_path(project_root, item.get("snapshot_path"))
+                expected = evidence_snapshot_path(project_root, digest) if isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest) else None
+                if (
+                    not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
+                    or not isinstance(item.get("snapshot_path"), str) or snapshot is None
+                    or expected is None or snapshot != expected
+                ):
+                    errors.append(f"{label}.snapshot_path must be the exact project-local content address")
+                elif snapshot.is_symlink() or not snapshot.is_file():
+                    errors.append(f"{label}.snapshot_path does not exist as an immutable file")
+                elif sha256_file(snapshot) != digest:
+                    errors.append(f"{label}.snapshot_sha256 does not match the snapshot")
+                if item.get("artifact_sha256") != digest:
+                    errors.append(f"{label}.artifact_sha256 must match snapshot_sha256")
+                source_path = item.get("source_artifact_path")
+                if (
+                    not isinstance(source_path, str)
+                    or not source_path.strip()
+                    or project_local_path(project_root, source_path) is None
+                ):
+                    errors.append(f"{label}.source_artifact_path must stay inside the project")
+            else:
+                # Legacy evidence is source-bound only until it is superseded.
+                artifact = project_local_path(project_root, item.get("artifact_path"))
+                if artifact is None:
+                    errors.append(f"{label}.artifact_path must stay inside the project")
+                elif not artifact.is_file():
+                    errors.append(f"{label}.artifact_path does not exist")
+                elif item.get("artifact_sha256") != sha256_file(artifact):
+                    errors.append(f"{label}.artifact_sha256 does not match the artifact")
             observed = parse_time(item.get("observed_at"), f"{label}.observed_at", errors)
             freshness_days = item.get("freshness_days")
             if not isinstance(freshness_days, int) or not 1 <= freshness_days <= 365:
@@ -1980,8 +2118,137 @@ def validate_state(
             for field in ("outcome_id", "work_id", "cycle_id", "rubric_version"):
                 if field in item and (not isinstance(item[field], str) or not item[field].strip()):
                     errors.append(f"{label}.{field} must be a non-empty string when supplied")
-            if len(errors) == before and isinstance(evidence_id, str):
+            if len(errors) == before and isinstance(evidence_id, str) and evidence_is_active(item):
                 valid_evidence_ids.add(evidence_id)
+
+    archived_evidence = feedback.get("archived_evidence", [])
+    if not isinstance(archived_evidence, list):
+        errors.append("feedback.archived_evidence must be an array")
+    else:
+        archived_ids: set[str] = set()
+        archives_by_id: dict[str, dict[str, Any]] = {}
+        for index, archive in enumerate(archived_evidence):
+            label = f"feedback.archived_evidence[{index}]"
+            if not isinstance(archive, dict):
+                errors.append(f"{label} must be an object")
+                continue
+            # Program replacement archives predate evidence supersession and
+            # retain a whole evidence object under `evidence`.
+            if archive.get("archive_kind") != "evidence_supersession":
+                continue
+            if not isinstance(archive, dict) or not isinstance(archive.get("record"), dict):
+                errors.append(f"{label} must retain a full evidence record")
+                continue
+            old = archive["record"]
+            old_id = old.get("id")
+            if not isinstance(old_id, str) or not old_id or old_id in archived_ids or old_id in evidence_by_id:
+                errors.append(f"{label}.record.id must be unique and not current")
+            archived_ids.add(old_id) if isinstance(old_id, str) else None
+            if isinstance(old_id, str):
+                archives_by_id[old_id] = archive
+            if archive.get("bucket") not in EVIDENCE_BUCKETS or old.get("outcome") != archive.get("bucket"):
+                errors.append(f"{label} bucket does not match its archived record")
+            if archive.get("project_id") != instance.get("project_id") or old.get("project_id") != instance.get("project_id"):
+                errors.append(f"{label} is not bound to this project")
+            if archive.get("old_snapshot_available") not in {True, False}:
+                errors.append(f"{label}.old_snapshot_available must be boolean")
+            if not isinstance(archive.get("superseded_by_evidence_id"), str) or not archive["superseded_by_evidence_id"]:
+                errors.append(f"{label}.superseded_by_evidence_id is required")
+            if old.get("superseded_by_evidence_id") != archive.get("superseded_by_evidence_id"):
+                errors.append(f"{label} does not preserve predecessor linkage")
+            if evidence_snapshot_fields(old):
+                digest = old.get("snapshot_sha256")
+                snapshot = project_local_path(project_root, old.get("snapshot_path"))
+                expected = evidence_snapshot_path(project_root, digest) if isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest) else None
+                available = bool(expected and snapshot == expected and snapshot.is_file() and not snapshot.is_symlink() and sha256_file(snapshot) == digest)
+                if archive.get("old_snapshot_available") != available:
+                    errors.append(f"{label}.old_snapshot_available does not truthfully describe the archived snapshot")
+                if not available:
+                    errors.append(f"{label} references a missing or corrupt snapshot")
+            elif archive.get("old_snapshot_available") is not False:
+                errors.append(f"{label} incorrectly claims a legacy snapshot exists")
+        all_history: dict[str, tuple[str, dict[str, Any]]] = {
+            evidence_id: ("current", item) for evidence_id, item in evidence_by_id.items()
+        }
+        all_history.update({evidence_id: ("archived", archive["record"]) for evidence_id, archive in archives_by_id.items()})
+        for index, archive in enumerate(archived_evidence):
+            if not isinstance(archive, dict) or archive.get("archive_kind") != "evidence_supersession":
+                continue
+            label = f"feedback.archived_evidence[{index}]"
+            old = archive.get("record")
+            if not isinstance(old, dict):
+                continue
+            old_id = old.get("id")
+            review_payload = archive.get("review_payload")
+            replacement_entry = all_history.get(archive.get("superseded_by_evidence_id"))
+            replacement = replacement_entry[1] if replacement_entry else None
+            if not isinstance(review_payload, dict) or not isinstance(replacement, dict):
+                errors.append(f"{label} lacks its retained review payload or replacement")
+            else:
+                expected_review_payload = {
+                    "evidence_id": old_id,
+                    "old_artifact_sha256": old.get("artifact_sha256"),
+                    "replacement_evidence_id": replacement.get("id"),
+                    "new_artifact_sha256": replacement.get("artifact_sha256"),
+                    "outcome": archive.get("bucket"),
+                    "source_artifact_path": replacement.get("source_artifact_path"),
+                    "source": replacement.get("source"),
+                    "decision_impact": replacement.get("decision_impact"),
+                    "author": replacement.get("author"),
+                    "reviewer": replacement.get("reviewer"),
+                    "reason": archive.get("reason"),
+                    "freshness_days": replacement.get("freshness_days"),
+                    "quality_dimensions": replacement.get("quality_dimensions"),
+                    "outcome_id": replacement.get("outcome_id"),
+                    "work_id": replacement.get("work_id"),
+                    "cycle_id": replacement.get("cycle_id"),
+                    "rubric_version": replacement.get("rubric_version"),
+                    "id": replacement.get("id"),
+                }
+                if review_payload != expected_review_payload:
+                    errors.append(f"{label}.review_payload does not match the retained transition")
+                audit_stored_grant(
+                    state,
+                    archive.get("reviewer_grant"),
+                    errors,
+                    f"{label}.reviewer_grant",
+                    {
+                        "actor": replacement.get("reviewer"),
+                        "action": "supersede-evidence",
+                        "resource": f"evidence:{old_id}",
+                        "work_id": "",
+                        "cycle_id": "",
+                        "dimension": "evidence",
+                        "decision": "accepted",
+                        "payload_hash": command_payload_hash("supersede-evidence", review_payload),
+                    },
+                )
+        successor_count: dict[str, int] = {}
+        for evidence_id, (location, item) in all_history.items():
+            successor = item.get("superseded_by_evidence_id")
+            predecessor = item.get("supersedes_evidence_id")
+            if location == "current" and predecessor not in (None, ""):
+                archived = archives_by_id.get(predecessor)
+                if not archived or archived.get("superseded_by_evidence_id") != evidence_id:
+                    errors.append(f"evidence {evidence_id} has an unarchived predecessor linkage")
+            if successor not in (None, ""):
+                successor_count[successor] = successor_count.get(successor, 0) + 1
+                target = all_history.get(successor)
+                if target is None or target[1].get("supersedes_evidence_id") != evidence_id:
+                    errors.append(f"evidence {evidence_id} has an inconsistent successor linkage")
+                elif target[1].get("outcome") != item.get("outcome") or target[1].get("project_id") != item.get("project_id") or target[1].get("program_version") != item.get("program_version"):
+                    errors.append(f"evidence {evidence_id} supersession crosses project, program, or bucket")
+        if any(count > 1 for count in successor_count.values()):
+            errors.append("evidence supersession history branches")
+        for evidence_id in all_history:
+            seen: set[str] = set()
+            cursor = evidence_id
+            while cursor in all_history:
+                if cursor in seen:
+                    errors.append(f"evidence supersession history cycles at {cursor}")
+                    break
+                seen.add(cursor)
+                cursor = all_history[cursor][1].get("superseded_by_evidence_id")
 
     if phase not in PHASES:
         errors.append(f"phase must be one of: {', '.join(PHASES)}")
@@ -2487,8 +2754,10 @@ def validate_state(
         if not isinstance(score, (int, float)) or not 0 <= score <= 10:
             errors.append(f"quality dimension {name} score must be from 0 to 10")
             quality_ready = False
-        elif item.get("critical") and score < threshold:
-            errors.append(f"critical quality dimension {name} is below {threshold}")
+        elif score < (threshold if item.get("critical") else 8):
+            required_score = threshold if item.get("critical") else 8
+            prefix = "critical quality dimension" if item.get("critical") else "quality dimension"
+            errors.append(f"{prefix} {name} is below {required_score}")
             quality_ready = False
         for field in ("rubric_version", "scored_by", "reviewed_by"):
             if not item.get(field):
@@ -3098,18 +3367,25 @@ def record_evidence(args: argparse.Namespace) -> int:
     try:
         with locked_state(project) as (path, state):
             artifact = project_local_path(project, args.artifact)
-            if artifact is None or not artifact.is_file():
+            if artifact is None or not artifact.is_file() or artifact.is_symlink():
                 raise ValueError("artifact must be an existing file inside the project")
             if args.author == args.reviewer:
                 raise ValueError("evidence requires an independent reviewer")
+            artifact_bytes = artifact.read_bytes()
+            artifact_digest = _bytes_sha256(artifact_bytes)
+            snapshot_path = publish_evidence_snapshot(project, artifact_bytes, artifact_digest)
             evidence_id = args.id or f"{args.outcome}-{uuid.uuid4().hex[:12]}"
             item = {
                 "id": evidence_id,
                 "outcome": args.outcome,
                 "project_id": state["instance"]["project_id"],
                 "program_version": state["strategy"]["program_version"],
-                "artifact_path": str(artifact.relative_to(project)),
-                "artifact_sha256": sha256_file(artifact),
+                "artifact_path": snapshot_path,
+                "source_artifact_path": str(artifact.relative_to(project)),
+                "artifact_sha256": artifact_digest,
+                "snapshot_path": snapshot_path,
+                "snapshot_sha256": artifact_digest,
+                "active": True,
                 "observed_at": utc_now(),
                 "freshness_days": args.freshness_days,
                 "source": args.source,
@@ -3144,6 +3420,169 @@ def record_evidence(args: argparse.Namespace) -> int:
     return 0
 
 
+def supersede_evidence(args: argparse.Namespace) -> int:
+    """Archive one drifted current record and install its snapshot-backed successor."""
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            controller_state = state.get("controller", {})
+            if state.get("instance", {}).get("status") != "paused":
+                raise ValueError("evidence recovery requires a paused instance")
+            if controller_state.get("schedule_enabled"):
+                raise ValueError("evidence recovery requires scheduling to remain disabled")
+            if controller_state.get("lease") is not None:
+                raise ValueError("evidence recovery requires no active lease")
+            if controller_state.get("cancellation_requested"):
+                raise ValueError("evidence recovery is unavailable after cancellation")
+            if any(isinstance(cycle, dict) and cycle.get("status") == "running" for cycle in state.get("feedback", {}).get("cycles", [])):
+                raise ValueError("evidence recovery requires no running cycle")
+            matches = [
+                (bucket, index, item) for bucket in EVIDENCE_BUCKETS
+                for index, item in enumerate(state.get("evidence", {}).get(bucket, []))
+                if isinstance(item, dict) and item.get("id") == args.evidence_id
+            ]
+            if len(matches) != 1:
+                raise ValueError("superseded evidence ID must identify exactly one current evidence record")
+            bucket, index, predecessor = matches[0]
+            if not evidence_is_active(predecessor) or predecessor.get("program_version") != state["strategy"]["program_version"]:
+                raise ValueError("only active current-program evidence may be superseded")
+            if any(
+                isinstance(cycle, dict) and cycle.get("status") == "completed" and args.evidence_id in cycle.get("evidence_ids", [])
+                for cycle in state.get("feedback", {}).get("cycles", [])
+            ):
+                raise ValueError("completed cycle references the evidence and prevents supersession")
+            fabric = state.get("execution_fabric", {})
+            if fabric.get("status") == "accepted" and any(
+                args.evidence_id in entry.get("report", {}).get("evidence_ids", [])
+                for manager in fabric.get("managers", {}).values() if isinstance(manager, dict)
+                for entry in manager.get("reports", []) if isinstance(entry, dict)
+            ):
+                raise ValueError("accepted fabric report references the evidence and prevents supersession")
+            if args.author == args.reviewer:
+                raise ValueError("evidence recovery requires an independent reviewer")
+            artifact = project_local_path(project, args.artifact)
+            if artifact is None or not artifact.is_file() or artifact.is_symlink():
+                raise ValueError("artifact must be an existing regular file inside the project")
+            if not isinstance(args.id, str) or not args.id.strip():
+                raise ValueError("replacement evidence ID is required for signed supersession")
+            replacement_id = args.id
+            if replacement_id == args.evidence_id or any(
+                isinstance(item, dict) and item.get("id") == replacement_id
+                for records in state.get("evidence", {}).values() for item in records
+            ):
+                raise ValueError("replacement evidence ID already exists")
+            if any(
+                isinstance(archive, dict) and isinstance(archive.get("record"), dict)
+                and archive["record"].get("id") == replacement_id
+                for archive in state.get("feedback", {}).get("archived_evidence", [])
+            ):
+                raise ValueError("replacement evidence ID is already archived")
+            bytes_ = artifact.read_bytes()
+            digest = _bytes_sha256(bytes_)
+            source_artifact_path = str(artifact.relative_to(project))
+            review_payload = supersede_evidence_review_payload(
+                args,
+                predecessor=predecessor,
+                replacement_id=replacement_id,
+                artifact_digest=digest,
+                bucket=bucket,
+                source_artifact_path=source_artifact_path,
+            )
+            reviewer_grant = verify_actor_grant(
+                state, args.reviewer_grant, args.reviewer, "supersede-evidence",
+                resource=f"evidence:{args.evidence_id}", work_id="", cycle_id="",
+                dimension="evidence", decision="accepted",
+                payload_hash=command_payload_hash("supersede-evidence", review_payload),
+            )
+            snapshot_path = publish_evidence_snapshot(project, bytes_, digest)
+            now = utc_now()
+            replacement = {
+                "id": replacement_id, "outcome": bucket,
+                "project_id": state["instance"]["project_id"],
+                "program_version": state["strategy"]["program_version"],
+                "artifact_path": snapshot_path,
+                "source_artifact_path": source_artifact_path,
+                "artifact_sha256": digest,
+                "snapshot_path": snapshot_path, "snapshot_sha256": digest, "active": True,
+                "supersedes_evidence_id": args.evidence_id, "observed_at": now,
+                "freshness_days": args.freshness_days if args.freshness_days is not None else predecessor.get("freshness_days"),
+                "source": args.source, "decision_impact": args.decision_impact,
+                "author": args.author, "reviewer": args.reviewer,
+                "quality_dimensions": list(args.quality_dimensions) if args.quality_dimensions is not None else list(predecessor.get("quality_dimensions", [])),
+                "reviewer_grant": reviewer_grant,
+            }
+            for field in ("outcome_id", "work_id", "cycle_id", "rubric_version"):
+                value = getattr(args, field, None)
+                if value is None:
+                    value = predecessor.get(field)
+                if value:
+                    replacement[field] = value
+            archived_record = deepcopy(predecessor)
+            archived_record.update({"active": False, "superseded_by_evidence_id": replacement_id, "superseded_at": now})
+            old_snapshot_available = False
+            if evidence_snapshot_fields(archived_record):
+                old_digest = archived_record.get("snapshot_sha256")
+                old_snapshot = project_local_path(project, archived_record.get("snapshot_path"))
+                old_snapshot_available = bool(
+                    isinstance(old_digest, str) and old_snapshot == evidence_snapshot_path(project, old_digest)
+                    and old_snapshot is not None and old_snapshot.is_file() and not old_snapshot.is_symlink()
+                    and sha256_file(old_snapshot) == old_digest
+                )
+                if not old_snapshot_available:
+                    raise ValueError("snapshot-backed predecessor must retain a valid immutable snapshot")
+            candidate = deepcopy(state)
+            candidate["evidence"][bucket][index] = replacement
+            candidate.setdefault("feedback", {}).setdefault("archived_evidence", []).append({
+                "archive_kind": "evidence_supersession",
+                "project_id": state["instance"]["project_id"], "bucket": bucket, "record": archived_record,
+                "old_snapshot_available": old_snapshot_available, "superseded_by_evidence_id": replacement_id,
+                "superseded_at": now, "reason": args.reason, "review_payload": review_payload,
+                "reviewer_grant": reviewer_grant,
+            })
+            clear_quality_scores_citing(candidate, args.evidence_id)
+            candidate["controller"]["validation"] = None
+            candidate["controller"]["validated"] = False
+            candidate["controller"]["schedule_enabled"] = False
+            baseline_errors = set(validate_state(state, expected_project=project)["errors"])
+            candidate_errors = set(validate_state(candidate, expected_project=project)["errors"])
+            evidence_label = f"evidence.{bucket}[{index}]"
+            if not any(error.startswith(evidence_label) for error in baseline_errors):
+                raise ValueError("named predecessor is not invalid and cannot be superseded")
+            remaining_predecessor_errors = sorted(
+                error for error in candidate_errors if error.startswith(evidence_label)
+            )
+            if remaining_predecessor_errors:
+                raise ValueError(
+                    "evidence recovery does not repair the named predecessor: "
+                    + "; ".join(remaining_predecessor_errors)
+                )
+            introduced = candidate_errors - baseline_errors
+            if introduced:
+                raise ValueError("evidence recovery introduces validation errors: " + "; ".join(sorted(introduced)))
+            if len(candidate_errors) >= len(baseline_errors):
+                raise ValueError("evidence recovery did not remove an existing validation error")
+            state["evidence"][bucket][index] = replacement
+            state.setdefault("feedback", {}).setdefault("archived_evidence", []).append(candidate["feedback"]["archived_evidence"][-1])
+            clear_quality_scores_citing(state, args.evidence_id)
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            state["controller"]["schedule_enabled"] = False
+            persist_state_event(
+                project, path, state, "evidence_superseded",
+                predecessor_evidence_id=args.evidence_id,
+                evidence_id=replacement_id,
+                old_artifact_sha256=predecessor.get("artifact_sha256"),
+                new_artifact_sha256=digest,
+                old_snapshot_available=old_snapshot_available,
+                outcome=bucket, reason=args.reason, reviewer=args.reviewer,
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "evidence_id": replacement_id, "superseded_evidence_id": args.evidence_id, "outcome": bucket}))
+    return 0
+
+
 def advance_phase(args: argparse.Namespace) -> int:
     project = Path(args.project).resolve()
     try:
@@ -3153,20 +3592,28 @@ def advance_phase(args: argparse.Namespace) -> int:
                 raise ValueError("current and target phases must be governed phases")
             if PHASES.index(args.phase) != PHASES.index(current) + 1:
                 raise ValueError("phase advancement must move exactly one stage")
+            current_report = validate_state(state, expected_project=project)
+            if state.get("portfolio", {}).get("active_work") and not current_report["quality_ready"]:
+                raise ValueError(f"phase {current} cannot exit before current quality is ready")
             candidate = deepcopy(state)
             candidate["phase"] = args.phase
+            clear_quality_scores(candidate)
             if current == "reality_audit" and args.phase == "intelligence":
                 candidate["controller"]["restart_checkpoint"] = None
             report = validate_state(candidate, expected_project=project)
             phase_errors = [
                 error
                 for error in report["errors"]
-                if error.startswith(f"phase {args.phase}")
-                or error.startswith("evidence.")
+                if error.startswith("evidence.")
+                or (
+                    error.startswith(f"phase {args.phase}")
+                    and "requires complete applicable quality evidence" not in error
+                )
             ]
             if phase_errors:
                 raise ValueError("; ".join(phase_errors))
             state["phase"] = args.phase
+            clear_quality_scores(state)
             if current == "reality_audit" and args.phase == "intelligence":
                 state["controller"]["restart_checkpoint"] = None
             state["controller"]["validation"] = None
@@ -3358,7 +3805,7 @@ def score_quality(args: argparse.Namespace) -> int:
                 item.get("id"): item
                 for bucket in state["evidence"].values()
                 for item in bucket
-                if isinstance(item, dict)
+                if isinstance(item, dict) and evidence_is_active(item)
             }
             for evidence_id in args.evidence_ids:
                 item = known.get(evidence_id)
@@ -3710,20 +4157,22 @@ def validate_completion_evidence(
         item.get("id"): item
         for bucket in state.get("evidence", {}).values()
         for item in bucket
-        if isinstance(item, dict)
+        if isinstance(item, dict) and evidence_is_active(item)
     }
     now = datetime.now(timezone.utc)
     for evidence_id in evidence_ids:
         item = evidence_by_id.get(evidence_id)
         if not item:
             raise ValueError("cycle outcome requires recorded project evidence")
-        artifact = project_local_path(project, item.get("artifact_path"))
+        artifact = project_local_path(project, item.get("snapshot_path")) if evidence_snapshot_fields(item) else project_local_path(project, item.get("artifact_path"))
+        expected_digest = item.get("snapshot_sha256") if evidence_snapshot_fields(item) else item.get("artifact_sha256")
         freshness_errors: list[str] = []
         observed = parse_time(item.get("observed_at"), "completion evidence observed_at", freshness_errors)
         if (
             artifact is None
+            or artifact.is_symlink()
             or not artifact.is_file()
-            or item.get("artifact_sha256") != sha256_file(artifact)
+            or expected_digest != sha256_file(artifact)
             or freshness_errors
             or not isinstance(item.get("freshness_days"), int)
             or not observed
@@ -4617,6 +5066,24 @@ def build_parser() -> argparse.ArgumentParser:
     evidence_parser.add_argument("--rubric-version")
     evidence_parser.add_argument("--id")
     evidence_parser.set_defaults(handler=record_evidence)
+    supersede_parser = subparsers.add_parser("supersede-evidence", help="archive drifted evidence and record its immutable successor")
+    supersede_parser.add_argument("--project", required=True)
+    supersede_parser.add_argument("--evidence-id", required=True)
+    supersede_parser.add_argument("--artifact", required=True)
+    supersede_parser.add_argument("--source", required=True)
+    supersede_parser.add_argument("--decision-impact", required=True)
+    supersede_parser.add_argument("--author", required=True)
+    supersede_parser.add_argument("--reviewer", required=True)
+    supersede_parser.add_argument("--reviewer-grant", required=True)
+    supersede_parser.add_argument("--reason", required=True)
+    supersede_parser.add_argument("--freshness-days", type=int)
+    supersede_parser.add_argument("--quality-dimensions", nargs="*", default=None)
+    supersede_parser.add_argument("--outcome-id")
+    supersede_parser.add_argument("--work-id")
+    supersede_parser.add_argument("--cycle-id")
+    supersede_parser.add_argument("--rubric-version")
+    supersede_parser.add_argument("--id", required=True)
+    supersede_parser.set_defaults(handler=supersede_evidence)
     phase_parser = subparsers.add_parser("advance-phase", help="advance exactly one evidenced phase")
     phase_parser.add_argument("--project", required=True)
     phase_parser.add_argument("--phase", choices=PHASES, required=True)
@@ -4819,6 +5286,7 @@ def build_parser() -> argparse.ArgumentParser:
         replace_parser,
         cancel_parser,
         evidence_parser,
+        supersede_parser,
         phase_parser,
         outcome_parser,
         work_parser,

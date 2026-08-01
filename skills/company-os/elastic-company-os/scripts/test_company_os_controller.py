@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import base64
+import io
 import json
 import os
 import subprocess
@@ -12,6 +13,7 @@ import unittest
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from contextlib import redirect_stdout
 
 MODULE_PATH = Path(__file__).with_name("company_os_controller.py")
 SPEC = importlib.util.spec_from_file_location("company_os_controller", MODULE_PATH)
@@ -1595,6 +1597,310 @@ class ControllerTests(unittest.TestCase):
         directory.mkdir(exist_ok=True)
         controller.atomic_write_json(directory / "control.json", state)
         (directory / "events.jsonl").write_text("", encoding="utf-8")
+
+    def supersession_args(
+        self,
+        state: dict,
+        evidence_id: str,
+        artifact: Path,
+        replacement_id: str,
+        *,
+        reviewer_grant: bool = True,
+    ) -> object:
+        bucket, predecessor = next(
+            (bucket, item)
+            for bucket in controller.EVIDENCE_BUCKETS
+            for item in state["evidence"][bucket]
+            if item["id"] == evidence_id
+        )
+        args = namespace(
+            project=str(self.project), evidence_id=evidence_id,
+            artifact=str(artifact.relative_to(self.project)), source="repair",
+            decision_impact="restore evidence integrity", author="repair-author",
+            reviewer="repair-reviewer", reason="replace invalid current evidence",
+            freshness_days=None, quality_dimensions=None, outcome_id=None,
+            work_id=None, cycle_id=None, rubric_version=None, id=replacement_id,
+            reviewer_grant="",
+        )
+        review_payload = controller.supersede_evidence_review_payload(
+            args,
+            predecessor=predecessor,
+            replacement_id=replacement_id,
+            artifact_digest=controller.sha256_file(artifact),
+            bucket=bucket,
+            source_artifact_path=str(artifact.relative_to(self.project)),
+        )
+        if reviewer_grant:
+            args.reviewer_grant = self.grant(
+                "repair-reviewer", "supersede-evidence", resource=f"evidence:{evidence_id}",
+                work_id="", cycle_id="", dimension="evidence", decision="accepted",
+                payload_hash=controller.command_payload_hash("supersede-evidence", review_payload),
+            )
+        return args
+
+    def test_snapshot_evidence_remains_valid_when_descriptive_source_drifts(self) -> None:
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        state["portfolio"]["active_work"] = []
+        self.write_state(state)
+        artifact = self.project / "snapshot-source.md"
+        artifact.write_text("immutable source\n", encoding="utf-8")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.record_evidence(namespace(
+                project=str(self.project), outcome="reality", artifact=artifact.name,
+                source="test", decision_impact="test snapshot", author="author", reviewer="reviewer",
+                freshness_days=30, quality_dimensions=[], outcome_id=None, work_id=None, cycle_id=None,
+                rubric_version=None, id="snapshot-source",
+            )), 0)
+        artifact.write_text("drifted descriptive source\n", encoding="utf-8")
+        recorded = controller.load_json(self.project / ".company-os" / "control.json")
+        item = next(item for item in recorded["evidence"]["reality"] if item["id"] == "snapshot-source")
+        self.assertTrue((self.project / item["snapshot_path"]).is_file())
+        self.assertFalse(any("snapshot-source" in error for error in self.report(recorded)["errors"]))
+
+    def test_inactive_evidence_cannot_remain_in_the_current_collection(self) -> None:
+        state = self.valid_state()
+        state["evidence"]["reality"][0]["active"] = False
+        self.assertTrue(any(
+            "inactive and must be retained only in archived evidence" in error
+            for error in self.report(state)["errors"]
+        ))
+
+    def test_legacy_evidence_recovery_archives_and_replaces_same_bucket_index(self) -> None:
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        state["portfolio"]["active_work"] = []
+        legacy = state["evidence"]["reality"][0]
+        legacy["id"] = "legacy-drift"
+        legacy_path = self.project / legacy["artifact_path"]
+        legacy_path.write_text("drifted legacy source\n", encoding="utf-8")
+        self.write_state(state)
+        args = self.supersession_args(state, "legacy-drift", legacy_path, "legacy-repaired")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.supersede_evidence(args), 0)
+        repaired = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(repaired["evidence"]["reality"][0]["id"], "legacy-repaired")
+        archived = repaired["feedback"]["archived_evidence"][-1]
+        self.assertEqual(archived["record"]["id"], "legacy-drift")
+        self.assertFalse(archived["old_snapshot_available"])
+        self.assertEqual(repaired["evidence"]["reality"][0]["supersedes_evidence_id"], "legacy-drift")
+
+    def test_snapshot_supersession_chain_retains_every_reviewed_transition(self) -> None:
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        state["portfolio"]["active_work"] = []
+        old = state["evidence"]["reality"][0]
+        old["id"] = "chain-a"
+        source = self.project / old["artifact_path"]
+        source.write_text("chain b\n", encoding="utf-8")
+        self.write_state(state)
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.supersede_evidence(
+                    self.supersession_args(state, "chain-a", source, "chain-b")
+                ),
+                0,
+            )
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        state["evidence"]["reality"][0]["observed_at"] = (
+            datetime.now(timezone.utc) - timedelta(days=400)
+        ).isoformat()
+        source.write_text("chain c\n", encoding="utf-8")
+        self.write_state(state)
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.supersede_evidence(
+                    self.supersession_args(state, "chain-b", source, "chain-c")
+                ),
+                0,
+            )
+        repaired = controller.load_json(self.project / ".company-os" / "control.json")
+        archives = {
+            item["record"]["id"]: item
+            for item in repaired["feedback"]["archived_evidence"]
+            if item.get("archive_kind") == "evidence_supersession"
+        }
+        self.assertEqual(archives["chain-a"]["superseded_by_evidence_id"], "chain-b")
+        self.assertEqual(archives["chain-b"]["superseded_by_evidence_id"], "chain-c")
+        self.assertTrue(archives["chain-b"]["old_snapshot_available"])
+        self.assertFalse(any("supersession" in error for error in self.report(repaired)["errors"]))
+
+    def test_supersession_requires_an_exact_independent_grant(self) -> None:
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        state["portfolio"]["active_work"] = []
+        old = state["evidence"]["reality"][0]
+        old["id"] = "grant-drift"
+        source = self.project / old["artifact_path"]
+        source.write_text("grant drift\n", encoding="utf-8")
+        self.write_state(state)
+        missing = self.supersession_args(
+            state, "grant-drift", source, "grant-replacement", reviewer_grant=False
+        )
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.supersede_evidence(missing), 2)
+        valid = self.supersession_args(state, "grant-drift", source, "grant-replacement")
+        valid.reviewer_grant = self.rewrite_grant(valid.reviewer_grant, decision="rejected")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.supersede_evidence(valid), 2)
+        unchanged = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(unchanged["evidence"]["reality"][0]["id"], "grant-drift")
+        self.assertEqual(unchanged["feedback"]["archived_evidence"], [])
+
+    def test_supersession_refuses_unsafe_runtime_states_and_terminal_references(self) -> None:
+        def attempt(mutator: object) -> None:
+            state = self.valid_state()
+            state["instance"]["status"] = "paused"
+            state["portfolio"]["active_work"] = []
+            old = state["evidence"]["reality"][0]
+            old["id"] = "gated-drift"
+            source = self.project / old["artifact_path"]
+            source.write_text("gated drift\n", encoding="utf-8")
+            mutator(state)
+            self.write_state(state)
+            args = self.supersession_args(
+                state, "gated-drift", source, "gated-replacement", reviewer_grant=False
+            )
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(controller.supersede_evidence(args), 2)
+            retained = controller.load_json(self.project / ".company-os" / "control.json")
+            self.assertEqual(retained["evidence"]["reality"][0]["id"], "gated-drift")
+
+        gates = {
+            "active instance": lambda state: state["instance"].update(status="active"),
+            "enabled schedule": lambda state: state["controller"].update(schedule_enabled=True),
+            "active lease": lambda state: state["controller"].update(lease={"lease_id": "held"}),
+            "cancellation": lambda state: state["controller"].update(cancellation_requested=True),
+            "running cycle": lambda state: state["feedback"]["cycles"].append(
+                {"id": "running", "status": "running"}
+            ),
+            "completed reference": lambda state: state["feedback"]["cycles"].append(
+                {"id": "done", "status": "completed", "evidence_ids": ["gated-drift"]}
+            ),
+            "accepted fabric reference": lambda state: state["execution_fabric"].update(
+                status="accepted",
+                managers={
+                    "manager": {
+                        "reports": [
+                            {"report": {"evidence_ids": ["gated-drift"]}}
+                        ]
+                    }
+                },
+            ),
+        }
+        for label, mutator in gates.items():
+            with self.subTest(label=label):
+                attempt(mutator)
+
+    def test_supersession_clears_only_quality_that_cites_the_predecessor(self) -> None:
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        old = state["evidence"]["verification"][0]
+        old["id"] = "quality-drift"
+        for dimension in state["quality"]["dimensions"].values():
+            dimension["evidence"] = ["quality-drift"]
+        source = self.project / old["artifact_path"]
+        source.write_text("updated quality evidence\n", encoding="utf-8")
+        self.write_state(state)
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.supersede_evidence(
+                    self.supersession_args(state, "quality-drift", source, "quality-repaired")
+                ),
+                0,
+            )
+        repaired = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertTrue(all(
+            item["score"] is None and item["evidence"] == []
+            for item in repaired["quality"]["dimensions"].values()
+        ))
+        self.assertFalse(self.report(repaired)["quality_ready"])
+
+    def test_missing_or_corrupt_snapshot_fails_closed(self) -> None:
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        state["portfolio"]["active_work"] = []
+        self.write_state(state)
+        source = self.project / "snapshot-integrity.md"
+        source.write_text("trusted bytes\n", encoding="utf-8")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.record_evidence(namespace(
+                project=str(self.project), outcome="reality", artifact=source.name,
+                source="test", decision_impact="snapshot integrity", author="author",
+                reviewer="reviewer", freshness_days=30, quality_dimensions=[],
+                outcome_id=None, work_id=None, cycle_id=None, rubric_version=None,
+                id="snapshot-integrity",
+            )), 0)
+        recorded = controller.load_json(self.project / ".company-os" / "control.json")
+        item = next(
+            item for item in recorded["evidence"]["reality"]
+            if item["id"] == "snapshot-integrity"
+        )
+        snapshot = self.project / item["snapshot_path"]
+        snapshot.write_text("substituted bytes\n", encoding="utf-8")
+        self.assertTrue(any(
+            "snapshot_sha256 does not match" in error
+            for error in self.report(recorded)["errors"]
+        ))
+        snapshot.unlink()
+        self.assertTrue(any(
+            "snapshot_path does not exist" in error
+            for error in self.report(recorded)["errors"]
+        ))
+
+    def test_noncritical_quality_must_reach_eight_and_phase_exit_requires_quality(self) -> None:
+        state = self.valid_state()
+        state["phase"] = "intelligence"
+        state["quality"]["dimensions"]["counterevidence"]["score"] = 7.9
+        report = self.report(state)
+        self.assertIn("quality dimension counterevidence is below 8", report["errors"])
+
+        state = self.valid_state()
+        state["phase"] = "experience"
+        state["instance"]["status"] = "paused"
+        state["quality"]["dimensions"]["user_value"]["score"] = None
+        self.write_state(state)
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.advance_phase(namespace(project=str(self.project), phase="delivery")),
+                2,
+            )
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(retained["phase"], "experience")
+
+    def test_content_address_publish_is_replay_safe_and_never_overwrites(self) -> None:
+        content = b"immutable evidence\n"
+        digest = controller._bytes_sha256(content)
+        first = controller.publish_evidence_snapshot(self.project, content, digest)
+        second = controller.publish_evidence_snapshot(self.project, content, digest)
+        self.assertEqual(first, second)
+        target = self.project / first
+        target.write_bytes(b"hostile substitution\n")
+        with self.assertRaisesRegex(ValueError, "bytes do not match"):
+            controller.publish_evidence_snapshot(self.project, content, digest)
+        self.assertEqual(target.read_bytes(), b"hostile substitution\n")
+
+    def test_failed_supersession_leaves_only_an_unauthoritative_orphan_snapshot(self) -> None:
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        state["portfolio"]["active_work"] = []
+        old = state["evidence"]["reality"][0]
+        old["id"] = "still-valid"
+        self.write_state(state)
+        source = self.project / "unnecessary-replacement.md"
+        source.write_text("new but unnecessary evidence\n", encoding="utf-8")
+        args = self.supersession_args(state, "still-valid", source, "must-not-commit")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.supersede_evidence(args), 2)
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(retained["evidence"]["reality"][0]["id"], "still-valid")
+        self.assertFalse(any(
+            item.get("id") == "must-not-commit"
+            for bucket in retained["evidence"].values()
+            for item in bucket
+        ))
+        digest = controller.sha256_file(source)
+        self.assertTrue(controller.evidence_snapshot_path(self.project, digest).is_file())
 
     def assert_atomic_lease_rejection(self, transition: str, failure: str) -> None:
         state = self.valid_state()

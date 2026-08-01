@@ -92,7 +92,8 @@ Every evidence item must include:
 
 - a unique ID and matching progress outcome;
 - the current project ID and program version;
-- a project-local inspectable artifact path and matching SHA-256 digest;
+- an immutable project-local SHA-256 content address and matching digest, plus
+  the descriptive project-local source path;
 - observation time and bounded freshness;
 - source and explicit decision impact;
 - different author and reviewer;
@@ -101,6 +102,17 @@ Every evidence item must include:
 Evidence used to complete work must additionally bind `outcome_id`, `work_id`, `cycle_id`, and `rubric_version`. Every applicable quality score and cited artifact must match the current primary outcome, work, and accepted phase checkpoint/cycle. Changing the primary clears prior quality applicability. Capability and innovation work reference a committed outcome. P0 work is the only interruption type and requires separately authenticated incident and independent approval grants.
 
 Quality scores require dimension-specific evidence, a rubric version, separately authenticated scorer and reviewer identities, and a different reviewer. The certifier cannot be any work owner, evidence author/reviewer, completion reviewer, scorer, or quality reviewer. A non-empty object, generic evidence string, or repeated unsupported score is not evidence.
+
+New evidence records bind immutable snapshot bytes rather than a mutable source
+file. A legacy source-bound record or a snapshot-backed record that becomes
+invalid may be superseded only through a paused, unscheduled, lease-free,
+uncancelled, cycle-idle transition signed by an independent reviewer. The
+review binds both digests, both IDs, the exact replacement metadata and
+bindings, bucket, source path, and reason. The predecessor and full signed
+transition remain in a linear audited history. Evidence referenced by a
+completed cycle or accepted execution-fabric report is terminal and cannot be
+superseded. Dependent quality scores are invalidated rather than silently
+retargeted.
 
 Changing the north star, current outcome, or success metric requires `replace-program`. That command increments the program version, revokes the active lease, cancels stale work, archives prior evidence, invalidates certification, disables scheduling, and returns the instance to a paused reality audit.
 
@@ -113,7 +125,7 @@ Changing the north star, current outcome, or success metric requires `replace-pr
 - Active work: at most three items, with one primary vertical slice. Scheduler readiness requires exactly one ready primary item. Maintenance and enablers are never primary; use the existing typed `p0` work type for a genuine interruption.
 - Meta-loop depth: one.
 - Scheduler: one controller per project, gated by an independently verified protected launcher/issuer boundary outside the standalone controller.
-- Quality: certification requires independently reviewed, dimension-specific evidence and scores for the deterministic dimensions applicable to the current phase and primary work. Every applicable critical dimension must score at least 9/10; future production dimensions do not gate an experience prototype.
+- Quality: certification requires independently reviewed, dimension-specific evidence and scores for the deterministic dimensions applicable to the current phase and primary work. Every applicable critical dimension must score at least 9/10 and every applicable noncritical dimension at least 8/10; future production dimensions do not gate an experience prototype. Active work cannot leave its current phase before that gate passes, and entering the next phase clears prior scores.
 
 Change project allocations only through an independently reviewed instance adaptation. The core ceilings remain binding.
 

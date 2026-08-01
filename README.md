@@ -7,8 +7,10 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version `0.3.0` adds a project-local transactional authority to the canonical
-source and schema-9/core-2.6 observation trust boundary. New instances use
+Version `0.3.1` adds immutable, content-addressed evidence snapshots, signed
+and fully audited evidence supersession, and enforced phase-exit quality gates
+to the project-local transactional authority and schema-9/core-2.6 observation
+trust boundary. New instances use
 SQLite with full synchronous durability and WAL concurrency; existing valid
 schema-9 instances migrate explicitly. State revisions, ordered audit events,
 projections, trusted observation inboxes, effect outboxes, command

@@ -22,6 +22,15 @@ idempotent commands, cancellation precedence, retries, and recovery. The JSON
 view becomes an export. Exit requires crash, replay, concurrency, and tenant
 isolation fault matrices.
 
+## Phase 1C — Durable evidence and phase integrity
+
+Publish evidence into immutable project-local content addresses, retain signed
+linear supersession history, recover legacy source-bound drift without erasing
+it, invalidate dependent quality scores, and require current-phase quality
+before phase exit. Exit requires corruption, missing snapshot, replay,
+authorization, unsafe-state, terminal-reference, repeated-supersession, crash
+orphan, quality invalidation, and 8/9 threshold tests.
+
 ## Phase 2 — Provider-authenticated execution
 
 Add a provider-neutral runtime gateway to the canonical observation boundary.

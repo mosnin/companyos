@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.3.0",
+  "distribution_version": "0.3.1",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -47,8 +47,8 @@
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
-      "sha256": "c622a7c731c7987a977d43d4808bb3cd25512e20c8937daa734b25a4972905f6",
-      "size": 14193
+      "sha256": "d041a31d5e121194a888d8044b417418fde67df2dd6d46080cea4d30ba20b548",
+      "size": 14858
     },
     {
       "path": "company-os/elastic-company-os/agents/openai.yaml",
@@ -62,13 +62,13 @@
     },
     {
       "path": "company-os/elastic-company-os/references/control-contract.md",
-      "sha256": "22ceb2c503d6cfe30d6b04689cdbfddfe92f69d8af63f9216dac3c89e42e283e",
-      "size": 12013
+      "sha256": "d69bed5fe4b85ae163bca5af47cf534bbe3d2d0cb350913d598c99a7a2953c6a",
+      "size": 12926
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "8bb0510f53d6c720829b9afc8a7b33d1cf122fac00316ea24f3d5131a8ac95dd",
-      "size": 239448
+      "sha256": "bf9feb1406abee8c38bb8a262b0f15025b7724f84a4b99376e6fcd0108c20f39",
+      "size": 267343
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
@@ -82,13 +82,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "c5b6e4a53bf851bf1f45ac6884ec4526cde8bdb063b281457341d086deb4a9be",
-      "size": 143218
+      "sha256": "6b60a2a211d25b33542a1dc40e052797ecd4c746792e36f6d64982199bab1034",
+      "size": 158601
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "0fcc3bfd24820cf340f357b60e86d5713330fe828f47055ebd59894212786877",
-      "size": 30474
+      "sha256": "f842625c99cfe9de2d7cfaa8981b1928973c9603255aa9b2f38c878b0d1acd8d",
+      "size": 32924
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",

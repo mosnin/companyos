@@ -460,6 +460,52 @@ class ControlStoreTests(unittest.TestCase):
             self.assertEqual(controller.main(), 2)
         self.assertEqual(store.load(self.project)[0], 2)
 
+    def test_supersede_evidence_cli_retry_is_exact_across_restart_and_conflicts_fail_closed(self) -> None:
+        state = self.fixture.valid_state()
+        state["instance"]["status"] = "paused"
+        state["portfolio"]["active_work"] = []
+        state["controller"]["validation"] = None
+        state["controller"]["validated"] = False
+        predecessor = state["evidence"]["reality"][0]
+        predecessor["id"] = "transactional-drift"
+        source = self.project / predecessor["artifact_path"]
+        self.fixture.write_state(state)
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.migrate_control_store(
+                    type("Args", (), {"project": str(self.project)})()
+                ),
+                0,
+            )
+        source.write_text("transactional replacement\n", encoding="utf-8")
+        args = self.fixture.supersession_args(
+            state, "transactional-drift", source, "transactional-repaired"
+        )
+        command = [
+            "company-os", "supersede-evidence", "--project", str(self.project),
+            "--evidence-id", args.evidence_id, "--artifact", args.artifact,
+            "--source", args.source, "--decision-impact", args.decision_impact,
+            "--author", args.author, "--reviewer", args.reviewer,
+            "--reviewer-grant", args.reviewer_grant, "--reason", args.reason,
+            "--id", args.id, "--command-key", "supersede-once",
+        ]
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(first := io.StringIO()):
+            self.assertEqual(controller.main(), 0)
+        self.assertEqual(store.load(self.project)[0], 2)
+
+        # Reopen through main/store lookup to prove the acknowledgment survives
+        # the original command transaction and no grant is consumed twice.
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(replay := io.StringIO()):
+            self.assertEqual(controller.main(), 0)
+        self.assertEqual(first.getvalue(), replay.getvalue())
+        self.assertEqual(store.load(self.project)[0], 2)
+
+        conflicting = list(command)
+        conflicting[conflicting.index(args.reason)] = "different repair reason"
+        with mock.patch.object(controller.sys, "argv", conflicting), redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.main(), 2)
+        self.assertEqual(store.load(self.project)[0], 2)
+
     def test_forged_replay_result_is_rejected_even_with_recomputed_hash(self) -> None:
         self.migrate_valid_state()
         command = [
