@@ -1,0 +1,4349 @@
+#!/usr/bin/env python3
+"""Deterministic validator/bootstrapper for isolated Elastic Company OS instances."""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import fcntl
+import hashlib
+import importlib.util
+import json
+import math
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import unicodedata
+import uuid
+from contextlib import contextmanager
+from copy import deepcopy
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Any, Iterator
+
+PHASES = (
+    "reality_audit",
+    "intelligence",
+    "direction",
+    "experience",
+    "delivery",
+    "verification",
+    "learning",
+)
+
+PHASE_EVIDENCE = {
+    "reality_audit": ("reality",),
+    "intelligence": ("reality", "intelligence"),
+    "direction": ("reality", "intelligence", "direction"),
+    "experience": ("reality", "intelligence", "direction", "experience"),
+    "delivery": ("reality", "intelligence", "direction", "experience", "delivery"),
+    "verification": (
+        "reality",
+        "intelligence",
+        "direction",
+        "experience",
+        "delivery",
+        "verification",
+    ),
+    "learning": (
+        "reality",
+        "intelligence",
+        "direction",
+        "experience",
+        "delivery",
+        "verification",
+        "learning",
+    ),
+}
+
+BASE_DIMENSIONS = {
+    "north_star_alignment": True,
+    "user_value": True,
+    "product_coherence": True,
+    "differentiation": True,
+    "innovation": True,
+    "domain_fit": True,
+    "customer_evidence": False,
+    "technology_currency": True,
+    "counterevidence": False,
+    "information_architecture": True,
+    "usability": True,
+    "accessibility": True,
+    "interaction_quality": True,
+    "visual_quality": True,
+    "motion_quality": False,
+    "brand_cohesion": True,
+    "agent_intelligence": True,
+    "agent_controllability": True,
+    "agent_transparency": True,
+    "context_quality": True,
+    "tool_appropriateness": True,
+    "artifact_quality": True,
+    "autonomy_value": True,
+    "security": True,
+    "privacy": True,
+    "reliability": True,
+    "latency": True,
+    "cost_efficiency": True,
+    "token_efficiency": False,
+    "maintainability": True,
+    "test_strength": True,
+    "observability": True,
+    "rollback_readiness": True,
+    "adoption_potential": True,
+    "commercial_leverage": True,
+    "operational_readiness": True,
+    "feedback_health": True,
+    "evidence_integrity": True,
+}
+
+# Certification evaluates only the dimensions that can be meaningfully evidenced
+# in the current phase. Delivery-only dimensions must not block an inspectable
+# experience prototype, while a P0 interruption always carries its own safety
+# gate.
+PHASE_QUALITY_DIMENSIONS = {
+    "reality_audit": {
+        "north_star_alignment",
+        "domain_fit",
+        "evidence_integrity",
+    },
+    "intelligence": {
+        "north_star_alignment",
+        "domain_fit",
+        "technology_currency",
+        "counterevidence",
+        "evidence_integrity",
+    },
+    "direction": {
+        "north_star_alignment",
+        "user_value",
+        "product_coherence",
+        "differentiation",
+        "innovation",
+        "domain_fit",
+        "technology_currency",
+        "counterevidence",
+        "evidence_integrity",
+    },
+    "experience": {
+        "north_star_alignment",
+        "user_value",
+        "product_coherence",
+        "differentiation",
+        "innovation",
+        "domain_fit",
+        "information_architecture",
+        "usability",
+        "accessibility",
+        "interaction_quality",
+        "visual_quality",
+        "brand_cohesion",
+        "evidence_integrity",
+    },
+    "delivery": {
+        "north_star_alignment",
+        "user_value",
+        "product_coherence",
+        "information_architecture",
+        "usability",
+        "accessibility",
+        "interaction_quality",
+        "visual_quality",
+        "brand_cohesion",
+        "security",
+        "privacy",
+        "reliability",
+        "latency",
+        "cost_efficiency",
+        "maintainability",
+        "test_strength",
+        "observability",
+        "rollback_readiness",
+        "evidence_integrity",
+    },
+    "verification": {
+        "north_star_alignment",
+        "user_value",
+        "product_coherence",
+        "information_architecture",
+        "usability",
+        "accessibility",
+        "interaction_quality",
+        "visual_quality",
+        "brand_cohesion",
+        "security",
+        "privacy",
+        "reliability",
+        "latency",
+        "cost_efficiency",
+        "maintainability",
+        "test_strength",
+        "observability",
+        "rollback_readiness",
+        "adoption_potential",
+        "operational_readiness",
+        "feedback_health",
+        "evidence_integrity",
+    },
+    "learning": {
+        "north_star_alignment",
+        "user_value",
+        "product_coherence",
+        "information_architecture",
+        "usability",
+        "accessibility",
+        "interaction_quality",
+        "visual_quality",
+        "brand_cohesion",
+        "security",
+        "privacy",
+        "reliability",
+        "latency",
+        "cost_efficiency",
+        "maintainability",
+        "test_strength",
+        "observability",
+        "rollback_readiness",
+        "adoption_potential",
+        "operational_readiness",
+        "feedback_health",
+        "evidence_integrity",
+    },
+}
+
+DELIVERY_WORK_QUALITY_DIMENSIONS = {
+    "capability": {"adoption_potential", "commercial_leverage"},
+    "innovation": {"innovation", "adoption_potential"},
+    "enabler": {"tool_appropriateness", "artifact_quality"},
+    "maintenance": {"reliability", "maintainability", "observability"},
+    "p0": {"security", "privacy", "reliability", "observability", "rollback_readiness"},
+}
+
+DEPARTMENT_PRESETS = {
+    "software": ["strategy", "product", "design", "engineering", "research", "commercial", "operations"],
+    "service": ["strategy", "service-design", "delivery", "customer-success", "commercial", "operations"],
+    "research": ["strategy", "research", "evidence-review", "product", "operations"],
+    "content": ["strategy", "editorial", "creative", "distribution", "commercial", "operations"],
+    "general": ["strategy", "product", "delivery", "commercial", "operations"],
+}
+
+ALLOWED_WORK_TYPES = {"capability", "innovation", "enabler", "maintenance", "p0"}
+PRODUCT_OUTCOMES = {"reality", "intelligence", "experience", "capability", "learning", "adaptation"}
+ACTIVE_WORK_STATUSES = {"ready", "running", "blocked"}
+INSTANCE_STATUSES = {"paused", "active", "cancelled"}
+EVIDENCE_BUCKETS = tuple(PHASE_EVIDENCE["learning"])
+FABRIC_PHASES = (
+    "charter",
+    "discovery",
+    "design",
+    "execution",
+    "verification",
+    "integration",
+)
+FABRIC_DECISIONS = {"continue", "rework", "pause", "terminate"}
+FABRIC_STATUSES = {"unconfigured", "ready", "running", "accepted", "paused", "terminated", "cancelled"}
+PROTECTED_ADAPTATION_FIELDS = {
+    "north_star",
+    "authority",
+    "approval_boundaries",
+    "cancellation_precedence",
+    "evidence_integrity",
+    "cross_project_isolation",
+    "meta_loop_depth",
+}
+CORE_VERSION = "2.5.0"
+SCHEMA_VERSION = 8
+ACTOR_PUBLIC_KEY_ENV = "COMPANY_OS_ACTOR_GRANT_PUBLIC_KEY"
+RUNTIME_GATEWAY_PUBLIC_KEY_ENV = "COMPANY_OS_RUNTIME_GATEWAY_PUBLIC_KEY"
+# Frozen SHA-256 of the accepted Company OS Self-Hosting Phase 2 revision 2
+# contract.  This controller stores neither decision-issuer private material nor
+# provider credentials; the separately signed admission grant authorizes a
+# single attempt under this public contract identity.
+PHASE2_CONTRACT_DIGEST = "b83f727e472c95911a60757efb0769a0c39acf11f0c8a7051e1056e34b8b8348"
+LEASE_TRANSITIONS = frozenset({
+    "begin-cycle", "finish-cycle", "resolve-cycle", "release-lease",
+    "record-fabric-phase", "decide-fabric-phase",
+    "admit-runtime-attempt",
+})
+RUNTIME_AUDIT_ERROR_PREFIXES = (
+    "runtime_adapter",
+    "runtime adapter",
+    "runtime attempt",
+    "runtime admission",
+    "manager runtime",
+    "worker runtime",
+    "admission-only runtime",
+)
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or "project"
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        value = json.load(handle)
+    if not isinstance(value, dict):
+        raise ValueError(f"{path} must contain a JSON object")
+    return value
+
+
+def state_path(project: Path) -> Path:
+    return project.resolve() / ".company-os" / "control.json"
+
+
+def template_path() -> Path:
+    return Path(__file__).resolve().parent.parent / "assets" / "instance-template.json"
+
+
+def canonical_json(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def empty_execution_fabric(program_version: int) -> dict[str, Any]:
+    return {
+        "enabled": False,
+        "status": "unconfigured",
+        "program_version": program_version,
+        "work_id": None,
+        "cycle_id": None,
+        "manifest": None,
+        "manifest_digest": None,
+        "configured_at": None,
+        "managers": {},
+        "decisions": [],
+        "cancelled_at": None,
+        "cancellation_reason": None,
+    }
+
+
+def empty_runtime_adapter(program_version: int) -> dict[str, Any]:
+    return {"enabled": False, "status": "disabled", "program_version": program_version,
+            "gateway_public_key_env": RUNTIME_GATEWAY_PUBLIC_KEY_ENV,
+            "phase2_contract_digest": PHASE2_CONTRACT_DIGEST,
+            "provider_allowlist": [], "attempts": []}
+
+
+def canonical_runtime_scopes(value: Any) -> list[str]:
+    """Canonicalize a full lexical scope set using the fabric's NFC/casefold rules."""
+    if not isinstance(value, list) or not value:
+        raise ValueError("scope must be a non-empty array")
+    canonical: list[str] = []
+    for raw in value:
+        if (
+            not isinstance(raw, str) or not raw or raw.startswith("/") or "\\" in raw
+            or (len(raw) >= 3 and raw[0].isalpha() and raw[1:3] == ":/")
+            or raw != raw.strip() or "//" in raw
+        ):
+            raise ValueError("scope must contain non-empty relative slash paths without aliases")
+        parts = raw.split("/")
+        if any(part in {"", ".", ".."} for part in parts):
+            raise ValueError("scope must not contain empty, dot, or traversal segments")
+        item = unicodedata.normalize("NFC", "/".join(parts)).casefold()
+        if any(other == item or other.startswith(item + "/") or item.startswith(other + "/") for other in canonical):
+            raise ValueError("scope contains duplicate or parent/child collisions")
+        canonical.append(item)
+    return sorted(canonical)
+
+
+def runtime_admission_payload(
+    args: Any, *, scope: list[str], budget: dict[str, Any], lease: dict[str, Any]
+) -> dict[str, Any]:
+    """The immutable launch-intent claims, before non-authoritative metadata.
+
+    ``attempt_id`` identifies one execution attempt.  It is deliberately
+    distinct from ``manifest_identity_id``: a manifest role can be attempted
+    again only in a new governed cycle, while a retry of this launch intent is
+    recognized exclusively by its idempotency key and exact payload.
+    """
+    return {
+        "attempt_id": args.attempt_id,
+        "manifest_identity_id": args.manifest_identity_id,
+        "work_id": args.work_id,
+        "cycle_id": args.cycle_id,
+        "parent_runtime_id": args.parent_runtime_id,
+        "role": args.role,
+        "requested_model": args.requested_model,
+        "provider": args.provider,
+        "surface": args.surface,
+        "account": args.account,
+        "scope": scope,
+        "scope_digest": hashlib.sha256(canonical_json(scope).encode("utf-8")).hexdigest(),
+        "budget": budget,
+        "fabric_manifest_digest": args.fabric_manifest_digest,
+        "phase2_contract_digest": args.contract_digest,
+        "idempotency_key": args.idempotency_key,
+        "admitted_by": args.admitted_by,
+        "lease_fence": {
+            "lease_id": lease.get("lease_id"),
+            "generation": lease.get("generation"),
+            "owner": lease.get("owner"),
+            "program_version": lease.get("program_version"),
+            "expires_at": lease.get("expires_at"),
+            "allowed_transitions": sorted(lease.get("allowed_transitions", [])),
+        },
+    }
+
+
+def retained_runtime_admission_payload(attempt: dict[str, Any]) -> dict[str, Any]:
+    """Reconstruct the exact signed admission intent from a retained record."""
+    fields = (
+        "attempt_id", "manifest_identity_id", "work_id", "cycle_id", "parent_runtime_id",
+        "role", "requested_model", "provider", "surface", "account", "scope", "scope_digest",
+        "budget", "fabric_manifest_digest", "phase2_contract_digest", "idempotency_key",
+        "admitted_by", "lease_fence",
+    )
+    return {field: attempt.get(field) for field in fields}
+
+
+def fabric_validator_path() -> Path:
+    return (
+        Path(__file__).resolve().parents[3]
+        / "autonomy-suite"
+        / "orchestration"
+        / "luna-execution-fabric"
+        / "scripts"
+        / "validate_fabric.py"
+    )
+
+
+def validate_fabric_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
+    validator = fabric_validator_path()
+    if not validator.is_file():
+        return {
+            "valid": False,
+            "errors": [f"Luna Execution Fabric validator is unavailable: {validator}"],
+            "warnings": [],
+            "summary": {},
+        }
+    spec = importlib.util.spec_from_file_location("company_os_luna_fabric_validator", validator)
+    if spec is None or spec.loader is None:
+        return {
+            "valid": False,
+            "errors": ["Luna Execution Fabric validator could not be loaded"],
+            "warnings": [],
+            "summary": {},
+        }
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    result = module.validate(manifest)
+    if not isinstance(result, dict):
+        raise ValueError("Luna Execution Fabric validator returned an invalid result")
+    return result
+
+
+def fabric_manifest_digest(manifest: dict[str, Any]) -> str:
+    return hashlib.sha256(canonical_json(manifest).encode("utf-8")).hexdigest()
+
+
+def adaptation_proposal_digest(proposal: dict[str, Any]) -> str:
+    """Stable digest of every adaptation claim the reviewer is asked to accept."""
+    return hashlib.sha256(canonical_json({
+        key: proposal.get(key)
+        for key in (
+            "id", "program_version", "failure_pattern", "hypothesis", "experiment",
+            "success_metric", "rollback", "proposer", "time_cap_minutes",
+            "cost_cap_usd", "changes", "meta_depth",
+        )
+    }).encode("utf-8")).hexdigest()
+
+
+def fabric_phase_decision_payload(
+    state: dict[str, Any],
+    manager_id: str,
+    phase: str,
+    decision: str,
+) -> dict[str, Any]:
+    fabric = state.get("execution_fabric", {})
+    manager = fabric.get("managers", {}).get(manager_id, {})
+    reports = manager.get("reports", [])
+    latest_report = reports[-1] if reports else {}
+    return {
+        "manifest_digest": fabric.get("manifest_digest"),
+        "manager_id": manager_id,
+        "phase": phase,
+        "report_digest": latest_report.get("report_digest"),
+        "decision": decision,
+        "rework_rounds": manager.get("rework_rounds", 0),
+    }
+
+
+def strategy_fingerprint(strategy: dict[str, Any]) -> str:
+    protected = {
+        "north_star": strategy.get("north_star"),
+        "current_outcome": strategy.get("current_outcome"),
+        "success_metric": strategy.get("success_metric"),
+        "constraints": strategy.get("constraints", []),
+        "non_goals": strategy.get("non_goals", []),
+        "program_version": strategy.get("program_version"),
+    }
+    return hashlib.sha256(canonical_json(protected).encode("utf-8")).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def parse_time(value: Any, field: str, errors: list[str]) -> datetime | None:
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            raise ValueError
+        return parsed.astimezone(timezone.utc)
+    except (TypeError, ValueError):
+        errors.append(f"{field} must be timezone-aware ISO-8601")
+        return None
+
+
+def finite_nonnegative_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value >= 0
+
+
+def nonnegative_integer(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
+def require_current_lease(state: dict[str, Any], args: argparse.Namespace, action: str) -> dict[str, Any]:
+    """Require an exact, unexpired, program-bound lease before mutation."""
+    lease = state.get("controller", {}).get("lease")
+    if not isinstance(lease, dict):
+        raise ValueError("an authoritative lease is required")
+    if lease.get("lease_id") != getattr(args, "lease_id", None) or lease.get("generation") != getattr(args, "generation", None):
+        raise ValueError("lease token is stale or does not own the controller")
+    if lease.get("owner") != getattr(args, "owner", None):
+        raise ValueError("lease owner does not match the caller")
+    if lease.get("program_version") != state.get("strategy", {}).get("program_version"):
+        raise ValueError("lease belongs to a stale program")
+    expires_errors: list[str] = []
+    expires = parse_time(lease.get("expires_at"), "controller.lease.expires_at", expires_errors)
+    if expires_errors or not expires or expires <= datetime.now(timezone.utc):
+        raise ValueError("lease is expired")
+    allowed = lease.get("allowed_transitions")
+    if not isinstance(allowed, list) or action not in allowed:
+        raise ValueError(f"lease does not permit {action}")
+    return lease
+
+
+def require_running_cycle_lease_fence(state: dict[str, Any], args: argparse.Namespace, cycle_id: Any) -> dict[str, Any]:
+    cycle = next(
+        (item for item in state.get("feedback", {}).get("cycles", [])
+         if isinstance(item, dict) and item.get("id") == cycle_id),
+        None,
+    )
+    if (
+        not cycle or cycle.get("status") != "running"
+        or cycle.get("lease_id") != args.lease_id
+        or cycle.get("lease_generation") != args.generation
+    ):
+        raise ValueError("running cycle is fenced by a different lease; recover it explicitly")
+    return cycle
+
+
+def lease_recovery_fences(lease: dict[str, Any]) -> set[tuple[Any, Any]]:
+    fences = {(lease.get("lease_id"), lease.get("generation"))}
+    for item in lease.get("recovery_chain", []):
+        if isinstance(item, dict):
+            fences.add((item.get("lease_id"), item.get("generation")))
+    return fences
+
+
+def project_local_path(project: Path, relative: Any) -> Path | None:
+    if not isinstance(relative, str) or not relative or Path(relative).is_absolute():
+        return None
+    resolved_project = project.resolve()
+    resolved = (resolved_project / relative).resolve()
+    try:
+        resolved.relative_to(resolved_project)
+    except ValueError:
+        return None
+    return resolved
+
+
+def governance_digest(state: dict[str, Any]) -> str:
+    """Hash all governable state, excluding only self-referential or live lease fields."""
+    payload = deepcopy(state)
+    controller = payload.get("controller", {})
+    # These fields are operationally volatile (live lease/fence/schedule/timestamp)
+    # or contain this digest itself.
+    for field in (
+        "validation", "validated", "lease", "lease_generation", "last_cycle_at", "schedule_enabled",
+        "consumed_grant_nonces",
+    ):
+        controller.pop(field, None)
+    payload.get("instance", {}).pop("status", None)  # activation follows certification.
+    return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def evidence_digest(state: dict[str, Any]) -> str:
+    """Backward-compatible name for the full governable-state digest."""
+    return governance_digest(state)
+
+
+def command_payload_hash(command: str, payload: dict[str, Any]) -> str:
+    return hashlib.sha256(canonical_json({"command": command, "payload": payload}).encode("utf-8")).hexdigest()
+
+
+def quality_command_payload(values: Any) -> dict[str, Any]:
+    getter = values.get if isinstance(values, dict) else lambda key, default=None: getattr(values, key, default)
+    return {
+        "dimension": getter("dimension"),
+        "score": getter("score"),
+        "evidence_ids": sorted(getter("evidence_ids", []) or []),
+        "rubric_version": getter("rubric_version"),
+        "scored_by": getter("scored_by"),
+        "reviewed_by": getter("reviewed_by"),
+        "outcome_id": getter("outcome_id"),
+        "work_id": getter("work_id"),
+        "cycle_id": getter("cycle_id"),
+        "artifact_digest": getter("artifact_digest"),
+    }
+
+
+def completion_evidence_digest(state: dict[str, Any], evidence_ids: list[str]) -> str:
+    evidence_by_id = {
+        item.get("id"): item
+        for bucket in state.get("evidence", {}).values()
+        for item in bucket
+        if isinstance(item, dict)
+    }
+    payload = [
+        {
+            key: evidence_by_id.get(evidence_id, {}).get(key)
+            for key in ("id", "artifact_path", "artifact_sha256", "outcome_id", "work_id", "cycle_id", "rubric_version")
+        }
+        for evidence_id in sorted(evidence_ids)
+    ]
+    return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def finish_command_payload(state: dict[str, Any], values: Any) -> dict[str, Any]:
+    getter = values.get if isinstance(values, dict) else lambda key, default=None: getattr(values, key, default)
+    evidence_ids = sorted(getter("evidence_ids", []) or [])
+    visibility = getter("user_visible_movement")
+    if isinstance(visibility, str):
+        visibility = visibility == "true"
+    generation = getter("generation")
+    if generation is None:
+        generation = getter("lease_generation")
+    cycle_id = getter("cycle_id")
+    if cycle_id is None:
+        cycle_id = getter("id")
+    return {
+        "cycle_id": cycle_id,
+        "lease_id": getter("lease_id"),
+        "generation": generation,
+        "actual_outcome": getter("actual_outcome"),
+        "evidence_ids": evidence_ids,
+        "evidence_digest": completion_evidence_digest(state, evidence_ids),
+        "cost_usd": getter("cost_usd"),
+        "latency_minutes": getter("latency_minutes"),
+        "token_usage": getter("token_usage"),
+        "user_visible_movement": visibility,
+        "work_disposition": getter("work_disposition"),
+        "reviewer_decision": getter("reviewer_decision"),
+        "reviewer": getter("reviewer"),
+        "commit": getter("commit"),
+        "ref": getter("ref"),
+    }
+
+
+def certification_command_payload(state: dict[str, Any], reviewer: str) -> dict[str, Any]:
+    return {"governance_digest": governance_digest(state), "reviewer": reviewer, "decision": "accepted"}
+
+
+def queue_command_payload(values: Any) -> dict[str, Any]:
+    getter = values.get if isinstance(values, dict) else lambda key, default=None: getattr(values, key, default)
+    primary = getter("primary")
+    if isinstance(primary, str):
+        primary = primary == "true"
+    return {
+        key: getter(key)
+        for key in (
+            "id", "type", "title", "user_visible_outcome", "claimed_progress", "owner",
+            "outcome_id", "incident_ref", "severity", "justification", "incident_actor", "approval_actor",
+            "repeat_override_reason", "repeat_override_reviewer",
+        )
+    } | {
+        "primary": primary,
+        "unlocks": sorted(getter("unlocks", []) or []),
+        "execution_mode": getter("execution_mode", "single") or "single",
+    }
+
+
+def retained_queue_command_payload(work: dict[str, Any]) -> dict[str, Any]:
+    approval = work.get("approval") if isinstance(work.get("approval"), dict) else {}
+    repeat_override = (
+        work.get("repeat_override") if isinstance(work.get("repeat_override"), dict) else {}
+    )
+    return queue_command_payload(
+        {
+            "id": work.get("id"),
+            "type": work.get("type"),
+            "title": work.get("title"),
+            "user_visible_outcome": work.get("user_visible_outcome"),
+            "claimed_progress": work.get("claimed_progress"),
+            "owner": work.get("owner"),
+            "primary": work.get("queued_primary"),
+            "outcome_id": work.get("outcome_id"),
+            "unlocks": work.get("unlocks", []),
+            "incident_ref": work.get("incident_ref"),
+            "severity": work.get("severity"),
+            "justification": work.get("justification"),
+            "incident_actor": work.get("incident_actor"),
+            "approval_actor": approval.get("approved_by"),
+            "repeat_override_reason": repeat_override.get("reason"),
+            "repeat_override_reviewer": repeat_override.get("reviewer"),
+            "execution_mode": work.get("execution_mode", "single"),
+        }
+    )
+
+
+def protected_launcher_attestation() -> tuple[bool, str]:
+    """Return the external launcher trust state.
+
+    The local controller intentionally has no setting, token, file, or environment
+    variable that can turn this on: an unrestricted scheduler could replace any of
+    those. Deployment infrastructure must interpose a protected launcher and
+    attest that boundary outside this process.
+    """
+    return (
+        False,
+        "external prerequisite: a protected launcher must verify issuer and scheduler authority outside this controller",
+    )
+
+
+def work_fingerprint(work: dict[str, Any]) -> str:
+    def normalized(value: Any) -> Any:
+        if isinstance(value, str):
+            text = unicodedata.normalize("NFKC", value).casefold()
+            text = "".join(character if character.isalnum() else " " for character in text)
+            return " ".join(text.split())
+        if isinstance(value, list):
+            return sorted(normalized(item) for item in value)
+        return value
+
+    defaults = {"unlocks": [], "execution_mode": "single"}
+    payload = {
+        key: normalized(work.get(key, defaults.get(key)))
+        for key in (
+            "type",
+            "outcome_id",
+            "title",
+            "user_visible_outcome",
+            "claimed_progress",
+            "unlocks",
+            "execution_mode",
+        )
+    }
+    return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def completion_digest(work: dict[str, Any], cycle: dict[str, Any]) -> str:
+    payload = {
+        "work": {key: value for key, value in work.items() if key not in {"status", "completed_at", "completion", "completion_digest", "completion_cycle_id"}},
+        "cycle": {key: value for key, value in cycle.items() if key != "completion_digest"},
+    }
+    return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def verify_asymmetric_signature(encoded_payload: str, encoded_signature: str) -> None:
+    public_key_value = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
+    if not public_key_value:
+        raise ValueError(f"{ACTOR_PUBLIC_KEY_ENV} is required for governed operations")
+    public_key = Path(public_key_value).resolve()
+    if not public_key.is_file():
+        raise ValueError("configured actor-grant public key does not exist")
+    try:
+        signature = base64.urlsafe_b64decode(encoded_signature + "=" * (-len(encoded_signature) % 4))
+        with tempfile.NamedTemporaryFile() as payload_file, tempfile.NamedTemporaryFile() as signature_file:
+            payload_file.write(encoded_payload.encode("ascii"))
+            payload_file.flush()
+            signature_file.write(signature)
+            signature_file.flush()
+            result = subprocess.run(
+                ["openssl", "dgst", "-sha256", "-verify", str(public_key), "-signature", signature_file.name, payload_file.name],
+                capture_output=True,
+                check=False,
+            )
+        if result.returncode != 0:
+            raise ValueError
+    except (OSError, ValueError, TypeError):
+        raise ValueError("actor grant is malformed or has an invalid asymmetric signature") from None
+
+
+def verify_actor_grant(
+    state: dict[str, Any],
+    grant: str,
+    actor: str,
+    action: str,
+    *,
+    resource: str,
+    work_id: str,
+    cycle_id: str,
+    dimension: str,
+    decision: str,
+    payload_hash: str,
+    consume: bool = True,
+) -> dict[str, Any]:
+    if not isinstance(grant, str) or not grant:
+        raise ValueError("actor grant is required")
+    try:
+        encoded, signature = grant.split(".", 1)
+        verify_asymmetric_signature(encoded, signature)
+        payload = json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
+    except (AttributeError, ValueError, TypeError, json.JSONDecodeError):
+        raise ValueError("actor grant is malformed or has an invalid asymmetric signature") from None
+    expected = {
+        "actor": actor,
+        "action": action,
+        "resource": resource,
+        "project_id": state.get("instance", {}).get("project_id"),
+        "program_version": state.get("strategy", {}).get("program_version"),
+        "work_id": work_id,
+        "cycle_id": cycle_id,
+        "dimension": dimension,
+        "decision": decision,
+        "payload_hash": payload_hash,
+    }
+    if not isinstance(payload, dict) or any(payload.get(key) != value for key, value in expected.items()):
+        raise ValueError("actor grant claims do not match this governed operation")
+    grant_errors: list[str] = []
+    expires = parse_time(payload.get("expiry"), "actor grant expiry", grant_errors)
+    if grant_errors or not expires or (consume and expires <= datetime.now(timezone.utc)):
+        raise ValueError("actor grant is expired")
+    nonce = payload.get("nonce")
+    if not isinstance(nonce, str) or not nonce:
+        raise ValueError("actor grant lacks a nonce")
+    consumed = state.setdefault("controller", {}).setdefault("consumed_grant_nonces", [])
+    if consume and nonce in consumed:
+        raise ValueError("actor grant nonce was already consumed")
+    if consume:
+        consumed.append(nonce)
+    return {"actor": actor, "claims": payload, "token": grant, "grant_digest": hashlib.sha256(grant.encode()).hexdigest()}
+
+
+def audit_stored_grant(
+    state: dict[str, Any], grant: Any, errors: list[str], label: str, expected_claims: dict[str, Any] | None = None
+) -> None:
+    if not isinstance(grant, dict) or not isinstance(grant.get("claims"), dict) or not grant.get("token"):
+        errors.append(f"{label} lacks a full signed grant")
+        return
+    claims = grant["claims"]
+    if claims.get("nonce") not in state.get("controller", {}).get("consumed_grant_nonces", []):
+        errors.append(f"{label} nonce was not consumed")
+        return
+    if expected_claims and any(claims.get(key) != value for key, value in expected_claims.items()):
+        errors.append(f"{label} claims do not match the governed record")
+        return
+    try:
+        verify_actor_grant(
+            state,
+            grant["token"],
+            grant.get("actor"),
+            claims.get("action"),
+            resource=claims.get("resource"),
+            work_id=claims.get("work_id"),
+            cycle_id=claims.get("cycle_id"),
+            dimension=claims.get("dimension"),
+            decision=claims.get("decision"),
+            payload_hash=claims.get("payload_hash"),
+            consume=False,
+        )
+    except ValueError as exc:
+        errors.append(f"{label} is not audit-valid: {exc}")
+
+
+def applicable_quality_dimensions(state: dict[str, Any]) -> set[str]:
+    """Return the deterministic quality gate for the current phase and primary work."""
+    active_work = state.get("portfolio", {}).get("active_work", [])
+    primary = next(
+        (item for item in active_work if isinstance(item, dict) and item.get("primary")),
+        None,
+    )
+    if primary is None:
+        return set()
+    dimensions = set(PHASE_QUALITY_DIMENSIONS.get(state.get("phase"), set()))
+    # Work-specific delivery checks are meaningful only once something can be
+    # delivered or verified. This keeps production gates out of prototypes.
+    if primary and state.get("phase") in {"delivery", "verification", "learning"}:
+        dimensions.update(DELIVERY_WORK_QUALITY_DIMENSIONS.get(primary.get("type"), set()))
+    # A typed P0 is the sole existing interruption path and is always safety-gated.
+    if primary and primary.get("type") == "p0":
+        dimensions.update(DELIVERY_WORK_QUALITY_DIMENSIONS["p0"])
+    return dimensions
+
+
+def primary_work(state: dict[str, Any]) -> dict[str, Any] | None:
+    return next(
+        (
+            item
+            for item in state.get("portfolio", {}).get("active_work", [])
+            if isinstance(item, dict) and item.get("primary")
+        ),
+        None,
+    )
+
+
+def current_quality_checkpoint(state: dict[str, Any]) -> tuple[str, str, str]:
+    work = primary_work(state)
+    if not work:
+        return ("", "", "")
+    accepted_cycles = [
+        cycle
+        for cycle in state.get("feedback", {}).get("cycles", [])
+        if isinstance(cycle, dict)
+        and cycle.get("work_id") == work.get("id")
+        and cycle.get("status") == "completed"
+        and cycle.get("reviewer_decision") == "accepted"
+    ]
+    checkpoint = (
+        str(accepted_cycles[-1].get("id"))
+        if accepted_cycles
+        else f"checkpoint:{state.get('phase')}:{state.get('strategy', {}).get('program_version')}:{work.get('work_fingerprint')}"
+    )
+    return (str(work.get("outcome_id") or ""), str(work.get("id") or ""), checkpoint)
+
+
+def clear_quality_scores(state: dict[str, Any]) -> None:
+    for item in state.get("quality", {}).get("dimensions", {}).values():
+        if not isinstance(item, dict):
+            continue
+        for field in ("score", "rubric_version", "scored_by", "reviewed_by", "scorer_grant", "reviewer_grant", "binding"):
+            item[field] = None
+        item["evidence"] = []
+
+
+def validate_fabric_report_payload(
+    state: dict[str, Any],
+    manager_id: str,
+    phase: str,
+    report: dict[str, Any],
+    *,
+    valid_evidence_ids: set[str],
+    evidence_by_id: dict[str, dict[str, Any]],
+) -> list[str]:
+    errors: list[str] = []
+    fabric = state.get("execution_fabric", {})
+    work_id = fabric.get("work_id")
+    cycle_id = fabric.get("cycle_id")
+    if report.get("message_type") != "manager_phase_report":
+        errors.append("message_type must be manager_phase_report")
+    if report.get("program_id") != state.get("instance", {}).get("project_id"):
+        errors.append("program_id must match the Company OS project")
+    if report.get("program_version") != state.get("strategy", {}).get("program_version"):
+        errors.append("program_version must match the Company OS program")
+    if report.get("manager_id") != manager_id:
+        errors.append("manager_id must match the governed manager")
+    if report.get("phase") != phase:
+        errors.append("phase must match the manager phase")
+    if report.get("cycle_id") != cycle_id or not cycle_id:
+        errors.append("cycle_id must match the running Company OS cycle")
+    if report.get("status") != "ready_for_decision":
+        errors.append("status must be ready_for_decision")
+    if report.get("outcome_state") not in {"on_track", "at_risk", "blocked"}:
+        errors.append("outcome_state must be on_track, at_risk, or blocked")
+    for field in ("artifacts", "evidence_ids", "next_plan"):
+        value = report.get(field)
+        if (
+            not isinstance(value, list)
+            or not value
+            or not all(isinstance(item, str) and item.strip() for item in value)
+        ):
+            errors.append(f"{field} must contain at least one non-empty value")
+    for field in ("plan_variance", "dependencies", "risks"):
+        value = report.get(field)
+        if not isinstance(value, list) or not all(
+            isinstance(item, str) and item.strip() for item in value
+        ):
+            errors.append(f"{field} must be a list of non-empty strings")
+    if report.get("requested_decision") not in FABRIC_DECISIONS:
+        errors.append("requested_decision is invalid")
+
+    usage = report.get("usage")
+    token_usage_fields = {
+        "luna_tokens", "terra_tokens", "manager_sol_tokens", "reviewer_sol_tokens",
+    }
+    required_usage = token_usage_fields | {"elapsed_minutes"}
+    if not isinstance(usage, dict):
+        errors.append("usage must be an object")
+    else:
+        for field in required_usage:
+            value = usage.get(field)
+            if field in token_usage_fields and not nonnegative_integer(value):
+                errors.append(f"usage.{field} must be a non-negative integer")
+            elif field == "elapsed_minutes" and not finite_nonnegative_number(value):
+                errors.append(f"usage.{field} must be a finite non-negative number")
+
+    metrics = report.get("worker_metrics")
+    required_metrics = {"accepted_first_pass", "reworked", "failed", "collisions"}
+    if not isinstance(metrics, dict):
+        errors.append("worker_metrics must be an object")
+    else:
+        for field in required_metrics:
+            value = metrics.get(field)
+            if not nonnegative_integer(value):
+                errors.append(f"worker_metrics.{field} must be a non-negative integer")
+        if metrics.get("collisions", 0) != 0:
+            errors.append("worker write collisions require pause or rework")
+        result_fields = ("accepted_first_pass", "reworked", "failed")
+        if (
+            phase in {"execution", "verification", "integration"}
+            and all(nonnegative_integer(metrics.get(field)) for field in result_fields)
+            and sum(metrics[field] for field in result_fields) < 1
+        ):
+            errors.append(f"{phase} must report at least one worker result")
+
+    evidence_ids = report.get("evidence_ids", [])
+    if isinstance(evidence_ids, list):
+        for evidence_id in evidence_ids:
+            if not isinstance(evidence_id, str) or not evidence_id.strip():
+                continue
+            evidence = evidence_by_id.get(evidence_id)
+            if evidence_id not in valid_evidence_ids or not evidence:
+                errors.append(f"evidence id {evidence_id} is not valid Company OS evidence")
+                continue
+            if (
+                evidence.get("program_version") != state.get("strategy", {}).get("program_version")
+                or evidence.get("work_id") != work_id
+                or evidence.get("cycle_id") != cycle_id
+            ):
+                errors.append(f"evidence id {evidence_id} is not bound to this fabric cycle")
+
+    if phase == "verification":
+        review = report.get("independent_review")
+        if not isinstance(review, dict):
+            errors.append("verification requires an independent_review object")
+        else:
+            if review.get("model") != "gpt-5.6-sol":
+                errors.append("independent_review.model must be gpt-5.6-sol")
+            if (
+                not isinstance(review.get("reviewer"), str)
+                or not review["reviewer"].strip()
+                or review.get("reviewer") == manager_id
+            ):
+                errors.append("verification requires a distinct independent reviewer")
+            if review.get("decision") != "accepted":
+                errors.append("independent verification must be accepted")
+            if not isinstance(review.get("evidence"), list) or not review["evidence"]:
+                errors.append("independent verification requires evidence")
+    return errors
+
+
+def current_fabric_evidence(
+    state: dict[str, Any],
+    project: Path,
+) -> tuple[dict[str, dict[str, Any]], set[str]]:
+    evidence_by_id = {
+        item.get("id"): item
+        for bucket in state.get("evidence", {}).values()
+        for item in bucket
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+    now = datetime.now(timezone.utc)
+    valid: set[str] = set()
+    for evidence_id, item in evidence_by_id.items():
+        artifact = project_local_path(project, item.get("artifact_path"))
+        time_errors: list[str] = []
+        observed = parse_time(item.get("observed_at"), "fabric evidence observed_at", time_errors)
+        freshness = item.get("freshness_days")
+        if (
+            item.get("project_id") == state.get("instance", {}).get("project_id")
+            and item.get("program_version") == state.get("strategy", {}).get("program_version")
+            and artifact is not None
+            and artifact.is_file()
+            and item.get("artifact_sha256") == sha256_file(artifact)
+            and not time_errors
+            and observed is not None
+            and isinstance(freshness, int)
+            and 1 <= freshness <= 365
+            and observed <= now
+            and now - observed <= timedelta(days=freshness)
+            and isinstance(item.get("source"), str)
+            and bool(item["source"].strip())
+            and isinstance(item.get("decision_impact"), str)
+            and bool(item["decision_impact"].strip())
+            and isinstance(item.get("author"), str)
+            and isinstance(item.get("reviewer"), str)
+            and item.get("author") != item.get("reviewer")
+        ):
+            valid.add(evidence_id)
+    return evidence_by_id, valid
+
+
+def validate_execution_fabric_state(
+    state: dict[str, Any],
+    *,
+    project_root: Path,
+    valid_evidence_ids: set[str],
+    evidence_by_id: dict[str, dict[str, Any]],
+    errors: list[str],
+    warnings: list[str],
+) -> dict[str, Any]:
+    fabric = state.get("execution_fabric")
+    if not isinstance(fabric, dict):
+        errors.append("execution_fabric must be an object")
+        return {"ready_for_schedule": False, "accepted": False, "luna_token_share": None}
+
+    status = fabric.get("status")
+    if status not in FABRIC_STATUSES:
+        errors.append("execution_fabric.status is invalid")
+    if fabric.get("program_version") != state.get("strategy", {}).get("program_version"):
+        errors.append("execution_fabric belongs to a stale program")
+
+    if status == "unconfigured":
+        if fabric.get("enabled"):
+            errors.append("an unconfigured execution_fabric cannot be enabled")
+        for field in ("work_id", "cycle_id", "manifest", "manifest_digest", "configured_at"):
+            if fabric.get(field) is not None:
+                errors.append(f"unconfigured execution_fabric.{field} must be null")
+        if fabric.get("managers") not in ({}, None):
+            errors.append("unconfigured execution_fabric.managers must be empty")
+        return {"ready_for_schedule": False, "accepted": False, "luna_token_share": None}
+
+    if not fabric.get("enabled"):
+        errors.append("a configured execution_fabric must be enabled")
+    manifest = fabric.get("manifest")
+    if not isinstance(manifest, dict):
+        errors.append("execution_fabric.manifest must be an object")
+        manifest = {}
+    elif fabric.get("manifest_digest") != fabric_manifest_digest(manifest):
+        errors.append("execution_fabric.manifest_digest does not match the manifest")
+    manifest_artifact = project_local_path(project_root, fabric.get("manifest_path"))
+    if manifest_artifact is None or not manifest_artifact.is_file():
+        errors.append("execution_fabric.manifest_path must be a project-local file")
+    elif fabric.get("manifest_sha256") != sha256_file(manifest_artifact):
+        errors.append("execution_fabric.manifest_sha256 does not match")
+    manifest_report = validate_fabric_manifest(manifest)
+    if not manifest_report.get("valid"):
+        errors.extend(
+            f"execution_fabric manifest: {error}"
+            for error in manifest_report.get("errors", ["validation failed"])
+        )
+    warnings.extend(
+        f"execution_fabric manifest: {warning}"
+        for warning in manifest_report.get("warnings", [])
+    )
+    if manifest.get("program_id") != state.get("instance", {}).get("project_id"):
+        errors.append("execution_fabric manifest program_id must match the project")
+    if manifest.get("program_version") != state.get("strategy", {}).get("program_version"):
+        errors.append("execution_fabric manifest belongs to a stale program")
+    if manifest.get("program_contract", {}).get("north_star") != state.get("strategy", {}).get("north_star"):
+        errors.append("execution_fabric manifest north_star must match Company OS strategy")
+
+    all_work = [
+        item
+        for bucket in ("active_work", "completed_work", "cancelled_work")
+        for item in state.get("portfolio", {}).get(bucket, [])
+        if isinstance(item, dict)
+    ]
+    work = next((item for item in all_work if item.get("id") == fabric.get("work_id")), None)
+    if not work:
+        errors.append("execution_fabric.work_id must reference governed work")
+    else:
+        if work.get("execution_mode", "single") != "luna_fabric":
+            errors.append("execution_fabric work must use execution_mode luna_fabric")
+        if manifest.get("outcome") != work.get("user_visible_outcome"):
+            errors.append("execution_fabric outcome must match the governed user-visible outcome")
+
+    if not fabric.get("configured_at"):
+        errors.append("configured execution_fabric.configured_at is required")
+    else:
+        parse_time(fabric.get("configured_at"), "execution_fabric.configured_at", errors)
+
+    managers = fabric.get("managers")
+    manifest_managers = {
+        manager.get("id"): manager
+        for manager in manifest.get("managers", [])
+        if isinstance(manager, dict) and isinstance(manager.get("id"), str)
+    }
+    if not isinstance(managers, dict) or set(managers) != set(manifest_managers):
+        errors.append("execution_fabric.managers must match the validated manifest")
+        managers = {}
+
+    total_usage = {
+        "luna_tokens": 0.0,
+        "terra_tokens": 0.0,
+        "manager_sol_tokens": 0.0,
+        "reviewer_sol_tokens": 0.0,
+    }
+    for manager_id, manager in managers.items():
+        label = f"execution_fabric.managers.{manager_id}"
+        if not isinstance(manager, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        if manager.get("id") != manager_id:
+            errors.append(f"{label}.id must match its key")
+        if manager.get("status") not in {
+            "pending",
+            "awaiting_decision",
+            "ready",
+            "paused",
+            "terminated",
+            "accepted",
+        }:
+            errors.append(f"{label}.status is invalid")
+        next_phase = manager.get("next_phase")
+        if next_phase is not None and next_phase not in FABRIC_PHASES:
+            errors.append(f"{label}.next_phase is invalid")
+        rework_rounds = manager.get("rework_rounds")
+        if not isinstance(rework_rounds, int) or not 0 <= rework_rounds <= 2:
+            errors.append(f"{label}.rework_rounds must be from 0 to 2")
+        reports = manager.get("reports")
+        decisions = manager.get("decisions")
+        if not isinstance(reports, list):
+            errors.append(f"{label}.reports must be an array")
+            reports = []
+        if not isinstance(decisions, list):
+            errors.append(f"{label}.decisions must be an array")
+            decisions = []
+        for report_index, entry in enumerate(reports):
+            entry_label = f"{label}.reports[{report_index}]"
+            if not isinstance(entry, dict) or not isinstance(entry.get("report"), dict):
+                errors.append(f"{entry_label} must contain a report object")
+                continue
+            report = entry["report"]
+            phase = entry.get("phase")
+            if entry.get("report_digest") != hashlib.sha256(canonical_json(report).encode("utf-8")).hexdigest():
+                errors.append(f"{entry_label}.report_digest does not match")
+            artifact = project_local_path(project_root, entry.get("report_path"))
+            if artifact is None or not artifact.is_file():
+                errors.append(f"{entry_label}.report_path is not a project-local file")
+            elif entry.get("report_sha256") != sha256_file(artifact):
+                errors.append(f"{entry_label}.report_sha256 does not match")
+            errors.extend(
+                f"{entry_label}: {error}"
+                for error in validate_fabric_report_payload(
+                    state,
+                    manager_id,
+                    str(phase),
+                    report,
+                    valid_evidence_ids=valid_evidence_ids,
+                    evidence_by_id=evidence_by_id,
+                )
+            )
+            for field in total_usage:
+                value = report.get("usage", {}).get(field, 0)
+                if finite_nonnegative_number(value):
+                    total_usage[field] += float(value)
+        for decision_index, decision in enumerate(decisions):
+            decision_label = f"{label}.decisions[{decision_index}]"
+            if not isinstance(decision, dict):
+                errors.append(f"{decision_label} must be an object")
+                continue
+            expected_payload = {
+                "manifest_digest": fabric.get("manifest_digest"),
+                "manager_id": manager_id,
+                "phase": decision.get("phase"),
+                "report_digest": decision.get("report_digest"),
+                "decision": decision.get("decision"),
+                "rework_rounds": decision.get("rework_rounds_before"),
+            }
+            if decision.get("payload") != expected_payload:
+                errors.append(f"{decision_label}.payload does not match retained state")
+            audit_stored_grant(
+                state,
+                decision.get("master_grant"),
+                errors,
+                f"{decision_label}.master_grant",
+                {
+                    "actor": decision.get("decided_by"),
+                    "action": "fabric-phase-decision",
+                    "resource": f"fabric:{manager_id}:{decision.get('phase')}",
+                    "work_id": str(fabric.get("work_id")),
+                    "cycle_id": str(fabric.get("cycle_id")),
+                    "dimension": "execution-fabric",
+                    "decision": str(decision.get("decision")),
+                    "payload_hash": command_payload_hash("fabric-phase-decision", expected_payload),
+                },
+            )
+        expected_phase: str | None = "charter"
+        expected_status = "pending"
+        counted_rework = 0
+        report_digests = {
+            entry.get("report_digest")
+            for entry in reports
+            if isinstance(entry, dict)
+        }
+        for decision in decisions:
+            if not isinstance(decision, dict):
+                continue
+            if decision.get("phase") != expected_phase:
+                errors.append(f"{label}.decisions do not follow the six phase barriers")
+                break
+            if decision.get("report_digest") not in report_digests:
+                errors.append(f"{label}.decision does not reference a retained phase report")
+            selected = decision.get("decision")
+            if selected == "rework":
+                counted_rework += 1
+                expected_status = "ready"
+            elif selected == "continue":
+                if expected_phase == "integration":
+                    expected_phase = None
+                    expected_status = "accepted"
+                else:
+                    expected_phase = FABRIC_PHASES[FABRIC_PHASES.index(str(expected_phase)) + 1]
+                    expected_status = "ready"
+            elif selected == "pause":
+                expected_status = "paused"
+                break
+            elif selected == "terminate":
+                expected_status = "terminated"
+                break
+        undecided_reports = [
+            entry
+            for entry in reports
+            if isinstance(entry, dict)
+            and entry.get("report_digest")
+            not in {
+                decision.get("report_digest")
+                for decision in decisions
+                if isinstance(decision, dict)
+            }
+        ]
+        if len(undecided_reports) > 1:
+            errors.append(f"{label} has multiple reports awaiting a master decision")
+        if undecided_reports:
+            if undecided_reports[0].get("phase") != expected_phase:
+                errors.append(f"{label} has a report outside the current phase barrier")
+            expected_status = "awaiting_decision"
+        if manager.get("next_phase") != expected_phase:
+            errors.append(f"{label}.next_phase does not match its decision history")
+        if manager.get("status") != expected_status:
+            errors.append(f"{label}.status does not match its decision history")
+        if manager.get("rework_rounds") != counted_rework:
+            errors.append(f"{label}.rework_rounds does not match its decisions")
+
+    model_tokens = sum(total_usage.values())
+    luna_share = total_usage["luna_tokens"] / model_tokens if model_tokens > 0 else None
+    if status == "accepted" and luna_share is None:
+        errors.append("accepted execution_fabric lacks measured model usage")
+    elif status == "accepted" and luna_share < 0.70:
+        warnings.append("accepted execution_fabric used less than 70 percent Luna tokens")
+    if status == "accepted" and any(
+        manager.get("status") != "accepted" for manager in managers.values()
+    ):
+        errors.append("execution_fabric cannot be accepted before every manager")
+    if status == "cancelled" and not fabric.get("cancelled_at"):
+        errors.append("cancelled execution_fabric requires cancelled_at")
+    ready_for_schedule = bool(
+        fabric.get("enabled")
+        and status == "ready"
+        and fabric.get("cycle_id") is None
+        and work
+        and work.get("status") == "ready"
+    )
+    return {
+        "ready_for_schedule": ready_for_schedule,
+        "accepted": status == "accepted",
+        "luna_token_share": luna_share,
+    }
+
+
+def append_event(project: Path, event: dict[str, Any]) -> None:
+    event_path = project.resolve() / ".company-os" / "events.jsonl"
+    with event_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(event, sort_keys=True) + "\n")
+
+
+def atomic_write_json(path: Path, value: dict[str, Any]) -> None:
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        with temporary.open("w", encoding="utf-8") as handle:
+            handle.write(json.dumps(value, indent=2) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+
+
+@contextmanager
+def locked_state(project: Path, *, require_issuer: bool = True) -> Iterator[tuple[Path, dict[str, Any]]]:
+    project = project.resolve()
+    path = state_path(project)
+    if not path.exists():
+        raise FileNotFoundError(f"no Company OS instance at {path}")
+    if require_issuer:
+        issuer = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
+        if not issuer or not Path(issuer).resolve().is_file():
+            raise ValueError(f"{ACTOR_PUBLIC_KEY_ENV} must reference an external issuer public key")
+    lock_path = project / ".company-os" / "control.lock"
+    with lock_path.open("a+", encoding="utf-8") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        try:
+            state = load_json(path)
+            yield path, state
+        finally:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+
+
+def persist_state_event(
+    project: Path,
+    path: Path,
+    state: dict[str, Any],
+    event_type: str,
+    **event_fields: Any,
+) -> None:
+    event = {
+        "at": utc_now(),
+        "type": event_type,
+        "project_id": state["instance"]["project_id"],
+        "program_version": state["strategy"]["program_version"],
+        **event_fields,
+    }
+    atomic_write_json(path, state)
+    append_event(project, event)
+
+
+def init_instance(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    if not project.is_dir():
+        print(json.dumps({"ok": False, "errors": [f"project directory does not exist: {project}"]}))
+        return 2
+    target = state_path(project)
+    if target.exists():
+        print(json.dumps({"ok": False, "errors": [f"instance already exists: {target}"]}))
+        return 2
+
+    state = deepcopy(load_json(template_path()))
+    project_type = args.project_type if args.project_type in DEPARTMENT_PRESETS else "general"
+    digest = hashlib.sha256(str(project).encode("utf-8")).hexdigest()[:12]
+    state["instance"].update(
+        {
+            "project_id": f"{slugify(args.name)}-{digest}",
+            "name": args.name,
+            "project_root": str(project),
+            "project_type": project_type,
+            "status": "paused",
+            "created_at": utc_now(),
+        }
+    )
+    state["strategy"].update(
+        {
+            "north_star": args.north_star,
+            "program_version": 1,
+            "program_updated_at": utc_now(),
+        }
+    )
+    state["strategy"]["program_fingerprint"] = strategy_fingerprint(state["strategy"])
+    state["profile"]["departments"] = DEPARTMENT_PRESETS[project_type]
+    state["profile"]["methods"] = ["discovery", "iterative_delivery", "stage_gates"]
+    state["quality"]["dimensions"] = {
+        name: {
+            "critical": critical,
+            "applicable": True,
+            "score": None,
+            "evidence": [],
+            "rubric_version": None,
+            "scored_by": None,
+            "reviewed_by": None,
+        }
+        for name, critical in BASE_DIMENSIONS.items()
+    }
+    state["schema_version"] = SCHEMA_VERSION
+    state["core_version"] = CORE_VERSION
+    target.parent.mkdir(parents=True, exist_ok=False)
+    atomic_write_json(target, state)
+    append_event(
+        project,
+        {
+            "at": utc_now(),
+            "type": "instance_initialized",
+            "project_id": state["instance"]["project_id"],
+            "core_version": state["core_version"],
+        },
+    )
+    print(json.dumps({"ok": True, "path": str(target), "project_id": state["instance"]["project_id"]}))
+    return 0
+
+
+def validate_state(
+    state: dict[str, Any],
+    *,
+    now: datetime | None = None,
+    expected_project: Path | None = None,
+) -> dict[str, Any]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+
+    instance = state.get("instance", {})
+    strategy = state.get("strategy", {})
+    controller_state = state.get("controller", {})
+    portfolio = state.get("portfolio", {})
+    evidence = state.get("evidence", {})
+    feedback = state.get("feedback", {})
+    quality = state.get("quality", {})
+    phase = state.get("phase")
+    issuer_key_value = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
+    issuer_ready = bool(issuer_key_value and Path(issuer_key_value).resolve().is_file())
+    protected_launcher_ready, protected_launcher_blocker = protected_launcher_attestation()
+
+    if state.get("schema_version") != SCHEMA_VERSION:
+        errors.append(f"schema_version must be {SCHEMA_VERSION}; run upgrade")
+    if state.get("core_version") != CORE_VERSION:
+        errors.append(f"core_version must be {CORE_VERSION}; run upgrade")
+    runtime = state.get("runtime_adapter")
+    if not isinstance(runtime, dict):
+        errors.append("runtime_adapter must be an object")
+    else:
+        if not isinstance(runtime.get("enabled"), bool) or runtime.get("status") not in {"disabled", "enabled"}:
+            errors.append("runtime_adapter feature gate is invalid")
+        elif runtime.get("enabled") != (runtime.get("status") == "enabled"):
+            errors.append("runtime_adapter enabled flag and status disagree")
+        if runtime.get("program_version") != strategy.get("program_version"):
+            errors.append("runtime_adapter belongs to a stale program")
+        if runtime.get("gateway_public_key_env") != RUNTIME_GATEWAY_PUBLIC_KEY_ENV:
+            errors.append("runtime_adapter must use the separate runtime gateway public-key configuration")
+        if runtime.get("phase2_contract_digest") != PHASE2_CONTRACT_DIGEST:
+            errors.append("runtime_adapter must bind the frozen Phase 2 contract digest")
+        if not isinstance(runtime.get("provider_allowlist"), list) or not isinstance(runtime.get("attempts"), list):
+            errors.append("runtime_adapter allowlist and attempts must be arrays")
+        else:
+            allowlist_keys: set[tuple[str, str, str]] = set()
+            for item in runtime["provider_allowlist"]:
+                if not isinstance(item, dict) or set(item) != {"provider", "surface", "account"} or any(
+                    not isinstance(item.get(key), str) or not item[key] for key in ("provider", "surface", "account")
+                ):
+                    errors.append("runtime_adapter provider allowlist entries must be unique provider/surface/account objects")
+                    continue
+                key = (item["provider"], item["surface"], item["account"])
+                if key in allowlist_keys:
+                    errors.append("runtime_adapter provider allowlist contains duplicates")
+                allowlist_keys.add(key)
+            attempt_ids: set[str] = set()
+            idempotency_keys: set[str] = set()
+            manifest_attempts: set[tuple[Any, Any, Any, Any]] = set()
+            for attempt in runtime["attempts"]:
+                if not isinstance(attempt, dict):
+                    errors.append("runtime_adapter attempts must be objects")
+                    continue
+                if any(re.search(r"private|secret|credential", str(key), re.I) for key in attempt):
+                    errors.append("runtime_adapter attempts must not retain private keys or credentials")
+                required = (
+                    "attempt_id", "manifest_identity_id", "work_id", "cycle_id", "parent_runtime_id",
+                    "role", "requested_model", "provider", "surface", "account", "scope", "scope_digest",
+                    "budget", "fabric_manifest_digest", "phase2_contract_digest", "idempotency_key",
+                    "admitted_by", "lease_fence", "program_version", "lease_id", "lease_generation",
+                    "lease_owner", "status", "actor_grant", "admitted_at",
+                )
+                if any(attempt.get(field) in (None, "") for field in required):
+                    errors.append("runtime_adapter attempt is missing immutable admission fields")
+                    continue
+                if attempt.get("status") != "admitted" or attempt.get("provider_task_id") is not None:
+                    errors.append("admission-only runtime attempts cannot contain lifecycle state or provider task IDs")
+                if attempt.get("program_version") != strategy.get("program_version"):
+                    errors.append("runtime attempt belongs to a stale program")
+                if attempt.get("phase2_contract_digest") != PHASE2_CONTRACT_DIGEST:
+                    errors.append("runtime attempt binds the wrong Phase 2 contract")
+                if tuple(attempt.get(key) for key in ("provider", "surface", "account")) not in allowlist_keys:
+                    errors.append("runtime attempt provider/surface/account is not allowlisted")
+                try:
+                    scope = canonical_runtime_scopes(attempt.get("scope"))
+                    if scope != attempt.get("scope") or attempt.get("scope_digest") != hashlib.sha256(canonical_json(scope).encode("utf-8")).hexdigest():
+                        errors.append("runtime attempt scope is not canonically bound")
+                except ValueError as exc:
+                    errors.append(f"runtime attempt scope is invalid: {exc}")
+                if not isinstance(attempt.get("budget"), dict):
+                    errors.append("runtime attempt budget must be an object")
+                fence = attempt.get("lease_fence")
+                if not isinstance(fence, dict) or fence.get("lease_id") != attempt.get("lease_id") or fence.get("generation") != attempt.get("lease_generation") or fence.get("owner") != attempt.get("lease_owner") or fence.get("program_version") != attempt.get("program_version") or "admit-runtime-attempt" not in fence.get("allowed_transitions", []):
+                    errors.append("runtime attempt does not retain its exact admission lease fence")
+                fabric = state.get("execution_fabric", {})
+                if attempt.get("fabric_manifest_digest") != fabric.get("manifest_digest"):
+                    errors.append("runtime attempt binds a stale fabric manifest")
+                manifest = fabric.get("manifest") if isinstance(fabric.get("manifest"), dict) else {}
+                manifest_matches: list[tuple[dict[str, Any], str | None]] = []
+                for manager in manifest.get("managers", []):
+                    if attempt.get("role") == "manager" and attempt.get("manifest_identity_id") == manager.get("id"):
+                        manifest_matches.append((manager, None))
+                    for worker in manager.get("workers", []):
+                        if attempt.get("role") == "worker" and attempt.get("manifest_identity_id") == worker.get("id"):
+                            manifest_matches.append((worker, manager.get("id")))
+                if len(manifest_matches) != 1:
+                    errors.append("runtime attempt does not map to exactly one current manifest identity")
+                else:
+                    identity, owner_manifest_id = manifest_matches[0]
+                    if attempt.get("requested_model") != identity.get("model"):
+                        errors.append("runtime attempt model does not match its manifest identity")
+                    try:
+                        if canonical_runtime_scopes(identity.get("write_scope")) != attempt.get("scope"):
+                            errors.append("runtime attempt scope does not match its manifest identity")
+                    except ValueError:
+                        errors.append("runtime attempt manifest identity has invalid scope")
+                    if canonical_json(attempt.get("budget")) != canonical_json(identity.get("budget")):
+                        errors.append("runtime attempt budget does not match its manifest identity")
+                    if attempt.get("role") == "manager":
+                        if attempt.get("parent_runtime_id") != "master" or identity.get("model") != "gpt-5.6-sol":
+                            errors.append("manager runtime attempt must have master parent and exact Sol model")
+                    elif attempt.get("role") == "worker":
+                        if identity.get("model") != "gpt-5.6-luna":
+                            errors.append("worker runtime attempt must use the exact Luna model")
+                        parent = next(
+                            (item for item in runtime["attempts"] if isinstance(item, dict)
+                             and item.get("attempt_id") == attempt.get("parent_runtime_id")
+                             and item.get("role") == "manager"
+                             and item.get("manifest_identity_id") == owner_manifest_id
+                             and item.get("status") == "admitted"),
+                            None,
+                        )
+                        if parent is None:
+                            errors.append("worker runtime attempt does not bind its admitted owning manager")
+                if attempt.get("attempt_id") in attempt_ids or attempt.get("idempotency_key") in idempotency_keys:
+                    errors.append("runtime adapter attempts reuse an attempt ID or idempotency key")
+                attempt_ids.add(attempt.get("attempt_id"))
+                idempotency_keys.add(attempt.get("idempotency_key"))
+                identity_key = tuple(attempt.get(key) for key in ("program_version", "work_id", "cycle_id", "manifest_identity_id"))
+                if identity_key in manifest_attempts:
+                    errors.append("runtime adapter admits a manifest identity more than once in one work cycle")
+                manifest_attempts.add(identity_key)
+                payload_hash = command_payload_hash("admit-runtime-attempt", retained_runtime_admission_payload(attempt))
+                audit_stored_grant(
+                    state, attempt.get("actor_grant"), errors, "runtime admission grant",
+                    {
+                        "actor": attempt.get("admitted_by"), "action": "admit-runtime-attempt",
+                        "resource": f"runtime:{attempt.get('attempt_id')}", "work_id": attempt.get("work_id"),
+                        "cycle_id": attempt.get("cycle_id"), "dimension": "runtime-admission",
+                        "decision": "admitted", "payload_hash": payload_hash,
+                    },
+                )
+
+    for field in ("project_id", "name", "project_root", "project_type"):
+        if not instance.get(field):
+            errors.append(f"instance.{field} is required")
+    if instance.get("status") not in INSTANCE_STATUSES:
+        errors.append(f"instance.status must be one of: {', '.join(sorted(INSTANCE_STATUSES))}")
+    project_root = Path(str(instance.get("project_root", ""))).resolve()
+    if expected_project is not None and project_root != expected_project.resolve():
+        errors.append("instance.project_root does not match the audited project")
+    if instance.get("project_root") and not project_root.is_dir():
+        errors.append("instance.project_root does not exist")
+
+    for field in ("north_star", "current_outcome", "success_metric"):
+        if not strategy.get(field):
+            errors.append(f"strategy.{field} is required before execution")
+    program_version = strategy.get("program_version")
+    if not isinstance(program_version, int) or program_version < 1:
+        errors.append("strategy.program_version must be a positive integer")
+    if parse_time(strategy.get("program_updated_at"), "strategy.program_updated_at", errors):
+        pass
+    expected_fingerprint = strategy_fingerprint(strategy)
+    if strategy.get("program_fingerprint") != expected_fingerprint:
+        errors.append("strategy.program_fingerprint does not match the authoritative program")
+
+    if not isinstance(evidence, dict) or set(evidence) != set(EVIDENCE_BUCKETS):
+        errors.append("evidence must define every governed evidence bucket exactly once")
+        evidence = {key: evidence.get(key, []) if isinstance(evidence, dict) else [] for key in EVIDENCE_BUCKETS}
+
+    valid_evidence_ids: set[str] = set()
+    evidence_by_id: dict[str, dict[str, Any]] = {}
+    for bucket in EVIDENCE_BUCKETS:
+        items = evidence.get(bucket, [])
+        if not isinstance(items, list):
+            errors.append(f"evidence.{bucket} must be an array")
+            continue
+        for index, item in enumerate(items):
+            label = f"evidence.{bucket}[{index}]"
+            if not isinstance(item, dict):
+                errors.append(f"{label} must be an object")
+                continue
+            before = len(errors)
+            evidence_id = item.get("id")
+            if not isinstance(evidence_id, str) or not evidence_id:
+                errors.append(f"{label}.id is required")
+            elif evidence_id in evidence_by_id:
+                errors.append(f"evidence id {evidence_id} is duplicated")
+            else:
+                evidence_by_id[evidence_id] = item
+            if item.get("outcome") != bucket:
+                errors.append(f"{label}.outcome must be {bucket}")
+            if item.get("project_id") != instance.get("project_id"):
+                errors.append(f"{label} is not bound to this project")
+            if item.get("program_version") != program_version:
+                errors.append(f"{label} is stale for the current program")
+            for field in ("source", "decision_impact", "author", "reviewer"):
+                if not isinstance(item.get(field), str) or not item.get(field).strip():
+                    errors.append(f"{label}.{field} is required")
+            if item.get("author") and item.get("author") == item.get("reviewer"):
+                errors.append(f"{label} lacks independent review")
+            artifact = project_local_path(project_root, item.get("artifact_path"))
+            if artifact is None:
+                errors.append(f"{label}.artifact_path must stay inside the project")
+            elif not artifact.is_file():
+                errors.append(f"{label}.artifact_path does not exist")
+            elif item.get("artifact_sha256") != sha256_file(artifact):
+                errors.append(f"{label}.artifact_sha256 does not match the artifact")
+            observed = parse_time(item.get("observed_at"), f"{label}.observed_at", errors)
+            freshness_days = item.get("freshness_days")
+            if not isinstance(freshness_days, int) or not 1 <= freshness_days <= 365:
+                errors.append(f"{label}.freshness_days must be from 1 to 365")
+            elif observed:
+                if observed > now:
+                    errors.append(f"{label}.observed_at is in the future")
+                elif now - observed > timedelta(days=freshness_days):
+                    errors.append(f"{label} is stale")
+            dimensions = item.get("quality_dimensions", [])
+            if not isinstance(dimensions, list) or any(name not in BASE_DIMENSIONS for name in dimensions):
+                errors.append(f"{label}.quality_dimensions contains an unknown dimension")
+            for field in ("outcome_id", "work_id", "cycle_id", "rubric_version"):
+                if field in item and (not isinstance(item[field], str) or not item[field].strip()):
+                    errors.append(f"{label}.{field} must be a non-empty string when supplied")
+            if len(errors) == before and isinstance(evidence_id, str):
+                valid_evidence_ids.add(evidence_id)
+
+    if phase not in PHASES:
+        errors.append(f"phase must be one of: {', '.join(PHASES)}")
+    else:
+        for evidence_key in PHASE_EVIDENCE[phase]:
+            bucket_ids = {
+                item.get("id")
+                for item in evidence.get(evidence_key, [])
+                if isinstance(item, dict)
+            }
+            if not bucket_ids.intersection(valid_evidence_ids):
+                errors.append(f"phase {phase} requires valid evidence.{evidence_key}")
+
+    max_active = controller_state.get("max_active_work")
+    if not isinstance(max_active, int) or not 1 <= max_active <= 3:
+        errors.append("controller.max_active_work must be between 1 and 3")
+    if controller_state.get("meta_loop_depth") != 1:
+        errors.append("controller.meta_loop_depth must remain exactly 1")
+    lease_generation = controller_state.get("lease_generation")
+    if not isinstance(lease_generation, int) or lease_generation < 0:
+        errors.append("controller.lease_generation must be a non-negative integer")
+    restart_checkpoint = controller_state.get("restart_checkpoint")
+    if restart_checkpoint is not None:
+        if not isinstance(restart_checkpoint, dict):
+            errors.append("controller.restart_checkpoint must be an object or null")
+        else:
+            restart_requirements = {
+                "reason": "schema_upgrade",
+                "to_schema_version": SCHEMA_VERSION,
+                "program_version": program_version,
+                "phase": "reality_audit",
+                "status": "evidence_required",
+            }
+            if any(restart_checkpoint.get(key) != value for key, value in restart_requirements.items()):
+                errors.append("controller.restart_checkpoint does not bind the fail-closed reality restart")
+            if restart_checkpoint.get("from_program_version") != (
+                program_version - 1 if isinstance(program_version, int) else None
+            ):
+                errors.append("controller.restart_checkpoint does not preserve monotonic program history")
+            if not isinstance(restart_checkpoint.get("from_schema_version"), int):
+                errors.append("controller.restart_checkpoint.from_schema_version is required")
+            parse_time(
+                restart_checkpoint.get("created_at"),
+                "controller.restart_checkpoint.created_at",
+                errors,
+            )
+            if (
+                phase != "reality_audit"
+                or instance.get("status") != "paused"
+                or controller_state.get("schedule_enabled")
+                or controller_state.get("lease") is not None
+            ):
+                errors.append("controller.restart_checkpoint requires a paused, unscheduled reality restart")
+
+    lease = controller_state.get("lease")
+    if lease:
+        for field in ("lease_id", "owner", "expires_at", "generation", "program_version", "allowed_transitions"):
+            if lease.get(field) in (None, ""):
+                errors.append(f"controller.lease.{field} is required")
+        expires = parse_time(lease.get("expires_at"), "controller.lease.expires_at", errors)
+        if expires and expires <= now:
+            errors.append("controller lease is stale")
+        if lease.get("generation") != lease_generation:
+            errors.append("controller lease generation is not authoritative")
+        if lease.get("program_version") != program_version:
+            errors.append("controller lease belongs to a stale program")
+        if (
+            not isinstance(lease.get("allowed_transitions"), list)
+            or set(lease["allowed_transitions"]) != LEASE_TRANSITIONS
+        ):
+            errors.append("controller lease must enumerate the exact permitted transitions")
+        recovery_chain = lease.get("recovery_chain", [])
+        if not isinstance(recovery_chain, list) or any(
+            not isinstance(item, dict)
+            or not item.get("lease_id")
+            or not isinstance(item.get("generation"), int)
+            for item in recovery_chain
+        ):
+            errors.append("controller lease recovery_chain is invalid")
+    cancellation_requested = controller_state.get("cancellation_requested") is True
+    if cancellation_requested:
+        if controller_state.get("schedule_enabled"):
+            errors.append("cancellation must disable the scheduler")
+        if lease is not None:
+            errors.append("cancellation must revoke the active lease")
+        if portfolio.get("active_work"):
+            errors.append("cancellation must clear active work")
+        if instance.get("status") not in {"paused", "cancelled"}:
+            errors.append("cancellation must pause or cancel the instance")
+        if state.get("execution_fabric", {}).get("status") not in {"unconfigured", "cancelled"}:
+            errors.append("cancellation must propagate to the execution_fabric")
+    if instance.get("status") != "active" and controller_state.get("schedule_enabled"):
+        errors.append("a paused or cancelled instance cannot enable scheduling")
+
+    allocation = portfolio.get("allocation", {})
+    expected_keys = {"capability", "innovation", "enabler", "maintenance"}
+    if not isinstance(allocation, dict) or set(allocation) != expected_keys:
+        errors.append("portfolio allocation must define capability, innovation, enabler, and maintenance")
+    elif any(not isinstance(value, (int, float)) or value < 0 for value in allocation.values()):
+        errors.append("portfolio allocation values must be non-negative numbers")
+    elif sum(allocation.values()) != 100:
+        errors.append("portfolio allocation must total 100")
+    else:
+        if allocation["enabler"] > 10:
+            errors.append("enabler allocation may not exceed 10 without a core policy change")
+        if allocation["maintenance"] > 5:
+            errors.append("maintenance allocation may not exceed 5 without a core policy change")
+        if allocation["capability"] + allocation["innovation"] < 80:
+            errors.append("capability plus innovation allocation must be at least 80")
+
+    committed = portfolio.get("committed_outcomes", [])
+    if not isinstance(committed, list):
+        errors.append("portfolio.committed_outcomes must be an array")
+        committed = []
+    committed_ids: set[str] = set()
+    for index, outcome in enumerate(committed):
+        label = f"portfolio.committed_outcomes[{index}]"
+        if not isinstance(outcome, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        for field in ("id", "title", "user_visible_outcome"):
+            if not outcome.get(field):
+                errors.append(f"{label}.{field} is required")
+        if outcome.get("type") not in {"capability", "innovation"}:
+            errors.append(f"{label}.type must be capability or innovation")
+        if outcome.get("program_version") != program_version:
+            errors.append(f"{label} belongs to a stale program")
+        if outcome.get("id") in committed_ids:
+            errors.append(f"committed outcome id {outcome.get('id')} is duplicated")
+        elif outcome.get("id"):
+            committed_ids.add(outcome["id"])
+
+    active_work = portfolio.get("active_work", [])
+    if not isinstance(active_work, list):
+        errors.append("portfolio.active_work must be an array")
+        active_work = []
+    if isinstance(max_active, int) and len(active_work) > max_active:
+        errors.append("active work exceeds the configured work-in-progress limit")
+    ids: list[str] = []
+    primary_count = 0
+    for index, work in enumerate(active_work):
+        label = f"portfolio.active_work[{index}]"
+        if not isinstance(work, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        work_id = work.get("id")
+        for field in ("id", "title", "user_visible_outcome", "owner"):
+            if not isinstance(work.get(field), str) or not work.get(field).strip():
+                errors.append(f"{label}.{field} is required")
+        if isinstance(work_id, str) and work_id:
+            ids.append(work_id)
+        work_type = work.get("type")
+        if work_type not in ALLOWED_WORK_TYPES:
+            errors.append(f"work item {work_id} has invalid type")
+        if work.get("execution_mode", "single") not in {"single", "luna_fabric"}:
+            errors.append(f"work item {work_id} has invalid execution_mode")
+        if work.get("status") not in ACTIVE_WORK_STATUSES:
+            errors.append(f"work item {work_id} has invalid active status")
+        if work.get("program_version") != program_version:
+            errors.append(f"work item {work_id} belongs to a stale program")
+        if work.get("work_fingerprint") != work_fingerprint(work):
+            errors.append(f"work item {work_id} has an invalid semantic fingerprint")
+        queue_payload = work.get("queue_payload")
+        retained_queue_payload = retained_queue_command_payload(work)
+        if not isinstance(queue_payload, dict):
+            errors.append(f"work item {work_id} lacks its canonical queue payload")
+        elif queue_payload != retained_queue_payload:
+            errors.append(f"work item {work_id} queue payload does not match its retained governed record")
+        queue_payload_digest = command_payload_hash("queue-work", retained_queue_payload)
+        if work_type in {"capability", "innovation"}:
+            outcome_id = work.get("outcome_id")
+            if outcome_id not in committed_ids:
+                errors.append(f"{work_type} work item {work_id} must reference a committed outcome")
+        if work_type == "p0":
+            for field in ("incident_ref", "severity", "justification", "incident_actor", "incident_grant", "approval"):
+                if not work.get(field):
+                    errors.append(f"p0 work item {work_id} requires {field}")
+            if work.get("severity") != "P0":
+                errors.append(f"p0 work item {work_id} severity must be P0")
+            approval = work.get("approval") if isinstance(work.get("approval"), dict) else {}
+            if approval.get("approved_by") in {None, work.get("owner"), work.get("incident_actor")}:
+                errors.append(f"p0 work item {work_id} requires an independent approval actor")
+            audit_stored_grant(
+                state,
+                work.get("incident_grant"),
+                errors,
+                f"p0 work item {work_id} incident grant",
+                {
+                    "actor": work.get("incident_actor"), "action": "p0-incident", "resource": work.get("incident_ref"),
+                    "work_id": work_id, "cycle_id": "precycle", "dimension": "p0", "decision": "P0",
+                    "payload_hash": queue_payload_digest,
+                },
+            )
+            audit_stored_grant(
+                state,
+                approval.get("grant"),
+                errors,
+                f"p0 work item {work_id} approval grant",
+                {
+                    "actor": approval.get("approved_by"), "action": "p0-approve", "resource": work.get("incident_ref"),
+                    "work_id": work_id, "cycle_id": "precycle", "dimension": "p0", "decision": "approved",
+                    "payload_hash": queue_payload_digest,
+                },
+            )
+        if isinstance(work.get("repeat_override"), dict):
+            override = work["repeat_override"]
+            if override.get("reviewer") in {None, work.get("owner")} or not override.get("reason"):
+                errors.append(f"work item {work_id} repeat override lacks independent review")
+            audit_stored_grant(
+                state,
+                override.get("grant"),
+                errors,
+                f"work item {work_id} repeat override grant",
+                {
+                    "actor": override.get("reviewer"), "action": "repeat-override", "resource": work.get("work_fingerprint"),
+                    "work_id": work_id, "cycle_id": "prequeue", "dimension": "semantic-repeat", "decision": "accepted",
+                    "payload_hash": queue_payload_digest,
+                },
+            )
+        if work.get("primary"):
+            primary_count += 1
+        if work.get("claimed_progress") not in PRODUCT_OUTCOMES:
+            errors.append(f"work item {work_id} has no valid progress outcome")
+        if work_type in {"enabler", "maintenance"}:
+            unlocks = work.get("unlocks")
+            targets = {unlocks} if isinstance(unlocks, str) else set(unlocks or [])
+            if not targets or not targets.issubset(committed_ids):
+                errors.append(f"{work_type} work item {work_id} must unlock committed product outcomes")
+            if work.get("claimed_progress") == "capability":
+                errors.append(f"work item {work_id} cannot relabel enabler work as a capability")
+            if work.get("primary") and phase in {"reality_audit", "intelligence", "direction", "experience"}:
+                errors.append(f"{work_type} work item {work_id} cannot occupy the primary discovery lane")
+    if len(ids) != len(set(ids)):
+        errors.append("active work IDs must be unique")
+    active_fingerprints = [work.get("work_fingerprint") for work in active_work if isinstance(work, dict)]
+    if len(active_fingerprints) != len(set(active_fingerprints)):
+        errors.append("active work cannot repeat a semantic work fingerprint")
+    if len(active_work) > 0 and primary_count != 1:
+        errors.append("active work must contain exactly one primary vertical slice")
+    ready_primary_work = [
+        work
+        for work in active_work
+        if isinstance(work, dict) and work.get("primary") and work.get("status") == "ready"
+    ]
+    for work in active_work:
+        if (
+            isinstance(work, dict)
+            and work.get("primary")
+            and work.get("type") in {"enabler", "maintenance"}
+        ):
+            errors.append(
+                f"{work.get('type')} work item {work.get('id')} cannot be primary; use the existing typed p0 work type for a genuine interruption"
+            )
+
+    completed_work = portfolio.get("completed_work", [])
+    if not isinstance(completed_work, list):
+        errors.append("portfolio.completed_work must be an array")
+        completed_work = []
+    completed_work_ids: set[str] = set()
+    for index, work in enumerate(completed_work):
+        label = f"portfolio.completed_work[{index}]"
+        if not isinstance(work, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        work_id = work.get("id")
+        if not isinstance(work_id, str) or not work_id:
+            errors.append(f"{label}.id is required")
+        elif work_id in completed_work_ids:
+            errors.append(f"completed work id {work_id} is duplicated")
+        else:
+            completed_work_ids.add(work_id)
+        if work.get("status") != "completed":
+            errors.append(f"{label}.status must be completed")
+        if not isinstance(work.get("owner"), str) or not work.get("owner").strip():
+            errors.append(f"{label}.owner is required")
+        for field in ("completed_at", "completion_cycle_id", "completion"):
+            if work.get(field) in (None, ""):
+                errors.append(f"{label}.{field} is required")
+        if not isinstance(work.get("completion_digest"), str) or not work.get("completion_digest"):
+            errors.append(f"{label}.completion_digest is required")
+        if isinstance(work.get("completion"), dict):
+            for field in (
+                "evidence_ids",
+                "completion_evidence_digest",
+                "cost_usd",
+                "latency_minutes",
+                "token_usage",
+                "user_visible_movement",
+                "reviewer_decision",
+                "reviewer",
+                "reviewer_grant",
+            ):
+                if field not in work["completion"]:
+                    errors.append(f"{label}.completion.{field} is required")
+        if work_id in ids:
+            errors.append(f"completed work id {work_id} cannot remain active")
+        if work.get("work_fingerprint") and work.get("work_fingerprint") in active_fingerprints:
+            errors.append(f"completed work {work_id} repeats an active semantic fingerprint")
+
+    completed_cycles: list[dict[str, Any]] = []
+    cycles = feedback.get("cycles", [])
+    if not isinstance(cycles, list):
+        errors.append("feedback.cycles must be an array")
+        cycles = []
+    for index, cycle in enumerate(cycles):
+        label = f"feedback.cycles[{index}]"
+        if not isinstance(cycle, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        for field in ("id", "work_id", "work_type", "status", "started_at", "intended_outcome"):
+            if cycle.get(field) in (None, ""):
+                errors.append(f"{label}.{field} is required")
+        if cycle.get("program_version") != program_version:
+            errors.append(f"{label} belongs to a stale program")
+        if cycle.get("work_type") not in ALLOWED_WORK_TYPES:
+            errors.append(f"{label}.work_type is invalid")
+        if cycle.get("status") not in {"running", "completed", "cancelled", "failed", "abandoned"}:
+            errors.append(f"{label}.status is invalid")
+        parse_time(cycle.get("started_at"), f"{label}.started_at", errors)
+        if cycle.get("status") == "completed":
+            completed_cycles.append(cycle)
+            for field in (
+                "finished_at",
+                "actual_outcome",
+                "evidence_ids",
+                "completion_evidence_digest",
+                "cost_usd",
+                "latency_minutes",
+                "token_usage",
+                "user_visible_movement",
+                "work_disposition",
+                "reviewer_decision",
+            ):
+                if field not in cycle:
+                    errors.append(f"{label}.{field} is required")
+            parse_time(cycle.get("finished_at"), f"{label}.finished_at", errors)
+            if cycle.get("actual_outcome") not in PRODUCT_OUTCOMES:
+                errors.append(f"{label}.actual_outcome is invalid")
+            if cycle.get("work_type") in {"enabler", "maintenance"} and cycle.get("actual_outcome") == "capability":
+                errors.append(f"{label} cannot relabel {cycle.get('work_type')} work as a capability")
+            evidence_ids = cycle.get("evidence_ids", [])
+            if not isinstance(evidence_ids, list) or not set(evidence_ids).issubset(valid_evidence_ids):
+                errors.append(f"{label}.evidence_ids are not valid project evidence")
+            elif cycle.get("completion_evidence_digest") != completion_evidence_digest(state, evidence_ids):
+                errors.append(f"{label}.completion_evidence_digest does not match its evidence")
+            for field in ("cost_usd", "latency_minutes"):
+                if not finite_nonnegative_number(cycle.get(field)):
+                    errors.append(f"{label}.{field} must be a finite non-negative number")
+            if not nonnegative_integer(cycle.get("token_usage")):
+                errors.append(f"{label}.token_usage must be a non-negative integer")
+            if not isinstance(cycle.get("user_visible_movement"), bool):
+                errors.append(f"{label}.user_visible_movement must be boolean")
+            if cycle.get("work_disposition") not in {"continue", "complete"}:
+                errors.append(f"{label}.work_disposition is invalid")
+            if cycle.get("reviewer_decision") not in {"accepted", "rejected"}:
+                errors.append(f"{label}.reviewer_decision is invalid")
+            if not isinstance(cycle.get("reviewer_grant"), dict) or cycle["reviewer_grant"].get("actor") != cycle.get("reviewer"):
+                errors.append(f"{label}.reviewer_grant does not bind its reviewer")
+            else:
+                audit_stored_grant(
+                    state,
+                    cycle.get("reviewer_grant"),
+                    errors,
+                    f"{label}.reviewer_grant",
+                    {
+                        "actor": cycle.get("reviewer"),
+                        "action": "finish-cycle",
+                        "resource": f"cycle:{cycle.get('id')}",
+                        "work_id": str(cycle.get("work_id")),
+                        "cycle_id": str(cycle.get("id")),
+                        "dimension": "completion",
+                        "decision": f"{cycle.get('reviewer_decision')}:{cycle.get('work_disposition')}",
+                        "payload_hash": command_payload_hash("finish-cycle", finish_command_payload(state, cycle)),
+                    },
+                )
+            if cycle.get("work_disposition") == "complete" and cycle.get("reviewer_decision") != "accepted":
+                errors.append(f"{label} cannot complete work after a rejected review")
+            for field in ("commit", "ref"):
+                if field in cycle and (not isinstance(cycle[field], str) or not cycle[field].strip()):
+                    errors.append(f"{label}.{field} must be a non-empty string when supplied")
+        if cycle.get("status") in {"abandoned", "failed"}:
+            for field in ("finished_at", "resolution_reason", "resolved_by_lease"):
+                if not cycle.get(field):
+                    errors.append(f"{label}.{field} is required for resolved cycles")
+            parse_time(cycle.get("finished_at"), f"{label}.finished_at", errors)
+
+    completed_cycles_by_id = {
+        cycle.get("id"): cycle
+        for cycle in completed_cycles
+        if isinstance(cycle.get("id"), str)
+    }
+    for index, work in enumerate(completed_work):
+        if not isinstance(work, dict):
+            continue
+        label = f"portfolio.completed_work[{index}]"
+        cycle = completed_cycles_by_id.get(work.get("completion_cycle_id"))
+        if not cycle:
+            errors.append(f"{label}.completion_cycle_id must reference a completed cycle")
+            continue
+        if cycle.get("work_id") != work.get("id") or cycle.get("work_disposition") != "complete":
+            errors.append(f"{label}.completion_cycle_id does not complete this work")
+            continue
+        if work.get("completion_digest") != cycle.get("completion_digest"):
+            errors.append(f"{label}.completion_digest does not match its completed cycle")
+        elif work.get("completion_digest") != completion_digest(work, cycle):
+            errors.append(f"{label}.completion_digest is not immutable")
+        completion = work.get("completion")
+        if isinstance(completion, dict):
+            for field in (
+                "evidence_ids",
+                "completion_evidence_digest",
+                "cost_usd",
+                "latency_minutes",
+                "token_usage",
+                "user_visible_movement",
+                "reviewer_decision",
+                "reviewer",
+                "reviewer_grant",
+                "commit",
+                "ref",
+            ):
+                if field in cycle and completion.get(field) != cycle.get(field):
+                    errors.append(f"{label}.completion.{field} does not match its completed cycle")
+            audit_stored_grant(
+                state,
+                completion.get("reviewer_grant"),
+                errors,
+                f"{label}.completion.reviewer_grant",
+                {
+                    "actor": completion.get("reviewer"),
+                    "action": "finish-cycle",
+                    "resource": f"cycle:{cycle.get('id')}",
+                    "work_id": str(cycle.get("work_id")),
+                    "cycle_id": str(cycle.get("id")),
+                    "dimension": "completion",
+                    "decision": f"{cycle.get('reviewer_decision')}:{cycle.get('work_disposition')}",
+                    "payload_hash": command_payload_hash("finish-cycle", finish_command_payload(state, cycle)),
+                },
+            )
+
+    if len(completed_cycles) >= 4:
+        weights = [float(cycle.get("cost_usd") or cycle.get("latency_minutes") or 1) for cycle in completed_cycles]
+        total_weight = sum(weights)
+        actual = {work_type: 0.0 for work_type in expected_keys}
+        for cycle, weight in zip(completed_cycles, weights):
+            if cycle.get("work_type") in actual:
+                actual[cycle["work_type"]] += weight
+        if total_weight:
+            actual_share = {key: 100 * value / total_weight for key, value in actual.items()}
+            if actual_share["maintenance"] > allocation.get("maintenance", 0) + 0.001:
+                errors.append("actual maintenance cycles exceed the portfolio ceiling")
+            if actual_share["enabler"] > allocation.get("enabler", 0) + 0.001:
+                errors.append("actual enabler cycles exceed the portfolio ceiling")
+            if actual_share["capability"] + actual_share["innovation"] < 80:
+                errors.append("actual capability plus innovation cycles are below 80 percent")
+    if len(completed_cycles) >= 2:
+        last_two = completed_cycles[-2:]
+        if all(
+            not cycle.get("user_visible_movement")
+            and cycle.get("actual_outcome") not in {"reality", "intelligence", "experience", "learning", "adaptation"}
+            for cycle in last_two
+        ):
+            errors.append("two consecutive cycles produced no accepted product movement or learning")
+
+    fabric_report = validate_execution_fabric_state(
+        state,
+        project_root=project_root,
+        valid_evidence_ids=valid_evidence_ids,
+        evidence_by_id=evidence_by_id,
+        errors=errors,
+        warnings=warnings,
+    )
+
+    threshold = quality.get("threshold")
+    if threshold != 9:
+        errors.append("quality.threshold must remain 9")
+    dimensions = quality.get("dimensions", {})
+    if not isinstance(dimensions, dict) or set(dimensions) != set(BASE_DIMENSIONS):
+        errors.append("quality.dimensions must contain the complete governed dimension set")
+        dimensions = {}
+    required_quality_dimensions = applicable_quality_dimensions(state)
+    expected_outcome_id, expected_work_id, expected_checkpoint = current_quality_checkpoint(state)
+    quality_ready = bool(required_quality_dimensions)
+    for name, item in dimensions.items():
+        if not isinstance(item, dict):
+            errors.append(f"quality dimension {name} must be an object")
+            quality_ready = False
+            continue
+        required = name in required_quality_dimensions
+        if required and not item.get("applicable", True):
+            errors.append(f"quality dimension {name} is required for the current phase/work")
+            quality_ready = False
+        if not item.get("applicable", True):
+            if not item.get("not_applicable_reason"):
+                errors.append(f"quality dimension {name} needs a not-applicable reason")
+            continue
+        if not required:
+            continue
+        score = item.get("score")
+        if score is None:
+            quality_ready = False
+            continue
+        if not isinstance(score, (int, float)) or not 0 <= score <= 10:
+            errors.append(f"quality dimension {name} score must be from 0 to 10")
+            quality_ready = False
+        elif item.get("critical") and score < threshold:
+            errors.append(f"critical quality dimension {name} is below {threshold}")
+            quality_ready = False
+        for field in ("rubric_version", "scored_by", "reviewed_by"):
+            if not item.get(field):
+                errors.append(f"quality dimension {name} lacks {field}")
+                quality_ready = False
+        for field, actor in (("scorer_grant", item.get("scored_by")), ("reviewer_grant", item.get("reviewed_by"))):
+            if not isinstance(item.get(field), dict) or item[field].get("actor") != actor:
+                errors.append(f"quality dimension {name} lacks authenticated {field}")
+                quality_ready = False
+        if item.get("scored_by") and item.get("scored_by") == item.get("reviewed_by"):
+            errors.append(f"quality dimension {name} lacks independent review")
+            quality_ready = False
+        binding = item.get("binding")
+        if not isinstance(binding, dict):
+            errors.append(f"quality dimension {name} lacks evidence binding")
+            quality_ready = False
+        else:
+            for field in ("outcome_id", "work_id", "cycle_id", "artifact_digest", "rubric_version"):
+                if not isinstance(binding.get(field), str) or not binding[field].strip():
+                    errors.append(f"quality dimension {name} binding lacks {field}")
+                    quality_ready = False
+            if binding.get("rubric_version") != item.get("rubric_version"):
+                errors.append(f"quality dimension {name} binding rubric does not match")
+                quality_ready = False
+            if (
+                binding.get("outcome_id") != expected_outcome_id
+                or binding.get("work_id") != expected_work_id
+                or binding.get("cycle_id") != expected_checkpoint
+            ):
+                errors.append(f"quality dimension {name} is stale for the current primary checkpoint")
+                quality_ready = False
+        ids_for_dimension = item.get("evidence", [])
+        grant_claim_base = {
+            "resource": f"quality:{name}",
+            "work_id": expected_work_id,
+            "cycle_id": expected_checkpoint,
+            "dimension": name,
+            "payload_hash": command_payload_hash(
+                "score-quality",
+                quality_command_payload(
+                    {
+                        "dimension": name,
+                        "score": score,
+                        "evidence_ids": ids_for_dimension,
+                        "rubric_version": item.get("rubric_version"),
+                        "scored_by": item.get("scored_by"),
+                        "reviewed_by": item.get("reviewed_by"),
+                        "outcome_id": (binding or {}).get("outcome_id"),
+                        "work_id": (binding or {}).get("work_id"),
+                        "cycle_id": (binding or {}).get("cycle_id"),
+                        "artifact_digest": (binding or {}).get("artifact_digest"),
+                    }
+                ),
+            ),
+        }
+        audit_stored_grant(
+            state,
+            item.get("scorer_grant"),
+            errors,
+            f"quality dimension {name} scorer grant",
+            {**grant_claim_base, "actor": item.get("scored_by"), "action": "score-quality", "decision": f"score:{score}"},
+        )
+        audit_stored_grant(
+            state,
+            item.get("reviewer_grant"),
+            errors,
+            f"quality dimension {name} reviewer grant",
+            {**grant_claim_base, "actor": item.get("reviewed_by"), "action": "score-quality-review", "decision": f"review:{score}"},
+        )
+        if not isinstance(ids_for_dimension, list) or not ids_for_dimension:
+            errors.append(f"quality dimension {name} lacks evidence")
+            quality_ready = False
+        else:
+            for evidence_id in ids_for_dimension:
+                source = evidence_by_id.get(evidence_id)
+                if evidence_id not in valid_evidence_ids or name not in (source or {}).get("quality_dimensions", []):
+                    errors.append(f"quality dimension {name} cites invalid or unrelated evidence")
+                    quality_ready = False
+                elif (
+                    source.get("outcome_id") != expected_outcome_id
+                    or source.get("work_id") != expected_work_id
+                    or source.get("cycle_id") != expected_checkpoint
+                    or source.get("artifact_sha256") != (binding or {}).get("artifact_digest")
+                    or source.get("rubric_version") != item.get("rubric_version")
+                ):
+                    errors.append(f"quality dimension {name} evidence is stale for the current primary checkpoint")
+                    quality_ready = False
+
+    required_adaptation_fields = (
+        "id", "failure_pattern", "hypothesis", "experiment", "success_metric",
+        "rollback", "proposer", "time_cap_minutes", "cost_cap_usd", "program_version",
+    )
+    for collection_name, allowed_statuses in (
+        ("pending_adaptations", {"proposed"}),
+        ("applied_adaptations", {"applied", "rejected"}),
+    ):
+        for proposal in feedback.get(collection_name, []):
+            if not isinstance(proposal, dict):
+                errors.append("adaptation entries must be objects")
+                continue
+            if proposal.get("status") not in allowed_statuses:
+                errors.append(f"adaptation {proposal.get('id')} has an invalid {collection_name} status")
+            if collection_name == "pending_adaptations" and any(
+                proposal.get(field) not in (None, "")
+                for field in ("reviewer", "review_decision", "reviewed_at", "reviewer_grant")
+            ):
+                errors.append(f"pending adaptation {proposal.get('id')} carries reviewed authority")
+            for field in required_adaptation_fields:
+                if proposal.get(field) in (None, ""):
+                    errors.append(f"adaptation {proposal.get('id')} lacks {field}")
+            if proposal.get("program_version") != program_version:
+                errors.append(f"adaptation {proposal.get('id')} belongs to a stale program")
+            if proposal.get("meta_depth") != 1:
+                errors.append(f"adaptation {proposal.get('id')} exceeds the meta-loop depth")
+            if proposal.get("proposal_digest") != adaptation_proposal_digest(proposal):
+                errors.append(f"adaptation {proposal.get('id')} proposal digest is invalid")
+            if not nonnegative_integer(proposal.get("time_cap_minutes")):
+                errors.append(f"adaptation {proposal.get('id')} time_cap_minutes must be a non-negative integer")
+            if not finite_nonnegative_number(proposal.get("cost_cap_usd")):
+                errors.append(f"adaptation {proposal.get('id')} cost_cap_usd must be a finite non-negative number")
+            if proposal.get("status") in {"applied", "rejected"}:
+                if not proposal.get("reviewer"):
+                    errors.append(f"reviewed adaptation {proposal.get('id')} lacks an independent reviewer")
+                if proposal.get("reviewer") == proposal.get("proposer"):
+                    errors.append(f"adaptation {proposal.get('id')} is self-approved")
+                expected_decision = "accepted" if proposal.get("status") == "applied" else "rejected"
+                if proposal.get("review_decision") != expected_decision:
+                    errors.append(f"adaptation {proposal.get('id')} review decision does not match its status")
+                digest = proposal.get("proposal_digest")
+                if not isinstance(digest, str) or not digest:
+                    errors.append(f"adaptation {proposal.get('id')} lacks its proposal digest")
+                else:
+                    audit_stored_grant(
+                        state, proposal.get("reviewer_grant"), errors,
+                        f"adaptation {proposal.get('id')} reviewer grant",
+                        {
+                            "actor": proposal.get("reviewer"), "action": "review-adaptation",
+                            "resource": f"adaptation:{proposal.get('id')}", "work_id": "",
+                            "cycle_id": "", "dimension": "meta-loop", "decision": expected_decision,
+                            "payload_hash": command_payload_hash("review-adaptation", {
+                                "adaptation_id": proposal.get("id"), "proposal_digest": digest,
+                                "reviewer": proposal.get("reviewer"), "decision": expected_decision,
+                            }),
+                        },
+                    )
+            protected = set(proposal.get("changes", [])) & PROTECTED_ADAPTATION_FIELDS
+            if protected:
+                errors.append(f"adaptation {proposal.get('id')} changes protected fields: {sorted(protected)}")
+
+    for candidate in feedback.get("core_promotion_candidates", []):
+        project_ids = set(candidate.get("validated_project_ids", [])) if isinstance(candidate, dict) else set()
+        if len(project_ids) < 3:
+            errors.append(f"core promotion {candidate.get('id')} requires three independent projects")
+        if candidate.get("proposer") == candidate.get("reviewer"):
+            errors.append(f"core promotion {candidate.get('id')} requires independent review")
+
+    validation = controller_state.get("validation")
+    validation_valid = False
+    if validation is not None:
+        if not isinstance(validation, dict):
+            errors.append("controller.validation must be an object or null")
+        else:
+            for field in ("program_version", "reviewer", "reviewed_at", "decision", "evidence_digest", "certifier_grant"):
+                if validation.get(field) in (None, ""):
+                    errors.append(f"controller.validation.{field} is required")
+            parse_time(validation.get("reviewed_at"), "controller.validation.reviewed_at", errors)
+            if validation.get("program_version") != program_version:
+                errors.append("controller validation belongs to a stale program")
+            if validation.get("decision") != "accepted":
+                errors.append("controller validation must be accepted")
+            if not isinstance(validation.get("certifier_grant"), dict) or validation["certifier_grant"].get("actor") != validation.get("reviewer"):
+                errors.append("controller validation certifier grant does not bind its reviewer")
+            else:
+                _, cert_work_id, cert_checkpoint = current_quality_checkpoint(state)
+                audit_stored_grant(
+                    state,
+                    validation.get("certifier_grant"),
+                    errors,
+                    "controller validation certifier grant",
+                    {
+                        "actor": validation.get("reviewer"),
+                        "action": "certify",
+                        "resource": "certification",
+                        "work_id": cert_work_id,
+                        "cycle_id": cert_checkpoint,
+                        "dimension": str(phase),
+                        "decision": "accepted",
+                        "payload_hash": command_payload_hash(
+                            "certify", certification_command_payload(state, str(validation.get("reviewer")))
+                        ),
+                    },
+                )
+            if validation.get("evidence_digest") != evidence_digest(state):
+                errors.append("controller validation is stale for the current evidence or work")
+            validation_valid = not any(error.startswith("controller validation") or error.startswith("controller.validation") for error in errors)
+
+    reality_ready = bool(
+        {
+            item.get("id")
+            for item in evidence.get("reality", [])
+            if isinstance(item, dict)
+        }.intersection(valid_evidence_ids)
+    )
+    direction_ready = all(
+        bool(
+            {
+                item.get("id")
+                for item in evidence.get(key, [])
+                if isinstance(item, dict)
+            }.intersection(valid_evidence_ids)
+        )
+        for key in ("reality", "intelligence", "direction", "experience")
+    )
+    primary_requires_fabric = bool(
+        ready_primary_work
+        and ready_primary_work[0].get("execution_mode", "single") == "luna_fabric"
+    )
+    if active_work and not quality_ready:
+        errors.append(f"phase {phase} requires complete applicable quality evidence")
+    scheduler_ready = (
+        not errors
+        and instance.get("status") == "active"
+        and validation_valid
+        and direction_ready
+        and bool(strategy.get("current_outcome"))
+        and bool(strategy.get("success_metric"))
+        and not cancellation_requested
+        and lease is None
+        and len(ready_primary_work) == 1
+        and (not primary_requires_fabric or fabric_report["ready_for_schedule"])
+        and issuer_ready
+        and protected_launcher_ready
+    )
+    if controller_state.get("schedule_enabled") and not scheduler_ready and lease is None:
+        errors.append("scheduler is enabled before the controller is ready")
+        scheduler_ready = False
+    if not reality_ready:
+        warnings.append("the instance has not completed a verified product/project reality audit")
+
+    return {
+        "ok": not errors,
+        "errors": errors,
+        "warnings": warnings,
+        "phase": phase,
+        "program_version": program_version,
+        "scheduler_ready": scheduler_ready,
+        "quality_ready": quality_ready,
+        "applicable_quality_dimensions": sorted(required_quality_dimensions),
+        "validation_valid": validation_valid,
+        "valid_evidence_count": len(valid_evidence_ids),
+        "active_work_count": len(active_work),
+        "ready_primary_work_count": len(ready_primary_work),
+        "execution_fabric_status": state.get("execution_fabric", {}).get("status"),
+        "execution_fabric_ready": fabric_report["ready_for_schedule"],
+        "execution_fabric_accepted": fabric_report["accepted"],
+        "luna_token_share": fabric_report["luna_token_share"],
+        "actor_issuer_ready": issuer_ready,
+        "protected_launcher_ready": protected_launcher_ready,
+        "external_prerequisites": [] if protected_launcher_ready else [protected_launcher_blocker],
+        "pending_adaptations": len(feedback.get("pending_adaptations", [])),
+    }
+
+
+def audit_instance(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    path = state_path(project)
+    if not path.exists():
+        print(json.dumps({"ok": False, "errors": [f"no Company OS instance at {path}"]}, indent=2))
+        return 2
+    try:
+        report = validate_state(load_json(path), expected_project=project)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0 if report["ok"] else 1
+
+
+def upgrade_state(state: dict[str, Any]) -> dict[str, Any]:
+    if state.get("schema_version") == SCHEMA_VERSION and state.get("core_version") == CORE_VERSION:
+        return state
+    old_schema_version = state.get("schema_version")
+    if old_schema_version not in {1, 2, 3, 4, 5, 6, 7}:
+        raise ValueError(f"unsupported schema version: {state.get('schema_version')}")
+    old_program_version = state.get("strategy", {}).get("program_version")
+    if not isinstance(old_program_version, int) or old_program_version < 1:
+        raise ValueError("cannot upgrade without the true positive strategy.program_version")
+
+    upgraded = deepcopy(state)
+    upgraded_at = utc_now()
+    new_program_version = old_program_version + 1
+
+    feedback = upgraded.setdefault("feedback", {})
+    upgrade_history = feedback.setdefault("schema_upgrade_history", [])
+    if not isinstance(upgrade_history, list):
+        raise ValueError("feedback.schema_upgrade_history must be an array")
+    portfolio = upgraded.setdefault("portfolio", {})
+    legacy_evidence = deepcopy(upgraded.get("evidence", {}))
+    history_id = (
+        f"schema-{old_schema_version}-to-{SCHEMA_VERSION}"
+        f"-program-{old_program_version}-to-{new_program_version}-{uuid.uuid4().hex}"
+    )
+    upgrade_history.append(
+        {
+            "id": history_id,
+            "reason": "schema_upgrade",
+            "archived_at": upgraded_at,
+            "from_schema_version": old_schema_version,
+            "to_schema_version": SCHEMA_VERSION,
+            "from_core_version": state.get("core_version"),
+            "to_core_version": CORE_VERSION,
+            "program_version": old_program_version,
+            "next_program_version": new_program_version,
+            "strategy": deepcopy(upgraded.get("strategy", {})),
+            "portfolio": {
+                name: deepcopy(portfolio.get(name, []))
+                for name in ("committed_outcomes", "active_work", "completed_work", "cancelled_work")
+            },
+            "evidence": legacy_evidence,
+            "feedback": {
+                name: deepcopy(feedback.get(name, []))
+                for name in ("cycles", "pending_adaptations", "applied_adaptations")
+            },
+            "execution_fabric": deepcopy(upgraded.get("execution_fabric")),
+            "runtime_adapter": deepcopy(upgraded.get("runtime_adapter")),
+        }
+    )
+
+    upgraded["schema_version"] = SCHEMA_VERSION
+    upgraded["core_version"] = CORE_VERSION
+    upgraded.setdefault("instance", {})["status"] = "paused"
+    upgraded.setdefault("strategy", {})["program_version"] = new_program_version
+    upgraded["strategy"]["program_updated_at"] = upgraded_at
+    upgraded["strategy"]["program_fingerprint"] = strategy_fingerprint(upgraded["strategy"])
+    upgraded["phase"] = "reality_audit"
+
+    controller_state = upgraded.setdefault("controller", {})
+    controller_state["validated"] = False
+    controller_state["validation"] = None
+    controller_state["schedule_enabled"] = False
+    controller_state["cancellation_requested"] = False
+    controller_state["consumed_grant_nonces"] = []
+    old_generation = controller_state.get("lease_generation")
+    controller_state["lease_generation"] = (old_generation if isinstance(old_generation, int) else 0) + 1
+    revoked_leases = controller_state.setdefault("revoked_leases", [])
+    if not isinstance(revoked_leases, list):
+        raise ValueError("controller.revoked_leases must be an array")
+    if controller_state.get("lease"):
+        revoked_leases.append(
+            {**controller_state["lease"], "revoked_at": upgraded_at, "reason": "schema_upgrade"}
+        )
+    controller_state["lease"] = None
+    controller_state["last_cycle_at"] = None
+    controller_state["restart_checkpoint"] = {
+        "reason": "schema_upgrade",
+        "from_schema_version": old_schema_version,
+        "to_schema_version": SCHEMA_VERSION,
+        "from_program_version": old_program_version,
+        "program_version": new_program_version,
+        "phase": "reality_audit",
+        "status": "evidence_required",
+        "created_at": upgraded_at,
+        "history_id": history_id,
+    }
+
+    portfolio["committed_outcomes"] = []
+    portfolio["active_work"] = []
+    portfolio["completed_work"] = []
+    portfolio["cancelled_work"] = []
+
+    feedback.setdefault("archived_evidence", [])
+    upgraded["evidence"] = {key: [] for key in EVIDENCE_BUCKETS}
+    feedback["cycles"] = []
+    feedback["pending_adaptations"] = []
+    feedback["applied_adaptations"] = []
+    upgraded["execution_fabric"] = empty_execution_fabric(new_program_version)
+    upgraded["runtime_adapter"] = empty_runtime_adapter(new_program_version)
+
+    quality = upgraded.setdefault("quality", {})
+    quality["threshold"] = 9
+    old_dimensions = quality.get("dimensions", {})
+    quality["dimensions"] = {
+        name: {
+            "critical": critical,
+            "applicable": (
+                old_dimensions.get(name, {}).get("applicable", True)
+                if isinstance(old_dimensions, dict) and isinstance(old_dimensions.get(name), dict)
+                else True
+            ),
+            "score": None,
+            "evidence": [],
+            "rubric_version": None,
+            "scored_by": None,
+            "reviewed_by": None,
+            "scorer_grant": None,
+            "reviewer_grant": None,
+            "binding": None,
+        }
+        for name, critical in BASE_DIMENSIONS.items()
+    }
+    return upgraded
+
+
+def upgrade_instance(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project, require_issuer=False) as (path, state):
+            upgraded = upgrade_state(state)
+            if upgraded is state:
+                print(json.dumps({"ok": True, "changed": False, "schema_version": SCHEMA_VERSION}))
+                return 0
+            persist_state_event(project, path, upgraded, "instance_upgraded", core_version=CORE_VERSION)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "changed": True, "schema_version": SCHEMA_VERSION}))
+    return 0
+
+
+def replace_program(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            if state.get("schema_version") != SCHEMA_VERSION:
+                raise ValueError("run upgrade before replacing the program")
+            old_version = state["strategy"]["program_version"]
+            state["feedback"].setdefault("archived_evidence", []).append(
+                {
+                    "program_version": old_version,
+                    "archived_at": utc_now(),
+                    "reason": args.reason,
+                    "evidence": state["evidence"],
+                }
+            )
+            cancelled_at = utc_now()
+            for work in state["portfolio"].get("active_work", []):
+                state["portfolio"].setdefault("cancelled_work", []).append(
+                    {**work, "status": "cancelled", "cancelled_at": cancelled_at, "reason": args.reason}
+                )
+            old_lease = state["controller"].get("lease")
+            if old_lease:
+                state["controller"].setdefault("revoked_leases", []).append(
+                    {**old_lease, "revoked_at": cancelled_at, "reason": "program_replaced"}
+                )
+            state["controller"]["lease_generation"] += 1
+            state["controller"]["lease"] = None
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            state["controller"]["schedule_enabled"] = False
+            state["controller"]["cancellation_requested"] = False
+            state["instance"]["status"] = "paused"
+            state["portfolio"]["active_work"] = []
+            state["portfolio"]["committed_outcomes"] = []
+            state["evidence"] = {key: [] for key in EVIDENCE_BUCKETS}
+            state["phase"] = "reality_audit"
+            state["strategy"].update(
+                {
+                    "north_star": args.north_star,
+                    "current_outcome": args.current_outcome,
+                    "success_metric": args.success_metric,
+                    "program_version": old_version + 1,
+                    "program_updated_at": utc_now(),
+                }
+            )
+            state["strategy"]["program_fingerprint"] = strategy_fingerprint(state["strategy"])
+            state["feedback"].setdefault("archived_execution_fabrics", []).append(
+                {
+                    "program_version": old_version,
+                    "archived_at": cancelled_at,
+                    "reason": args.reason,
+                    "execution_fabric": deepcopy(state.get("execution_fabric")),
+                }
+            )
+            state["execution_fabric"] = empty_execution_fabric(old_version + 1)
+            persist_state_event(
+                project,
+                path,
+                state,
+                "program_replaced",
+                old_program_version=old_version,
+                reason=args.reason,
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "program_version": old_version + 1, "status": "paused"}))
+    return 0
+
+
+def cancel_instance(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            cancelled_at = utc_now()
+            old_lease = state["controller"].get("lease")
+            if old_lease:
+                state["controller"].setdefault("revoked_leases", []).append(
+                    {**old_lease, "revoked_at": cancelled_at, "reason": args.reason}
+                )
+            for work in state["portfolio"].get("active_work", []):
+                state["portfolio"].setdefault("cancelled_work", []).append(
+                    {**work, "status": "cancelled", "cancelled_at": cancelled_at, "reason": args.reason}
+                )
+            state["portfolio"]["active_work"] = []
+            state["controller"]["lease_generation"] += 1
+            state["controller"]["lease"] = None
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            state["controller"]["schedule_enabled"] = False
+            state["controller"]["cancellation_requested"] = True
+            state["instance"]["status"] = "cancelled"
+            fabric = state.setdefault(
+                "execution_fabric",
+                empty_execution_fabric(state["strategy"]["program_version"]),
+            )
+            if fabric.get("status") != "unconfigured":
+                fabric.update(
+                    {
+                        "status": "cancelled",
+                        "cancelled_at": cancelled_at,
+                        "cancellation_reason": args.reason,
+                    }
+                )
+            persist_state_event(project, path, state, "instance_cancelled", reason=args.reason)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "status": "cancelled", "lease_revoked": bool(old_lease)}))
+    return 0
+
+
+def record_evidence(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            artifact = project_local_path(project, args.artifact)
+            if artifact is None or not artifact.is_file():
+                raise ValueError("artifact must be an existing file inside the project")
+            if args.author == args.reviewer:
+                raise ValueError("evidence requires an independent reviewer")
+            evidence_id = args.id or f"{args.outcome}-{uuid.uuid4().hex[:12]}"
+            item = {
+                "id": evidence_id,
+                "outcome": args.outcome,
+                "project_id": state["instance"]["project_id"],
+                "program_version": state["strategy"]["program_version"],
+                "artifact_path": str(artifact.relative_to(project)),
+                "artifact_sha256": sha256_file(artifact),
+                "observed_at": utc_now(),
+                "freshness_days": args.freshness_days,
+                "source": args.source,
+                "decision_impact": args.decision_impact,
+                "author": args.author,
+                "reviewer": args.reviewer,
+                "quality_dimensions": args.quality_dimensions or [],
+            }
+            for field in ("outcome_id", "work_id", "cycle_id", "rubric_version"):
+                value = getattr(args, field, None)
+                if value:
+                    item[field] = value
+            candidate = deepcopy(state)
+            candidate["evidence"][args.outcome].append(item)
+            report = validate_state(candidate, expected_project=project)
+            item_errors = [
+                error
+                for error in report["errors"]
+                if error.startswith(f"evidence.{args.outcome}")
+                or evidence_id in error
+            ]
+            if item_errors:
+                raise ValueError("; ".join(item_errors))
+            state["evidence"][args.outcome].append(item)
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(project, path, state, "evidence_recorded", evidence_id=evidence_id)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "evidence_id": evidence_id, "outcome": args.outcome}))
+    return 0
+
+
+def advance_phase(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            current = state.get("phase")
+            if current not in PHASES or args.phase not in PHASES:
+                raise ValueError("current and target phases must be governed phases")
+            if PHASES.index(args.phase) != PHASES.index(current) + 1:
+                raise ValueError("phase advancement must move exactly one stage")
+            candidate = deepcopy(state)
+            candidate["phase"] = args.phase
+            report = validate_state(candidate, expected_project=project)
+            phase_errors = [
+                error
+                for error in report["errors"]
+                if error.startswith(f"phase {args.phase}")
+                or error.startswith("evidence.")
+            ]
+            if phase_errors:
+                raise ValueError("; ".join(phase_errors))
+            state["phase"] = args.phase
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(project, path, state, "phase_advanced", from_phase=current, to_phase=args.phase)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "phase": args.phase}))
+    return 0
+
+
+def commit_outcome(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            outcomes = state["portfolio"]["committed_outcomes"]
+            if any(outcome.get("id") == args.id for outcome in outcomes):
+                raise ValueError("committed outcome id already exists")
+            outcomes.append(
+                {
+                    "id": args.id,
+                    "type": args.type,
+                    "title": args.title,
+                    "user_visible_outcome": args.user_visible_outcome,
+                    "program_version": state["strategy"]["program_version"],
+                    "status": "active",
+                }
+            )
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(project, path, state, "outcome_committed", outcome_id=args.id)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "outcome_id": args.id}))
+    return 0
+
+
+def queue_work(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            active = state["portfolio"]["active_work"]
+            if any(work.get("id") == args.id for work in active):
+                raise ValueError("active work id already exists")
+            if len(active) >= state["controller"]["max_active_work"]:
+                raise ValueError("active work exceeds the configured work-in-progress limit")
+            primary_eligible = args.type not in {"enabler", "maintenance"}
+            if args.primary == "true" and not primary_eligible:
+                raise ValueError(
+                    "maintenance or enabler work cannot be primary; use the existing typed p0 work type for a genuine interruption"
+                )
+            if not active and not primary_eligible:
+                raise ValueError("queue a capability, innovation, or typed p0 primary before maintenance or enabler work")
+            if args.type in {"capability", "innovation"} and getattr(args, "outcome_id", None) not in {
+                outcome.get("id") for outcome in state["portfolio"]["committed_outcomes"]
+            }:
+                raise ValueError("capability or innovation work must reference a committed outcome")
+            if args.type == "p0":
+                if (
+                    getattr(args, "severity", None) != "P0"
+                    or not getattr(args, "incident_ref", None)
+                    or not getattr(args, "justification", None)
+                    or not getattr(args, "incident_actor", None)
+                    or not getattr(args, "approval_actor", None)
+                    or args.incident_actor == args.approval_actor
+                    or args.approval_actor == args.owner
+                ):
+                    raise ValueError("p0 work requires a P0 incident and independent specific approval actors")
+            primary = args.primary == "true" or (not active and primary_eligible)
+            if primary:
+                for work in active:
+                    work["primary"] = False
+            canonical_queue_payload = queue_command_payload(args)
+            canonical_queue_payload["primary"] = primary
+            item = {
+                "id": args.id,
+                "type": args.type,
+                "primary": primary,
+                "title": args.title,
+                "user_visible_outcome": args.user_visible_outcome,
+                "claimed_progress": args.claimed_progress,
+                "status": "ready",
+                "program_version": state["strategy"]["program_version"],
+                "owner": args.owner,
+                "execution_mode": getattr(args, "execution_mode", "single"),
+                "queued_primary": primary,
+                "queue_payload": canonical_queue_payload,
+            }
+            if getattr(args, "outcome_id", None):
+                item["outcome_id"] = args.outcome_id
+            if args.unlocks:
+                item["unlocks"] = args.unlocks
+            if args.type == "p0":
+                queue_payload_hash = command_payload_hash("queue-work", canonical_queue_payload)
+                incident_grant = verify_actor_grant(
+                    state, getattr(args, "incident_grant", None), args.incident_actor, "p0-incident",
+                    resource=args.incident_ref, work_id=args.id, cycle_id="precycle",
+                    dimension="p0", decision=args.severity, payload_hash=queue_payload_hash,
+                )
+                approval_grant = verify_actor_grant(
+                    state, getattr(args, "approval_grant", None), args.approval_actor, "p0-approve",
+                    resource=args.incident_ref, work_id=args.id, cycle_id="precycle",
+                    dimension="p0", decision="approved", payload_hash=queue_payload_hash,
+                )
+                item.update(
+                    {
+                        "incident_ref": getattr(args, "incident_ref", None),
+                        "severity": getattr(args, "severity", None),
+                        "justification": getattr(args, "justification", None),
+                        "incident_actor": args.incident_actor,
+                        "incident_grant": incident_grant,
+                        "approval": {"approved_by": args.approval_actor, "grant": approval_grant},
+                    }
+                )
+            item["work_fingerprint"] = work_fingerprint(item)
+            historic_fingerprints = {
+                work.get("work_fingerprint")
+                for work in state["portfolio"].get("completed_work", [])
+                if isinstance(work, dict)
+            }
+            if item["work_fingerprint"] in historic_fingerprints:
+                if (
+                    not getattr(args, "repeat_override_reason", None)
+                    or not getattr(args, "repeat_override_reviewer", None)
+                    or args.repeat_override_reviewer == args.owner
+                    or not getattr(args, "repeat_override_grant", None)
+                ):
+                    raise ValueError("semantic work fingerprint was already completed; an independently reviewed override is required")
+                item["repeat_override"] = {
+                    "reason": args.repeat_override_reason,
+                    "reviewer": args.repeat_override_reviewer,
+                    "grant": verify_actor_grant(
+                        state, getattr(args, "repeat_override_grant", None), args.repeat_override_reviewer, "repeat-override",
+                        resource=item["work_fingerprint"], work_id=args.id, cycle_id="prequeue",
+                        dimension="semantic-repeat", decision="accepted",
+                        payload_hash=command_payload_hash("queue-work", canonical_queue_payload),
+                    ),
+                }
+            if primary:
+                clear_quality_scores(state)
+            candidate = deepcopy(state)
+            candidate["portfolio"]["active_work"] = deepcopy(active) + [item]
+            report = validate_state(candidate, expected_project=project)
+            work_errors = [
+                error
+                for error in report["errors"]
+                if args.id in error
+                or error.startswith("active work")
+                or error.startswith("portfolio.active_work")
+            ]
+            if work_errors:
+                raise ValueError("; ".join(work_errors))
+            state["portfolio"]["active_work"].append(item)
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(project, path, state, "work_queued", work_id=args.id)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "work_id": args.id, "primary": primary}))
+    return 0
+
+
+def score_quality(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            if args.scored_by == args.reviewed_by:
+                raise ValueError("quality scoring requires an independent reviewer")
+            quality_payload_hash = command_payload_hash("score-quality", quality_command_payload(args))
+            scorer_grant = verify_actor_grant(
+                state, getattr(args, "scored_by_grant", None), args.scored_by, "score-quality",
+                resource=f"quality:{args.dimension}", work_id=args.work_id, cycle_id=args.cycle_id,
+                dimension=args.dimension, decision=f"score:{args.score}", payload_hash=quality_payload_hash,
+            )
+            reviewer_grant = verify_actor_grant(
+                state, getattr(args, "reviewed_by_grant", None), args.reviewed_by, "score-quality-review",
+                resource=f"quality:{args.dimension}", work_id=args.work_id, cycle_id=args.cycle_id,
+                dimension=args.dimension, decision=f"review:{args.score}", payload_hash=quality_payload_hash,
+            )
+            if args.dimension not in state["quality"]["dimensions"]:
+                raise ValueError("unknown quality dimension")
+            expected_outcome, expected_work, expected_cycle = current_quality_checkpoint(state)
+            if (args.outcome_id, args.work_id, args.cycle_id) != (expected_outcome, expected_work, expected_cycle):
+                raise ValueError("quality score does not target the current primary checkpoint")
+            known = {
+                item.get("id"): item
+                for bucket in state["evidence"].values()
+                for item in bucket
+                if isinstance(item, dict)
+            }
+            for evidence_id in args.evidence_ids:
+                item = known.get(evidence_id)
+                if not item or args.dimension not in item.get("quality_dimensions", []):
+                    raise ValueError("quality evidence is missing or unrelated to the dimension")
+                if item.get("outcome_id") != args.outcome_id or item.get("work_id") != args.work_id or item.get("cycle_id") != args.cycle_id:
+                    raise ValueError("quality evidence does not match the asserted outcome, work, and cycle binding")
+                if item.get("artifact_sha256") != args.artifact_digest:
+                    raise ValueError("quality evidence does not match the asserted artifact digest")
+                if item.get("rubric_version") != args.rubric_version:
+                    raise ValueError("quality evidence does not match the asserted rubric version")
+            state["quality"]["dimensions"][args.dimension].update(
+                {
+                    "score": args.score,
+                    "evidence": args.evidence_ids,
+                    "rubric_version": args.rubric_version,
+                    "scored_by": args.scored_by,
+                    "reviewed_by": args.reviewed_by,
+                    "scorer_grant": scorer_grant,
+                    "reviewer_grant": reviewer_grant,
+                    "binding": {
+                        "outcome_id": args.outcome_id,
+                        "work_id": args.work_id,
+                        "cycle_id": args.cycle_id,
+                        "artifact_digest": args.artifact_digest,
+                        "rubric_version": args.rubric_version,
+                    },
+                }
+            )
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(
+                project,
+                path,
+                state,
+                "quality_scored",
+                dimension=args.dimension,
+                score=args.score,
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "dimension": args.dimension, "score": args.score}))
+    return 0
+
+
+def certify_instance(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            _, cert_work_id, cert_checkpoint = current_quality_checkpoint(state)
+            certifier_grant = verify_actor_grant(
+                state, getattr(args, "reviewer_grant", None), args.reviewer, "certify",
+                resource="certification", work_id=cert_work_id, cycle_id=cert_checkpoint,
+                dimension=str(state.get("phase")), decision="accepted",
+                payload_hash=command_payload_hash("certify", certification_command_payload(state, args.reviewer)),
+            )
+            involved_actors = {
+                work.get("owner")
+                for work in state["portfolio"].get("active_work", []) + state["portfolio"].get("completed_work", [])
+                if isinstance(work, dict)
+            }
+            involved_actors.update(
+                item.get(actor_field)
+                for bucket in state["evidence"].values()
+                for item in bucket
+                if isinstance(item, dict)
+                for actor_field in ("author", "reviewer")
+            )
+            involved_actors.update(
+                cycle.get(actor_field)
+                for cycle in state["feedback"].get("cycles", [])
+                if isinstance(cycle, dict)
+                for actor_field in ("reviewer",)
+            )
+            involved_actors.update(
+                item.get(actor_field)
+                for item in state["quality"].get("dimensions", {}).values()
+                if isinstance(item, dict)
+                for actor_field in ("scored_by", "reviewed_by")
+            )
+            involved_actors.discard(None)
+            if args.reviewer in involved_actors:
+                raise ValueError("certification reviewer must be independent of every work, evidence, cycle, and quality actor")
+            candidate = deepcopy(state)
+            candidate["controller"]["validation"] = None
+            report = validate_state(candidate, expected_project=project)
+            if report["errors"]:
+                raise ValueError("; ".join(report["errors"]))
+            state["controller"]["validation"] = {
+                "program_version": state["strategy"]["program_version"],
+                "reviewer": args.reviewer,
+                "reviewed_at": utc_now(),
+                "decision": "accepted",
+                "evidence_digest": evidence_digest(state),
+                "certifier_grant": certifier_grant,
+            }
+            state["controller"]["validated"] = True
+            persist_state_event(project, path, state, "instance_certified", reviewer=args.reviewer)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "reviewer": args.reviewer}))
+    return 0
+
+
+def set_active_instance(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            if state["controller"].get("cancellation_requested"):
+                raise ValueError("replace the program before reactivating a cancelled instance")
+            report = validate_state(state, expected_project=project)
+            blocking = [
+                error
+                for error in report["errors"]
+                if error != "a paused or cancelled instance cannot enable scheduling"
+            ]
+            if blocking or not report["validation_valid"]:
+                raise ValueError("; ".join(blocking or ["instance lacks valid independent certification"]))
+            state["instance"]["status"] = "active"
+            persist_state_event(project, path, state, "instance_activated")
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "status": "active"}))
+    return 0
+
+
+def set_schedule(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    enable = args.enabled == "true"
+    try:
+        with locked_state(project) as (path, state):
+            if enable:
+                report = validate_state(state, expected_project=project)
+                if not report["scheduler_ready"]:
+                    raise ValueError("; ".join(report["errors"] or ["scheduler readiness gate is closed"]))
+            state["controller"]["schedule_enabled"] = enable
+            persist_state_event(project, path, state, "schedule_changed", enabled=enable)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "schedule_enabled": enable}))
+    return 0
+
+
+def acquire_lease(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        if not isinstance(args.owner, str) or not args.owner.strip():
+            raise ValueError("lease owner must be a non-empty string")
+        if not isinstance(args.ttl_seconds, int) or isinstance(args.ttl_seconds, bool) or args.ttl_seconds <= 0:
+            raise ValueError("ttl_seconds must be a positive integer")
+        with locked_state(project) as (path, state):
+            existing = state["controller"].get("lease")
+            recovery_lease = False
+            recovery_chain: list[dict[str, Any]] = []
+            if existing:
+                lease_errors: list[str] = []
+                expires = parse_time(existing.get("expires_at"), "controller.lease.expires_at", lease_errors)
+                if lease_errors or not expires or expires > datetime.now(timezone.utc):
+                    raise ValueError("controller lease is already owned")
+                state["controller"].setdefault("revoked_leases", []).append(
+                    {**existing, "revoked_at": utc_now(), "reason": "expired_lease_reclaimed"}
+                )
+                state["controller"]["lease"] = None
+                state["controller"]["lease_generation"] += 1
+                inherited_fences = lease_recovery_fences(existing)
+                recovery_lease = any(
+                    cycle.get("status") == "running"
+                    and (cycle.get("lease_id"), cycle.get("lease_generation")) in inherited_fences
+                    for cycle in state["feedback"].get("cycles", [])
+                    if isinstance(cycle, dict)
+                )
+                recovery_chain = [
+                    {"lease_id": lease_id, "generation": generation}
+                    for lease_id, generation in sorted(inherited_fences, key=lambda item: (str(item[0]), str(item[1])))
+                    if lease_id is not None and generation is not None
+                ]
+            report = validate_state(state, expected_project=project)
+            if not state["controller"].get("schedule_enabled") or (not recovery_lease and not report["scheduler_ready"]):
+                raise ValueError("; ".join(report["errors"] or ["scheduler is not ready"]))
+            generation = state["controller"]["lease_generation"] + 1
+            lease_id = uuid.uuid4().hex
+            state["controller"]["lease_generation"] = generation
+            state["controller"]["lease"] = {
+                "lease_id": lease_id,
+                "owner": args.owner,
+                "generation": generation,
+                "program_version": state["strategy"]["program_version"],
+                "allowed_transitions": sorted(LEASE_TRANSITIONS),
+                "recovery_chain": recovery_chain,
+                "acquired_at": utc_now(),
+                "expires_at": (
+                    datetime.now(timezone.utc) + timedelta(seconds=args.ttl_seconds)
+                ).isoformat(),
+            }
+            persist_state_event(project, path, state, "lease_acquired", lease_id=lease_id, owner=args.owner, recovery=recovery_lease)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "lease_id": lease_id, "generation": generation}))
+    return 0
+
+
+def release_lease(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            lease = require_current_lease(state, args, "release-lease")
+            if any(
+                cycle.get("status") == "running"
+                and (cycle.get("lease_id"), cycle.get("lease_generation")) in lease_recovery_fences(lease)
+                for cycle in state["feedback"].get("cycles", [])
+                if isinstance(cycle, dict)
+            ):
+                raise ValueError("resolve the running cycle with abandon, recover, or fail before releasing its lease")
+            state["controller"]["lease"] = None
+            persist_state_event(project, path, state, "lease_released", lease_id=args.lease_id)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "released": args.lease_id}))
+    return 0
+
+
+def resolve_cycle(args: argparse.Namespace) -> int:
+    """Resolve a fenced running cycle after an expired/recovered lease."""
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            require_current_lease(state, args, "resolve-cycle")
+            cycle = next((item for item in state["feedback"]["cycles"] if item.get("id") == args.cycle_id), None)
+            if not cycle or cycle.get("status") != "running":
+                raise ValueError("cycle is missing or not running")
+            work = next((item for item in state["portfolio"]["active_work"] if item.get("id") == cycle.get("work_id")), None)
+            if not work:
+                raise ValueError("running cycle has no active work to resolve")
+            if args.action == "recover":
+                cycle.update(
+                    {
+                        "lease_id": args.lease_id,
+                        "lease_generation": args.generation,
+                        "recovered_at": utc_now(),
+                        "recovery_reason": args.reason,
+                    }
+                )
+            else:
+                cycle.update(
+                    {
+                        "status": "abandoned" if args.action == "abandon" else "failed",
+                        "finished_at": utc_now(),
+                        "resolution_reason": args.reason,
+                        "resolved_by_lease": args.lease_id,
+                    }
+                )
+                work["status"] = "ready" if args.action == "abandon" else "blocked"
+                state["controller"]["schedule_enabled"] = False
+                state["controller"]["validation"] = None
+                state["controller"]["validated"] = False
+                if args.action == "fail":
+                    state["instance"]["status"] = "paused"
+                if (
+                    work.get("execution_mode", "single") == "luna_fabric"
+                    and state.get("execution_fabric", {}).get("work_id") == work.get("id")
+                ):
+                    state["execution_fabric"]["status"] = "paused"
+            persist_state_event(project, path, state, "cycle_resolved", cycle_id=args.cycle_id, action=args.action)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "cycle_id": args.cycle_id, "action": args.action}))
+    return 0
+
+
+def begin_cycle(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            require_current_lease(state, args, "begin-cycle")
+            work = next(
+                (item for item in state["portfolio"]["active_work"] if item.get("id") == args.work_id),
+                None,
+            )
+            if not work or work.get("status") != "ready":
+                raise ValueError("work item is missing or not ready")
+            if not work.get("primary"):
+                raise ValueError("only the ready primary work item may begin a scheduled cycle")
+            if any(cycle.get("status") == "running" for cycle in state["feedback"]["cycles"]):
+                raise ValueError("another cycle is already running")
+            if work.get("execution_mode", "single") == "luna_fabric":
+                fabric = state.get("execution_fabric", {})
+                if (
+                    fabric.get("status") != "ready"
+                    or fabric.get("work_id") != work.get("id")
+                    or fabric.get("cycle_id") is not None
+                ):
+                    raise ValueError("luna_fabric work requires a ready program-bound execution fabric")
+                evidence_by_id, valid_evidence_ids = current_fabric_evidence(state, project)
+                fabric_errors: list[str] = []
+                fabric_warnings: list[str] = []
+                fabric_state = validate_execution_fabric_state(
+                    state,
+                    project_root=project,
+                    valid_evidence_ids=valid_evidence_ids,
+                    evidence_by_id=evidence_by_id,
+                    errors=fabric_errors,
+                    warnings=fabric_warnings,
+                )
+                if fabric_errors or not fabric_state["ready_for_schedule"]:
+                    raise ValueError(
+                        "; ".join(fabric_errors or ["execution fabric is not ready"])
+                    )
+            cycle_id = uuid.uuid4().hex
+            work["status"] = "running"
+            state["feedback"]["cycles"].append(
+                {
+                    "id": cycle_id,
+                    "program_version": state["strategy"]["program_version"],
+                    "work_id": args.work_id,
+                    "work_type": work["type"],
+                    "status": "running",
+                    "started_at": utc_now(),
+                    "intended_outcome": args.intended_outcome,
+                    "lease_id": args.lease_id,
+                    "lease_generation": args.generation,
+                }
+            )
+            if work.get("execution_mode", "single") == "luna_fabric":
+                state["execution_fabric"]["cycle_id"] = cycle_id
+                state["execution_fabric"]["status"] = "running"
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(project, path, state, "cycle_started", cycle_id=cycle_id, work_id=args.work_id)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "cycle_id": cycle_id}))
+    return 0
+
+
+def validate_completion_evidence(
+    state: dict[str, Any], project: Path, cycle: dict[str, Any], work: dict[str, Any], evidence_ids: set[str]
+) -> None:
+    evidence_by_id = {
+        item.get("id"): item
+        for bucket in state.get("evidence", {}).values()
+        for item in bucket
+        if isinstance(item, dict)
+    }
+    now = datetime.now(timezone.utc)
+    for evidence_id in evidence_ids:
+        item = evidence_by_id.get(evidence_id)
+        if not item:
+            raise ValueError("cycle outcome requires recorded project evidence")
+        artifact = project_local_path(project, item.get("artifact_path"))
+        freshness_errors: list[str] = []
+        observed = parse_time(item.get("observed_at"), "completion evidence observed_at", freshness_errors)
+        if (
+            artifact is None
+            or not artifact.is_file()
+            or item.get("artifact_sha256") != sha256_file(artifact)
+            or freshness_errors
+            or not isinstance(item.get("freshness_days"), int)
+            or not observed
+            or now - observed > timedelta(days=item["freshness_days"])
+        ):
+            raise ValueError("completion evidence hash or freshness is no longer valid")
+        if (
+            item.get("project_id") != state["instance"]["project_id"]
+            or item.get("program_version") != state["strategy"]["program_version"]
+            or item.get("outcome_id") != work.get("outcome_id")
+            or item.get("work_id") != work.get("id")
+            or item.get("cycle_id") != cycle.get("id")
+            or not item.get("decision_impact")
+            or not item.get("rubric_version")
+        ):
+            raise ValueError("completion evidence is not relevant or fully bound to this work cycle")
+
+
+def finish_cycle(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            require_current_lease(state, args, "finish-cycle")
+            if not finite_nonnegative_number(args.cost_usd):
+                raise ValueError("cost_usd must be a finite non-negative number")
+            if not finite_nonnegative_number(args.latency_minutes):
+                raise ValueError("latency_minutes must be a finite non-negative number")
+            if not nonnegative_integer(args.token_usage):
+                raise ValueError("token_usage must be a non-negative integer")
+            cycle = next(
+                (item for item in state["feedback"]["cycles"] if item.get("id") == args.cycle_id),
+                None,
+            )
+            if not cycle or cycle.get("status") != "running":
+                raise ValueError("cycle is missing or not running")
+            if cycle.get("lease_id") != args.lease_id or cycle.get("lease_generation") != args.generation:
+                raise ValueError("cycle is fenced by a different lease; recover it explicitly")
+            reviewer_grant = verify_actor_grant(
+                state, getattr(args, "reviewer_grant", None), args.reviewer, "finish-cycle",
+                resource=f"cycle:{args.cycle_id}", work_id=str(cycle.get("work_id")), cycle_id=args.cycle_id,
+                dimension="completion", decision=f"{args.reviewer_decision}:{args.work_disposition}",
+                payload_hash=command_payload_hash("finish-cycle", finish_command_payload(state, args)),
+            )
+            evidence_ids = set(args.evidence_ids)
+            work = next(
+                (item for item in state["portfolio"]["active_work"] if item.get("id") == cycle["work_id"]),
+                None,
+            )
+            if not work:
+                raise ValueError("cycle work is no longer active")
+            if (
+                work.get("execution_mode", "single") == "luna_fabric"
+                and args.work_disposition == "complete"
+                and (
+                    state.get("execution_fabric", {}).get("status") != "accepted"
+                    or state.get("execution_fabric", {}).get("work_id") != work.get("id")
+                    or state.get("execution_fabric", {}).get("cycle_id") != cycle.get("id")
+                )
+            ):
+                raise ValueError(
+                    "luna_fabric work cannot complete before every manager integration is master-accepted"
+                )
+            if (
+                work.get("execution_mode", "single") == "luna_fabric"
+                and args.work_disposition == "complete"
+            ):
+                evidence_by_id, valid_fabric_evidence = current_fabric_evidence(
+                    state,
+                    project,
+                )
+                fabric_errors: list[str] = []
+                fabric_warnings: list[str] = []
+                fabric_state = validate_execution_fabric_state(
+                    state,
+                    project_root=project,
+                    valid_evidence_ids=valid_fabric_evidence,
+                    evidence_by_id=evidence_by_id,
+                    errors=fabric_errors,
+                    warnings=fabric_warnings,
+                )
+                if fabric_errors or not fabric_state["accepted"]:
+                    raise ValueError(
+                        "; ".join(
+                            fabric_errors
+                            or ["execution fabric acceptance is not audit-valid"]
+                        )
+                    )
+            if not evidence_ids:
+                raise ValueError("cycle outcome requires recorded project evidence")
+            validate_completion_evidence(state, project, cycle, work, evidence_ids)
+            if args.work_disposition == "complete" and args.reviewer_decision != "accepted":
+                raise ValueError("a rejected review must continue the work; it cannot complete it")
+            cycle.update(
+                {
+                    "status": "completed",
+                    "finished_at": utc_now(),
+                    "actual_outcome": args.actual_outcome,
+                    "evidence_ids": args.evidence_ids,
+                    "completion_evidence_digest": completion_evidence_digest(state, args.evidence_ids),
+                    "cost_usd": args.cost_usd,
+                    "latency_minutes": args.latency_minutes,
+                    "token_usage": args.token_usage,
+                    "user_visible_movement": args.user_visible_movement == "true",
+                    "work_disposition": args.work_disposition,
+                    "reviewer_decision": args.reviewer_decision,
+                    "reviewer": args.reviewer,
+                    "reviewer_grant": reviewer_grant,
+                }
+            )
+            if args.commit:
+                cycle["commit"] = args.commit
+            if args.ref:
+                cycle["ref"] = args.ref
+            if work:
+                if args.work_disposition == "complete":
+                    completion = {
+                        "evidence_ids": list(args.evidence_ids),
+                        "completion_evidence_digest": completion_evidence_digest(state, args.evidence_ids),
+                        "cost_usd": args.cost_usd,
+                        "latency_minutes": args.latency_minutes,
+                        "token_usage": args.token_usage,
+                        "user_visible_movement": args.user_visible_movement == "true",
+                        "reviewer_decision": args.reviewer_decision,
+                        "reviewer": args.reviewer,
+                        "reviewer_grant": reviewer_grant,
+                    }
+                    if args.commit:
+                        completion["commit"] = args.commit
+                    if args.ref:
+                        completion["ref"] = args.ref
+                    archived = {
+                        **work,
+                        "status": "completed",
+                        "completed_at": cycle["finished_at"],
+                        "completion_cycle_id": cycle["id"],
+                        "completion": completion,
+                    }
+                    digest = completion_digest(archived, cycle)
+                    cycle["completion_digest"] = digest
+                    archived["completion_digest"] = digest
+                    state["portfolio"].setdefault("completed_work", []).append(archived)
+                    state["portfolio"]["active_work"] = [
+                        item for item in state["portfolio"]["active_work"] if item.get("id") != work.get("id")
+                    ]
+                else:
+                    work["status"] = "ready"
+                    if work.get("execution_mode", "single") == "luna_fabric":
+                        state["execution_fabric"]["status"] = "paused"
+            state["controller"]["last_cycle_at"] = cycle["finished_at"]
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            state["controller"]["schedule_enabled"] = False
+            candidate_report = validate_state(state, expected_project=project)
+            drift_errors = [
+                error
+                for error in candidate_report["errors"]
+                if "actual " in error or "two consecutive cycles" in error
+            ]
+            if drift_errors:
+                state["controller"]["schedule_enabled"] = False
+                state["instance"]["status"] = "paused"
+                state["feedback"]["failure_patterns"].append(
+                    {
+                        "id": f"drift-{uuid.uuid4().hex[:12]}",
+                        "program_version": state["strategy"]["program_version"],
+                        "observed_at": utc_now(),
+                        "pattern": "; ".join(drift_errors),
+                        "affected_cycles": [item["id"] for item in state["feedback"]["cycles"][-2:]],
+                    }
+                )
+            persist_state_event(
+                project,
+                path,
+                state,
+                "cycle_finished",
+                cycle_id=args.cycle_id,
+                work_disposition=args.work_disposition,
+                reviewer_decision=args.reviewer_decision,
+                drift_paused=bool(drift_errors),
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "cycle_id": args.cycle_id,
+                "work_disposition": args.work_disposition,
+                "drift_paused": bool(drift_errors),
+            }
+        )
+    )
+    return 0
+
+
+def configure_execution_fabric(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        manifest_path = project_local_path(project, args.manifest)
+        if manifest_path is None or not manifest_path.is_file():
+            raise ValueError("manifest must be a project-local JSON file")
+        manifest = load_json(manifest_path)
+        manifest_report = validate_fabric_manifest(manifest)
+        if not manifest_report.get("valid"):
+            raise ValueError("; ".join(manifest_report.get("errors", ["manifest is invalid"])))
+        with locked_state(project) as (path, state):
+            if state.get("schema_version") != SCHEMA_VERSION:
+                raise ValueError("run upgrade before configuring the execution fabric")
+            if state.get("core_version") != CORE_VERSION:
+                raise ValueError("Company OS core version is stale")
+            if state.get("strategy", {}).get("program_fingerprint") != strategy_fingerprint(
+                state.get("strategy", {})
+            ):
+                raise ValueError("Company OS strategy fingerprint is invalid")
+            if state.get("controller", {}).get("cancellation_requested"):
+                raise ValueError("replace the cancelled program before configuring execution")
+            if state.get("controller", {}).get("lease") is not None:
+                raise ValueError("cannot configure the execution fabric while a lease is active")
+            work = next(
+                (
+                    item
+                    for item in state.get("portfolio", {}).get("active_work", [])
+                    if item.get("id") == args.work_id
+                ),
+                None,
+            )
+            if not work or not work.get("primary") or work.get("status") != "ready":
+                raise ValueError("execution fabric requires the ready primary work item")
+            if work.get("execution_mode", "single") != "luna_fabric":
+                raise ValueError("work item must use execution_mode luna_fabric")
+            if any(
+                cycle.get("status") == "running"
+                for cycle in state.get("feedback", {}).get("cycles", [])
+                if isinstance(cycle, dict)
+            ):
+                raise ValueError("cannot reconfigure the execution fabric during a running cycle")
+            if manifest.get("program_id") != state["instance"]["project_id"]:
+                raise ValueError("manifest program_id must match the Company OS project_id")
+            if manifest.get("program_version") != state["strategy"]["program_version"]:
+                raise ValueError("manifest program_version must match the Company OS program")
+            if manifest.get("outcome") != work.get("user_visible_outcome"):
+                raise ValueError("manifest outcome must match the governed user-visible outcome")
+            if manifest.get("program_contract", {}).get("north_star") != state["strategy"]["north_star"]:
+                raise ValueError("manifest north_star must match Company OS strategy")
+            configured_at = utc_now()
+            state["execution_fabric"] = {
+                "enabled": True,
+                "status": "ready",
+                "program_version": state["strategy"]["program_version"],
+                "work_id": args.work_id,
+                "cycle_id": None,
+                "manifest": manifest,
+                "manifest_digest": fabric_manifest_digest(manifest),
+                "manifest_path": str(manifest_path.relative_to(project)),
+                "manifest_sha256": sha256_file(manifest_path),
+                "configured_at": configured_at,
+                "managers": {
+                    manager["id"]: {
+                        "id": manager["id"],
+                        "model": manager["model"],
+                        "outcome": manager["outcome"],
+                        "status": "pending",
+                        "next_phase": "charter",
+                        "rework_rounds": 0,
+                        "reports": [],
+                        "decisions": [],
+                    }
+                    for manager in manifest["managers"]
+                },
+                "decisions": [],
+                "cancelled_at": None,
+                "cancellation_reason": None,
+            }
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            state["controller"]["schedule_enabled"] = False
+            persist_state_event(
+                project,
+                path,
+                state,
+                "execution_fabric_configured",
+                work_id=args.work_id,
+                manifest_digest=state["execution_fabric"]["manifest_digest"],
+            )
+            manifest_digest = state["execution_fabric"]["manifest_digest"]
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "work_id": args.work_id,
+                "manifest_digest": manifest_digest,
+                "status": "ready",
+            }
+        )
+    )
+    return 0
+
+
+def record_fabric_phase(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        report_path = project_local_path(project, args.report)
+        if report_path is None or not report_path.is_file():
+            raise ValueError("report must be a project-local JSON file")
+        report = load_json(report_path)
+        with locked_state(project) as (path, state):
+            require_current_lease(state, args, "record-fabric-phase")
+            fabric = state.get("execution_fabric", {})
+            if fabric.get("status") != "running" or not fabric.get("cycle_id"):
+                raise ValueError("execution fabric is not bound to a running cycle")
+            require_running_cycle_lease_fence(state, args, fabric.get("cycle_id"))
+            manager = fabric.get("managers", {}).get(args.manager_id)
+            if not manager:
+                raise ValueError("manager is not admitted by the execution fabric")
+            phase = manager.get("next_phase")
+            if phase is None or manager.get("status") not in {"pending", "ready"}:
+                raise ValueError("manager is not ready to report a phase")
+            evidence_by_id, valid_evidence_ids = current_fabric_evidence(state, project)
+            report_errors = validate_fabric_report_payload(
+                state,
+                args.manager_id,
+                phase,
+                report,
+                valid_evidence_ids=valid_evidence_ids,
+                evidence_by_id=evidence_by_id,
+            )
+            if report_errors:
+                raise ValueError("; ".join(report_errors))
+            digest = hashlib.sha256(canonical_json(report).encode("utf-8")).hexdigest()
+            manager["reports"].append(
+                {
+                    "phase": phase,
+                    "attempt": 1 + sum(
+                        1 for item in manager["reports"] if item.get("phase") == phase
+                    ),
+                    "report": report,
+                    "report_digest": digest,
+                    "report_path": str(report_path.relative_to(project)),
+                    "report_sha256": sha256_file(report_path),
+                    "recorded_at": utc_now(),
+                }
+            )
+            manager["status"] = "awaiting_decision"
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(
+                project,
+                path,
+                state,
+                "execution_fabric_phase_reported",
+                manager_id=args.manager_id,
+                phase=phase,
+                report_digest=digest,
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "manager_id": args.manager_id, "phase": phase, "report_digest": digest}))
+    return 0
+
+
+def decide_fabric_phase(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            require_current_lease(state, args, "decide-fabric-phase")
+            fabric = state.get("execution_fabric", {})
+            if fabric.get("status") != "running":
+                raise ValueError("execution fabric is not running")
+            require_running_cycle_lease_fence(state, args, fabric.get("cycle_id"))
+            manager = fabric.get("managers", {}).get(args.manager_id)
+            if not manager or manager.get("status") != "awaiting_decision":
+                raise ValueError("manager has no phase report awaiting a decision")
+            phase = manager.get("next_phase")
+            latest = manager.get("reports", [])[-1]
+            report = latest["report"]
+            report_artifact = project_local_path(project, latest.get("report_path"))
+            if (
+                report_artifact is None
+                or not report_artifact.is_file()
+                or latest.get("report_sha256") != sha256_file(report_artifact)
+                or latest.get("report_digest")
+                != hashlib.sha256(canonical_json(report).encode("utf-8")).hexdigest()
+            ):
+                raise ValueError("manager phase report integrity changed before master decision")
+            evidence_by_id, valid_evidence_ids = current_fabric_evidence(state, project)
+            report_errors = validate_fabric_report_payload(
+                state,
+                args.manager_id,
+                phase,
+                report,
+                valid_evidence_ids=valid_evidence_ids,
+                evidence_by_id=evidence_by_id,
+            )
+            if report_errors:
+                raise ValueError("; ".join(report_errors))
+            if args.decision == "continue" and report.get("outcome_state") == "blocked":
+                raise ValueError("a blocked manager report cannot continue")
+            if args.decided_by == args.manager_id:
+                raise ValueError("a manager cannot approve its own phase")
+            if args.decision == "rework" and manager.get("rework_rounds", 0) >= 2:
+                raise ValueError("manager rework budget is exhausted")
+            payload = fabric_phase_decision_payload(
+                state,
+                args.manager_id,
+                phase,
+                args.decision,
+            )
+            master_grant = verify_actor_grant(
+                state,
+                args.master_grant,
+                args.decided_by,
+                "fabric-phase-decision",
+                resource=f"fabric:{args.manager_id}:{phase}",
+                work_id=str(fabric.get("work_id")),
+                cycle_id=str(fabric.get("cycle_id")),
+                dimension="execution-fabric",
+                decision=args.decision,
+                payload_hash=command_payload_hash("fabric-phase-decision", payload),
+            )
+            decision = {
+                "phase": phase,
+                "decision": args.decision,
+                "decided_by": args.decided_by,
+                "decided_at": utc_now(),
+                "report_digest": latest["report_digest"],
+                "rework_rounds_before": manager.get("rework_rounds", 0),
+                "payload": payload,
+                "master_grant": master_grant,
+            }
+            manager["decisions"].append(decision)
+            fabric["decisions"].append(
+                {
+                    "manager_id": args.manager_id,
+                    "phase": phase,
+                    "decision": args.decision,
+                    "decided_at": decision["decided_at"],
+                    "report_digest": latest["report_digest"],
+                }
+            )
+            if args.decision == "rework":
+                manager["rework_rounds"] += 1
+                manager["status"] = "ready"
+            elif args.decision == "pause":
+                manager["status"] = "paused"
+                fabric["status"] = "paused"
+            elif args.decision == "terminate":
+                manager["status"] = "terminated"
+                fabric["status"] = "terminated"
+            elif phase == "integration":
+                manager["status"] = "accepted"
+                manager["next_phase"] = None
+                if all(
+                    item.get("status") == "accepted"
+                    for item in fabric["managers"].values()
+                ):
+                    fabric["status"] = "accepted"
+            else:
+                manager["next_phase"] = FABRIC_PHASES[FABRIC_PHASES.index(phase) + 1]
+                manager["status"] = "ready"
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(
+                project,
+                path,
+                state,
+                "execution_fabric_phase_decided",
+                manager_id=args.manager_id,
+                phase=phase,
+                decision=args.decision,
+            )
+            fabric_status = fabric["status"]
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "manager_id": args.manager_id,
+                "phase": phase,
+                "decision": args.decision,
+                "fabric_status": fabric_status,
+            }
+        )
+    )
+    return 0
+
+
+def propose_adaptation(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            protected = set(args.changes) & PROTECTED_ADAPTATION_FIELDS
+            if protected:
+                raise ValueError(f"adaptation changes protected fields: {sorted(protected)}")
+            if not nonnegative_integer(args.time_cap_minutes):
+                raise ValueError("time_cap_minutes must be a non-negative integer")
+            if not finite_nonnegative_number(args.cost_cap_usd):
+                raise ValueError("cost_cap_usd must be a finite non-negative number")
+            adaptation_id = args.id or f"adapt-{uuid.uuid4().hex[:12]}"
+            proposal = {
+                "id": adaptation_id,
+                "program_version": state["strategy"]["program_version"],
+                "failure_pattern": args.failure_pattern,
+                "hypothesis": args.hypothesis,
+                "experiment": args.experiment,
+                "success_metric": args.success_metric,
+                "rollback": args.rollback,
+                "proposer": args.proposer,
+                "time_cap_minutes": args.time_cap_minutes,
+                "cost_cap_usd": args.cost_cap_usd,
+                "changes": args.changes,
+                "meta_depth": 1,
+                "status": "proposed",
+                "proposed_at": utc_now(),
+            }
+            proposal["proposal_digest"] = adaptation_proposal_digest(proposal)
+            state["feedback"]["pending_adaptations"].append(proposal)
+            persist_state_event(project, path, state, "adaptation_proposed", adaptation_id=adaptation_id)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "adaptation_id": adaptation_id}))
+    return 0
+
+
+def review_adaptation(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            proposal = next(
+                (
+                    item
+                    for item in state["feedback"]["pending_adaptations"]
+                    if item.get("id") == args.id
+                ),
+                None,
+            )
+            if not proposal:
+                raise ValueError("pending adaptation not found")
+            if proposal.get("proposer") == args.reviewer:
+                raise ValueError("adaptation cannot be self-reviewed")
+            proposal_digest = proposal.get("proposal_digest")
+            if proposal_digest != adaptation_proposal_digest(proposal):
+                raise ValueError("adaptation proposal digest is invalid")
+            reviewer_grant = verify_actor_grant(
+                state, args.reviewer_grant, args.reviewer, "review-adaptation",
+                resource=f"adaptation:{args.id}", work_id="", cycle_id="", dimension="meta-loop",
+                decision=args.decision,
+                payload_hash=command_payload_hash("review-adaptation", {
+                    "adaptation_id": args.id, "proposal_digest": proposal_digest,
+                    "reviewer": args.reviewer, "decision": args.decision,
+                }),
+            )
+            state["feedback"]["pending_adaptations"].remove(proposal)
+            reviewed = {
+                **proposal,
+                "reviewer": args.reviewer,
+                "review_decision": args.decision,
+                "reviewed_at": utc_now(),
+                "reviewer_grant": reviewer_grant,
+                "status": "applied" if args.decision == "accepted" else "rejected",
+            }
+            state["feedback"]["applied_adaptations"].append(reviewed)
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(
+                project,
+                path,
+                state,
+                "adaptation_reviewed",
+                adaptation_id=args.id,
+                decision=args.decision,
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "adaptation_id": args.id, "decision": args.decision}))
+    return 0
+
+
+def admit_runtime_attempt(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            lease = require_current_lease(state, args, "admit-runtime-attempt")
+            runtime = state.get("runtime_adapter", {})
+            required_text = {
+                "attempt_id": args.attempt_id,
+                "manifest_identity_id": args.manifest_identity_id,
+                "work_id": args.work_id,
+                "cycle_id": args.cycle_id,
+                "parent_runtime_id": args.parent_runtime_id,
+                "requested_model": args.requested_model,
+                "provider": args.provider,
+                "surface": args.surface,
+                "account": args.account,
+                "fabric_manifest_digest": args.fabric_manifest_digest,
+                "contract_digest": args.contract_digest,
+                "idempotency_key": args.idempotency_key,
+                "admitted_by": args.admitted_by,
+            }
+            if any(
+                not isinstance(value, str) or not value or value != value.strip()
+                for value in required_text.values()
+            ):
+                raise ValueError("runtime admission identifiers and bindings must be non-empty trimmed strings")
+            if not runtime.get("enabled") or runtime.get("status") != "enabled":
+                raise ValueError("runtime adapter is feature-off")
+            allowlist = runtime.get("provider_allowlist")
+            attempts = runtime.get("attempts")
+            if (
+                not isinstance(allowlist, list)
+                or not isinstance(attempts, list)
+                or any(
+                    not isinstance(item, dict)
+                    or set(item) != {"provider", "surface", "account"}
+                    or any(
+                        not isinstance(item.get(key), str)
+                        or not item[key]
+                        or item[key] != item[key].strip()
+                        for key in ("provider", "surface", "account")
+                    )
+                    for item in allowlist
+                )
+                or len({
+                    (item["provider"], item["surface"], item["account"])
+                    for item in allowlist
+                }) != len(allowlist)
+                or any(not isinstance(item, dict) for item in attempts)
+            ):
+                raise ValueError("runtime adapter configuration is invalid")
+            retained_runtime_errors = [
+                error
+                for error in validate_state(state, expected_project=project)["errors"]
+                if error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
+            ]
+            if retained_runtime_errors:
+                raise ValueError(
+                    "runtime adapter retained state failed audit: "
+                    + "; ".join(retained_runtime_errors)
+                )
+            if runtime.get("program_version") != state.get("strategy", {}).get("program_version"):
+                raise ValueError("runtime adapter belongs to a stale program")
+            fabric = state.get("execution_fabric", {})
+            if fabric.get("status") != "running" or fabric.get("work_id") != args.work_id or fabric.get("cycle_id") != args.cycle_id:
+                raise ValueError("runtime admission requires the exact running luna_fabric cycle")
+            manifest = fabric.get("manifest", {})
+            cycle = require_running_cycle_lease_fence(state, args, args.cycle_id)
+            if cycle.get("work_id") != args.work_id or cycle.get("program_version") != state["strategy"]["program_version"]:
+                raise ValueError("runtime admission must bind the current running work cycle")
+            manifest_digest = fabric.get("manifest_digest")
+            if not isinstance(manifest, dict) or not isinstance(manifest_digest, str) or fabric_manifest_digest(manifest) != manifest_digest:
+                raise ValueError("runtime admission requires the current admitted fabric manifest")
+            manifest_report = validate_fabric_manifest(manifest)
+            if not manifest_report.get("valid"):
+                raise ValueError("runtime admission requires a valid current fabric manifest")
+            if args.fabric_manifest_digest != manifest_digest:
+                raise ValueError("fabric_manifest_digest does not bind the current fabric")
+            if args.contract_digest != PHASE2_CONTRACT_DIGEST or runtime.get("phase2_contract_digest") != PHASE2_CONTRACT_DIGEST:
+                raise ValueError("contract_digest does not match the frozen Phase 2 contract")
+            if {"provider": args.provider, "surface": args.surface, "account": args.account} not in allowlist:
+                raise ValueError("provider, surface, and account are not allowlisted")
+            try:
+                budget = json.loads(args.budget)
+                scope = json.loads(args.scope)
+            except (TypeError, json.JSONDecodeError):
+                raise ValueError("scope and budget must be canonical JSON")
+            if not isinstance(budget, dict):
+                raise ValueError("budget must be a canonical object")
+            scope = canonical_runtime_scopes(scope)
+            candidate: dict[str, Any] | None = None
+            owner_manifest_id: str | None = None
+            for manager in manifest.get("managers", []):
+                if args.role == "manager" and args.manifest_identity_id == manager.get("id") and args.parent_runtime_id == "master":
+                    candidate = manager
+                for worker in manager.get("workers", []):
+                    if args.role == "worker" and args.manifest_identity_id == worker.get("id"):
+                        if candidate is not None:
+                            raise ValueError("runtime manifest identity is ambiguous")
+                        candidate = worker
+                        owner_manifest_id = manager.get("id")
+            if candidate is None or args.role not in {"manager", "worker"}:
+                raise ValueError("runtime identity or parent is not admitted by the manifest")
+            if args.role == "manager":
+                if candidate.get("model") != "gpt-5.6-sol":
+                    raise ValueError("manager admission requires the exact Sol manifest model")
+            else:
+                if candidate.get("model") != "gpt-5.6-luna":
+                    raise ValueError("worker admission requires the exact Luna manifest model")
+                parent = next(
+                    (item for item in attempts
+                     if item.get("attempt_id") == args.parent_runtime_id
+                     and item.get("role") == "manager"
+                     and item.get("manifest_identity_id") == owner_manifest_id
+                     and item.get("status") == "admitted"),
+                    None,
+                )
+                if parent is None:
+                    raise ValueError("worker admission requires its already admitted manager runtime parent")
+            try:
+                candidate_scope = canonical_runtime_scopes(candidate.get("write_scope"))
+            except ValueError as exc:
+                raise ValueError(f"manifest scope is not canonical: {exc}") from None
+            if args.requested_model != candidate.get("model") or scope != candidate_scope:
+                raise ValueError("requested model or scope does not match the admitted manifest identity")
+            if canonical_json(budget) != canonical_json(candidate.get("budget")):
+                raise ValueError("runtime budget does not match the admitted manifest identity")
+            payload = runtime_admission_payload(args, scope=scope, budget=budget, lease=lease)
+            for item in attempts:
+                same_payload = all(item.get(key) == value for key, value in payload.items())
+                if item.get("idempotency_key") == args.idempotency_key:
+                    if same_payload:
+                        print(json.dumps({"ok": True, "attempt_id": args.attempt_id, "status": "admitted", "idempotent": True}))
+                        return 0
+                    raise ValueError("runtime idempotency key conflicts with a different admission payload")
+                if item.get("attempt_id") == args.attempt_id:
+                    raise ValueError("runtime attempt ID already consumed")
+                if (
+                    item.get("program_version") == state["strategy"]["program_version"]
+                    and item.get("work_id") == args.work_id
+                    and item.get("cycle_id") == args.cycle_id
+                    and item.get("manifest_identity_id") == args.manifest_identity_id
+                ):
+                    raise ValueError("manifest identity already has an admitted attempt in this work cycle")
+            grant = verify_actor_grant(state, args.actor_grant, args.admitted_by, "admit-runtime-attempt", resource=f"runtime:{args.attempt_id}", work_id=args.work_id, cycle_id=args.cycle_id, dimension="runtime-admission", decision="admitted", payload_hash=command_payload_hash("admit-runtime-attempt", payload))
+            attempts.append({**payload, "program_version": state["strategy"]["program_version"], "lease_id": args.lease_id, "lease_generation": args.generation, "lease_owner": args.owner, "status": "admitted", "provider_task_id": None, "admitted_by": args.admitted_by, "actor_grant": grant, "admitted_at": utc_now()})
+            persist_state_event(project, path, state, "runtime_attempt_admitted", attempt_id=args.attempt_id, idempotency_key=args.idempotency_key)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2)); return 2
+    print(json.dumps({"ok": True, "attempt_id": args.attempt_id, "status": "admitted"})); return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    init_parser = subparsers.add_parser("init", help="create an isolated project instance")
+    init_parser.add_argument("--project", required=True)
+    init_parser.add_argument("--name", required=True)
+    init_parser.add_argument("--project-type", default="general", choices=sorted(DEPARTMENT_PRESETS))
+    init_parser.add_argument("--north-star", required=True)
+    init_parser.set_defaults(handler=init_instance)
+    audit_parser = subparsers.add_parser("audit", help="validate gates and readiness")
+    audit_parser.add_argument("--project", required=True)
+    audit_parser.set_defaults(handler=audit_instance)
+    upgrade_parser = subparsers.add_parser(
+        "upgrade", help="upgrade a schema v1-v7 instance fail-closed"
+    )
+    upgrade_parser.add_argument("--project", required=True)
+    upgrade_parser.set_defaults(handler=upgrade_instance)
+    replace_parser = subparsers.add_parser("replace-program", help="version a changed mandate")
+    replace_parser.add_argument("--project", required=True)
+    replace_parser.add_argument("--north-star", required=True)
+    replace_parser.add_argument("--current-outcome", required=True)
+    replace_parser.add_argument("--success-metric", required=True)
+    replace_parser.add_argument("--reason", required=True)
+    replace_parser.set_defaults(handler=replace_program)
+    cancel_parser = subparsers.add_parser("cancel", help="authoritatively cancel work and leases")
+    cancel_parser.add_argument("--project", required=True)
+    cancel_parser.add_argument("--reason", required=True)
+    cancel_parser.set_defaults(handler=cancel_instance)
+    evidence_parser = subparsers.add_parser("record-evidence", help="record hashed project evidence")
+    evidence_parser.add_argument("--project", required=True)
+    evidence_parser.add_argument("--outcome", choices=EVIDENCE_BUCKETS, required=True)
+    evidence_parser.add_argument("--artifact", required=True)
+    evidence_parser.add_argument("--source", required=True)
+    evidence_parser.add_argument("--decision-impact", required=True)
+    evidence_parser.add_argument("--author", required=True)
+    evidence_parser.add_argument("--reviewer", required=True)
+    evidence_parser.add_argument("--freshness-days", type=int, default=30)
+    evidence_parser.add_argument("--quality-dimensions", nargs="*", default=[])
+    evidence_parser.add_argument("--outcome-id")
+    evidence_parser.add_argument("--work-id")
+    evidence_parser.add_argument("--cycle-id")
+    evidence_parser.add_argument("--rubric-version")
+    evidence_parser.add_argument("--id")
+    evidence_parser.set_defaults(handler=record_evidence)
+    phase_parser = subparsers.add_parser("advance-phase", help="advance exactly one evidenced phase")
+    phase_parser.add_argument("--project", required=True)
+    phase_parser.add_argument("--phase", choices=PHASES, required=True)
+    phase_parser.set_defaults(handler=advance_phase)
+    outcome_parser = subparsers.add_parser("commit-outcome", help="commit a product outcome")
+    outcome_parser.add_argument("--project", required=True)
+    outcome_parser.add_argument("--id", required=True)
+    outcome_parser.add_argument("--type", choices=("capability", "innovation"), required=True)
+    outcome_parser.add_argument("--title", required=True)
+    outcome_parser.add_argument("--user-visible-outcome", required=True)
+    outcome_parser.set_defaults(handler=commit_outcome)
+    work_parser = subparsers.add_parser("queue-work", help="queue governed active work")
+    work_parser.add_argument("--project", required=True)
+    work_parser.add_argument("--id", required=True)
+    work_parser.add_argument("--type", choices=sorted(ALLOWED_WORK_TYPES), required=True)
+    work_parser.add_argument("--title", required=True)
+    work_parser.add_argument("--user-visible-outcome", required=True)
+    work_parser.add_argument("--claimed-progress", choices=sorted(PRODUCT_OUTCOMES), required=True)
+    work_parser.add_argument("--owner", required=True)
+    work_parser.add_argument(
+        "--execution-mode",
+        choices=("single", "luna_fabric"),
+        default="single",
+    )
+    work_parser.add_argument("--outcome-id")
+    work_parser.add_argument("--primary", choices=("true", "false"), default="false")
+    work_parser.add_argument("--unlocks", nargs="*", default=[])
+    work_parser.add_argument("--incident-ref")
+    work_parser.add_argument("--severity", choices=("P0",))
+    work_parser.add_argument("--justification")
+    work_parser.add_argument("--incident-actor")
+    work_parser.add_argument("--incident-grant")
+    work_parser.add_argument("--approval-actor")
+    work_parser.add_argument("--approval-grant")
+    work_parser.add_argument("--repeat-override-reason")
+    work_parser.add_argument("--repeat-override-reviewer")
+    work_parser.add_argument("--repeat-override-grant")
+    work_parser.set_defaults(handler=queue_work)
+    quality_parser = subparsers.add_parser("score-quality", help="record reviewed quality evidence")
+    quality_parser.add_argument("--project", required=True)
+    quality_parser.add_argument("--dimension", choices=sorted(BASE_DIMENSIONS), required=True)
+    quality_parser.add_argument("--score", type=float, required=True)
+    quality_parser.add_argument("--evidence-ids", nargs="+", required=True)
+    quality_parser.add_argument("--rubric-version", required=True)
+    quality_parser.add_argument("--scored-by", required=True)
+    quality_parser.add_argument("--reviewed-by", required=True)
+    quality_parser.add_argument("--scored-by-grant", required=True)
+    quality_parser.add_argument("--reviewed-by-grant", required=True)
+    quality_parser.add_argument("--outcome-id", required=True)
+    quality_parser.add_argument("--work-id", required=True)
+    quality_parser.add_argument("--cycle-id", required=True)
+    quality_parser.add_argument("--artifact-digest", required=True)
+    quality_parser.set_defaults(handler=score_quality)
+    certify_parser = subparsers.add_parser("certify", help="independently certify current evidence")
+    certify_parser.add_argument("--project", required=True)
+    certify_parser.add_argument("--reviewer", required=True)
+    certify_parser.add_argument("--reviewer-grant", required=True)
+    certify_parser.set_defaults(handler=certify_instance)
+    activate_parser = subparsers.add_parser("activate", help="activate an independently certified instance")
+    activate_parser.add_argument("--project", required=True)
+    activate_parser.set_defaults(handler=set_active_instance)
+    schedule_parser = subparsers.add_parser("set-schedule", help="enable or disable scheduling")
+    schedule_parser.add_argument("--project", required=True)
+    schedule_parser.add_argument("--enabled", choices=("true", "false"), required=True)
+    schedule_parser.set_defaults(handler=set_schedule)
+    acquire_parser = subparsers.add_parser("acquire-lease", help="acquire the fenced controller lease")
+    acquire_parser.add_argument("--project", required=True)
+    acquire_parser.add_argument("--owner", required=True)
+    acquire_parser.add_argument("--ttl-seconds", type=int, default=1800)
+    acquire_parser.set_defaults(handler=acquire_lease)
+    release_parser = subparsers.add_parser("release-lease", help="release an owned controller lease")
+    release_parser.add_argument("--project", required=True)
+    release_parser.add_argument("--lease-id", required=True)
+    release_parser.add_argument("--generation", type=int, required=True)
+    release_parser.add_argument("--owner", required=True)
+    release_parser.set_defaults(handler=release_lease)
+    resolve_parser = subparsers.add_parser("resolve-cycle", help="abandon, recover, or fail a fenced running cycle")
+    resolve_parser.add_argument("--project", required=True)
+    resolve_parser.add_argument("--lease-id", required=True)
+    resolve_parser.add_argument("--generation", type=int, required=True)
+    resolve_parser.add_argument("--owner", required=True)
+    resolve_parser.add_argument("--cycle-id", required=True)
+    resolve_parser.add_argument("--action", choices=("abandon", "recover", "fail"), required=True)
+    resolve_parser.add_argument("--reason", required=True)
+    resolve_parser.set_defaults(handler=resolve_cycle)
+    begin_parser = subparsers.add_parser("begin-cycle", help="begin one leased work cycle")
+    begin_parser.add_argument("--project", required=True)
+    begin_parser.add_argument("--lease-id", required=True)
+    begin_parser.add_argument("--generation", type=int, required=True)
+    begin_parser.add_argument("--owner", required=True)
+    begin_parser.add_argument("--work-id", required=True)
+    begin_parser.add_argument("--intended-outcome", required=True)
+    begin_parser.set_defaults(handler=begin_cycle)
+    finish_parser = subparsers.add_parser("finish-cycle", help="finish a leased cycle with evidence")
+    finish_parser.add_argument("--project", required=True)
+    finish_parser.add_argument("--lease-id", required=True)
+    finish_parser.add_argument("--generation", type=int, required=True)
+    finish_parser.add_argument("--owner", required=True)
+    finish_parser.add_argument("--cycle-id", required=True)
+    finish_parser.add_argument("--actual-outcome", choices=sorted(PRODUCT_OUTCOMES), required=True)
+    finish_parser.add_argument("--evidence-ids", nargs="+", required=True)
+    finish_parser.add_argument("--cost-usd", type=float, required=True)
+    finish_parser.add_argument("--latency-minutes", type=float, required=True)
+    finish_parser.add_argument("--token-usage", type=int, required=True)
+    finish_parser.add_argument("--user-visible-movement", choices=("true", "false"), required=True)
+    finish_parser.add_argument("--work-disposition", choices=("continue", "complete"), required=True)
+    finish_parser.add_argument("--reviewer-decision", choices=("accepted", "rejected"), required=True)
+    finish_parser.add_argument("--reviewer", required=True)
+    finish_parser.add_argument("--reviewer-grant", required=True)
+    finish_parser.add_argument("--commit")
+    finish_parser.add_argument("--ref")
+    finish_parser.set_defaults(handler=finish_cycle)
+    fabric_parser = subparsers.add_parser(
+        "configure-fabric",
+        help="bind a validated Sol-manager/Luna-worker manifest to primary work",
+    )
+    fabric_parser.add_argument("--project", required=True)
+    fabric_parser.add_argument("--work-id", required=True)
+    fabric_parser.add_argument("--manifest", required=True)
+    fabric_parser.set_defaults(handler=configure_execution_fabric)
+    report_parser = subparsers.add_parser(
+        "record-fabric-phase",
+        help="record one manager phase report for master review",
+    )
+    report_parser.add_argument("--project", required=True)
+    report_parser.add_argument("--manager-id", required=True)
+    report_parser.add_argument("--report", required=True)
+    report_parser.add_argument("--lease-id", required=True)
+    report_parser.add_argument("--generation", type=int, required=True)
+    report_parser.add_argument("--owner", required=True)
+    report_parser.set_defaults(handler=record_fabric_phase)
+    decision_parser = subparsers.add_parser(
+        "decide-fabric-phase",
+        help="record an authenticated master decision on a manager phase",
+    )
+    decision_parser.add_argument("--project", required=True)
+    decision_parser.add_argument("--manager-id", required=True)
+    decision_parser.add_argument("--decision", choices=sorted(FABRIC_DECISIONS), required=True)
+    decision_parser.add_argument("--decided-by", required=True)
+    decision_parser.add_argument("--master-grant", required=True)
+    decision_parser.add_argument("--lease-id", required=True)
+    decision_parser.add_argument("--generation", type=int, required=True)
+    decision_parser.add_argument("--owner", required=True)
+    decision_parser.set_defaults(handler=decide_fabric_phase)
+    admission_parser = subparsers.add_parser(
+        "admit-runtime-attempt",
+        help="record one feature-gated, signed pre-launch runtime admission",
+    )
+    admission_parser.add_argument("--project", required=True)
+    admission_parser.add_argument("--lease-id", required=True)
+    admission_parser.add_argument("--generation", type=int, required=True)
+    admission_parser.add_argument("--owner", required=True)
+    admission_parser.add_argument("--work-id", required=True)
+    admission_parser.add_argument("--cycle-id", required=True)
+    admission_parser.add_argument("--attempt-id", required=True)
+    admission_parser.add_argument("--manifest-identity-id", required=True)
+    admission_parser.add_argument("--parent-runtime-id", required=True)
+    admission_parser.add_argument("--role", choices=("manager", "worker"), required=True)
+    admission_parser.add_argument("--requested-model", required=True)
+    admission_parser.add_argument("--provider", required=True)
+    admission_parser.add_argument("--surface", required=True)
+    admission_parser.add_argument("--account", required=True)
+    admission_parser.add_argument("--scope", required=True, help="canonical JSON array matching the full manifest write scope")
+    admission_parser.add_argument("--budget", required=True, help="canonical JSON object matching the manifest budget")
+    admission_parser.add_argument("--fabric-manifest-digest", required=True)
+    admission_parser.add_argument("--contract-digest", required=True)
+    admission_parser.add_argument("--idempotency-key", required=True)
+    admission_parser.add_argument("--admitted-by", required=True)
+    admission_parser.add_argument("--actor-grant", required=True)
+    admission_parser.set_defaults(handler=admit_runtime_attempt)
+    propose_parser = subparsers.add_parser("propose-adaptation", help="propose a bounded meta-loop change")
+    propose_parser.add_argument("--project", required=True)
+    propose_parser.add_argument("--failure-pattern", required=True)
+    propose_parser.add_argument("--hypothesis", required=True)
+    propose_parser.add_argument("--experiment", required=True)
+    propose_parser.add_argument("--success-metric", required=True)
+    propose_parser.add_argument("--rollback", required=True)
+    propose_parser.add_argument("--proposer", required=True)
+    propose_parser.add_argument("--time-cap-minutes", type=int, required=True)
+    propose_parser.add_argument("--cost-cap-usd", type=float, required=True)
+    propose_parser.add_argument("--changes", nargs="+", required=True)
+    propose_parser.add_argument("--id")
+    propose_parser.set_defaults(handler=propose_adaptation)
+    review_parser = subparsers.add_parser("review-adaptation", help="independently review an adaptation")
+    review_parser.add_argument("--project", required=True)
+    review_parser.add_argument("--id", required=True)
+    review_parser.add_argument("--reviewer", required=True)
+    review_parser.add_argument("--decision", choices=("accepted", "rejected"), required=True)
+    review_parser.add_argument("--reviewer-grant", required=True)
+    review_parser.set_defaults(handler=review_adaptation)
+    return parser
+
+
+def main() -> int:
+    args = build_parser().parse_args()
+    return int(args.handler(args))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

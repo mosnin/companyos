@@ -1,0 +1,300 @@
+{
+  "bundles": [
+    "company-os",
+    "autonomy-suite"
+  ],
+  "distribution_version": "0.1.0",
+  "files": [
+    {
+      "path": "company-os/brand-creative-system/SKILL.md",
+      "sha256": "d202f89899a6597be1eb04c89f1648242628fcd627a9a1fff6f0b59550d818ca",
+      "size": 2216
+    },
+    {
+      "path": "company-os/brand-creative-system/agents/openai.yaml",
+      "sha256": "586da8cfa61b91af6631105772291fe6fb788802bb96ff39b382711577abacdd",
+      "size": 229
+    },
+    {
+      "path": "company-os/commercial-customer-system/SKILL.md",
+      "sha256": "85edf0bb76e4393b3977245cadcb0eabdb91f48a1bfe5d70ec1e1eab022af5b2",
+      "size": 2143
+    },
+    {
+      "path": "company-os/commercial-customer-system/agents/openai.yaml",
+      "sha256": "9906278da85eb690854813713833827aee6fec4e9dc13f903145532e652bd8a6",
+      "size": 229
+    },
+    {
+      "path": "company-os/company-os/SKILL.md",
+      "sha256": "b99cad6ecae3a8aa7f605b7d9f723d8eb7adccd79ef4614f09bd59554c6e8536",
+      "size": 5220
+    },
+    {
+      "path": "company-os/company-os/agents/openai.yaml",
+      "sha256": "75c04429548e05c9ba1124e2d657d3bc814ff6007a101a551f26c2eaa7444229",
+      "size": 211
+    },
+    {
+      "path": "company-os/department-charters/SKILL.md",
+      "sha256": "40020dd6a130a891ad23e428c753da1aa26ed8959ce346ef2d24f90e6e82bb55",
+      "size": 1432
+    },
+    {
+      "path": "company-os/department-charters/agents/openai.yaml",
+      "sha256": "682dd8b19d55779619ce1a5ac5a4adb20edae341e047886a7a079352039dff64",
+      "size": 108
+    },
+    {
+      "path": "company-os/elastic-company-os/SKILL.md",
+      "sha256": "9d4381c576db6296e0513d44dea706ed96bcffccef059c1c279de0621fbc1def",
+      "size": 12912
+    },
+    {
+      "path": "company-os/elastic-company-os/agents/openai.yaml",
+      "sha256": "fbe6a02106c83ba2b973f7cc5f68596da6d7deee8deea316152616ebf0921f1d",
+      "size": 247
+    },
+    {
+      "path": "company-os/elastic-company-os/assets/instance-template.json",
+      "sha256": "efa91c591ba4487e908795fc8375da68d665a4b0cbea52006ccf3b5804a42888",
+      "size": 2333
+    },
+    {
+      "path": "company-os/elastic-company-os/references/control-contract.md",
+      "sha256": "0e943d53615057761f2698fd98ff2538ebc97a342f8bd9069fab3bff35d70ed8",
+      "size": 10562
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
+      "sha256": "0d422d10a3a99a4320e3a98f2012919a9ba03002173dac500fd42897c9da527d",
+      "size": 213487
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
+      "sha256": "8a33320c2bd1dfa39a06fe8d980164ed3e2c18e19c1f766955e734ad77a68d9a",
+      "size": 139343
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/SKILL.md",
+      "sha256": "90e0beda303934a8804e4ef51900024fc91283f026d72ca5ff7fe53aa03a5795",
+      "size": 2427
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/agents/openai.yaml",
+      "sha256": "06d7cbda0698baffdeb7da5ea64a5344d1c83e4bc2d464e9bcdfecc0be0e4d81",
+      "size": 239
+    },
+    {
+      "path": "company-os/intelligence/evidence-research-campaign/SKILL.md",
+      "sha256": "1a5ea14ccbe44c1741427c68fe62917326b94da1630427bfe4a0351f3fe68b10",
+      "size": 1762
+    },
+    {
+      "path": "company-os/intelligence/evidence-research-campaign/agents/openai.yaml",
+      "sha256": "009b562626f059e822273f613851d461e36ba290fd069a0d540147e27a8d8ec9",
+      "size": 122
+    },
+    {
+      "path": "company-os/intelligence/innovation-bets/SKILL.md",
+      "sha256": "af8d4941e328452bb66244065755ff2f7b8d303eb797b77fc4f33368001e43d9",
+      "size": 1326
+    },
+    {
+      "path": "company-os/intelligence/innovation-bets/agents/openai.yaml",
+      "sha256": "8d6de2c6fa76be8daf82333d7b9fee00611c298ef7d7d09c8f50d469836d33fa",
+      "size": 100
+    },
+    {
+      "path": "company-os/intelligence/research-intelligence/SKILL.md",
+      "sha256": "9894d2ef028d87c04a94be2240f273ef7cd806ec9976672b3b8a9b1b3458c46e",
+      "size": 2439
+    },
+    {
+      "path": "company-os/intelligence/research-intelligence/agents/openai.yaml",
+      "sha256": "678009f4d69d9b7df1443f5a4b7abddbdd3f66660a09ae231a8982a2034c6899",
+      "size": 112
+    },
+    {
+      "path": "company-os/intelligence/technology-radar/SKILL.md",
+      "sha256": "eb60cc12affff565d399beea991086cab418bb8d0cb3c9930323e40cae7341ba",
+      "size": 1118
+    },
+    {
+      "path": "company-os/intelligence/technology-radar/agents/openai.yaml",
+      "sha256": "a7cef9c241224d0bf31fcd03c2974e1019e033ee50ec59d85d1cd35c9bd3688a",
+      "size": 102
+    },
+    {
+      "path": "company-os/intelligence/voice-of-customer/SKILL.md",
+      "sha256": "ee858e99de2d3fa408c2f816a46ace8657c964d1f21f3bcc11f7a7e7fa3f87ff",
+      "size": 1309
+    },
+    {
+      "path": "company-os/intelligence/voice-of-customer/agents/openai.yaml",
+      "sha256": "261b58dbe9af48e3f5d8d72cf80b06d8450f986f33def9accae95bd8956ce652",
+      "size": 104
+    },
+    {
+      "path": "company-os/operational-control/SKILL.md",
+      "sha256": "10a78d351e5eaa95d3f22dd9e7ce0df36ec19cd511484e863db2381653b64443",
+      "size": 1767
+    },
+    {
+      "path": "company-os/operational-control/agents/openai.yaml",
+      "sha256": "d1e0575f69ce477d94b9e6443a4b5841150b9beeca96a512b38d6c57ded1951c",
+      "size": 108
+    },
+    {
+      "path": "company-os/project-program-management/SKILL.md",
+      "sha256": "d3c3d8ae0681f8e407daa782c304f6e36ec803c7c5e610fc35f2cc08cbd3913d",
+      "size": 7063
+    },
+    {
+      "path": "company-os/project-program-management/agents/openai.yaml",
+      "sha256": "38fd203b7468850adbbf3603956ec061a13e17d1dd402e9c22dfef990441b8c6",
+      "size": 122
+    },
+    {
+      "path": "company-os/project-program-management/templates/frontier-product-program.md",
+      "sha256": "c71f24c82ec6bcc2e79641a314f47cebf5a07b5f836ead55fd16240875fb69f6",
+      "size": 2925
+    },
+    {
+      "path": "autonomy-suite/SKILL.md",
+      "sha256": "467ea3fe886fe44f833e78e0680b74a763808bde2aaba668664c229170777bf9",
+      "size": 5997
+    },
+    {
+      "path": "autonomy-suite/agents/openai.yaml",
+      "sha256": "208f8b4149556b550528a06d1bd71077f941245d4a6474ce68afa66fb66e99ad",
+      "size": 232
+    },
+    {
+      "path": "autonomy-suite/delegation/supervised-subagent-tree/SKILL.md",
+      "sha256": "82ab61189b42f0a0d8e3d9d4abe044e9ed3c029005df1f1f473406a660be83a0",
+      "size": 2351
+    },
+    {
+      "path": "autonomy-suite/delegation/supervised-subagent-tree/agents/openai.yaml",
+      "sha256": "ef50a41b15ed0fc5453a920a8c9504eb506ccdb542f0ea0abb264c90a70a4335",
+      "size": 118
+    },
+    {
+      "path": "autonomy-suite/loops/bounded-autonomy-loop/SKILL.md",
+      "sha256": "cb7915f8eb92d1ad94b5da95fa7f1172318d6d6e8c1aba6835333bb1779f0166",
+      "size": 4959
+    },
+    {
+      "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
+      "sha256": "ab213a58646d419a0270531adfb9e1016cb2e8941656b37d56c51c032f5a2bd7",
+      "size": 10599
+    },
+    {
+      "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",
+      "sha256": "b0b7ddd7d7a2a6068d47eeb09c22d0f078096de212fc20d46c7d927a14908d72",
+      "size": 251
+    },
+    {
+      "path": "autonomy-suite/orchestration/luna-execution-fabric/references/fabric-contract.md",
+      "sha256": "a5e556449069009b8d6af0b265d86db8e95edfe208ebce73bb08d09337a654ad",
+      "size": 8726
+    },
+    {
+      "path": "autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py",
+      "sha256": "3fbc5501a376914246a2c402439f509fbaaebfffd22120041af836727030f4e4",
+      "size": 21742
+    },
+    {
+      "path": "autonomy-suite/quality/verified-work-loop/SKILL.md",
+      "sha256": "9b378dd262fa900f9cd42e302c2d577ddf541bfecbf68339101d34340d872dd8",
+      "size": 1647
+    },
+    {
+      "path": "autonomy-suite/quality/verified-work-loop/agents/openai.yaml",
+      "sha256": "c5d10345071c4b078fda1c05a1c8ad4c3cd90f5ff09b8c8838a7b42d9ac4263e",
+      "size": 106
+    },
+    {
+      "path": "autonomy-suite/references/control-plane-schema.md",
+      "sha256": "9548f9457223ab154c36a945980e21995387b6c6ec7a4f9c4e02d0a9641b6cb7",
+      "size": 1938
+    },
+    {
+      "path": "autonomy-suite/references/development-delivery.md",
+      "sha256": "36fec825a0577cc0a45f6f2cff683b5c9cfda40ab21597917a7b4d3a6d1ab7d4",
+      "size": 1075
+    },
+    {
+      "path": "autonomy-suite/references/quality-telemetry.md",
+      "sha256": "4694003b57154384e13ce22f09a9e3484efd27160533156194126945eccfa5b3",
+      "size": 1519
+    },
+    {
+      "path": "autonomy-suite/routing/tiered-agent-routing/SKILL.md",
+      "sha256": "00167e6fc06e920d72b4065c0f692776b4dfd0b8daab71f380f25548e760e75d",
+      "size": 2574
+    },
+    {
+      "path": "autonomy-suite/routing/tiered-agent-routing/agents/openai.yaml",
+      "sha256": "8fa4693a40553413094450046186ed1d60dd660bb3d570d33d6c718d0218e97c",
+      "size": 110
+    },
+    {
+      "path": "autonomy-suite/strategy/portfolio-direction/SKILL.md",
+      "sha256": "c21054af43a0f625ca447312dce1f0035bfa86b1ab37e223e4e783b07a202b27",
+      "size": 1068
+    },
+    {
+      "path": "autonomy-suite/strategy/portfolio-direction/agents/openai.yaml",
+      "sha256": "16fcefb199e210cb960b6ba6e2619d2f8a00c6f7111d8f64c3de0e4052fca7da",
+      "size": 108
+    },
+    {
+      "path": "autonomy-suite/strategy/project-kickoff-roadmap/SKILL.md",
+      "sha256": "76f1cca9fee3a255e96aec85eeb7bdf1e995724b6e29126645a6f51ff81f97c5",
+      "size": 888
+    },
+    {
+      "path": "autonomy-suite/strategy/project-kickoff-roadmap/agents/openai.yaml",
+      "sha256": "a1bebc077d3b1f94bc71b470bfd7b42b0c0ef1c67097db7e03f8901629befaa9",
+      "size": 116
+    },
+    {
+      "path": "autonomy-suite/strategy/strategy-pillar/SKILL.md",
+      "sha256": "2f260ce77ef4fcbf770340d9a9a7626d120ccc6d85e55017479c07c647f42d40",
+      "size": 1554
+    },
+    {
+      "path": "autonomy-suite/strategy/strategy-pillar/agents/openai.yaml",
+      "sha256": "aaedea686fe7eb5aabb8552c5944bc15bb46762234ad8e5e68c933934f986904",
+      "size": 100
+    },
+    {
+      "path": "autonomy-suite/templates/approval-request.md",
+      "sha256": "dd613361c2d747321d1ccecd9ea4307a424345401134f4d35c5fbe4ce6dbdb9e",
+      "size": 236
+    },
+    {
+      "path": "autonomy-suite/templates/quality-gate.md",
+      "sha256": "8a909d541fd30429cc49dbda7ebf70ecf30d6da69e38804a15b1ecf9a8896696",
+      "size": 354
+    },
+    {
+      "path": "autonomy-suite/templates/task-contract.md",
+      "sha256": "9b6234b93ca45b7c292010f9bc1a1c29a2ef2c60d5659bb93abbeda2260a4e35",
+      "size": 230
+    },
+    {
+      "path": "autonomy-suite/work-graphs/durable-task-dag/SKILL.md",
+      "sha256": "64a9f8a460f018229fc4ef8f8be89cdde70a98e24dd774a53761d3e6b647cd1c",
+      "size": 2046
+    },
+    {
+      "path": "autonomy-suite/work-graphs/durable-task-dag/agents/openai.yaml",
+      "sha256": "1e0f550de47498c91d82129fd430c84c47ebd33915b6b7d4540502954e783971",
+      "size": 102
+    }
+  ],
+  "schema_version": 1
+}

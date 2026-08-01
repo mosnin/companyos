@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elastic Company OS"
+  short_description: "Run evidence-bound project control loops"
+  default_prompt: "Use $elastic-company-os to create, repair, or forward-test an isolated evidence-bound Company OS for this project."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Company OS"
+  short_description: "Run strategy, operations, and governed delivery"
+  default_prompt: "Use $company-os to direct this program and govern its evidence-bound execution."
