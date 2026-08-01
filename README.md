@@ -7,13 +7,18 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version `0.2.0` establishes canonical source control, reproducible
-distribution, and a schema-9/core-2.6 attempt-scoped observation trust
-boundary. The controller can verify and retain signed provider observations
-without changing attempt lifecycle or launching work. It is **not yet an
-autonomous company**: provider launch, lifecycle advancement, durable
-distributed state, real Sol-manager/Luna-worker execution, recursive dogfood,
-and protected scheduling remain gated roadmap work.
+Version `0.3.0` adds a project-local transactional authority to the canonical
+source and schema-9/core-2.6 observation trust boundary. New instances use
+SQLite with full synchronous durability and WAL concurrency; existing valid
+schema-9 instances migrate explicitly. State revisions, ordered audit events,
+projections, trusted observation inboxes, effect outboxes, command
+idempotency, and fenced leases commit under one project lock. JSON and JSONL
+are deterministic compatibility exports, not authority. The controller can
+verify and retain signed provider observations without changing attempt
+lifecycle or launching work. It is **not yet an autonomous company**:
+provider launch, lifecycle advancement, real Sol-manager/Luna-worker
+execution, recursive dogfood, multi-project proof, and protected scheduling
+remain gated roadmap work.
 
 Chippy is not part of this repository and is frozen as a Company OS client
 until the standalone self-hosting gates pass.
@@ -37,6 +42,7 @@ until the standalone self-hosting gates pass.
 python3 scripts/distribution.py verify-manifest
 python3 -m unittest discover -s tests -v
 python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
+python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
 python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
 python3 -m unittest discover -s programs/company-os-self-hosting/reference -v
 python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test

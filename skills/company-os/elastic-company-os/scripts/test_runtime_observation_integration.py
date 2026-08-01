@@ -198,6 +198,32 @@ class RuntimeObservationIntegrationTests(unittest.TestCase):
         self.assertEqual(self.ingest(envelope), 0)
         self.assertEqual(retry_bytes, self.state_and_events())
 
+    def test_transactional_store_projects_one_inbox_message_and_retry_adds_no_revision(self) -> None:
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        controller.control_store_module().initialize(
+            self.project,
+            state,
+            {
+                "at": controller.utc_now(),
+                "type": "test_control_store_initialized",
+                "project_id": state["instance"]["project_id"],
+                "program_version": state["strategy"]["program_version"],
+            },
+        )
+        envelope = self.envelope(event_id="transactional-event")
+        self.assertEqual(self.ingest(envelope), 0)
+        store = controller.control_store_module()
+        first_report = store.audit(self.project)
+        self.assertEqual(first_report["revision"], 2)
+        connection = store.connect(self.project)
+        try:
+            count = connection.execute("SELECT COUNT(*) FROM inbox_messages").fetchone()[0]
+        finally:
+            connection.close()
+        self.assertEqual(count, 1)
+        self.assertEqual(self.ingest(envelope), 0)
+        self.assertEqual(store.audit(self.project)["revision"], 2)
+
     def test_signature_identity_artifact_and_strict_json_rejections_are_atomic(self) -> None:
         other_private = self.project / "other-private.pem"
         subprocess.run(

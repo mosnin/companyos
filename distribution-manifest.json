@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.2.0",
+  "distribution_version": "0.3.0",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -47,8 +47,8 @@
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
-      "sha256": "2a20fc56ca23430bc4020145f0683bb13e5ca646e04fbc48ddc9f4a29ae5b533",
-      "size": 13384
+      "sha256": "c622a7c731c7987a977d43d4808bb3cd25512e20c8937daa734b25a4972905f6",
+      "size": 14193
     },
     {
       "path": "company-os/elastic-company-os/agents/openai.yaml",
@@ -62,13 +62,18 @@
     },
     {
       "path": "company-os/elastic-company-os/references/control-contract.md",
-      "sha256": "cdea733d344d1f118393fb4b88a84cdda92759da1714f145371af7326114745b",
-      "size": 11302
+      "sha256": "22ceb2c503d6cfe30d6b04689cdbfddfe92f69d8af63f9216dac3c89e42e283e",
+      "size": 12013
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "827ceeafaded4787338ca7ff367a83598c2383537bca7633bd795a298413fda8",
-      "size": 228205
+      "sha256": "8bb0510f53d6c720829b9afc8a7b33d1cf122fac00316ea24f3d5131a8ac95dd",
+      "size": 239448
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/control_store.py",
+      "sha256": "97b3b7528f87420746fd59704b56f8600782beab2e5fd5e64d7b6612ac4680cb",
+      "size": 38720
     },
     {
       "path": "company-os/elastic-company-os/scripts/runtime_observations.py",
@@ -81,9 +86,14 @@
       "size": 143218
     },
     {
+      "path": "company-os/elastic-company-os/scripts/test_control_store.py",
+      "sha256": "0fcc3bfd24820cf340f357b60e86d5713330fe828f47055ebd59894212786877",
+      "size": 30474
+    },
+    {
       "path": "company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
-      "sha256": "dc0fcdc441feceb29ad660ba29b8d39a97bd5aa57f70509b6da91bda5cbfd357",
-      "size": 14365
+      "sha256": "87adeeb7ff6312b30ba51f7f403bd2289818a5b65bff0ff53de4055217ca4e11",
+      "size": 15552
     },
     {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",

@@ -5,7 +5,7 @@ description: Create, validate, and evolve an isolated Company OS instance for ea
 
 # Elastic Company OS
 
-Create one isolated `.company-os/` instance per project. Never reuse another project's objectives, work queue, metrics, customer context, or learned adaptations. Treat `control.json` as controller-owned state: inspect it, but never edit it directly.
+Create one isolated `.company-os/` instance per project. Never reuse another project's objectives, work queue, metrics, customer context, or learned adaptations. Treat `control.db` as authoritative controller state. `control.json` and `events.jsonl` are inspectable, deterministic exports; editing them never changes authority.
 
 ## Architecture
 
@@ -45,7 +45,9 @@ python3 scripts/company_os_controller.py init \
   --north-star "Category-level outcome"
 ```
 
-This creates `.company-os/control.json` and `.company-os/events.jsonl` without touching product code. Preserve an existing instance; `init` refuses to overwrite it.
+This creates `.company-os/control.db` plus derived `control.json` and
+`events.jsonl` exports without touching product code. Preserve an existing
+instance; `init` refuses to overwrite it.
 
 Upgrade a schema-version 1 through 8 instance before use:
 
@@ -54,6 +56,17 @@ python3 scripts/company_os_controller.py upgrade --project /absolute/project/pat
 ```
 
 The schema-9 upgrade is fail-closed and monotonic: it archives the old strategy, work, evidence, cycles, adaptations, fabric, and dormant runtime state; increments the program version; revokes leases; disables scheduling; pauses the instance; and creates a disabled runtime-adapter state with a separate observation inbox per future attempt. Schema 9 may verify and retain an observation only when both feature gates are explicitly enabled and an external `COMPANY_OS_OBSERVATION_GATEWAY_KEYRING` is configured. It does not launch providers or advance lifecycle, receipts, telemetry, reconciliation, or real Luna dogfood evidence.
+
+After upgrading a legacy schema-9 JSON instance, validate and migrate it once:
+
+```bash
+python3 scripts/company_os_controller.py migrate-control-store \
+  --project /absolute/project/path
+```
+
+Migration rejects invalid source state, cross-project bindings, and corrupt
+existing stores. It preserves legacy events, creates revision one, and is an
+exact no-op when repeated against a healthy store.
 
 ## Operating sequence
 
@@ -102,6 +115,12 @@ The controller rejects:
 Every accepted cycle must produce a reality artifact, intelligence decision, experience prototype, user-visible capability, verified learning, or accepted adaptation. Tests, ledgers, migrations, and audits count only as linked evidence or direct enablers.
 
 Use controller commands for every state transition:
+
+- Every mutating CLI command requires a stable caller-generated
+  `--command-key`. An exact retry returns the committed acknowledgment without
+  a new revision; reuse with different arguments fails closed. Runtime
+  admission and observation ingestion retain their stricter domain-specific
+  idempotency keys.
 
 - `replace-program` versions a changed mandate, archives evidence, cancels stale work, revokes leases, and returns to paused reality audit.
 - `record-evidence` hashes and binds an artifact to the project and program; completion evidence must additionally bind the committed outcome, work, cycle, and rubric.

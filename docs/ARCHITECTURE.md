@@ -15,9 +15,16 @@ core.
 
 ## Runtime target
 
-The operational system will use transactional state for programs, outcomes,
-work, cycles, leases, attempts, events, receipts, evidence, decisions, quality,
-and adaptations. One Sol master owns the program. At most two Sol managers own
+The operational system uses one project-bound SQLite control store for
+programs, outcomes, work, cycles, leases, attempts, events, inboxes, outboxes,
+evidence, decisions, quality, and adaptations. Every accepted controller
+mutation appends one immutable state revision and one exactly paired event;
+current entity/inbox projections are rebuilt in the same transaction. Stable
+command keys provide exact retry semantics. JSON and JSONL are repairable
+exports. This is the accepted single-host authority substrate, not a claim of
+distributed or multi-region consensus.
+
+One Sol master will own the program. At most two Sol managers own
 disjoint outcomes, and at most three GPT-5.6 Luna workers per manager perform
 bounded labor. Every child receives a narrower outcome, authority envelope,
 budget, scope, and stop condition. Evidence and exceptions reconcile upward.
@@ -27,10 +34,11 @@ launch, observation, heartbeats, terminal receipts, cancellation, telemetry,
 and reconciliation must be attributable and idempotent before a result can be
 accepted.
 
-Schema 9 implements only the observation trust boundary. State and its audit
-event are staged behind a write-ahead marker and recovered under the next
-controller lock if a process stops between target replacements. This is
-single-host crash consistency, not the future distributed transactional store.
+Schema 9 implements the observation trust boundary. Version 0.3 adds the
+single-host transactional control substrate without enabling runtime launch.
+Legacy JSON instances continue to use the write-ahead pair until an explicit,
+validated `migrate-control-store` operation publishes their database. New
+instances begin transactionally.
 
 ## Feedback target
 

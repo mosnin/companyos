@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import argparse
 import base64
+import contextvars
 import fcntl
 import hashlib
 import importlib.util
+import io
 import json
 import math
 import os
@@ -17,7 +19,7 @@ import sys
 import tempfile
 import unicodedata
 import uuid
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stdout
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -277,6 +279,36 @@ RUNTIME_AUDIT_ERROR_PREFIXES = (
     "worker runtime",
     "admission-only runtime",
 )
+_CONTROL_STORE_MODULE: Any | None = None
+_ACTIVE_CONTROL_STORE_TRANSACTION: contextvars.ContextVar[Any | None] = contextvars.ContextVar(
+    "company_os_control_store_transaction",
+    default=None,
+)
+_ACTIVE_COMMAND_ENVELOPE: contextvars.ContextVar[dict[str, str] | None] = contextvars.ContextVar(
+    "company_os_command_envelope",
+    default=None,
+)
+
+
+class CommandReplay(RuntimeError):
+    def __init__(self, result: dict[str, Any]):
+        super().__init__("transactional command replay")
+        self.result = result
+
+
+def control_store_module() -> Any:
+    """Load the bundled transactional store without relying on PYTHONPATH."""
+    global _CONTROL_STORE_MODULE
+    if _CONTROL_STORE_MODULE is not None:
+        return _CONTROL_STORE_MODULE
+    module_path = Path(__file__).resolve().with_name("control_store.py")
+    spec = importlib.util.spec_from_file_location("company_os_control_store", module_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("transactional control store could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _CONTROL_STORE_MODULE = module
+    return module
 
 
 def runtime_observation_module() -> Any:
@@ -1506,7 +1538,8 @@ def _recover_state_event_transaction(project: Path) -> bool:
 def locked_state(project: Path, *, require_issuer: bool = True) -> Iterator[tuple[Path, dict[str, Any]]]:
     project = project.resolve()
     path = state_path(project)
-    if not path.exists():
+    store_module = control_store_module()
+    if not path.exists() and not store_module.exists(project):
         raise FileNotFoundError(f"no Company OS instance at {path}")
     if require_issuer:
         issuer = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
@@ -1515,12 +1548,52 @@ def locked_state(project: Path, *, require_issuer: bool = True) -> Iterator[tupl
     lock_path = project / ".company-os" / "control.lock"
     with lock_path.open("a+", encoding="utf-8") as lock:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
-        try:
-            _recover_state_event_transaction(project)
-            state = load_json(path)
-            yield path, state
-        finally:
-            fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        # Resolve the authority only after acquiring the migration/controller
+        # lock. A waiter must never continue on legacy JSON after another
+        # process has committed the SQLite migration.
+        store_exists = store_module.exists(project)
+        if store_exists:
+            transaction = None
+            token = None
+            succeeded = False
+            try:
+                store_report = store_module.audit(project)
+                if not store_report["ok"]:
+                    raise ValueError(
+                        "transactional control store failed integrity audit: "
+                        + "; ".join(store_report["errors"])
+                    )
+                store_module.repair_exports(project)
+                transaction = store_module.begin(project)
+                token = _ACTIVE_CONTROL_STORE_TRANSACTION.set(transaction)
+                command = _ACTIVE_COMMAND_ENVELOPE.get()
+                if command is not None:
+                    retained = transaction.idempotency_lookup(
+                        scope="controller-cli",
+                        key=command["key"],
+                        payload_sha256=command["payload_sha256"],
+                    )
+                    if retained is not None:
+                        raise CommandReplay(retained["result"])
+                yield path, transaction.state
+                succeeded = True
+            finally:
+                if token is not None:
+                    _ACTIVE_CONTROL_STORE_TRANSACTION.reset(token)
+                if transaction is not None:
+                    transaction.close(succeeded)
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+        else:
+            try:
+                if _ACTIVE_COMMAND_ENVELOPE.get() is not None:
+                    raise ValueError(
+                        "migrate the legacy instance before running a mutating keyed command"
+                    )
+                _recover_state_event_transaction(project)
+                state = load_json(path)
+                yield path, state
+            finally:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
 
 
 def persist_state_event(
@@ -1537,6 +1610,35 @@ def persist_state_event(
         "program_version": state["strategy"]["program_version"],
         **event_fields,
     }
+    store_transaction = _ACTIVE_CONTROL_STORE_TRANSACTION.get()
+    if store_transaction is not None:
+        if store_transaction.project != project.resolve():
+            raise ValueError("active transactional control store belongs to another project")
+        command = _ACTIVE_COMMAND_ENVELOPE.get()
+        if command is not None:
+            event["command_envelope"] = {
+                "name": command["name"],
+                "key": command["key"],
+                "payload_sha256": command["payload_sha256"],
+            }
+        revision = store_transaction.stage(state, event)
+        if command is not None:
+            store_transaction.record_idempotency(
+                scope="controller-cli",
+                key=command["key"],
+                command_name=command["name"],
+                payload_sha256=command["payload_sha256"],
+                result={
+                    "ok": True,
+                    "command": command["name"],
+                    "command_key": command["key"],
+                    "event_type": event_type,
+                    "state_revision": revision,
+                    "event": event_fields,
+                },
+                created_at=event["at"],
+            )
+        return
     _stage_state_event_transaction(project, path, state, event)
     _recover_state_event_transaction(project)
 
@@ -1589,7 +1691,15 @@ def init_instance(args: argparse.Namespace) -> int:
     state["schema_version"] = SCHEMA_VERSION
     state["core_version"] = CORE_VERSION
     target.parent.mkdir(parents=True, exist_ok=False)
-    persist_state_event(project, target, state, "instance_initialized", core_version=state["core_version"])
+    initialized_at = utc_now()
+    event = {
+        "at": initialized_at,
+        "type": "instance_initialized",
+        "project_id": state["instance"]["project_id"],
+        "program_version": state["strategy"]["program_version"],
+        "core_version": state["core_version"],
+    }
+    control_store_module().initialize(project, state, event)
     print(json.dumps({"ok": True, "path": str(target), "project_id": state["instance"]["project_id"]}))
     return 0
 
@@ -2645,16 +2755,78 @@ def validate_state(
 def audit_instance(args: argparse.Namespace) -> int:
     project = Path(args.project).resolve()
     path = state_path(project)
-    if not path.exists():
+    store_module = control_store_module()
+    store_exists = store_module.exists(project)
+    if not path.exists() and not store_exists:
         print(json.dumps({"ok": False, "errors": [f"no Company OS instance at {path}"]}, indent=2))
         return 2
     try:
-        report = validate_state(load_json(path), expected_project=project)
+        store_report = store_module.audit(project) if store_exists else None
+        state = store_module.load(project)[1] if store_exists else load_json(path)
+        report = validate_state(state, expected_project=project)
+        if store_report is not None:
+            report["control_store"] = store_report
+            report["errors"].extend(
+                f"control store: {error}" for error in store_report["errors"]
+            )
+            if not store_report["state_export_match"] or not store_report["events_export_match"]:
+                report["warnings"].append(
+                    "transactional control exports drifted; the next governed command will rebuild them"
+                )
+            report["ok"] = not report["errors"]
+        else:
+            report["control_store"] = {
+                "ok": False,
+                "backend": "legacy-json",
+                "migration_required": True,
+            }
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
         return 2
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0 if report["ok"] else 1
+
+
+def migrate_control_store(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    store_module = control_store_module()
+    if store_module.exists(project):
+        try:
+            report = store_module.audit(project)
+            if not report["ok"]:
+                raise ValueError(
+                    "transactional control store failed integrity audit: "
+                    + "; ".join(report["errors"])
+                )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+            return 2
+        print(json.dumps({"ok": True, "changed": False, "revision": report["revision"], "backend": "sqlite"}))
+        return 0
+    try:
+        with locked_state(project) as (_, state):
+            if state.get("schema_version") != SCHEMA_VERSION or state.get("core_version") != CORE_VERSION:
+                raise ValueError("upgrade the Company OS instance before migrating its control store")
+            if state.get("instance", {}).get("project_root") != str(project):
+                raise ValueError("instance project root does not match the migration target")
+            report = validate_state(state, expected_project=project)
+            if report["errors"]:
+                raise ValueError(
+                    "legacy instance failed validation: " + "; ".join(report["errors"])
+                )
+            event = {
+                "at": utc_now(),
+                "type": "control_store_migrated",
+                "project_id": state["instance"]["project_id"],
+                "program_version": state["strategy"]["program_version"],
+                "backend": "sqlite",
+            }
+            revision = store_module.initialize(project, state, event)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({"ok": True, "changed": True, "revision": revision, "backend": "sqlite"}))
+    return 0
 
 
 def upgrade_state(state: dict[str, Any]) -> dict[str, Any]:
@@ -2884,6 +3056,15 @@ def cancel_instance(args: argparse.Namespace) -> int:
                 state["portfolio"].setdefault("cancelled_work", []).append(
                     {**work, "status": "cancelled", "cancelled_at": cancelled_at, "reason": args.reason}
                 )
+            for cycle in state.get("feedback", {}).get("cycles", []):
+                if isinstance(cycle, dict) and cycle.get("status") == "running":
+                    cycle.update(
+                        {
+                            "status": "cancelled",
+                            "finished_at": cancelled_at,
+                            "resolution_reason": args.reason,
+                        }
+                    )
             state["portfolio"]["active_work"] = []
             state["controller"]["lease_generation"] += 1
             state["controller"]["lease"] = None
@@ -3359,7 +3540,9 @@ def acquire_lease(args: argparse.Namespace) -> int:
                     if lease_id is not None and generation is not None
                 ]
             report = validate_state(state, expected_project=project)
-            if not state["controller"].get("schedule_enabled") or (not recovery_lease and not report["scheduler_ready"]):
+            if not state["controller"].get("schedule_enabled"):
+                raise ValueError("scheduling is disabled")
+            if not recovery_lease and not report["scheduler_ready"]:
                 raise ValueError("; ".join(report["errors"] or ["scheduler is not ready"]))
             generation = state["controller"]["lease_generation"] + 1
             lease_id = uuid.uuid4().hex
@@ -4401,6 +4584,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     upgrade_parser.add_argument("--project", required=True)
     upgrade_parser.set_defaults(handler=upgrade_instance)
+    migrate_store_parser = subparsers.add_parser(
+        "migrate-control-store",
+        help="make the project-local SQLite store authoritative",
+    )
+    migrate_store_parser.add_argument("--project", required=True)
+    migrate_store_parser.set_defaults(handler=migrate_control_store)
     replace_parser = subparsers.add_parser("replace-program", help="version a changed mandate")
     replace_parser.add_argument("--project", required=True)
     replace_parser.add_argument("--north-star", required=True)
@@ -4626,12 +4815,90 @@ def build_parser() -> argparse.ArgumentParser:
     review_parser.add_argument("--decision", choices=("accepted", "rejected"), required=True)
     review_parser.add_argument("--reviewer-grant", required=True)
     review_parser.set_defaults(handler=review_adaptation)
+    for mutating_parser in (
+        replace_parser,
+        cancel_parser,
+        evidence_parser,
+        phase_parser,
+        outcome_parser,
+        work_parser,
+        quality_parser,
+        certify_parser,
+        activate_parser,
+        schedule_parser,
+        acquire_parser,
+        release_parser,
+        resolve_parser,
+        begin_parser,
+        finish_parser,
+        fabric_parser,
+        report_parser,
+        decision_parser,
+        propose_parser,
+        review_parser,
+    ):
+        mutating_parser.add_argument(
+            "--command-key",
+            required=True,
+            help="stable caller-generated key for exact transactional retry",
+        )
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
-    return int(args.handler(args))
+    command_key = getattr(args, "command_key", None)
+    token = None
+    command_envelope = None
+    if command_key is not None:
+        if not isinstance(command_key, str) or not command_key.strip() or command_key != command_key.strip():
+            print(json.dumps({"ok": False, "errors": ["command_key must be a non-empty trimmed string"]}, indent=2))
+            return 2
+        payload = {
+            key: value
+            for key, value in vars(args).items()
+            if key not in {"handler", "command_key"}
+        }
+        command_envelope = {
+            "name": args.command,
+            "key": command_key,
+            "payload_sha256": command_payload_hash(args.command, payload),
+        }
+        token = _ACTIVE_COMMAND_ENVELOPE.set(command_envelope)
+    try:
+        if command_envelope is None:
+            return int(args.handler(args))
+        captured = io.StringIO()
+        with redirect_stdout(captured):
+            result_code = int(args.handler(args))
+        if result_code != 0:
+            sys.stdout.write(captured.getvalue())
+            return result_code
+        project = Path(args.project).resolve()
+        store_module = control_store_module()
+        if store_module.exists(project):
+            connection = store_module.connect(project)
+            try:
+                retained = store_module.idempotency_lookup(
+                    connection,
+                    store_module.load(project)[1]["instance"]["project_id"],
+                    "controller-cli",
+                    command_envelope["key"],
+                    command_envelope["payload_sha256"],
+                )
+            finally:
+                connection.close()
+            if retained is not None:
+                print(json.dumps(retained["result"]))
+                return 0
+        sys.stdout.write(captured.getvalue())
+        return result_code
+    except CommandReplay as replay:
+        print(json.dumps(replay.result))
+        return 0
+    finally:
+        if token is not None:
+            _ACTIVE_COMMAND_ENVELOPE.reset(token)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,35 @@
 | Meta | Diagnose recurring process failures and propose reversible instance changes | Approve itself, alter the north star, expand authority, or create another meta-loop |
 | Promotion | Compare outcomes across project instances and propose a core improvement | Promote from one project or erase project-specific differences |
 
-All state changes go through the controller's atomic commands. Direct `control.json` edits have no authority and invalidate the program fingerprint or certification digest. Completion review, quality scoring/review, certification, P0 admission, repeat overrides, and adaptation review require externally issued asymmetric grants. Adaptation review binds the exact proposal digest, program version, independent reviewer, decision, nonce, and expiry. The controller accepts only a configured public key from `COMPANY_OS_ACTOR_GRANT_PUBLIC_KEY`; it contains no issuer, mint helper, shared secret, or private-key path. Claims bind actor, action, resource, project, program, work, cycle/checkpoint, dimension, decision, a canonical command-payload hash, nonce, and expiry. The payload hash covers every security- and decision-relevant argument: certification binds the exact canonical governance digest; finish binds evidence IDs and their recomputed digest, outcome, metrics, visibility, disposition, decision, reviewer, and commit/ref; quality binds its full evidence checkpoint; and P0/repeat admission binds its full queue decision. Audits reconstruct payloads from retained governed records rather than trusting stored hashes. Full tokens remain in the audit record, signatures are reverified during audit, and consumed nonces cannot be replayed.
+All state changes go through the controller's atomic commands. `control.db` is
+the project-bound authority; direct `control.json` or `events.jsonl` edits are
+export drift and never mutate governed truth. Each accepted mutation commits
+one state revision, its exactly paired ordered event, current projections, and
+any command-idempotency/inbox/outbox records in one SQLite transaction. Every
+mutating CLI command carries a stable `--command-key`; the same key and
+canonical argument digest is a revision-free retry, while a different digest
+is a conflict. The paired event immutably retains the command name, key, and
+canonical request digest. A stored replay acknowledgment carries its own
+digest and is reconstructed against that event before the store can pass audit
+or serve the replay. Every project-scoped table is audited
+for foreign rows rather than filtering them from view. Completion review,
+quality scoring/review, certification, P0
+admission, repeat overrides, and adaptation review require externally issued
+asymmetric grants. Adaptation review binds the exact proposal digest, program
+version, independent reviewer, decision, nonce, and expiry. The controller
+accepts only a configured public key from
+`COMPANY_OS_ACTOR_GRANT_PUBLIC_KEY`; it contains no issuer, mint helper, shared
+secret, or private-key path. Claims bind actor, action, resource, project,
+program, work, cycle/checkpoint, dimension, decision, a canonical
+command-payload hash, nonce, and expiry. The payload hash covers every
+security- and decision-relevant argument: certification binds the exact
+canonical governance digest; finish binds evidence IDs and their recomputed
+digest, outcome, metrics, visibility, disposition, decision, reviewer, and
+commit/ref; quality binds its full evidence checkpoint; and P0/repeat
+admission binds its full queue decision. Audits reconstruct payloads from
+retained governed records rather than trusting stored hashes. Full tokens
+remain in the audit record, signatures are reverified during audit, and
+consumed nonces cannot be replayed.
 
 The public key does not prove launcher protection. Because a scheduler with unrestricted local authority could replace local files or environment configuration, the standalone controller exposes no local attestation bypass and keeps `protected_launcher_ready` and `scheduler_ready` false. A protected launcher/issuer attestation that this process cannot mint or replace is an explicit external deployment prerequisite, not a locally closed control.
 
