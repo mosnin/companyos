@@ -7,7 +7,14 @@ reproducible installer, clean bootstrap, CI, and explicit provenance. Installed
 skills become generated outputs. Exit requires all imported controller and
 distribution tests to pass from this repository.
 
-## Phase 1 — Durable transactional control
+## Phase 1A — Trusted observation boundary
+
+Integrate strict gateway-signed, attempt-scoped observations into the canonical
+controller while provider launch and lifecycle mutation remain disabled. Exit
+requires adversarial signature, identity, artifact, replay, retained-history,
+upgrade, and exact-retry evidence.
+
+## Phase 1B — Durable transactional control
 
 Move authoritative project state from one JSON document to transactional
 storage with isolated project namespaces, ordered events, fenced leases,
@@ -17,9 +24,8 @@ isolation fault matrices.
 
 ## Phase 2 — Provider-authenticated execution
 
-Integrate the observation reference into the canonical controller, then add a
-provider-neutral runtime gateway. Implement admission-before-launch, trusted
-observations, heartbeats, terminal receipts, cancellation propagation,
+Add a provider-neutral runtime gateway to the canonical observation boundary.
+Implement admission-before-launch, heartbeats, terminal receipts, cancellation propagation,
 provider-derived identity/usage, and reconciliation. Never substitute another
 model while labeling a worker Luna. Exit requires real success, failure,
 cancellation, ambiguous-launch, and restart evidence.

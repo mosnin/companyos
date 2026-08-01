@@ -600,8 +600,36 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(controller.init_instance(args), 0)
         state = json.loads((self.project / ".company-os" / "control.json").read_text())
         self.assertEqual(state["instance"]["project_root"], str(self.project))
-        self.assertEqual(state["schema_version"], 8)
+        self.assertEqual(state["schema_version"], controller.SCHEMA_VERSION)
         self.assertEqual(controller.init_instance(args), 2)
+
+    def test_state_event_transaction_recovers_after_one_target_replace(self) -> None:
+        state = self.valid_state()
+        self.write_state(state)
+        candidate = deepcopy(state)
+        candidate["instance"]["status"] = "paused"
+        event = {
+            "at": controller.utc_now(),
+            "type": "transaction-recovery-test",
+            "project_id": candidate["instance"]["project_id"],
+            "program_version": candidate["strategy"]["program_version"],
+        }
+        marker = controller._stage_state_event_transaction(
+            self.project,
+            self.project / ".company-os" / "control.json",
+            candidate,
+            event,
+        )
+        transaction = controller.load_json(marker)
+        os.replace(
+            self.project / ".company-os" / transaction["state_temp"],
+            self.project / ".company-os" / "control.json",
+        )
+        with controller.locked_state(self.project) as (_, recovered):
+            self.assertEqual(recovered["instance"]["status"], "paused")
+        self.assertFalse(marker.exists())
+        events = (self.project / ".company-os" / "events.jsonl").read_text(encoding="utf-8")
+        self.assertIn('\"type\": \"transaction-recovery-test\"', events)
 
     def test_luna_fabric_is_native_governed_company_os_state(self) -> None:
         configured = self.configure_fabric_fixture()
@@ -1878,6 +1906,52 @@ class ControllerTests(unittest.TestCase):
         self.assertTrue(replaced["portfolio"]["cancelled_work"])
         self.assertEqual(replaced["phase"], "reality_audit")
         self.assertEqual(replaced["instance"]["status"], "paused")
+        self.assertIsNone(replaced["controller"]["restart_checkpoint"])
+        self.assertEqual(replaced["runtime_adapter"], controller.empty_runtime_adapter(2))
+        self.assertFalse(any("runtime_adapter belongs to a stale program" in error for error in self.report(replaced)["errors"]))
+
+    def test_schema_eight_upgrade_archives_runtime_and_carries_no_attempt_forward(self) -> None:
+        state = self.valid_state()
+        state["schema_version"] = 8
+        state["core_version"] = "2.5.0"
+        state["runtime_adapter"] = {
+            "enabled": True,
+            "status": "enabled",
+            "program_version": 1,
+            "gateway_public_key_env": controller.RUNTIME_GATEWAY_PUBLIC_KEY_ENV,
+            "phase2_contract_digest": controller.PHASE2_CONTRACT_DIGEST,
+            "provider_allowlist": [{"provider": "legacy", "surface": "test", "account": "test"}],
+            "attempts": [{"attempt_id": "legacy-attempt", "immutable": "legacy-record"}],
+        }
+        upgraded = controller.upgrade_state(state)
+        self.assertEqual(upgraded["schema_version"], 9)
+        self.assertEqual(upgraded["core_version"], "2.6.0")
+        self.assertEqual(upgraded["runtime_adapter"], controller.empty_runtime_adapter(2))
+        archived = upgraded["feedback"]["schema_upgrade_history"][-1]["runtime_adapter"]
+        self.assertEqual(archived["attempts"], [{"attempt_id": "legacy-attempt", "immutable": "legacy-record"}])
+
+    def test_schema_upgrade_restart_checkpoint_is_consumed_when_reality_is_evidenced(self) -> None:
+        state = self.valid_state()
+        state["schema_version"] = 8
+        state["core_version"] = "2.5.0"
+        upgraded = controller.upgrade_state(state)
+        reality = self.evidence("reality")
+        reality["program_version"] = upgraded["strategy"]["program_version"]
+        upgraded["evidence"]["reality"] = [reality]
+        intelligence = self.evidence("intelligence")
+        intelligence["program_version"] = upgraded["strategy"]["program_version"]
+        upgraded["evidence"]["intelligence"] = [intelligence]
+        self.write_state(upgraded)
+        self.assertEqual(
+            controller.advance_phase(
+                namespace(project=str(self.project), phase="intelligence")
+            ),
+            0,
+        )
+        advanced = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertIsNone(advanced["controller"]["restart_checkpoint"])
+        report = self.report(advanced)
+        self.assertFalse(any("restart_checkpoint" in error for error in report["errors"]), report["errors"])
 
     def test_upgrade_forward_from_chippi_v4_shape_preserves_monotonic_history(self) -> None:
         state = self.valid_state()

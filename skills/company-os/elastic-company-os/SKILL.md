@@ -47,13 +47,13 @@ python3 scripts/company_os_controller.py init \
 
 This creates `.company-os/control.json` and `.company-os/events.jsonl` without touching product code. Preserve an existing instance; `init` refuses to overwrite it.
 
-Upgrade a schema-version 1 through 7 instance before use:
+Upgrade a schema-version 1 through 8 instance before use:
 
 ```bash
 python3 scripts/company_os_controller.py upgrade --project /absolute/project/path
 ```
 
-The schema-8 upgrade is fail-closed and monotonic: it archives the old strategy, work, evidence, cycles, adaptations, fabric, and dormant runtime state; increments the program version; revokes leases; disables scheduling; pauses the instance; and creates a disabled runtime-adapter state. The admission-only slice is locally accepted, feature-off, and pre-launch only. Phase 2 runtime remains unaccepted: schema 8 records no provider launch, observation, receipt, telemetry, reconciliation, or real Luna dogfood evidence.
+The schema-9 upgrade is fail-closed and monotonic: it archives the old strategy, work, evidence, cycles, adaptations, fabric, and dormant runtime state; increments the program version; revokes leases; disables scheduling; pauses the instance; and creates a disabled runtime-adapter state with a separate observation inbox per future attempt. Schema 9 may verify and retain an observation only when both feature gates are explicitly enabled and an external `COMPANY_OS_OBSERVATION_GATEWAY_KEYRING` is configured. It does not launch providers or advance lifecycle, receipts, telemetry, reconciliation, or real Luna dogfood evidence.
 
 ## Operating sequence
 
@@ -124,6 +124,11 @@ Use controller commands for every state transition:
   master grant, unique attempt ID, and launch idempotency key. A manager must
   be admitted before a worker; exact retries are no-op and conflicts fail
   closed.
+- `ingest-runtime-observation` strictly parses one project-local signed
+  envelope, revalidates all retained observations and immutable raw artifacts,
+  and stores only the attempt-scoped verified record. It uses a keyring trust
+  root separate from actor decisions, changes no lifecycle or model-acceptance
+  state, and makes exact retries byte-for-byte no-ops.
 - `acquire-lease`, `begin-cycle`, `finish-cycle`, `resolve-cycle`, and `release-lease` fence one bounded cycle. A running cycle must be explicitly recovered, abandoned, or failed before its lease can be released.
 - `cancel` revokes the lease, clears active work, and makes cancellation authoritative.
 - `propose-adaptation` and `review-adaptation` preserve reviewer separation and protected fields.

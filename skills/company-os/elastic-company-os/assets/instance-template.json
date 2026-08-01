@@ -1,6 +1,6 @@
 {
-  "schema_version": 8,
-  "core_version": "2.5.0",
+  "schema_version": 9,
+  "core_version": "2.6.0",
   "instance": {
     "project_id": "",
     "name": "",
@@ -86,9 +86,11 @@
     "status": "disabled",
     "program_version": 1,
     "gateway_public_key_env": "COMPANY_OS_RUNTIME_GATEWAY_PUBLIC_KEY",
+    "observation_gateway_keyring_env": "COMPANY_OS_OBSERVATION_GATEWAY_KEYRING",
     "phase2_contract_digest": "b83f727e472c95911a60757efb0769a0c39acf11f0c8a7051e1056e34b8b8348",
     "provider_allowlist": [],
-    "attempts": []
+    "attempts": [],
+    "observation_inboxes": {}
   },
   "feedback": {
     "cycles": [],

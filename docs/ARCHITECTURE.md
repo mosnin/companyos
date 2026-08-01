@@ -27,6 +27,11 @@ launch, observation, heartbeats, terminal receipts, cancellation, telemetry,
 and reconciliation must be attributable and idempotent before a result can be
 accepted.
 
+Schema 9 implements only the observation trust boundary. State and its audit
+event are staged behind a write-ahead marker and recovered under the next
+controller lock if a process stops between target replacements. This is
+single-host crash consistency, not the future distributed transactional store.
+
 ## Feedback target
 
 Each accepted cycle records intended outcome, observed result, evidence, time,

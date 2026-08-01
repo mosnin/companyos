@@ -253,10 +253,11 @@ PROTECTED_ADAPTATION_FIELDS = {
     "cross_project_isolation",
     "meta_loop_depth",
 }
-CORE_VERSION = "2.5.0"
-SCHEMA_VERSION = 8
+CORE_VERSION = "2.6.0"
+SCHEMA_VERSION = 9
 ACTOR_PUBLIC_KEY_ENV = "COMPANY_OS_ACTOR_GRANT_PUBLIC_KEY"
 RUNTIME_GATEWAY_PUBLIC_KEY_ENV = "COMPANY_OS_RUNTIME_GATEWAY_PUBLIC_KEY"
+OBSERVATION_GATEWAY_KEYRING_ENV = "COMPANY_OS_OBSERVATION_GATEWAY_KEYRING"
 # Frozen SHA-256 of the accepted Company OS Self-Hosting Phase 2 revision 2
 # contract.  This controller stores neither decision-issuer private material nor
 # provider credentials; the separately signed admission grant authorizes a
@@ -276,6 +277,17 @@ RUNTIME_AUDIT_ERROR_PREFIXES = (
     "worker runtime",
     "admission-only runtime",
 )
+
+
+def runtime_observation_module() -> Any:
+    """Load the bundled observation verifier without relying on PYTHONPATH."""
+    module_path = Path(__file__).resolve().with_name("runtime_observations.py")
+    spec = importlib.util.spec_from_file_location("company_os_runtime_observations", module_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("runtime observation verifier could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def utc_now() -> str:
@@ -327,8 +339,31 @@ def empty_execution_fabric(program_version: int) -> dict[str, Any]:
 def empty_runtime_adapter(program_version: int) -> dict[str, Any]:
     return {"enabled": False, "status": "disabled", "program_version": program_version,
             "gateway_public_key_env": RUNTIME_GATEWAY_PUBLIC_KEY_ENV,
+            "observation_gateway_keyring_env": OBSERVATION_GATEWAY_KEYRING_ENV,
             "phase2_contract_digest": PHASE2_CONTRACT_DIGEST,
-            "provider_allowlist": [], "attempts": []}
+            "provider_allowlist": [], "attempts": [], "observation_inboxes": {}}
+
+
+def observation_expected_attempt(state: dict[str, Any], attempt: dict[str, Any]) -> dict[str, Any]:
+    """Build the exact immutable admission binding expected by the gateway."""
+    return {
+        "status": attempt.get("status"),
+        "admitted_at": attempt.get("admitted_at"),
+        "project_id": state.get("instance", {}).get("project_id"),
+        "program_version": attempt.get("program_version"),
+        "work_id": attempt.get("work_id"),
+        "cycle_id": attempt.get("cycle_id"),
+        "attempt_id": attempt.get("attempt_id"),
+        "parent_runtime_id": attempt.get("parent_runtime_id"),
+        "role": attempt.get("role"),
+        "requested_model": attempt.get("requested_model"),
+        "provider": attempt.get("provider"),
+        "surface": attempt.get("surface"),
+        "account": attempt.get("account"),
+        "provider_task_id": attempt.get("provider_task_id"),
+        "fabric_manifest_digest": attempt.get("fabric_manifest_digest"),
+        "phase2_contract_digest": attempt.get("phase2_contract_digest"),
+    }
 
 
 def canonical_runtime_scopes(value: Any) -> list[str]:
@@ -1350,10 +1385,23 @@ def validate_execution_fabric_state(
     }
 
 
-def append_event(project: Path, event: dict[str, Any]) -> None:
-    event_path = project.resolve() / ".company-os" / "events.jsonl"
-    with event_path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(event, sort_keys=True) + "\n")
+def _write_bytes_fsync(path: Path, value: bytes) -> None:
+    with path.open("wb") as handle:
+        handle.write(value)
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _fsync_directory(path: Path) -> None:
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _bytes_sha256(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
 
 
 def atomic_write_json(path: Path, value: dict[str, Any]) -> None:
@@ -1367,6 +1415,91 @@ def atomic_write_json(path: Path, value: dict[str, Any]) -> None:
     finally:
         if temporary.exists():
             temporary.unlink()
+
+
+def _transaction_marker_path(project: Path) -> Path:
+    return project.resolve() / ".company-os" / "pending-state-event-transaction.json"
+
+
+def _stage_state_event_transaction(
+    project: Path,
+    path: Path,
+    state: dict[str, Any],
+    event: dict[str, Any],
+) -> Path:
+    """Durably stage one state/event pair before either target is replaced."""
+    directory = project.resolve() / ".company-os"
+    transaction_id = uuid.uuid4().hex
+    state_temp = directory / f".control.{transaction_id}.next"
+    events_temp = directory / f".events.{transaction_id}.next"
+    marker = _transaction_marker_path(project)
+    if marker.exists():
+        raise ValueError("a pending state/event transaction requires recovery")
+    state_bytes = (json.dumps(state, indent=2) + "\n").encode("utf-8")
+    events_path = directory / "events.jsonl"
+    existing_events = events_path.read_bytes() if events_path.exists() else b""
+    event_bytes = (json.dumps(event, sort_keys=True) + "\n").encode("utf-8")
+    next_events = existing_events + event_bytes
+    _write_bytes_fsync(state_temp, state_bytes)
+    _write_bytes_fsync(events_temp, next_events)
+    atomic_write_json(
+        marker,
+        {
+            "schema": "company-os.state-event-transaction.v1",
+            "transaction_id": transaction_id,
+            "state_temp": state_temp.name,
+            "events_temp": events_temp.name,
+            "state_sha256": _bytes_sha256(state_bytes),
+            "events_sha256": _bytes_sha256(next_events),
+        },
+    )
+    _fsync_directory(directory)
+    return marker
+
+
+def _recover_state_event_transaction(project: Path) -> bool:
+    """Finish a staged pair after a crash; never guess or discard ambiguity."""
+    project = project.resolve()
+    directory = project / ".company-os"
+    marker = _transaction_marker_path(project)
+    if not marker.exists():
+        return False
+    transaction = load_json(marker)
+    required = {
+        "schema", "transaction_id", "state_temp", "events_temp",
+        "state_sha256", "events_sha256",
+    }
+    if set(transaction) != required or transaction.get("schema") != "company-os.state-event-transaction.v1":
+        raise ValueError("pending state/event transaction marker is invalid")
+    targets = (
+        ("state_temp", "state_sha256", directory / "control.json"),
+        ("events_temp", "events_sha256", directory / "events.jsonl"),
+    )
+    for temp_field, digest_field, target in targets:
+        temp_name = transaction.get(temp_field)
+        expected_digest = transaction.get(digest_field)
+        if (
+            not isinstance(temp_name, str)
+            or Path(temp_name).name != temp_name
+            or not temp_name.startswith(".")
+            or not isinstance(expected_digest, str)
+            or len(expected_digest) != 64
+        ):
+            raise ValueError("pending state/event transaction contains invalid paths or digests")
+        if target.is_file() and sha256_file(target) == expected_digest:
+            continue
+        staged = directory / temp_name
+        if not staged.is_file() or sha256_file(staged) != expected_digest:
+            raise ValueError("pending state/event transaction cannot be recovered without exact staged bytes")
+        os.replace(staged, target)
+        _fsync_directory(directory)
+    marker.unlink()
+    for temp_field in ("state_temp", "events_temp"):
+        staged = directory / str(transaction[temp_field])
+        if staged.exists():
+            staged.unlink()
+    _fsync_directory(directory)
+    return True
 
 
 @contextmanager
@@ -1383,6 +1516,7 @@ def locked_state(project: Path, *, require_issuer: bool = True) -> Iterator[tupl
     with lock_path.open("a+", encoding="utf-8") as lock:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
         try:
+            _recover_state_event_transaction(project)
             state = load_json(path)
             yield path, state
         finally:
@@ -1403,8 +1537,8 @@ def persist_state_event(
         "program_version": state["strategy"]["program_version"],
         **event_fields,
     }
-    atomic_write_json(path, state)
-    append_event(project, event)
+    _stage_state_event_transaction(project, path, state, event)
+    _recover_state_event_transaction(project)
 
 
 def init_instance(args: argparse.Namespace) -> int:
@@ -1455,16 +1589,7 @@ def init_instance(args: argparse.Namespace) -> int:
     state["schema_version"] = SCHEMA_VERSION
     state["core_version"] = CORE_VERSION
     target.parent.mkdir(parents=True, exist_ok=False)
-    atomic_write_json(target, state)
-    append_event(
-        project,
-        {
-            "at": utc_now(),
-            "type": "instance_initialized",
-            "project_id": state["instance"]["project_id"],
-            "core_version": state["core_version"],
-        },
-    )
+    persist_state_event(project, target, state, "instance_initialized", core_version=state["core_version"])
     print(json.dumps({"ok": True, "path": str(target), "project_id": state["instance"]["project_id"]}))
     return 0
 
@@ -1490,6 +1615,7 @@ def validate_state(
     issuer_key_value = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
     issuer_ready = bool(issuer_key_value and Path(issuer_key_value).resolve().is_file())
     protected_launcher_ready, protected_launcher_blocker = protected_launcher_attestation()
+    project_root = Path(str(instance.get("project_root", ""))).resolve()
 
     if state.get("schema_version") != SCHEMA_VERSION:
         errors.append(f"schema_version must be {SCHEMA_VERSION}; run upgrade")
@@ -1507,6 +1633,8 @@ def validate_state(
             errors.append("runtime_adapter belongs to a stale program")
         if runtime.get("gateway_public_key_env") != RUNTIME_GATEWAY_PUBLIC_KEY_ENV:
             errors.append("runtime_adapter must use the separate runtime gateway public-key configuration")
+        if runtime.get("observation_gateway_keyring_env") != OBSERVATION_GATEWAY_KEYRING_ENV:
+            errors.append("runtime_adapter must use the separate observation-gateway keyring configuration")
         if runtime.get("phase2_contract_digest") != PHASE2_CONTRACT_DIGEST:
             errors.append("runtime_adapter must bind the frozen Phase 2 contract digest")
         if not isinstance(runtime.get("provider_allowlist"), list) or not isinstance(runtime.get("attempts"), list):
@@ -1619,6 +1747,48 @@ def validate_state(
                         "decision": "admitted", "payload_hash": payload_hash,
                     },
                 )
+            inboxes = runtime.get("observation_inboxes")
+            if not isinstance(inboxes, dict):
+                errors.append("runtime_adapter observation_inboxes must be an object")
+            elif set(inboxes) != attempt_ids:
+                errors.append("runtime_adapter must retain exactly one observation inbox per admitted attempt")
+            else:
+                observation_module = runtime_observation_module()
+                keyring_value = os.environ.get(OBSERVATION_GATEWAY_KEYRING_ENV)
+                keyring_path = Path(keyring_value).resolve() if keyring_value else Path("/nonexistent/company-os-observation-keyring.json")
+                actor_key = Path(issuer_key_value).resolve() if issuer_key_value else None
+                if keyring_value and actor_key == keyring_path:
+                    errors.append("observation gateway and actor decision issuer must use distinct trust roots")
+                for attempt in runtime["attempts"]:
+                    if not isinstance(attempt, dict) or not isinstance(attempt.get("attempt_id"), str):
+                        continue
+                    inbox = inboxes.get(attempt["attempt_id"])
+                    if not isinstance(inbox, dict):
+                        errors.append(f"runtime observation inbox {attempt['attempt_id']} must be an object")
+                        continue
+                    if not isinstance(inbox.get("enabled"), bool) or inbox.get("status") not in {"disabled", "enabled"}:
+                        errors.append("runtime observation inbox feature gate is invalid")
+                    elif inbox.get("enabled") != (inbox.get("status") == "enabled"):
+                        errors.append("runtime observation inbox enabled flag and status disagree")
+                    if not runtime.get("enabled") and (
+                        inbox.get("enabled") is not False or inbox.get("status") != "disabled"
+                    ):
+                        errors.append("runtime observation inbox cannot be enabled while the runtime adapter is disabled")
+                    if inbox.get("enabled") is True and (
+                        not keyring_value or not keyring_path.is_file()
+                    ):
+                        errors.append("enabled runtime observation inbox requires an external observation-gateway keyring")
+                        continue
+                    try:
+                        observation_module.audit_retained_inbox(
+                            inbox,
+                            expected_attempt=observation_expected_attempt(state, attempt),
+                            keyring_path=keyring_path,
+                            artifact_root=project_root,
+                            now=now,
+                        )
+                    except ValueError as exc:
+                        errors.append(f"runtime observation inbox {attempt['attempt_id']} failed audit: {exc}")
 
     for field in ("project_id", "name", "project_root", "project_type"):
         if not instance.get(field):
@@ -2491,7 +2661,7 @@ def upgrade_state(state: dict[str, Any]) -> dict[str, Any]:
     if state.get("schema_version") == SCHEMA_VERSION and state.get("core_version") == CORE_VERSION:
         return state
     old_schema_version = state.get("schema_version")
-    if old_schema_version not in {1, 2, 3, 4, 5, 6, 7}:
+    if old_schema_version not in {1, 2, 3, 4, 5, 6, 7, 8}:
         raise ValueError(f"unsupported schema version: {state.get('schema_version')}")
     old_program_version = state.get("strategy", {}).get("program_version")
     if not isinstance(old_program_version, int) or old_program_version < 1:
@@ -2659,6 +2829,7 @@ def replace_program(args: argparse.Namespace) -> int:
             state["controller"]["validated"] = False
             state["controller"]["schedule_enabled"] = False
             state["controller"]["cancellation_requested"] = False
+            state["controller"]["restart_checkpoint"] = None
             state["instance"]["status"] = "paused"
             state["portfolio"]["active_work"] = []
             state["portfolio"]["committed_outcomes"] = []
@@ -2683,6 +2854,7 @@ def replace_program(args: argparse.Namespace) -> int:
                 }
             )
             state["execution_fabric"] = empty_execution_fabric(old_version + 1)
+            state["runtime_adapter"] = empty_runtime_adapter(old_version + 1)
             persist_state_event(
                 project,
                 path,
@@ -2802,6 +2974,8 @@ def advance_phase(args: argparse.Namespace) -> int:
                 raise ValueError("phase advancement must move exactly one stage")
             candidate = deepcopy(state)
             candidate["phase"] = args.phase
+            if current == "reality_audit" and args.phase == "intelligence":
+                candidate["controller"]["restart_checkpoint"] = None
             report = validate_state(candidate, expected_project=project)
             phase_errors = [
                 error
@@ -2812,6 +2986,8 @@ def advance_phase(args: argparse.Namespace) -> int:
             if phase_errors:
                 raise ValueError("; ".join(phase_errors))
             state["phase"] = args.phase
+            if current == "reality_audit" and args.phase == "intelligence":
+                state["controller"]["restart_checkpoint"] = None
             state["controller"]["validation"] = None
             state["controller"]["validated"] = False
             persist_state_event(project, path, state, "phase_advanced", from_phase=current, to_phase=args.phase)
@@ -4097,10 +4273,115 @@ def admit_runtime_attempt(args: argparse.Namespace) -> int:
                     raise ValueError("manifest identity already has an admitted attempt in this work cycle")
             grant = verify_actor_grant(state, args.actor_grant, args.admitted_by, "admit-runtime-attempt", resource=f"runtime:{args.attempt_id}", work_id=args.work_id, cycle_id=args.cycle_id, dimension="runtime-admission", decision="admitted", payload_hash=command_payload_hash("admit-runtime-attempt", payload))
             attempts.append({**payload, "program_version": state["strategy"]["program_version"], "lease_id": args.lease_id, "lease_generation": args.generation, "lease_owner": args.owner, "status": "admitted", "provider_task_id": None, "admitted_by": args.admitted_by, "actor_grant": grant, "admitted_at": utc_now()})
+            runtime["observation_inboxes"][args.attempt_id] = runtime_observation_module().empty_inbox()
             persist_state_event(project, path, state, "runtime_attempt_admitted", attempt_id=args.attempt_id, idempotency_key=args.idempotency_key)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2)); return 2
     print(json.dumps({"ok": True, "attempt_id": args.attempt_id, "status": "admitted"})); return 0
+
+
+def ingest_runtime_observation(args: argparse.Namespace) -> int:
+    """Verify and retain one provider observation without advancing lifecycle."""
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project, require_issuer=False) as (path, state):
+            if state.get("schema_version") != SCHEMA_VERSION:
+                raise ValueError("run upgrade before ingesting runtime observations")
+            runtime = state.get("runtime_adapter")
+            if not isinstance(runtime, dict):
+                raise ValueError("runtime adapter configuration is invalid")
+            if runtime.get("enabled") is not True or runtime.get("status") != "enabled":
+                raise ValueError("runtime adapter is feature-off")
+            attempts = runtime.get("attempts")
+            inboxes = runtime.get("observation_inboxes")
+            if not isinstance(attempts, list) or not isinstance(inboxes, dict):
+                raise ValueError("runtime observation state is invalid")
+            matches = [
+                item for item in attempts
+                if isinstance(item, dict) and item.get("attempt_id") == args.attempt_id
+            ]
+            if len(matches) != 1:
+                raise ValueError("runtime observation requires exactly one admitted attempt")
+            attempt = matches[0]
+            inbox = inboxes.get(args.attempt_id)
+            if not isinstance(inbox, dict):
+                raise ValueError("runtime observation inbox is missing")
+            if inbox.get("enabled") is not True or inbox.get("status") != "enabled":
+                raise ValueError("runtime observation inbox is feature-off")
+
+            keyring_value = os.environ.get(OBSERVATION_GATEWAY_KEYRING_ENV)
+            if not keyring_value:
+                raise ValueError(f"{OBSERVATION_GATEWAY_KEYRING_ENV} is required")
+            keyring_path = Path(keyring_value).resolve()
+            if not keyring_path.is_file():
+                raise ValueError("configured observation-gateway keyring does not exist")
+            actor_key_value = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
+            if actor_key_value and Path(actor_key_value).resolve() == keyring_path:
+                raise ValueError("observation gateway and actor decision issuer must use distinct trust roots")
+
+            envelope_path = project_local_path(project, args.envelope)
+            if envelope_path is None or not envelope_path.is_file():
+                raise ValueError("observation envelope must be an existing project-local file")
+            observation_module = runtime_observation_module()
+            envelope = observation_module.load_json_strict(envelope_path)
+
+            retained_runtime_errors = [
+                error for error in validate_state(state, expected_project=project)["errors"]
+                if error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
+            ]
+            if retained_runtime_errors:
+                raise ValueError(
+                    "runtime adapter retained state failed audit: "
+                    + "; ".join(retained_runtime_errors)
+                )
+            candidate_inbox, result = observation_module.verify_and_ingest(
+                inbox,
+                envelope,
+                expected_attempt=observation_expected_attempt(state, attempt),
+                keyring_path=keyring_path,
+                artifact_root=project,
+            )
+            if result.get("idempotent") is True:
+                print(json.dumps({
+                    "ok": True,
+                    "attempt_id": args.attempt_id,
+                    "status": "verified",
+                    "event_key": result.get("event_key"),
+                    "idempotent": True,
+                }))
+                return 0
+            candidate = deepcopy(state)
+            candidate["runtime_adapter"]["observation_inboxes"][args.attempt_id] = candidate_inbox
+            candidate_errors = [
+                error for error in validate_state(candidate, expected_project=project)["errors"]
+                if error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
+            ]
+            if candidate_errors:
+                raise ValueError(
+                    "runtime observation candidate failed audit: " + "; ".join(candidate_errors)
+                )
+            state["runtime_adapter"]["observation_inboxes"][args.attempt_id] = candidate_inbox
+            accepted_record = candidate_inbox["trusted_observations"][-1]
+            persist_state_event(
+                project,
+                path,
+                state,
+                "runtime_observation_verified",
+                attempt_id=args.attempt_id,
+                event_key=result.get("event_key"),
+                observation_digest=accepted_record.get("observation_digest"),
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "attempt_id": args.attempt_id,
+        "status": "verified",
+        "event_key": result.get("event_key"),
+        "idempotent": False,
+    }))
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -4116,7 +4397,7 @@ def build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument("--project", required=True)
     audit_parser.set_defaults(handler=audit_instance)
     upgrade_parser = subparsers.add_parser(
-        "upgrade", help="upgrade a schema v1-v7 instance fail-closed"
+        "upgrade", help="upgrade a schema v1-v8 instance fail-closed"
     )
     upgrade_parser.add_argument("--project", required=True)
     upgrade_parser.set_defaults(handler=upgrade_instance)
@@ -4317,6 +4598,14 @@ def build_parser() -> argparse.ArgumentParser:
     admission_parser.add_argument("--admitted-by", required=True)
     admission_parser.add_argument("--actor-grant", required=True)
     admission_parser.set_defaults(handler=admit_runtime_attempt)
+    observation_parser = subparsers.add_parser(
+        "ingest-runtime-observation",
+        help="verify and retain one attempt-scoped provider observation",
+    )
+    observation_parser.add_argument("--project", required=True)
+    observation_parser.add_argument("--attempt-id", required=True)
+    observation_parser.add_argument("--envelope", required=True)
+    observation_parser.set_defaults(handler=ingest_runtime_observation)
     propose_parser = subparsers.add_parser("propose-adaptation", help="propose a bounded meta-loop change")
     propose_parser.add_argument("--project", required=True)
     propose_parser.add_argument("--failure-pattern", required=True)

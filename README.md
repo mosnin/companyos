@@ -7,12 +7,13 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version `0.1.0` establishes canonical source control and reproducible
-distribution for the existing schema-8/core-2.5 governance kernel. The kernel
-is locally tested and fail-closed. It is **not yet an autonomous company**:
-provider launch, trusted lifecycle observation, durable distributed state,
-real Sol-manager/Luna-worker execution, recursive dogfood, and protected
-scheduling remain gated roadmap work.
+Version `0.2.0` establishes canonical source control, reproducible
+distribution, and a schema-9/core-2.6 attempt-scoped observation trust
+boundary. The controller can verify and retain signed provider observations
+without changing attempt lifecycle or launching work. It is **not yet an
+autonomous company**: provider launch, lifecycle advancement, durable
+distributed state, real Sol-manager/Luna-worker execution, recursive dogfood,
+and protected scheduling remain gated roadmap work.
 
 Chippy is not part of this repository and is frozen as a Company OS client
 until the standalone self-hosting gates pass.
@@ -23,8 +24,8 @@ until the standalone self-hosting gates pass.
   Elastic Company OS controller.
 - `skills/autonomy-suite/` — bounded loops, work graphs, quality, routing, and
   the Luna Execution Fabric contract.
-- `programs/company-os-self-hosting/` — versioned program contracts and the
-  unintegrated observation-gateway reference.
+- `programs/company-os-self-hosting/` — versioned program contracts, evidence,
+  and the preserved pre-integration observation reference.
 - `scripts/distribution.py` — deterministic manifest, install, and installed
   distribution verification.
 - `tests/` — repository-level provenance and clean-bootstrap tests.
@@ -36,6 +37,7 @@ until the standalone self-hosting gates pass.
 python3 scripts/distribution.py verify-manifest
 python3 -m unittest discover -s tests -v
 python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
+python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
 python3 -m unittest discover -s programs/company-os-self-hosting/reference -v
 python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
 ```

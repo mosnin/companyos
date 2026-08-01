@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.1.0",
+  "distribution_version": "0.2.0",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -47,8 +47,8 @@
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
-      "sha256": "9d4381c576db6296e0513d44dea706ed96bcffccef059c1c279de0621fbc1def",
-      "size": 12912
+      "sha256": "2a20fc56ca23430bc4020145f0683bb13e5ca646e04fbc48ddc9f4a29ae5b533",
+      "size": 13384
     },
     {
       "path": "company-os/elastic-company-os/agents/openai.yaml",
@@ -57,23 +57,33 @@
     },
     {
       "path": "company-os/elastic-company-os/assets/instance-template.json",
-      "sha256": "efa91c591ba4487e908795fc8375da68d665a4b0cbea52006ccf3b5804a42888",
-      "size": 2333
+      "sha256": "07cf45e500a955a65bff02eb0cfd33df75de033f7e1347b183d9964d0faea939",
+      "size": 2445
     },
     {
       "path": "company-os/elastic-company-os/references/control-contract.md",
-      "sha256": "0e943d53615057761f2698fd98ff2538ebc97a342f8bd9069fab3bff35d70ed8",
-      "size": 10562
+      "sha256": "cdea733d344d1f118393fb4b88a84cdda92759da1714f145371af7326114745b",
+      "size": 11302
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "0d422d10a3a99a4320e3a98f2012919a9ba03002173dac500fd42897c9da527d",
-      "size": 213487
+      "sha256": "827ceeafaded4787338ca7ff367a83598c2383537bca7633bd795a298413fda8",
+      "size": 228205
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/runtime_observations.py",
+      "sha256": "bde70196ab379ae2d812525977a8902bcea744ab7bf70a9fca3591508516819b",
+      "size": 23293
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "8a33320c2bd1dfa39a06fe8d980164ed3e2c18e19c1f766955e734ad77a68d9a",
-      "size": 139343
+      "sha256": "c5b6e4a53bf851bf1f45ac6884ec4526cde8bdb063b281457341d086deb4a9be",
+      "size": 143218
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
+      "sha256": "dc0fcdc441feceb29ad660ba29b8d39a97bd5aa57f70509b6da91bda5cbfd357",
+      "size": 14365
     },
     {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",

@@ -13,6 +13,15 @@ All state changes go through the controller's atomic commands. Direct `control.j
 
 The public key does not prove launcher protection. Because a scheduler with unrestricted local authority could replace local files or environment configuration, the standalone controller exposes no local attestation bypass and keeps `protected_launcher_ready` and `scheduler_ready` false. A protected launcher/issuer attestation that this process cannot mint or replace is an explicit external deployment prerequisite, not a locally closed control.
 
+Runtime observations use a different trust root. The controller reads only an
+external public-key keyring named by `COMPANY_OS_OBSERVATION_GATEWAY_KEYRING`.
+An observation is accepted only for one admitted attempt when both runtime and
+its attempt inbox are explicitly enabled. Strict JSON parsing, signed identity
+bindings, immutable raw-artifact hashes, key validity, nonce/event uniqueness,
+monotonic provider sequence, and retained-history revalidation all fail closed.
+Observation ingestion cannot launch work, advance lifecycle, accept a model,
+consume a budget, reconcile a result, or schedule another cycle.
+
 ## Elasticity boundary
 
 Each instance may adapt:
@@ -123,6 +132,6 @@ The meta-loop audits itself through its decision latency, false-positive adaptat
 
 Certification hashes the canonical controller state and the signed certification payload binds that exact `governance_digest`. Only self-referential validation fields, consumed grant nonces, and live lease/fence, schedule, execution-timestamp, and activation-status fields are excluded because they change as a consequence of certification or execution rather than represent governable content. An expired lease may be reclaimed only to `resolve-cycle --action recover|abandon|fail`; a running cycle blocks ordinary release.
 
-Schema upgrades from versions 1 through 6 preserve monotonic program history: archive the old strategy/work/evidence/cycles/adaptations/fabric state under the true old program version in a unique history record, advance to `old + 1`, clear current evidence and work, revoke leases and certification, reset the fabric, and create a paused `reality_audit` restart checkpoint that requires new evidence.
+Schema upgrades from versions 1 through 8 preserve monotonic program history: archive the old strategy/work/evidence/cycles/adaptations/fabric/runtime state under the true old program version in a unique history record, advance to `old + 1`, clear current evidence and work, revoke leases and certification, reset the fabric and runtime, and create a paused `reality_audit` restart checkpoint that requires new evidence. Schema-8 attempts remain byte-for-byte in archived history and are never carried into the new program.
 
 Cancellation increments the lease generation, revokes the active lease, clears active work, disables scheduling, invalidates certification, propagates `cancelled` to the execution fabric, and overrides later completion.
