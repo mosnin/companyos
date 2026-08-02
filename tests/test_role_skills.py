@@ -242,6 +242,61 @@ def dispatched_payload(role_name: str, root: Path) -> dict:
     return payload
 
 
+def dispatched_worker_with_parent_versions(
+    root: Path,
+    *,
+    program_version: int,
+    charter_version: int,
+    parent_path_version: int,
+) -> dict:
+    parent = populate_payload(
+        "manage-company-program",
+        root,
+        task_id="manager-versioned",
+        parent_task_id="master-1",
+        scope=["program"],
+        decider_id="master-1",
+    )
+    parent["program_version"] = program_version
+    parent["charter_version"] = charter_version
+    parent["definition_version"] = charter_version
+    persist_authorization(parent, root, None)
+    parent_path = (
+        "artifacts/project-1/charters/manager-versioned."
+        f"v{parent_path_version}.json"
+    )
+    parent_bytes = write_json(root, parent_path, parent)
+
+    payload = populate_payload(
+        "execute-bounded-task",
+        root,
+        task_id="worker-versioned",
+        parent_task_id="manager-versioned",
+        scope=["program/artifact"],
+        decider_id="master-1",
+    )
+    payload["program_version"] = program_version
+    payload["parent_manager_task_id"] = "native-manager-versioned"
+    payload["reporting_destination"] = "task:native-manager-versioned"
+    payload["parent_manager_charter"] = {
+        "path": parent_path,
+        "sha256": sha_bytes(parent_bytes),
+    }
+    payload["parent_budget_available"] = {
+        "max_tokens": 10000,
+        "max_cost_usd": 5.0,
+        "max_time_minutes": 30,
+        "max_tasks": 1,
+        "max_concurrency": 1,
+        "max_retries": 1,
+    }
+    payload["task_local_context"]["artifact_paths"].append(parent_path)
+    parent_digest = MODULE.contract_definition_digest(parent)
+    assert parent_digest is not None
+    persist_authorization(payload, root, parent_digest)
+    return payload
+
+
 def resign_record(payload: dict, root: Path, mutate) -> None:
     path = root / payload["authorization"]["record_path"]
     record = json.loads(path.read_text(encoding="utf-8"))
@@ -297,6 +352,27 @@ class RoleSkillTests(unittest.TestCase):
                 self.assertEqual(
                     [], self.validate_payload(dispatched_payload(role_name, self.repository_root), role_name)
                 )
+
+    def test_worker_parent_filename_uses_charter_version_not_program_version(self) -> None:
+        payload = dispatched_worker_with_parent_versions(
+            self.repository_root,
+            program_version=6,
+            charter_version=2,
+            parent_path_version=2,
+        )
+        self.assertEqual([], self.validate_payload(payload, "execute-bounded-task"))
+
+    def test_worker_rejects_parent_filename_spoofed_with_program_version(self) -> None:
+        payload = dispatched_worker_with_parent_versions(
+            self.repository_root,
+            program_version=6,
+            charter_version=2,
+            parent_path_version=6,
+        )
+        self.assertIn(
+            "parent manager charter path version does not match charter_version",
+            self.validate_payload(payload, "execute-bounded-task"),
+        )
 
     def test_worker_inherits_design_authorization_without_waiting_on_master(self) -> None:
         payload = dispatched_payload("execute-bounded-task", self.repository_root)

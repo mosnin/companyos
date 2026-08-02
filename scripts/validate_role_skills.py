@@ -416,8 +416,15 @@ def _load_parent_manager_charter(
     path = reference.get("path")
     digest = reference.get("sha256")
     project_id = payload.get("ids", {}).get("project_id") if isinstance(payload.get("ids"), dict) else None
-    if not _project_local_path(path, payload.get("program_version"), project_id) or not str(path).endswith(".json"):
-        return None, ["parent manager charter path must be project-local and versioned"]
+    if (
+        not _canonical_scope(path)
+        or not _canonical_scope(project_id)
+        or str(path).split("/", 1)[0] not in ALLOWED_LOCAL_ROOTS
+        or len(str(path).split("/")) < 3
+        or str(path).split("/")[1] != project_id
+        or not str(path).endswith(".json")
+    ):
+        return None, ["parent manager charter path must be project-local JSON"]
     if not isinstance(digest, str) or not DIGEST_RE.fullmatch(digest):
         return None, ["parent manager charter sha256 is invalid"]
     raw, errors = _read_safe_local_file(repository_root, path, max_bytes=32768)
@@ -436,6 +443,10 @@ def _load_parent_manager_charter(
         return None, errors + ["parent manager charter is invalid JSON"]
     if not isinstance(parent, dict):
         return None, errors + ["parent manager charter must be an object"]
+    if not _project_local_path(path, parent.get("charter_version"), project_id):
+        errors.append(
+            "parent manager charter path version does not match charter_version"
+        )
     return parent, errors
 
 
