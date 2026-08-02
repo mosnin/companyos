@@ -17,9 +17,18 @@ jobs:
           python-version: "3.11"
       - run: python3 scripts/distribution.py verify-manifest
       - run: python3 -m unittest discover -s tests -v
+      - run: >-
+          python3 scripts/verify_operator_command_center_surface.py
+          --expected-reviewer-id "$COMPANY_OS_OCC_REVIEWER_ID"
+          --expected-reviewer-public-key-der-sha256
+          "$COMPANY_OS_OCC_REVIEWER_PUBLIC_KEY_DER_SHA256"
+        env:
+          COMPANY_OS_OCC_REVIEWER_ID: ${{ vars.COMPANY_OS_OCC_REVIEWER_ID }}
+          COMPANY_OS_OCC_REVIEWER_PUBLIC_KEY_DER_SHA256: ${{ vars.COMPANY_OS_OCC_REVIEWER_PUBLIC_KEY_DER_SHA256 }}
       - run: python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
       - run: python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
       - run: python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
+      - run: python3 skills/company-os/elastic-company-os/scripts/test_operator_brief.py -v
       - run: python3 -m unittest discover -s programs/company-os-self-hosting/reference -v
       - run: python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
-      - run: python3 -m py_compile skills/company-os/elastic-company-os/scripts/company_os_controller.py skills/company-os/elastic-company-os/scripts/control_store.py skills/company-os/elastic-company-os/scripts/runtime_observations.py skills/company-os/elastic-company-os/scripts/test_company_os_controller.py skills/company-os/elastic-company-os/scripts/test_control_store.py skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py programs/company-os-self-hosting/reference/gate2_observation_gateway_contract.py programs/company-os-self-hosting/reference/test_gate2_observation_gateway_contract.py scripts/distribution.py tests/test_distribution.py
+      - run: python3 -m py_compile skills/company-os/elastic-company-os/scripts/company_os_controller.py skills/company-os/elastic-company-os/scripts/control_store.py skills/company-os/elastic-company-os/scripts/runtime_observations.py skills/company-os/elastic-company-os/scripts/operator_brief.py skills/company-os/elastic-company-os/scripts/test_company_os_controller.py skills/company-os/elastic-company-os/scripts/test_control_store.py skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py skills/company-os/elastic-company-os/scripts/test_operator_brief.py programs/company-os-self-hosting/reference/gate2_observation_gateway_contract.py programs/company-os-self-hosting/reference/test_gate2_observation_gateway_contract.py scripts/distribution.py tests/test_distribution.py

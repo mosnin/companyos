@@ -142,6 +142,41 @@ class ControllerTests(unittest.TestCase):
             "grant_digest": controller.hashlib.sha256(token.encode()).hexdigest(),
         }
 
+    def test_new_stored_grant_retains_public_verification_material(self) -> None:
+        state = self.valid_state()
+        payload_hash = controller.command_payload_hash("test-action", {"value": 1})
+        token = self.grant(
+            "reviewer", "test-action", resource="test:1", work_id="", cycle_id="",
+            dimension="test", decision="accepted", payload_hash=payload_hash,
+        )
+        grant = controller.verify_actor_grant(
+            state, token, "reviewer", "test-action", resource="test:1", work_id="",
+            cycle_id="", dimension="test", decision="accepted", payload_hash=payload_hash,
+        )
+        self.assertIn("BEGIN PUBLIC KEY", grant["verification_key_pem"])
+        previous = os.environ.pop(controller.ACTOR_PUBLIC_KEY_ENV)
+        try:
+            errors: list[str] = []
+            status = controller.audit_stored_grant(
+                state, grant, errors, "stored grant",
+                {
+                    "actor": "reviewer", "action": "test-action", "resource": "test:1",
+                    "work_id": "", "cycle_id": "", "dimension": "test",
+                    "decision": "accepted", "payload_hash": payload_hash,
+                },
+            )
+            self.assertEqual(status, "cryptographic")
+            self.assertEqual(errors, [])
+            grant["verification_key_pem"] += "tamper"
+            tampered_errors: list[str] = []
+            self.assertEqual(
+                controller.audit_stored_grant(state, grant, tampered_errors, "stored grant"),
+                "invalid",
+            )
+            self.assertTrue(tampered_errors)
+        finally:
+            os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = previous
+
     def finish_grant(
         self,
         *,
@@ -1724,6 +1759,31 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(archives["chain-b"]["superseded_by_evidence_id"], "chain-c")
         self.assertTrue(archives["chain-b"]["old_snapshot_available"])
         self.assertFalse(any("supersession" in error for error in self.report(repaired)["errors"]))
+
+    def test_program_replacement_retains_valid_supersession_history(self) -> None:
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        state["portfolio"]["active_work"] = []
+        old = state["evidence"]["reality"][0]
+        old["id"] = "replace-chain-a"
+        source = self.project / old["artifact_path"]
+        source.write_text("replacement chain\n", encoding="utf-8")
+        self.write_state(state)
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.supersede_evidence(
+                    self.supersession_args(state, "replace-chain-a", source, "replace-chain-b")
+                ),
+                0,
+            )
+            self.assertEqual(controller.replace_program(namespace(
+                project=str(self.project), north_star="New mandate",
+                current_outcome="New governed outcome", success_metric="One accepted result",
+                reason="test replacement after supersession",
+            )), 0)
+        replaced = controller.load_json(self.project / ".company-os" / "control.json")
+        errors = self.report(replaced)["errors"]
+        self.assertEqual(errors, ["phase reality_audit requires valid evidence.reality"])
 
     def test_supersession_requires_an_exact_independent_grant(self) -> None:
         state = self.valid_state()

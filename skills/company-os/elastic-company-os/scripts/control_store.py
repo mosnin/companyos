@@ -198,6 +198,86 @@ def load(project: Path) -> tuple[int, dict[str, Any]]:
         connection.close()
 
 
+def load_revision(project: Path, revision: int) -> dict[str, Any]:
+    """Load one hash-verified historical revision for read-only comparison."""
+    if not isinstance(revision, int) or isinstance(revision, bool) or revision < 1:
+        raise StoreError("historical revision must be a positive integer")
+    connection = connect(project)
+    try:
+        _assert_binding(connection, project)
+        row = connection.execute(
+            "SELECT state_json,state_sha256 FROM state_revisions WHERE revision=?",
+            (revision,),
+        ).fetchone()
+        if row is None:
+            raise StoreError("historical revision does not exist")
+        raw = row["state_json"].encode("utf-8")
+        if sha256_bytes(raw) != row["state_sha256"]:
+            raise StoreError("historical state revision hash is invalid")
+        try:
+            state = json.loads(row["state_json"])
+        except json.JSONDecodeError as exc:
+            raise StoreError(f"historical state revision JSON is invalid: {exc}") from None
+        if not isinstance(state, dict):
+            raise StoreError("historical state revision must be an object")
+        _assert_binding(connection, project, state)
+        return state
+    finally:
+        connection.close()
+
+
+def load_change_events(project: Path, after_revision: int, through_revision: int) -> list[dict[str, Any]]:
+    """Return hash-verified, safely attributable governed events for a revision window."""
+    if (
+        not isinstance(after_revision, int) or isinstance(after_revision, bool)
+        or not isinstance(through_revision, int) or isinstance(through_revision, bool)
+        or after_revision < 0 or through_revision <= after_revision
+    ):
+        raise StoreError("event comparison revisions are invalid")
+    connection = connect(project)
+    try:
+        metadata = _assert_binding(connection, project)
+        rows = connection.execute(
+            """
+            SELECT e.state_revision,e.event_id,e.event_type,e.payload_json,e.payload_sha256,
+                   i.command_name,i.command_key
+            FROM events e
+            LEFT JOIN command_idempotency i
+              ON i.project_id=e.project_id AND i.state_revision=e.state_revision
+            WHERE e.project_id=? AND e.state_revision>? AND e.state_revision<=?
+            ORDER BY e.state_revision
+            """,
+            (metadata["project_id"], after_revision, through_revision),
+        ).fetchall()
+        events: list[dict[str, Any]] = []
+        safe_reference_fields = (
+            "evidence_id", "predecessor_evidence_id", "outcome_id", "work_id",
+            "from_phase", "to_phase", "reviewer", "manager_id", "attempt_id",
+        )
+        for row in rows:
+            raw = row["payload_json"].encode("utf-8")
+            if sha256_bytes(raw) != row["payload_sha256"]:
+                raise StoreError("change event payload hash is invalid")
+            payload = json.loads(row["payload_json"])
+            if not isinstance(payload, dict) or payload.get("event_id") != row["event_id"]:
+                raise StoreError("change event identity is invalid")
+            references = {
+                field: payload[field]
+                for field in safe_reference_fields
+                if isinstance(payload.get(field), str) and payload[field]
+            }
+            events.append({
+                "revision": int(row["state_revision"]),
+                "event_type": row["event_type"],
+                "command": row["command_name"],
+                "command_key": row["command_key"],
+                "references": references,
+            })
+        return events
+    finally:
+        connection.close()
+
+
 def _entity_records(state: dict[str, Any]) -> list[tuple[str, str, int | None, str | None, dict[str, Any]]]:
     program_version = state.get("strategy", {}).get("program_version")
     records: list[tuple[str, str, int | None, str | None, dict[str, Any]]] = [

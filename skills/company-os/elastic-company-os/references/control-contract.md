@@ -35,9 +35,22 @@ canonical governance digest; finish binds evidence IDs and their recomputed
 digest, outcome, metrics, visibility, disposition, decision, reviewer, and
 commit/ref; quality binds its full evidence checkpoint; and P0/repeat
 admission binds its full queue decision. Audits reconstruct payloads from
-retained governed records rather than trusting stored hashes. Full tokens
-remain in the audit record, signatures are reverified during audit, and
-consumed nonces cannot be replayed.
+retained governed records rather than trusting stored hashes. Full tokens and
+the issuing public verification material remain in new audit records, so
+signatures survive process restarts and issuer rotation; consumed nonces cannot
+be replayed. Legacy accepted records that predate retained public keys are
+checked against their token digest, exact claims, consumed nonce, and
+transactional revision chain, but are explicitly warned as not
+cryptographically replay-verifiable.
+
+The operator command center is a curated read-only projection of this
+authority. It may disclose direction, gate state, work, quality, aggregate
+usage, evidence counts, and safe runtime identity fields. It may not disclose
+signed grants, nonces, issuer material, raw provider envelopes, or arbitrary
+state. When SQLite exists it must read SQLite even if JSON exports are stale or
+tampered. Markdown output treats project-controlled text as inert content;
+JSON output uses a versioned projection schema. A presentation failure or
+blocked gate cannot mutate controller state.
 
 The public key does not prove launcher protection. Because a scheduler with unrestricted local authority could replace local files or environment configuration, the standalone controller exposes no local attestation bypass and keeps `protected_launcher_ready` and `scheduler_ready` false. A protected launcher/issuer attestation that this process cannot mint or replace is an explicit external deployment prerequisite, not a locally closed control.
 

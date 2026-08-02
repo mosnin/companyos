@@ -1,0 +1,115 @@
+{
+  "aggregate_algorithm": "sha256(canonical JSON of globally path-sorted files array; UTF-8, sorted keys, compact separators)",
+  "aggregate_sha256": "a68e46af0933072afb8b59965a04c326b2fa38b72be7095299b3bb9571f3b36c",
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "8066484cb208681bd44f5bce15c9f3aff9f2047ce7cda41f6eb8328f69f38240",
+      "size": 2275
+    },
+    {
+      "path": "docs/design/operator-command-center-concept-v1.png",
+      "sha256": "a02a063b16005067fb152ec33e2307159eaf67fd83f2696bee982b4aebc44bff",
+      "size": 1143532
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_ACCEPTANCE_MATRIX.md",
+      "sha256": "69fb515691cc7b87b24d4f40c9ee0da69ba8342585bc5c579f408b2f08731531",
+      "size": 5434
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_ACCEPTANCE_REPORT.md",
+      "sha256": "bd566ecdd06f7215c1aa004fc3137cae7be05fb80ce203a3ac2614800d392f2c",
+      "size": 4731
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_DESIGN_SYSTEM.md",
+      "sha256": "b8e90d3712508c8726b591434e727f6dc572e47ae2927843a6952d371dddc692",
+      "size": 6992
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_DESKTOP.jpg",
+      "sha256": "7cfd41d3822a90184e6613195b8a0780e0d51e4113d65b1a7d178e1b3ff8ec41",
+      "size": 148944
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_MOBILE.jpg",
+      "sha256": "52e23e232e8430004609924fccc87c964e6ac387a4bbd55a5243618196f4b541",
+      "size": 52045
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_PRODUCT_BRIEF.md",
+      "sha256": "e8b07b6a5bddcc78a6547122f280d5bf0463543029de59380771e4d41b49b854",
+      "size": 4892
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_PROGRAM_CONTRACT.md",
+      "sha256": "c8de8fc26807939025d7b423606622513f48c220de747ee33eeb674374b5b356",
+      "size": 2658
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_REALITY.md",
+      "sha256": "b325982a0bef8276466552f5571861366bb1ceb6d1e4449f2b828c974b332197",
+      "size": 4379
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_RENDERED.html",
+      "sha256": "6201957a9fbcfb8df5e15d9cf4fa3eafb02a600a0403dcc76607af949c40c15f",
+      "size": 24072
+    },
+    {
+      "path": "scripts/verify_operator_command_center_surface.py",
+      "sha256": "9f985924d944da6ffae92d691151631dc8ffc69f8204cfd2f2ff388fd710a866",
+      "size": 10779
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/SKILL.md",
+      "sha256": "247cfe02cd394d04877b30160d7996385238b43d8980c8656760fb405403dbb3",
+      "size": 15718
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/references/control-contract.md",
+      "sha256": "de8a139b4692b2284c85c575206527e73fccc367db858af7b2173e19ff3f6106",
+      "size": 13795
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/company_os_controller.py",
+      "sha256": "faacb849a0ba75569d184d48d826c1fc576ff3e834d243b22ea61e4d89f12a57",
+      "size": 276283
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/control_store.py",
+      "sha256": "d374dbc78e58a45b94a0dbefa62ef3502be3413e0c59d241dadc5d641040ad7d",
+      "size": 42385
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/operator_brief.py",
+      "sha256": "ef20959026ad4f7ebea5031d0dff967b136ce8f453b0fa58c8352589e372582e",
+      "size": 68373
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+      "sha256": "df0ed4d42704e47ceb657db9a774faf34a09bdb7d6217c6383ca610a49fa389a",
+      "size": 161556
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+      "sha256": "6863d2877356422f79eec255bf10c73a3b268a6a55eac9bb8662853e2bc947fc",
+      "size": 33733
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/test_operator_brief.py",
+      "sha256": "ef19133dacba7f8f67f958dbfe4cc3cb46b36dfc41da852aed1a506169be52b9",
+      "size": 32552
+    },
+    {
+      "path": "tests/test_operator_command_center_surface.py",
+      "sha256": "7bfbec0ef1e322ff8014e6dff154139295585c96968a078f4c3985b226c8ca4c",
+      "size": 3877
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Exact accepted Operator Command Center implementation, tests, governed product documents, rendered HTML, desktop/mobile acceptance captures, corrected concept, skill contract, verifier, and CI gate.",
+  "self_exclusion": "This aggregate manifest, attestation, signature, and public key are not members of the files array.",
+  "surface_id": "operator-command-center-v5-accepted-surface"
+}

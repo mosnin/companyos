@@ -58,6 +58,31 @@ They do not certify a provider runtime or unattended operation.
 Phase 1C passes only after independent review, the canonical manifest, exact
 installed distribution, and self-host evidence repair are all verified.
 
+## Phase 1D Operator Command Center dimensions
+
+These scores accept the read-only product experience. They do not certify the
+provider runtime, recurring scheduling, production operation, or Chippy.
+
+| Dimension | Score | Evidence |
+| --- | ---: | --- |
+| North-star alignment | 9.5 | The surface turns the self-hosting outcome into one governed operator decision. |
+| User value | 9.3 | Direction, impact, owner, output, done condition, and verification are available without reading raw state. |
+| Product coherence | 9.2 | Markdown, JSON, and HTML are projections of the same transactional authority. |
+| Differentiation | 9.1 | Governed change, proof quality, supervision, and exact next action form one operating surface. |
+| Innovation | 9.0 | Auditable company control is compressed into a decision-first artifact without inventing activity. |
+| Domain fit | 9.4 | Phase gates, evidence, managers, runtime attempts, cost, and schedule posture fit autonomous-company operation. |
+| Information architecture | 9.2 | Why-now and one decision lead; exceptions, work, team, evidence, and compass disclose progressively. |
+| Usability | 9.1 | One deterministic action replaces competing recommendations; handoff and evidence links are named. |
+| Accessibility | 9.3 | Semantic disclosure, visible stage names, non-color status, reduced motion, and mobile targets are verified. |
+| Interaction quality | 9.0 | Native no-script disclosure retains complete detail and keyboard operation. |
+| Visual quality | 9.2 | Desktop and mobile acceptance renders preserve hierarchy with no horizontal overflow. |
+| Brand cohesion | 9.2 | The restrained decision-first visual system matches Company OS authority and evidence discipline. |
+| Evidence integrity | 9.3 | Exact revision scope, authority source, redaction, missing-data truth, and requested/observed identity separation are tested. |
+
+Phase 1D passes its Experience gate at a 9.22 mean; all 13 dimensions meet the
+9.0 critical threshold. Delivery acceptance still requires the committed 0.4.0
+manifest, detached-source parity, and transactional installed upgrade.
+
 ## Operational dimensions — not passed
 
 | Dimension | Current evidence state |

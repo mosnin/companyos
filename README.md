@@ -7,10 +7,17 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version `0.3.1` adds immutable, content-addressed evidence snapshots, signed
-and fully audited evidence supersession, and enforced phase-exit quality gates
-to the project-local transactional authority and schema-9/core-2.6 observation
-trust boundary. New instances use
+Version 0.4.0 packages the independently accepted Operator Command Center: a
+read-only decision surface on top of immutable, content-addressed evidence,
+signed evidence supersession, and enforced phase-exit quality gates. `brief`
+turns authoritative state into one safe Markdown, JSON, or self-contained HTML
+surface: outcome, stage, governed change, exact next move, quality, work,
+supervision, evidence, cost, blockers, and non-claims. It never exposes signed
+grants or treats a mutable export as authority. The accepted experience scored
+9.22/10 with every one of 13 critical product dimensions at or above 9.0.
+
+These capabilities extend the project-local transactional authority and
+schema-9/core-2.6 observation trust boundary. New instances use
 SQLite with full synchronous durability and WAL concurrency; existing valid
 schema-9 instances migrate explicitly. State revisions, ordered audit events,
 projections, trusted observation inboxes, effect outboxes, command
@@ -42,10 +49,15 @@ until the standalone self-hosting gates pass.
 
 ```bash
 python3 scripts/distribution.py verify-manifest
+python3 scripts/verify_operator_command_center_surface.py \
+  --expected-reviewer-id "$COMPANY_OS_OCC_REVIEWER_ID" \
+  --expected-reviewer-public-key-der-sha256 \
+  "$COMPANY_OS_OCC_REVIEWER_PUBLIC_KEY_DER_SHA256"
 python3 -m unittest discover -s tests -v
 python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
 python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
 python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
+python3 skills/company-os/elastic-company-os/scripts/test_operator_brief.py -v
 python3 -m unittest discover -s programs/company-os-self-hosting/reference -v
 python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
 ```
@@ -65,5 +77,46 @@ Install into an empty skills root:
 python3 scripts/distribution.py install --target /absolute/skills/root
 ```
 
-An existing, different installation is rejected unless `--force` is supplied.
-Use `check-install` to compare without changing anything.
+An existing, different installation is rejected. A controlled upgrade must
+prove the exact expected prior version and manifest before either skill bundle
+is replaced. Both bundles are staged and verified first, then replaced as one
+transaction with rollback on any failure. `--force` is never a blind overwrite.
+Use `check-install` to compare without changing anything. If it detects an
+interrupted journal or orphaned transaction directory, it fails without
+restoring or deleting anything. Run the explicit recovery command first:
+
+```bash
+python3 scripts/distribution.py recover-install --target /absolute/skills/root
+```
+
+```bash
+python3 scripts/distribution.py install \
+  --target /absolute/skills/root \
+  --prior-manifest /absolute/accepted-0.3.1/distribution-manifest.json \
+  --prior-version 0.3.1
+```
+
+## Operator command center
+
+Render the current project decision surface without changing state:
+
+```bash
+python3 skills/company-os/elastic-company-os/scripts/company_os_controller.py brief \
+  --project /absolute/project/path \
+  --format markdown
+```
+
+Use `--format json` for an agent-readable projection and `--strict` when a
+blocked gate should return a nonzero exit status. Use `--format html` for the
+accessible, responsive Operator Command Center; it has no client script and
+remains a read-only projection of the same governed state.
+
+The accepted visual and adversarial evidence lives in
+`programs/company-os-self-hosting/`. It is release evidence for this capability,
+not a claim that provider execution, recursive self-hosting, protected
+scheduling, or Chippy onboarding is complete.
+
+The two Operator Command Center reviewer values are non-secret trust anchors,
+but they must come from the independently governed Company OS delegation rather
+than a repository default. CI reads them from repository variables and fails
+closed when either value is absent or changed.

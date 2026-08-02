@@ -13,6 +13,22 @@
 Installed skills and project instances may never silently modify the canonical
 core.
 
+## Operator experience
+
+The `brief` command is a read-only projection, never another authority. It
+loads the SQLite state when present, runs the same complete audit, and emits a
+curated Markdown, JSON, or self-contained HTML command center. The projection exposes the north
+star, current outcome, phase track, one deterministic next action, required
+quality, active work, manager/runtime counts, evidence health, feedback cost,
+and control posture. It omits grants, nonces, private authority material, raw
+provider envelopes, and arbitrary state. Untrusted project text is rendered as
+inert content. The self-contained HTML view uses semantic native disclosure,
+responsive first-viewport decision hierarchy, reduced-motion support, real
+evidence and handoff links, and no client script. Every view binds its
+comparison to an exact authoritative revision window, so a partial trail is
+never represented as total history. `--strict` makes a blocked gate observable
+to automation while still printing the full brief.
+
 ## Runtime target
 
 The operational system uses one project-bound SQLite control store for
@@ -47,7 +63,9 @@ Schema 9 implements the observation trust boundary. Version 0.3 adds the
 single-host transactional control substrate without enabling runtime launch.
 Legacy JSON instances continue to use the write-ahead pair until an explicit,
 validated `migrate-control-store` operation publishes their database. New
-instances begin transactionally.
+instances begin transactionally. Version 0.4 adds the Operator Command Center
+and a transaction-safe two-bundle distribution upgrade path; it still does not
+enable a provider runtime or recurring scheduling.
 
 ## Feedback target
 

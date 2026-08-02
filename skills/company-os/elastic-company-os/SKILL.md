@@ -91,6 +91,21 @@ Before every cycle, run:
 python3 scripts/company_os_controller.py audit --project /absolute/project/path
 ```
 
+At kickoff and every operator check-in, render the decision surface:
+
+```bash
+python3 scripts/company_os_controller.py brief \
+  --project /absolute/project/path \
+  --format markdown
+```
+
+Use `--format json` as the compact master/manager handoff so an agent can read
+the current outcome, gate, quality, work, supervision, evidence, feedback, and
+one exact next action without loading raw control state or every skill. This is
+a read-only projection, not authority. It deliberately omits grants, nonces,
+raw provider envelopes, and private issuer material. Use `--strict` in a
+monitor when a blocked governed gate must produce a nonzero exit status.
+
 The controller rejects:
 
 - a scheduler before reality, direction, and evidence gates are ready;
@@ -187,5 +202,9 @@ Report:
 - adaptations proposed/applied;
 - scheduler and lease state;
 - exact next action.
+
+Prefer the `brief` projection for routine check-ins. Explain only the blocker,
+the one next move, and the evidence that changed since the prior check-in; do
+not substitute activity logs for product movement.
 
 Never call the system healthy because its files validate. Run the project's adversarial simulation after changes, forward-test it on the real project, and require a visible outcome.

@@ -3,7 +3,7 @@
 ## Current checkpoint
 
 - Canonical repository: `/Users/preston/Documents/Codex/company-os-core`
-- Distribution version: `0.3.1`
+- Distribution version: `0.4.0` candidate; not released or installed yet
 - Canonical controller: schema 9 / core 2.6
 - Client work: frozen; Chippy is not an implementation target
 - Recurring automation: disabled
@@ -82,6 +82,28 @@ Verification on 2026-08-01 at the Phase 1C candidate:
 - Active work cannot exit a phase until current applicable quality passes;
   critical dimensions require 9 and noncritical dimensions require 8.
 
+### Phase 1D — Operator Command Center accepted for Delivery
+
+- Program v5 moved the self-hosting outcome from backend control work to one
+  exceptional operator decision surface before implementation began.
+- The first product candidate was independently rejected at 6.40/10. Three
+  repair cycles at 8.70, 8.97, and 9.11 were also rejected. The fourth passed
+  at 9.22 with all 13 critical dimensions at or above 9.0.
+- Markdown, JSON, and self-contained HTML read the SQLite authority without
+  mutation and show governed change, why it matters, direction, phase, one
+  action, owner, output, done condition, verification, quality exceptions,
+  work, supervision, evidence, cost, and control posture.
+- Adversarial tests cover authority selection, redaction, markup safety,
+  invalid quality proof, missing telemetry, blocker routing, exact comparison
+  scope, requested-versus-observed model identity, strict monitoring, and
+  empty state.
+- Browser acceptance covers 1435 x 1096 desktop and 375 x 812 mobile surfaces,
+  real links, semantic disclosure, reduced motion, target sizing, first-viewport
+  decision completeness, and horizontal overflow.
+- Delivery is governed by
+  `OPERATOR_COMMAND_CENTER_DELIVERY_CONTRACT.md`. The accepted Experience
+  candidate may not change during packaging without returning to Experience.
+
 ## Not yet implemented
 
 - Provider-driven lifecycle state beyond immutable observation retention.
@@ -94,9 +116,10 @@ Verification on 2026-08-01 at the Phase 1C candidate:
 
 ## Exact next action
 
-Publish the reviewed 0.3.1 candidate, repair the two stale self-host evidence
-records through signed supersession, and re-audit the self-hosting instance.
-Then implement Phase 2's provider-neutral admission-before-launch gateway,
-heartbeats, terminal receipts, cancellation propagation, provider-derived
-identity/usage, and restart reconciliation while runtime and scheduling remain
-feature-off.
+Finish the accepted 0.4.0 Delivery contract: implement and adversarially test
+the atomic two-bundle upgrade, freeze an explicit staged inventory, generate
+the manifest once for that freeze, run the complete regression and disposable
+install gates, obtain independent staged-diff review, commit, verify from a
+clean detached source, record post-commit evidence, and only then transactionally
+upgrade the canonical installed skills. Provider runtime, scheduling, Chippy,
+production, and customer systems remain frozen.

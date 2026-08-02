@@ -91,6 +91,25 @@ class ControlStoreTests(unittest.TestCase):
         self.assertEqual(store.load(self.project)[0], 1)
         self.assertEqual(first_events, (self.project / ".company-os" / "events.jsonl").read_bytes())
 
+    def test_historical_revision_load_is_exact_hash_verified_and_bounded(self) -> None:
+        original = self.migrate_valid_state()
+        self.assertEqual(store.load_revision(self.project, 1), original)
+        with self.assertRaises(store.StoreError):
+            store.load_revision(self.project, 0)
+        with self.assertRaises(store.StoreError):
+            store.load_revision(self.project, 2)
+        connection = store.connect(self.project)
+        try:
+            connection.execute(
+                "UPDATE state_revisions SET state_json=? WHERE revision=1",
+                ('{"tampered":true}',),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        with self.assertRaises(store.StoreError):
+            store.load_revision(self.project, 1)
+
     def test_migration_rejects_missing_corrupt_and_stale_sources(self) -> None:
         args = type("Args", (), {"project": str(self.project)})()
         with redirect_stdout(io.StringIO()):

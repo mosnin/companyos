@@ -280,6 +280,7 @@ RUNTIME_AUDIT_ERROR_PREFIXES = (
     "admission-only runtime",
 )
 _CONTROL_STORE_MODULE: Any | None = None
+_OPERATOR_BRIEF_MODULE: Any | None = None
 _ACTIVE_CONTROL_STORE_TRANSACTION: contextvars.ContextVar[Any | None] = contextvars.ContextVar(
     "company_os_control_store_transaction",
     default=None,
@@ -319,6 +320,21 @@ def runtime_observation_module() -> Any:
         raise ValueError("runtime observation verifier could not be loaded")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    return module
+
+
+def operator_brief_module() -> Any:
+    """Load the bundled read-only operator presenter without PYTHONPATH."""
+    global _OPERATOR_BRIEF_MODULE
+    if _OPERATOR_BRIEF_MODULE is not None:
+        return _OPERATOR_BRIEF_MODULE
+    module_path = Path(__file__).resolve().with_name("operator_brief.py")
+    spec = importlib.util.spec_from_file_location("company_os_operator_brief", module_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("operator brief module could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _OPERATOR_BRIEF_MODULE = module
     return module
 
 
@@ -886,22 +902,34 @@ def completion_digest(work: dict[str, Any], cycle: dict[str, Any]) -> str:
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
 
 
-def verify_asymmetric_signature(encoded_payload: str, encoded_signature: str) -> None:
-    public_key_value = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
-    if not public_key_value:
-        raise ValueError(f"{ACTOR_PUBLIC_KEY_ENV} is required for governed operations")
-    public_key = Path(public_key_value).resolve()
-    if not public_key.is_file():
-        raise ValueError("configured actor-grant public key does not exist")
+def verify_asymmetric_signature(
+    encoded_payload: str,
+    encoded_signature: str,
+    *,
+    verification_key_pem: str | None = None,
+) -> None:
+    public_key_bytes: bytes
+    if verification_key_pem is None:
+        public_key_value = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
+        if not public_key_value:
+            raise ValueError(f"{ACTOR_PUBLIC_KEY_ENV} is required for governed operations")
+        public_key = Path(public_key_value).resolve()
+        if not public_key.is_file():
+            raise ValueError("configured actor-grant public key does not exist")
+        public_key_bytes = public_key.read_bytes()
+    else:
+        public_key_bytes = verification_key_pem.encode("utf-8")
     try:
         signature = base64.urlsafe_b64decode(encoded_signature + "=" * (-len(encoded_signature) % 4))
-        with tempfile.NamedTemporaryFile() as payload_file, tempfile.NamedTemporaryFile() as signature_file:
+        with tempfile.NamedTemporaryFile() as payload_file, tempfile.NamedTemporaryFile() as signature_file, tempfile.NamedTemporaryFile() as public_key_file:
             payload_file.write(encoded_payload.encode("ascii"))
             payload_file.flush()
             signature_file.write(signature)
             signature_file.flush()
+            public_key_file.write(public_key_bytes)
+            public_key_file.flush()
             result = subprocess.run(
-                ["openssl", "dgst", "-sha256", "-verify", str(public_key), "-signature", signature_file.name, payload_file.name],
+                ["openssl", "dgst", "-sha256", "-verify", public_key_file.name, "-signature", signature_file.name, payload_file.name],
                 capture_output=True,
                 check=False,
             )
@@ -959,38 +987,76 @@ def verify_actor_grant(
         raise ValueError("actor grant nonce was already consumed")
     if consume:
         consumed.append(nonce)
-    return {"actor": actor, "claims": payload, "token": grant, "grant_digest": hashlib.sha256(grant.encode()).hexdigest()}
+    verification_key_path = Path(os.environ[ACTOR_PUBLIC_KEY_ENV]).resolve()
+    verification_key_pem = verification_key_path.read_text(encoding="utf-8")
+    return {
+        "actor": actor,
+        "claims": payload,
+        "token": grant,
+        "grant_digest": hashlib.sha256(grant.encode()).hexdigest(),
+        "verification_key_pem": verification_key_pem,
+        "verification_key_sha256": hashlib.sha256(verification_key_pem.encode("utf-8")).hexdigest(),
+    }
 
 
 def audit_stored_grant(
-    state: dict[str, Any], grant: Any, errors: list[str], label: str, expected_claims: dict[str, Any] | None = None
-) -> None:
+    state: dict[str, Any], grant: Any, errors: list[str], label: str,
+    expected_claims: dict[str, Any] | None = None,
+    *,
+    expected_program_version: int | None = None,
+) -> str:
     if not isinstance(grant, dict) or not isinstance(grant.get("claims"), dict) or not grant.get("token"):
         errors.append(f"{label} lacks a full signed grant")
-        return
+        return "invalid"
     claims = grant["claims"]
     if claims.get("nonce") not in state.get("controller", {}).get("consumed_grant_nonces", []):
         errors.append(f"{label} nonce was not consumed")
-        return
+        return "invalid"
     if expected_claims and any(claims.get(key) != value for key, value in expected_claims.items()):
         errors.append(f"{label} claims do not match the governed record")
-        return
+        return "invalid"
+    required_program = state.get("strategy", {}).get("program_version") if expected_program_version is None else expected_program_version
+    if (
+        claims.get("actor") != grant.get("actor")
+        or claims.get("project_id") != state.get("instance", {}).get("project_id")
+        or claims.get("program_version") != required_program
+    ):
+        errors.append(f"{label} claims do not match the governed project or program")
+        return "invalid"
+    token = grant["token"]
+    if grant.get("grant_digest") != hashlib.sha256(token.encode()).hexdigest():
+        errors.append(f"{label} grant digest does not match its token")
+        return "invalid"
     try:
-        verify_actor_grant(
-            state,
-            grant["token"],
-            grant.get("actor"),
-            claims.get("action"),
-            resource=claims.get("resource"),
-            work_id=claims.get("work_id"),
-            cycle_id=claims.get("cycle_id"),
-            dimension=claims.get("dimension"),
-            decision=claims.get("decision"),
-            payload_hash=claims.get("payload_hash"),
-            consume=False,
-        )
+        encoded, signature = token.split(".", 1)
+        token_claims = json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
+        if token_claims != claims:
+            raise ValueError("stored claims differ from signed token")
+        verification_key_pem = grant.get("verification_key_pem")
+        verification_key_sha256 = grant.get("verification_key_sha256")
+        if isinstance(verification_key_pem, str):
+            if verification_key_sha256 != hashlib.sha256(verification_key_pem.encode("utf-8")).hexdigest():
+                raise ValueError("stored verification-key digest does not match")
+            verify_asymmetric_signature(encoded, signature, verification_key_pem=verification_key_pem)
+            return "cryptographic"
+        if os.environ.get(ACTOR_PUBLIC_KEY_ENV):
+            try:
+                verify_asymmetric_signature(encoded, signature)
+            except ValueError:
+                # A valid historical grant may have been issued before key
+                # rotation. Without its retained old public key, do not call it
+                # cryptographically replay-verified and do not make history
+                # depend on the currently configured issuer.
+                return "retained_legacy"
+            else:
+                return "current_issuer"
+        # Legacy accepted records did not retain their public verification key.
+        # Their token digest, exact claims, consumed nonce, and transactional
+        # revision chain remain auditable, but cryptographic replay is impossible.
+        return "retained_legacy"
     except ValueError as exc:
         errors.append(f"{label} is not audit-valid: {exc}")
+        return "invalid"
 
 
 def applicable_quality_dimensions(state: dict[str, Any]) -> set[str]:
@@ -2167,10 +2233,33 @@ def validate_state(
                     errors.append(f"{label} references a missing or corrupt snapshot")
             elif archive.get("old_snapshot_available") is not False:
                 errors.append(f"{label} incorrectly claims a legacy snapshot exists")
+        program_archive_records: dict[str, dict[str, Any]] = {}
+        for index, archive in enumerate(archived_evidence):
+            if not isinstance(archive, dict) or archive.get("archive_kind") == "evidence_supersession":
+                continue
+            archived_program_evidence = archive.get("evidence")
+            if not isinstance(archived_program_evidence, dict):
+                continue
+            for bucket, records in archived_program_evidence.items():
+                if bucket not in EVIDENCE_BUCKETS or not isinstance(records, list):
+                    continue
+                for record_index, record in enumerate(records):
+                    label = f"feedback.archived_evidence[{index}].evidence.{bucket}[{record_index}]"
+                    if not isinstance(record, dict):
+                        errors.append(f"{label} must be an object")
+                        continue
+                    evidence_id = record.get("id")
+                    if not isinstance(evidence_id, str) or not evidence_id:
+                        errors.append(f"{label}.id is required")
+                    elif evidence_id in program_archive_records or evidence_id in evidence_by_id or evidence_id in archives_by_id:
+                        errors.append(f"{label}.id must be unique across evidence history")
+                    else:
+                        program_archive_records[evidence_id] = record
         all_history: dict[str, tuple[str, dict[str, Any]]] = {
             evidence_id: ("current", item) for evidence_id, item in evidence_by_id.items()
         }
         all_history.update({evidence_id: ("archived", archive["record"]) for evidence_id, archive in archives_by_id.items()})
+        all_history.update({evidence_id: ("program_archive", item) for evidence_id, item in program_archive_records.items()})
         for index, archive in enumerate(archived_evidence):
             if not isinstance(archive, dict) or archive.get("archive_kind") != "evidence_supersession":
                 continue
@@ -2207,7 +2296,7 @@ def validate_state(
                 }
                 if review_payload != expected_review_payload:
                     errors.append(f"{label}.review_payload does not match the retained transition")
-                audit_stored_grant(
+                grant_status = audit_stored_grant(
                     state,
                     archive.get("reviewer_grant"),
                     errors,
@@ -2222,12 +2311,17 @@ def validate_state(
                         "decision": "accepted",
                         "payload_hash": command_payload_hash("supersede-evidence", review_payload),
                     },
+                    expected_program_version=old.get("program_version"),
                 )
+                if grant_status == "retained_legacy":
+                    warning = "legacy evidence review is transactionally retained but lacks its historical public verification key"
+                    if warning not in warnings:
+                        warnings.append(warning)
         successor_count: dict[str, int] = {}
         for evidence_id, (location, item) in all_history.items():
             successor = item.get("superseded_by_evidence_id")
             predecessor = item.get("supersedes_evidence_id")
-            if location == "current" and predecessor not in (None, ""):
+            if location in {"current", "program_archive"} and predecessor not in (None, ""):
                 archived = archives_by_id.get(predecessor)
                 if not archived or archived.get("superseded_by_evidence_id") != evidence_id:
                     errors.append(f"evidence {evidence_id} has an unarchived predecessor linkage")
@@ -3054,6 +3148,72 @@ def audit_instance(args: argparse.Namespace) -> int:
         return 2
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0 if report["ok"] else 1
+
+
+def brief_instance(args: argparse.Namespace) -> int:
+    """Render a safe decision surface from authoritative project state."""
+    project = Path(args.project).resolve()
+    path = state_path(project)
+    store_module = control_store_module()
+    store_exists = store_module.exists(project)
+    if not path.exists() and not store_exists:
+        print(json.dumps({"ok": False, "errors": [f"no Company OS instance at {path}"]}, indent=2))
+        return 2
+    try:
+        store_report = store_module.audit(project) if store_exists else None
+        prior_state = None
+        prior_revision = None
+        change_events = []
+        if store_exists:
+            revision, state = store_module.load(project)
+            requested_revision = getattr(args, "since_revision", None)
+            if requested_revision is not None:
+                if not isinstance(requested_revision, int) or isinstance(requested_revision, bool) or requested_revision < 1:
+                    raise ValueError("--since-revision must be a positive integer")
+                if requested_revision >= revision:
+                    raise ValueError("--since-revision must be earlier than the current revision")
+                prior_revision = requested_revision
+            elif revision > 1:
+                prior_revision = revision - 1
+            if prior_revision is not None:
+                prior_state = store_module.load_revision(project, prior_revision)
+                change_events = store_module.load_change_events(project, prior_revision, revision)
+        else:
+            state = load_json(path)
+        report = validate_state(state, expected_project=project)
+        if store_report is not None:
+            report["errors"].extend(
+                f"control store: {error}" for error in store_report["errors"]
+            )
+            if not store_report["state_export_match"] or not store_report["events_export_match"]:
+                report["warnings"].append(
+                    "transactional control exports drifted; the next governed command will rebuild them"
+                )
+            report["ok"] = not report["errors"]
+        else:
+            report["errors"].append("control store migration is required")
+            report["ok"] = False
+        presenter = operator_brief_module()
+        brief = presenter.build_operator_brief(
+            state,
+            report,
+            store_report,
+            phases=PHASES,
+            critical_dimensions=BASE_DIMENSIONS,
+            prior_state=prior_state,
+            prior_revision=prior_revision,
+            change_events=change_events,
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    if args.format == "json":
+        print(json.dumps(brief, indent=2, sort_keys=True))
+    elif args.format == "html":
+        print(presenter.render_html(brief), end="")
+    else:
+        print(presenter.render_markdown(brief), end="")
+    return 1 if args.strict and brief["gate"]["status"] != "ready" else 0
 
 
 def migrate_control_store(args: argparse.Namespace) -> int:
@@ -5028,6 +5188,12 @@ def build_parser() -> argparse.ArgumentParser:
     audit_parser = subparsers.add_parser("audit", help="validate gates and readiness")
     audit_parser.add_argument("--project", required=True)
     audit_parser.set_defaults(handler=audit_instance)
+    brief_parser = subparsers.add_parser("brief", help="render the human operator command center")
+    brief_parser.add_argument("--project", required=True)
+    brief_parser.add_argument("--format", choices=("markdown", "json", "html"), default="markdown")
+    brief_parser.add_argument("--since-revision", type=int, help="compare with one earlier authoritative revision")
+    brief_parser.add_argument("--strict", action="store_true", help="exit nonzero when a governed gate is blocked")
+    brief_parser.set_defaults(handler=brief_instance)
     upgrade_parser = subparsers.add_parser(
         "upgrade", help="upgrade a schema v1-v8 instance fail-closed"
     )

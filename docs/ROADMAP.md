@@ -31,6 +31,18 @@ before phase exit. Exit requires corruption, missing snapshot, replay,
 authorization, unsafe-state, terminal-reference, repeated-supersession, crash
 orphan, quality invalidation, and 8/9 threshold tests.
 
+## Phase 1D — Operator command center — accepted for 0.4.0 Delivery
+
+Turn authoritative state into one safe, nontechnical decision surface for
+ChatGPT Work and terminal use. It must show direction, stage, the single next
+move, quality gaps, work, supervision, evidence, cost, control posture, and
+truthful non-claims without exposing signed grants or trusting mutable exports.
+Exit requires source-authority, redaction, markup-injection, deterministic
+projection, strict-exit, empty-state, and visual-acceptance evidence. The
+independent Experience audit accepted this phase at 9.22/10 with all 13
+critical dimensions at or above 9.0. Versioning, detached-commit verification,
+atomic installation, and exact installed parity remain the Delivery gate.
+
 ## Phase 2 — Provider-authenticated execution
 
 Add a provider-neutral runtime gateway to the canonical observation boundary.

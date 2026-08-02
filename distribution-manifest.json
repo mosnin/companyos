@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.3.1",
+  "distribution_version": "0.4.0",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -47,8 +47,8 @@
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
-      "sha256": "d041a31d5e121194a888d8044b417418fde67df2dd6d46080cea4d30ba20b548",
-      "size": 14858
+      "sha256": "247cfe02cd394d04877b30160d7996385238b43d8980c8656760fb405403dbb3",
+      "size": 15718
     },
     {
       "path": "company-os/elastic-company-os/agents/openai.yaml",
@@ -62,18 +62,23 @@
     },
     {
       "path": "company-os/elastic-company-os/references/control-contract.md",
-      "sha256": "d69bed5fe4b85ae163bca5af47cf534bbe3d2d0cb350913d598c99a7a2953c6a",
-      "size": 12926
+      "sha256": "de8a139b4692b2284c85c575206527e73fccc367db858af7b2173e19ff3f6106",
+      "size": 13795
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "bf9feb1406abee8c38bb8a262b0f15025b7724f84a4b99376e6fcd0108c20f39",
-      "size": 267343
+      "sha256": "faacb849a0ba75569d184d48d826c1fc576ff3e834d243b22ea61e4d89f12a57",
+      "size": 276283
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "97b3b7528f87420746fd59704b56f8600782beab2e5fd5e64d7b6612ac4680cb",
-      "size": 38720
+      "sha256": "d374dbc78e58a45b94a0dbefa62ef3502be3413e0c59d241dadc5d641040ad7d",
+      "size": 42385
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/operator_brief.py",
+      "sha256": "ef20959026ad4f7ebea5031d0dff967b136ce8f453b0fa58c8352589e372582e",
+      "size": 68373
     },
     {
       "path": "company-os/elastic-company-os/scripts/runtime_observations.py",
@@ -82,13 +87,18 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "6b60a2a211d25b33542a1dc40e052797ecd4c746792e36f6d64982199bab1034",
-      "size": 158601
+      "sha256": "df0ed4d42704e47ceb657db9a774faf34a09bdb7d6217c6383ca610a49fa389a",
+      "size": 161556
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "f842625c99cfe9de2d7cfaa8981b1928973c9603255aa9b2f38c878b0d1acd8d",
-      "size": 32924
+      "sha256": "6863d2877356422f79eec255bf10c73a3b268a6a55eac9bb8662853e2bc947fc",
+      "size": 33733
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/test_operator_brief.py",
+      "sha256": "ef19133dacba7f8f67f958dbfe4cc3cb46b36dfc41da852aed1a506169be52b9",
+      "size": 32552
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
