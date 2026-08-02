@@ -1,0 +1,101 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-cancellation-repair-design-3",
+  "decision_version": 3,
+  "definition_version": 3,
+  "design_report": {
+    "authority": {
+      "authorization_canonical_digest": "12cc77bf6ff740180f97f2c109b32c55d5f800c41dca4a94f7006244fa3f0feb",
+      "authorization_file_sha256": "b6963dff66ea3b04f9652fa75c427dae209a1e4e721d15e46c3f40d6a6aff477",
+      "charter_version": 3,
+      "definition_digest": "cab01209e8dbb865a15264146ad36b260f9929f7ac50e716a1c549b86abd134c",
+      "directive_digest": "10c112274368038abb0d8b23272bf5ace9acb3796c6171bf7f8553ea011649b6",
+      "fixture_signature": "25332af1a6b6fe11503aa2ede56b295616636f2de274c4a61ec2164b7689a8dd",
+      "mission_sha256": "c383644e44d2bd0a4914acd06ff6f0e7a250cbbc85ddc306ffa75fea02f6c06b",
+      "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b"
+    },
+    "cancellation_matrix": {
+      "illegal_pairs": [
+        "acknowledged/not_acknowledged",
+        "refused/acknowledged",
+        "failed/acknowledged"
+      ],
+      "legal_pairs": [
+        "acknowledged/acknowledged",
+        "refused/not_acknowledged",
+        "failed/not_acknowledged"
+      ]
+    },
+    "coordination": {
+      "existing_runtime_worker_host_id": "local",
+      "existing_runtime_worker_task_id": "019fc336-f196-7fd0-9127-c719c9cca36f",
+      "manager_native_host_id": "local",
+      "manager_native_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+      "new_runtime_task_creation": false,
+      "worker_child_delegation": false,
+      "worker_scopes_disjoint": true
+    },
+    "master_owned_integration_prerequisites": [
+      "README.md",
+      "programs/company-os-self-hosting/LEDGER.md"
+    ],
+    "packet_version_rationale": "v1 packets remain immutable execution evidence; v2 packets bind charter and definition version 3 plus the one additional authorized runtime retry",
+    "prior_runtime_receipts": {
+      "first": "rejected_terminalization_regression",
+      "second": "reworked_unaccepted_missing_two_illegal_replay_cases"
+    },
+    "runtime_candidate": {
+      "commit": "7ee55e7e967ae471cff9fd297f9661371e0a6b99",
+      "coordination_commit": "2eaad0972e5db67af901b711d62a39102e0e684e",
+      "status": "unaccepted",
+      "tree": "9ae6bd575e861766ee5c3beecd57f0458082c0c0"
+    },
+    "runtime_retry_delta": {
+      "allowed_additional_retries": 1,
+      "charter_max_retries": 2,
+      "consumed_under_v2": 1,
+      "integration_packet_retries": 0,
+      "missing_retained_and_state_only_pairs": [
+        "acknowledged/not_acknowledged",
+        "failed/acknowledged"
+      ],
+      "runtime_packet_retries": 1,
+      "runtime_source_change_allowed": false,
+      "third_runtime_retry_allowed": false
+    },
+    "status": "accepted_for_routine_execution",
+    "worker_allocations": [
+      {
+        "owned_paths": [
+          "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py"
+        ],
+        "task_id": "cancellation-runtime-worker-1"
+      },
+      {
+        "owned_paths": [
+          "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+          "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+          "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py"
+        ],
+        "task_id": "cancellation-integration-worker-1"
+      }
+    ]
+  },
+  "manager_id": "manager-release-0.5.1-cancellation-repair-1",
+  "manager_native_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b",
+  "phase": "design",
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "schema": "company-os.design-phase-evidence.v2",
+  "source_commit": "9df2bad9afa1205fa2741bfb76a334f5dfab722e",
+  "source_tree": "49f33ddcbe859b9c5b58d6498f3640aead86aec4",
+  "telemetry": {
+    "cost": "unavailable",
+    "observed_model": "unavailable",
+    "tokens": "unavailable"
+  }
+}
