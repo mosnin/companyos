@@ -1,0 +1,36 @@
+{
+  "authentication": {
+    "key_id": "company-os-repository-test-v1",
+    "scheme": "company-os.fixture-hmac-sha256.v1",
+    "signature": "27ff80453a3290c6839ab1b938d9ba4e9b1ac01badc4ae7a5ca3656dcd372ea7"
+  },
+  "bindings": {
+    "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "definition_digest": "5916b792f20667bad292953de09f327b4dddb6c768a7979ccc2d19a545209f84",
+    "definition_version": 2,
+    "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b",
+    "parent_definition_digest": null,
+    "parent_manager_native_task_id": null,
+    "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "phase": "charter",
+    "program_id": "company-os-self-hosting",
+    "program_version": 6,
+    "project_id": "company-os-self-hosting",
+    "requested_model": "gpt-5.6-sol",
+    "task_id": "manager-release-0.5.1-cancellation-repair-1"
+  },
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-cancellation-repair-charter-2",
+  "decision_version": 2,
+  "evidence_kind": "repository_fixture",
+  "evidence_reference": {
+    "path": "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v2.json",
+    "project_id": "company-os-self-hosting",
+    "sha256": "42ba113287a0f76f60e1de1d66a4290b42bd862e5520ecdeff4387151a6f642d",
+    "version": 2
+  },
+  "record_version": 1,
+  "schema": "company-os.authorization-decision.v1",
+  "status": "accepted"
+}

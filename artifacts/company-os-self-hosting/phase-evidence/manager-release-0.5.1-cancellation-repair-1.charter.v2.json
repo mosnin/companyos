@@ -1,0 +1,95 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "authorization_scope": "create and admit only cancellation-repair charter version 2 and definition version 2 with the canonical v1 authorization-record filename; no worker packet creation, dispatch, implementation, manifest refresh, report, signing, installation, or activation",
+  "budget": {
+    "max_concurrency": 2,
+    "max_cost_usd": 40.0,
+    "max_retries": 1,
+    "max_tasks": 2,
+    "max_time_minutes": 120,
+    "max_tokens": 80000
+  },
+  "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-cancellation-repair-charter-2",
+  "definition_digest": "5916b792f20667bad292953de09f327b4dddb6c768a7979ccc2d19a545209f84",
+  "definition_version": 2,
+  "issued_at": "2026-08-02T15:43:24Z",
+  "manager_id": "manager-release-0.5.1-cancellation-repair-1",
+  "master_directive": "AUTHENTICATED MASTER RECHARTER CORRECTION: CONTINUE the v2 charter-package-only task, correcting only the invalid authorization filename from the prior directive. Use this canonical authorization path: artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-2.v1.json Include that exact path in v2 owned scope. Preserve: mission-charter.v2.json; artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v2.json; the exact five coordination artifacts previously listed; all v1 owned paths, outcome, matrix, budgets, restrictions, manager/task/cycle identity, uppercase documentation split, barriers, thresholds, and external review requirement. The authorization record remains schema company-os.authorization-decision.v1, record_version 1, with decision_version 2 and decision_id decision-release-0.5.1-cancellation-repair-charter-2. Recompute all canonical digests/signature/references accordingly. Create, authenticate, validate, and commit ONLY the corrected v2 charter package; no workers/source/tests/manifest/report/sign/install/runtime/scheduler/provider/network/credential/production/Chippy action. Stop at the fresh DESIGN barrier with exact evidence.",
+  "master_directive_sha256": "20d5a3e84df5e3b737e6735354a9c4858d210758a5c169daf2ed5a229e421072",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b",
+  "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "phase": "charter",
+  "prior_charter_lineage": {
+    "authorization_canonical_sha256": "27c325f71dc5a241c607dbe3ea2f3aeca794b6f9fa95cdd3f0a3407abf401b2c",
+    "authorization_path": "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter.v1.json",
+    "authorization_sha256": "99ab677c1f97e7578e4a4262ccebafe10a4987cc7df386b00c9aef69b420136e",
+    "charter_path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v1.json",
+    "charter_sha256": "0892556cff47a9ce6286679ccfb71a576cc325d0e55f98453ceb34da4e87ef7a",
+    "charter_version": 1,
+    "definition_digest": "8be7449049c9277f8ae8622996f19fb74a42e46451d92dcf7dbe41c2f63a40a5",
+    "definition_version": 1,
+    "package_commit": "c2b31a16ed791c4142db15af45bc711d564df036",
+    "package_tree": "ada523628d2265b1a18e687bffd71f460b18c9ad",
+    "phase_evidence_path": "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v1.json",
+    "phase_evidence_sha256": "b322fa53311b2391f6723e8f66d9891a7dccd613e624c5958d83aff94cbb49de"
+  },
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "project_id": "company-os-self-hosting",
+  "reference_reuse": {
+    "architecture_sha256": "305697ad0d457cd5feb7937137b2a2bb63a7581a53e5de55a13965954cdb2738",
+    "interfaces_sha256": "5488b92d2a619681492de4b0e4f69a1edead2bf417a159a1d5f71fbff3715531",
+    "roadmap_sha256": "4ec30f53d023a85803b0ff6962afd588fee0305d37ec85c6618bcc4c778c3a98",
+    "semantically_exact_for_v2": true
+  },
+  "requested_model": "gpt-5.6-sol",
+  "schema": "company-os.charter-phase-evidence.v2",
+  "scope_delta": {
+    "added_exact_paths": [
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-runtime-worker-1.v1.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-integration-worker-1.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-runtime-worker-1.design.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-integration-worker-1.design.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v1.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v2.json",
+      "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-2.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v2.json"
+    ],
+    "authorization_filename_canonical_for_record_version_1": true,
+    "lowercase_aliases_used": false,
+    "new_owned_path_count": 21,
+    "parent_or_glob_authority_used": false,
+    "preserved_v1_owned_path_count": 13,
+    "readme_or_ledger_overlap": false,
+    "schema_weakened": false
+  },
+  "status": "accepted",
+  "task_id": "manager-release-0.5.1-cancellation-repair-1",
+  "worker_feasibility": {
+    "coordination_paths_manager_only": [
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-runtime-worker-1.v1.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-integration-worker-1.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-runtime-worker-1.design.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-integration-worker-1.design.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v1.json"
+    ],
+    "integration_worker_paths": [
+      "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+      "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+      "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py"
+    ],
+    "manager_finalization_paths": [
+      "distribution-manifest.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/cancellation-repair-report.v1.md"
+    ],
+    "one_writer_per_path": true,
+    "runtime_worker_paths": [
+      "skills/company-os/elastic-company-os/scripts/native_task_runtime.py",
+      "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py"
+    ],
+    "worker_scope_overlap": false
+  }
+}
