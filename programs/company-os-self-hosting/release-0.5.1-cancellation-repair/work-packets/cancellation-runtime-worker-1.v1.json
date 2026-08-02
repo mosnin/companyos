@@ -1,0 +1,173 @@
+{
+  "acceptance": {
+    "checks": [
+      "all-six-direct-pairings-covered",
+      "all-six-replay-pairings-covered",
+      "illegal-pairs-reject-before-mutation",
+      "illegal-retained-evidence-audit-fails",
+      "legal-outcomes-remain-distinct",
+      "prior-runtime-safety-invariants-pass",
+      "owned-path-residue-only"
+    ],
+    "independent_review": {
+      "barriers": [
+        "verification"
+      ],
+      "evidence_requirements": [
+        "manager-source-and-test-inspection"
+      ],
+      "required": false
+    },
+    "oracle": "the native runtime accepts exactly acknowledged/acknowledged, refused/not_acknowledged, and failed/not_acknowledged; rejects every other hard-status and acknowledgement-status pair before mutation; audit-fails contradictory retained or replayed evidence; derives cancel_acknowledged only for acknowledged/acknowledged; and preserves cancellation dominance, hard-acknowledgement non-invention, authority binding, downgrade rejection, and ambiguous-restart no-relaunch"
+  },
+  "artifact_references": [
+    {
+      "kind": "architecture",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/architecture.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "305697ad0d457cd5feb7937137b2a2bb63a7581a53e5de55a13965954cdb2738",
+      "version": 1
+    },
+    {
+      "kind": "roadmap",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/roadmap.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "4ec30f53d023a85803b0ff6962afd588fee0305d37ec85c6618bcc4c778c3a98",
+      "version": 1
+    },
+    {
+      "kind": "interfaces",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/interfaces.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "5488b92d2a619681492de4b0e4f69a1edead2bf417a159a1d5f71fbff3715531",
+      "version": 1
+    }
+  ],
+  "authorization": {
+    "record_path": "artifacts/company-os-self-hosting/authorizations/cancellation-runtime-worker-1.design.v1.json",
+    "record_sha256": "11f0430bb03a6abfaa897cde3ac610e57ce60d0bd7e788cbeef5aa59d0230a9d"
+  },
+  "authorization_expectation": {
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "decision_id": "decision-release-0.5.1-cancellation-repair-design-2",
+    "decision_version": 2,
+    "phase": "design"
+  },
+  "budget": {
+    "max_concurrency": 1,
+    "max_cost_usd": 21.0,
+    "max_retries": 1,
+    "max_tasks": 1,
+    "max_time_minutes": 60,
+    "max_tokens": 42000
+  },
+  "decision_barriers": {
+    "inherited_design_authorization_required": true,
+    "manager_verification_required": true,
+    "worker_waits_for_master": false
+  },
+  "definition_version": 2,
+  "deliverables": [
+    "skills/company-os/elastic-company-os/scripts/native_task_runtime.py",
+    "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py"
+  ],
+  "dependencies": [
+    "parent-charter-sha256:9a7028a170a7f27ecff1375225fa92d8b51723ba7569193cdcdeb9479e709bef",
+    "parent-definition-digest:5916b792f20667bad292953de09f327b4dddb6c768a7979ccc2d19a545209f84",
+    "accepted-design-evidence-sha256:59865771a41bbe461b65de869ecfff1bdbb7ca98cf05e15e75116641af07f2af",
+    "control-plane-baseline:ba328d7b2955a18072779ccab29b15ade64c0caf",
+    "control-plane-tree:67ffccd4b762b786b7290eec67c11e55c2edfa04",
+    "rejected-release-candidate:722f5e5bf706d1dd1a48dfbcfacddfff269b7eb1"
+  ],
+  "ids": {
+    "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+    "parent_task_id": "manager-release-0.5.1-cancellation-repair-1",
+    "program_id": "company-os-self-hosting",
+    "project_id": "company-os-self-hosting",
+    "task_id": "cancellation-runtime-worker-1"
+  },
+  "outcome": "Implement and exhaustively test legal hard-cancellation and acknowledgement cross-product semantics in the native task runtime so only acknowledged/acknowledged, refused/not_acknowledged, and failed/not_acknowledged are retained; contradictory direct or replayed evidence rejects or audit-fails without mutation while cancellation dominance, hard-acknowledgement non-invention, authority binding, downgrade rejection, and ambiguous-restart no-relaunch remain intact.",
+  "outcome_digest": "ed629668da67157c32968b37c1ce5fe9927cce74576547a9ad9713490ddd4f67",
+  "packet_version": 1,
+  "parent_budget_available": {
+    "max_concurrency": 1,
+    "max_cost_usd": 21.0,
+    "max_retries": 1,
+    "max_tasks": 1,
+    "max_time_minutes": 60,
+    "max_tokens": 42000
+  },
+  "parent_manager_charter": {
+    "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v2.json",
+    "sha256": "9a7028a170a7f27ecff1375225fa92d8b51723ba7569193cdcdeb9479e709bef"
+  },
+  "parent_manager_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "permissions": {
+    "allowed_actions": [
+      "read",
+      "write-owned-artifact",
+      "run-local-test",
+      "commit-owned-change"
+    ],
+    "allowed_tools": [
+      "repository",
+      "local-tests"
+    ],
+    "prohibited_actions": [
+      "sign",
+      "global-installation",
+      "canonical-main-write",
+      "runtime-activation",
+      "scheduler-enable",
+      "deploy",
+      "provider-api-call",
+      "network",
+      "credential-access",
+      "production-mutation",
+      "chippy-change",
+      "worker-child-delegation",
+      "cross-scope-write",
+      "readme-write",
+      "ledger-write",
+      "lowercase-path-alias",
+      "parent-directory-authority",
+      "glob-scope",
+      "scope-schema-weakening",
+      "distribution-manifest-refresh-before-implementation-complete"
+    ]
+  },
+  "program_version": 6,
+  "reporting_destination": "task:019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "requested_model": "gpt-5.6-luna",
+  "schema": "company-os.work-packet.v2",
+  "scope": {
+    "owned_paths": [
+      "skills/company-os/elastic-company-os/scripts/native_task_runtime.py",
+      "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py"
+    ]
+  },
+  "stop_escalation": {
+    "escalate_on": [
+      "dependency-invalid",
+      "failed-local-check",
+      "scope-or-authority-drift",
+      "unexpected-side-effect"
+    ],
+    "stop_conditions": [
+      "oracle-passed",
+      "budget-exhausted",
+      "scope-collision",
+      "authority-changed"
+    ]
+  },
+  "task_local_context": {
+    "artifact_paths": [
+      "artifacts/company-os-self-hosting/authorizations/cancellation-runtime-worker-1.design.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v1.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v2.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/architecture.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/roadmap.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/interfaces.v1.md"
+    ]
+  }
+}

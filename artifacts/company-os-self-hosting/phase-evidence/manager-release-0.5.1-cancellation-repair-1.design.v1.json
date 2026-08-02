@@ -1,0 +1,91 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "control_plane_repair": {
+    "commit": "ba328d7b2955a18072779ccab29b15ade64c0caf",
+    "disposition": "master-owned accepted execution baseline",
+    "files": [
+      "scripts/validate_role_skills.py",
+      "tests/test_role_skills.py"
+    ],
+    "role_tests": "29_passed",
+    "tree": "67ffccd4b762b786b7290eec67c11e55c2edfa04"
+  },
+  "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-cancellation-repair-design-2",
+  "decision_version": 2,
+  "definition_version": 2,
+  "design_report": {
+    "authority": {
+      "authorization_canonical_digest": "60296b4755cbf337d6af96375873b9102e834d4f32e9f65f1bf3f6b6b89479a5",
+      "authorization_file_sha256": "c85b5e3d8ed47e7302f3af2de1d5855220005a291053127e50bb8ea1ac8c3d97",
+      "charter_version": 2,
+      "definition_digest": "5916b792f20667bad292953de09f327b4dddb6c768a7979ccc2d19a545209f84",
+      "fixture_signature": "27ff80453a3290c6839ab1b938d9ba4e9b1ac01badc4ae7a5ca3656dcd372ea7",
+      "mission_sha256": "9a7028a170a7f27ecff1375225fa92d8b51723ba7569193cdcdeb9479e709bef",
+      "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b"
+    },
+    "cancellation_matrix": {
+      "illegal_pairs": [
+        "acknowledged/not_acknowledged",
+        "refused/acknowledged",
+        "failed/acknowledged"
+      ],
+      "legal_pairs": [
+        "acknowledged/acknowledged",
+        "refused/not_acknowledged",
+        "failed/not_acknowledged"
+      ],
+      "truth_rule": "only acknowledged/acknowledged derives cancel_acknowledged; refused and failed remain distinct non-acknowledged outcomes"
+    },
+    "coordination": {
+      "manager_native_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+      "native_host_id": "local",
+      "worker_child_delegation": false,
+      "worker_scopes_disjoint": true
+    },
+    "master_owned_integration_prerequisites": [
+      "README.md",
+      "programs/company-os-self-hosting/LEDGER.md"
+    ],
+    "preserved_invariants": [
+      "cancellation-dominance",
+      "hard-acknowledgement-non-invention",
+      "authority-payload-binding",
+      "downgrade-rejection",
+      "ambiguous-restart-no-relaunch"
+    ],
+    "status": "accepted_for_routine_execution",
+    "worker_allocations": [
+      {
+        "owned_paths": [
+          "skills/company-os/elastic-company-os/scripts/native_task_runtime.py",
+          "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py"
+        ],
+        "task_id": "cancellation-runtime-worker-1"
+      },
+      {
+        "owned_paths": [
+          "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+          "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+          "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py"
+        ],
+        "task_id": "cancellation-integration-worker-1"
+      }
+    ]
+  },
+  "manager_id": "manager-release-0.5.1-cancellation-repair-1",
+  "manager_native_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b",
+  "phase": "design",
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "schema": "company-os.design-phase-evidence.v1",
+  "source_commit": "ba328d7b2955a18072779ccab29b15ade64c0caf",
+  "telemetry": {
+    "cost": "unavailable",
+    "observed_model": "unavailable",
+    "tokens": "unavailable"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "authentication": {
+    "key_id": "company-os-repository-test-v1",
+    "scheme": "company-os.fixture-hmac-sha256.v1",
+    "signature": "e3b5a1603d9f013b293c5e5df520b1fddf55a19781e9db6d39eedb081f6f1d0c"
+  },
+  "bindings": {
+    "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "definition_digest": "bae4c94f3522a1e9024991d3031425b7bd6dba6c7b3456852d433a50abc8cb16",
+    "definition_version": 2,
+    "outcome_digest": "ed629668da67157c32968b37c1ce5fe9927cce74576547a9ad9713490ddd4f67",
+    "parent_definition_digest": "5916b792f20667bad292953de09f327b4dddb6c768a7979ccc2d19a545209f84",
+    "parent_manager_native_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+    "parent_task_id": "manager-release-0.5.1-cancellation-repair-1",
+    "phase": "design",
+    "program_id": "company-os-self-hosting",
+    "program_version": 6,
+    "project_id": "company-os-self-hosting",
+    "requested_model": "gpt-5.6-luna",
+    "task_id": "cancellation-runtime-worker-1"
+  },
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-cancellation-repair-design-2",
+  "decision_version": 2,
+  "evidence_kind": "repository_fixture",
+  "evidence_reference": {
+    "path": "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v1.json",
+    "project_id": "company-os-self-hosting",
+    "sha256": "59865771a41bbe461b65de869ecfff1bdbb7ca98cf05e15e75116641af07f2af",
+    "version": 1
+  },
+  "record_version": 1,
+  "schema": "company-os.authorization-decision.v1",
+  "status": "accepted"
+}
