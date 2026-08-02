@@ -1,0 +1,172 @@
+{
+  "acceptance": {
+    "checks": [
+      "pre-create-admission",
+      "idempotent-dispatch-binding",
+      "ordered-native-lifecycle",
+      "cancellation-dominance",
+      "restart-reconciliation",
+      "unknown-telemetry-remains-unavailable",
+      "full-relevant-regression"
+    ],
+    "independent_review": {
+      "barriers": [
+        "design",
+        "verification"
+      ],
+      "evidence_requirements": [
+        "negative-and-fault-tests",
+        "transactional-store-audit",
+        "exact-commit-review",
+        "security-authority-durability-cancellation-evidence-scores"
+      ],
+      "required": true
+    },
+    "oracle": "controller admission is durably committed before a native create may be attempted; returned identity, cancellation, terminal receipt, and reconciliation replay deterministically without invented provider evidence"
+  },
+  "artifact_references": [
+    {
+      "kind": "architecture",
+      "path": "programs/company-os-self-hosting/native-runtime-control/architecture.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "75b12ae87f33b19665a602dd52549e054cfd99e1c3d8ed5a9f8d4962a3a97b02",
+      "version": 1
+    },
+    {
+      "kind": "roadmap",
+      "path": "programs/company-os-self-hosting/native-runtime-control/roadmap.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "14cfcee020f1bcd5d0e5298517ecdc248985082e1f9415d2969df7e55ddae010",
+      "version": 1
+    },
+    {
+      "kind": "interfaces",
+      "path": "programs/company-os-self-hosting/native-runtime-control/interfaces.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "4e5bb7ecdbea868f8e815a17441965e7ea5a8ad8213c2016f6dd0f783f11a63e",
+      "version": 1
+    }
+  ],
+  "authorization": {
+    "record_path": "artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.charter.v1.json",
+    "record_sha256": "a64e3a83e2dca969523f311c5fdfb40c1b71672502648fe881e9caa556399865"
+  },
+  "authorization_expectation": {
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "decision_id": "decision-native-runtime-control-charter-1",
+    "decision_version": 1,
+    "phase": "charter"
+  },
+  "budget": {
+    "max_concurrency": 2,
+    "max_cost_usd": 40.0,
+    "max_retries": 1,
+    "max_tasks": 2,
+    "max_time_minutes": 120,
+    "max_tokens": 80000
+  },
+  "charter_version": 1,
+  "decision_barriers": {
+    "authenticated_master_decision_required": [
+      "charter",
+      "design",
+      "verification",
+      "integration"
+    ],
+    "routine_auto_continue_phase": "execution",
+    "routine_conditions": [
+      "unchanged_charter",
+      "checks_pass",
+      "budget_valid",
+      "concurrency_valid",
+      "authority_unchanged",
+      "no_exception"
+    ]
+  },
+  "definition_version": 1,
+  "deliverables": [
+    "skills/company-os/elastic-company-os/scripts/native_task_runtime.py",
+    "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py",
+    "programs/company-os-self-hosting/native-runtime-control/native-task-runtime-control-report.v1.md"
+  ],
+  "dependencies": [
+    "canonical-main-19fe809",
+    "global-role-release-0.5.0",
+    "controller-schema-9",
+    "accepted-native-role-forward-test"
+  ],
+  "ids": {
+    "cycle_id": "native-runtime-control-cycle-1",
+    "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "program_id": "company-os-self-hosting",
+    "project_id": "company-os-self-hosting",
+    "task_id": "manager-native-runtime-control-1"
+  },
+  "outcome": "Deliver one independently reviewable feature-off vertical slice that makes transactional controller admission precede every native Codex manager or worker task, durably binds returned native task identity and ordered lifecycle observations, records cancellation intent separately from acknowledgement, reconciles terminal receipts, and never invents unavailable model, token, or cost evidence.",
+  "outcome_digest": "73391b5cd8f8582f6108b0152986526a2c5360b89100d64359cd3a178675c1d8",
+  "permissions": {
+    "allowed_actions": [
+      "read",
+      "write-owned-artifact",
+      "create-native-task",
+      "wait-native-task",
+      "read-native-task",
+      "run-local-test",
+      "commit-owned-change"
+    ],
+    "allowed_tools": [
+      "codex-task-tools",
+      "repository",
+      "local-tests"
+    ],
+    "prohibited_actions": [
+      "network",
+      "credential-access",
+      "provider-api-call",
+      "production-mutation",
+      "deploy",
+      "scheduler-enable",
+      "chippy-change",
+      "canonical-main-write"
+    ]
+  },
+  "program_version": 6,
+  "reporting_destination": "task:019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "requested_model": "gpt-5.6-sol",
+  "schema": "company-os.mission-charter.v2",
+  "scope": {
+    "owned_paths": [
+      "skills/company-os/elastic-company-os/scripts/company_os_controller.py",
+      "skills/company-os/elastic-company-os/scripts/control_store.py",
+      "skills/company-os/elastic-company-os/scripts/native_task_runtime.py",
+      "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py",
+      "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+      "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+      "programs/company-os-self-hosting/native-runtime-control/native-task-runtime-control-report.v1.md"
+    ]
+  },
+  "stop_escalation": {
+    "escalate_on": [
+      "invalid-charter",
+      "design-barrier",
+      "provider-model-evidence-unavailable",
+      "hard-cancellation-unavailable",
+      "runtime-api-gap",
+      "failed-regression"
+    ],
+    "stop_conditions": [
+      "verification-barrier-reached",
+      "budget-exhausted",
+      "authority-changed",
+      "scope-collision"
+    ]
+  },
+  "task_local_context": {
+    "artifact_paths": [
+      "artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.charter.v1.json",
+      "programs/company-os-self-hosting/native-runtime-control/architecture.v1.md",
+      "programs/company-os-self-hosting/native-runtime-control/roadmap.v1.md",
+      "programs/company-os-self-hosting/native-runtime-control/interfaces.v1.md"
+    ]
+  }
+}

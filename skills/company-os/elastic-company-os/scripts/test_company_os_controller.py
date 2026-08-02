@@ -460,7 +460,7 @@ class ControllerTests(unittest.TestCase):
                 "quality_dimensions": list(controller.BASE_DIMENSIONS),
             }
         )
-        controller.atomic_write_json(self.project / ".company-os" / "control.json", state)
+        self.write_state(state)
 
     def rebind_quality(self, cycle_id: str) -> None:
         state = controller.load_json(self.project / ".company-os" / "control.json")
@@ -619,8 +619,15 @@ class ControllerTests(unittest.TestCase):
             ],
         }
 
-    def configure_fabric_fixture(self) -> dict:
+    def configure_fabric_fixture(self, *, sqlite: bool = False) -> dict:
         state = self.valid_state()
+        if sqlite:
+            self.write_state(state)
+            self.assertEqual(
+                controller.migrate_control_store(namespace(project=str(self.project))),
+                0,
+            )
+            state = controller.load_json(self.project / ".company-os" / "control.json")
         work = state["portfolio"]["active_work"][0]
         work["execution_mode"] = "luna_fabric"
         work["queue_payload"] = controller.retained_queue_command_payload(work)
@@ -642,8 +649,8 @@ class ControllerTests(unittest.TestCase):
         )
         return controller.load_json(self.project / ".company-os" / "control.json")
 
-    def begin_fabric_fixture(self) -> str:
-        state = self.configure_fabric_fixture()
+    def begin_fabric_fixture(self, *, sqlite: bool = False) -> str:
+        state = self.configure_fabric_fixture(sqlite=sqlite)
         state["controller"]["lease_generation"] = 1
         state["controller"]["lease"] = {
             "lease_id": "fabric-lease",
@@ -1735,6 +1742,24 @@ class ControllerTests(unittest.TestCase):
     def write_state(self, state: dict) -> None:
         directory = self.project / ".company-os"
         directory.mkdir(exist_ok=True)
+        store = controller.control_store_module()
+        if store.exists(self.project):
+            transaction = store.begin(self.project)
+            succeeded = False
+            try:
+                transaction.stage(
+                    deepcopy(state),
+                    {
+                        "at": controller.utc_now(),
+                        "type": "test_fixture_state_replaced",
+                        "project_id": state["instance"]["project_id"],
+                        "program_version": state["strategy"]["program_version"],
+                    },
+                )
+                succeeded = True
+            finally:
+                transaction.close(succeeded)
+            return
         controller.atomic_write_json(directory / "control.json", state)
         (directory / "events.jsonl").write_text("", encoding="utf-8")
 
@@ -2432,13 +2457,34 @@ class ControllerTests(unittest.TestCase):
                 contract_digest=controller.PHASE2_CONTRACT_DIGEST, idempotency_key="matrix-key",
                 admitted_by="master", actor_grant="",
             )),
+            "claim-native-task-dispatch": lambda: controller.claim_native_task_dispatch(namespace(
+                **common, attempt_id="matrix-attempt", authorized_by="master", actor_grant="",
+            )),
+            "record-native-task-observation": lambda: controller.record_native_task_observation(namespace(
+                **common, attempt_id="matrix-attempt", authorized_by="master", actor_grant="",
+                event="host_created", observation=controller.canonical_json({
+                    "source": "host_observation", "tool": "matrix-return",
+                    "task_id": "matrix-task", "thread_id": "matrix-thread",
+                    "host_id": "matrix-host",
+                }),
+            )),
+            "request-native-task-cancellation": lambda: controller.request_native_task_cancellation(namespace(
+                **common, attempt_id="matrix-attempt", authorized_by="master", actor_grant="",
+                reason="matrix cancellation",
+            )),
+            "claim-native-task-cancellation": lambda: controller.claim_native_task_cancellation(namespace(
+                **common, attempt_id="matrix-attempt", authorized_by="master", actor_grant="",
+            )),
+            "reconcile-native-task": lambda: controller.reconcile_native_task(namespace(
+                **common, attempt_id="matrix-attempt", authorized_by="master", actor_grant="",
+            )),
         }
         before = (self.project / ".company-os" / "control.json").read_bytes(), (self.project / ".company-os" / "events.jsonl").read_bytes()
         self.assertEqual(calls[transition](), 2)
         self.assertEqual(before, ((self.project / ".company-os" / "control.json").read_bytes(), (self.project / ".company-os" / "events.jsonl").read_bytes()))
 
     def admission_fixture(self) -> str:
-        cycle_id = self.begin_fabric_fixture()
+        cycle_id = self.begin_fabric_fixture(sqlite=True)
         state = controller.load_json(self.project / ".company-os" / "control.json")
         state["runtime_adapter"].update(
             {
@@ -2488,6 +2534,80 @@ class ControllerTests(unittest.TestCase):
             work_id=args.work_id, cycle_id=args.cycle_id, dimension="runtime-admission", decision="admitted",
             payload_hash=controller.command_payload_hash("admit-runtime-attempt", payload),
         )
+        return args
+
+    def native_command_args(
+        self,
+        attempt_id: str,
+        *,
+        action: str,
+        decision: str,
+        event: str,
+        details: dict,
+        **extra: object,
+    ) -> object:
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        attempt = next(
+            item for item in state["runtime_adapter"]["attempts"]
+            if item["attempt_id"] == attempt_id
+        )
+        actor = str(extra.pop("authorized_by", "native-controller"))
+        payload_hash = controller.command_payload_hash(
+            action,
+            controller.native_runtime_command_payload(attempt, action, details),
+        )
+        values = {
+            "project": str(self.project),
+            "lease_id": "fabric-lease",
+            "generation": 1,
+            "owner": "master-sol",
+            "attempt_id": attempt_id,
+            "authorized_by": actor,
+        } | extra
+        args = namespace(**values)
+        args.actor_grant = self.grant(
+            actor,
+            action,
+            resource=f"runtime:{attempt_id}",
+            work_id=attempt["work_id"],
+            cycle_id=attempt["cycle_id"],
+            dimension="native-task-runtime",
+            decision=decision,
+            payload_hash=payload_hash,
+        )
+        return args
+
+    def native_claim_args(self, attempt_id: str) -> object:
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        attempt = next(
+            item for item in state["runtime_adapter"]["attempts"]
+            if item["attempt_id"] == attempt_id
+        )
+        dispatch = attempt["native_task_runtime"]["dispatch"]
+        details = {
+            "dispatch_key": dispatch["key"],
+            "payload_sha256": dispatch["payload_sha256"],
+        }
+        return self.native_command_args(
+            attempt_id,
+            action="claim-native-task-dispatch",
+            decision="claimed",
+            event="dispatch_claimed",
+            details=details,
+        )
+
+    def native_observation_args(
+        self, attempt_id: str, event: str, observation: dict
+    ) -> object:
+        args = self.native_command_args(
+            attempt_id,
+            action="record-native-task-observation",
+            decision=f"observed:{event}",
+            event=event,
+            details={"event": event, "observation": observation},
+            observation=controller.canonical_json(observation),
+        )
+        args.event = event
         return args
 
     def test_runtime_admission_is_feature_off_and_rejections_are_atomic(self) -> None:
@@ -2551,6 +2671,219 @@ class ControllerTests(unittest.TestCase):
         attempts = controller.load_json(self.project / ".company-os" / "control.json")["runtime_adapter"]["attempts"]
         self.assertEqual([(item["role"], item["parent_runtime_id"]) for item in attempts], [("manager", "master"), ("worker", "manager-attempt-1")])
         self.assertNotIn("PRIVATE", controller.canonical_json(attempts))
+
+    def test_native_task_dispatch_precedes_host_binding_and_receipt_is_durable(self) -> None:
+        cycle_id = self.admission_fixture()
+        self.assertEqual(controller.admit_runtime_attempt(self.admission_args(cycle_id)), 0)
+        store = controller.control_store_module()
+        outbox = store.inspect_outbox(self.project, channel="native-task-create")
+        self.assertEqual([(row["message_key"], row["status"]) for row in outbox], [("manager-attempt-1", "pending")])
+
+        stale = self.native_claim_args("manager-attempt-1")
+        stale.generation = 0
+        before = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(controller.claim_native_task_dispatch(stale), 2)
+        self.assertEqual(before, controller.load_json(self.project / ".company-os" / "control.json"))
+        self.assertEqual(store.inspect_outbox(self.project, channel="native-task-create")[0]["status"], "pending")
+
+        claim = self.native_claim_args("manager-attempt-1")
+        self.assertEqual(controller.claim_native_task_dispatch(claim), 0)
+        claimed = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(claimed["runtime_adapter"]["attempts"][0]["native_task_runtime"]["status"], "dispatch_claimed")
+        self.assertEqual(store.inspect_outbox(self.project, channel="native-task-create")[0]["status"], "leased")
+        self.assertEqual(controller.claim_native_task_dispatch(claim), 0)
+
+        created = {
+            "source": "host_observation", "tool": "native_create_return",
+            "task_id": "native-task-1", "thread_id": "native-thread-1",
+            "host_id": "codex-desktop-host-1",
+        }
+        self.assertEqual(
+            controller.record_native_task_observation(
+                self.native_observation_args("manager-attempt-1", "host_created", created)
+            ),
+            0,
+        )
+        self.assertEqual(store.inspect_outbox(self.project, channel="native-task-create")[0]["status"], "succeeded")
+        running = {
+            **created, "tool": "native_wait_return", "current_status": "running",
+        }
+        self.assertEqual(
+            controller.record_native_task_observation(
+                self.native_observation_args("manager-attempt-1", "running", running)
+            ),
+            0,
+        )
+        terminal = {
+            **created, "tool": "native_read_return", "status": "succeeded",
+            "artifact_digests": ["a" * 64],
+        }
+        self.assertEqual(
+            controller.record_native_task_observation(
+                self.native_observation_args("manager-attempt-1", "terminal", terminal)
+            ),
+            0,
+        )
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        native = retained["runtime_adapter"]["attempts"][0]["native_task_runtime"]
+        self.assertEqual(native["native_identity"], {
+            "task_id": "native-task-1", "thread_id": "native-thread-1",
+            "host_id": "codex-desktop-host-1",
+        })
+        self.assertEqual(native["receipt"]["status"], "complete")
+        self.assertEqual([item["sequence"] for item in native["host_observations"]], [3, 4, 5])
+        for field in ("observed_model", "provider_usage", "cost"):
+            self.assertEqual(native[field]["status"], "unavailable")
+            self.assertIsNone(native[field]["value"])
+        errors = controller.validate_state(retained, expected_project=self.project)["errors"]
+        self.assertFalse(any(error.startswith("native task") for error in errors), errors)
+        tampered = deepcopy(retained)
+        tampered["runtime_adapter"]["attempts"][0]["native_task_runtime"]["authority_history"][0]["grant"]["token"] = "corrupted"
+        tampered_errors = controller.validate_state(tampered, expected_project=self.project)["errors"]
+        self.assertTrue(any("native task authority grant" in error for error in tampered_errors), tampered_errors)
+
+    def test_native_task_cancellation_rejects_duplicate_binding_and_post_cancel_success(self) -> None:
+        cycle_id = self.admission_fixture()
+        self.assertEqual(controller.admit_runtime_attempt(self.admission_args(cycle_id)), 0)
+        worker = self.admission_args(
+            cycle_id, role="worker", attempt_id="worker-attempt-1",
+            idempotency_key="worker-key-1", parent_runtime_id="manager-attempt-1",
+        )
+        self.assertEqual(controller.admit_runtime_attempt(worker), 0)
+        for attempt_id in ("manager-attempt-1", "worker-attempt-1"):
+            self.assertEqual(controller.claim_native_task_dispatch(self.native_claim_args(attempt_id)), 0)
+        manager_created = {
+            "source": "host_observation", "tool": "native_create_return",
+            "task_id": "native-task-shared", "thread_id": "native-thread-shared",
+            "host_id": "codex-desktop-host-1",
+        }
+        self.assertEqual(controller.record_native_task_observation(
+            self.native_observation_args("manager-attempt-1", "host_created", manager_created)
+        ), 0)
+        duplicate = self.native_observation_args("worker-attempt-1", "host_created", manager_created)
+        worker_before = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(controller.record_native_task_observation(duplicate), 2)
+        self.assertEqual(worker_before, controller.load_json(self.project / ".company-os" / "control.json"))
+
+        worker_created = {
+            **manager_created, "task_id": "native-task-worker",
+            "thread_id": "native-thread-worker",
+        }
+        self.assertEqual(controller.record_native_task_observation(
+            self.native_observation_args("worker-attempt-1", "host_created", worker_created)
+        ), 0)
+        worker_running = {**worker_created, "tool": "native_wait_return", "current_status": "running"}
+        self.assertEqual(controller.record_native_task_observation(
+            self.native_observation_args("worker-attempt-1", "running", worker_running)
+        ), 0)
+
+        reason = "authenticated operator cancellation"
+        cancel = self.native_command_args(
+            "worker-attempt-1",
+            action="request-native-task-cancellation",
+            decision="cancel_requested",
+            event="cancel_requested",
+            details={"reason": reason, "requested_by": "native-controller"},
+            reason=reason,
+        )
+        self.assertEqual(controller.request_native_task_cancellation(cancel), 0)
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        native = retained["runtime_adapter"]["attempts"][1]["native_task_runtime"]
+        dispatch = native["cancellation"]["dispatch"]
+        claim_cancel = self.native_command_args(
+            "worker-attempt-1",
+            action="claim-native-task-cancellation",
+            decision="claimed",
+            event="cancellation_dispatch_claimed",
+            details={"key": dispatch["key"], "payload_sha256": dispatch["payload_sha256"]},
+        )
+        self.assertEqual(controller.claim_native_task_cancellation(claim_cancel), 0)
+        self.assertEqual(
+            controller.control_store_module().inspect_outbox(
+                self.project, channel="native-task-cancel"
+            )[0]["status"],
+            "leased",
+        )
+        delivered = {**worker_created, "tool": "native_cooperative_stop_return"}
+        self.assertEqual(controller.record_native_task_observation(
+            self.native_observation_args("worker-attempt-1", "cooperative_stop_delivered", delivered)
+        ), 0)
+
+        success = {**worker_created, "tool": "native_read_return", "status": "succeeded"}
+        before_rejected = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(controller.record_native_task_observation(
+            self.native_observation_args("worker-attempt-1", "terminal", success)
+        ), 2)
+        self.assertEqual(before_rejected, controller.load_json(self.project / ".company-os" / "control.json"))
+        cancelled = {**worker_created, "tool": "native_read_return", "status": "cancelled"}
+        self.assertEqual(controller.record_native_task_observation(
+            self.native_observation_args("worker-attempt-1", "terminal", cancelled)
+        ), 0)
+        final = controller.load_json(self.project / ".company-os" / "control.json")
+        cancellation = final["runtime_adapter"]["attempts"][1]["native_task_runtime"]["cancellation"]
+        self.assertEqual(cancellation["desired_intent"], "cancel")
+        self.assertEqual(cancellation["cooperative_stop_delivery"], "delivered")
+        self.assertEqual(cancellation["hard_cancellation_status"], "unavailable")
+        self.assertEqual(cancellation["acknowledgement_status"], "unavailable")
+
+    def test_native_task_restart_reconciliation_never_relaunches_ambiguous_claim(self) -> None:
+        cycle_id = self.admission_fixture()
+        self.assertEqual(controller.admit_runtime_attempt(self.admission_args(cycle_id)), 0)
+        self.assertEqual(controller.claim_native_task_dispatch(self.native_claim_args("manager-attempt-1")), 0)
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        native = state["runtime_adapter"]["attempts"][0]["native_task_runtime"]
+        next_action = controller.native_task_runtime_module().reconcile_restart(native)["reconciliation"]["next_action"]
+        self.assertEqual(next_action, "reconcile_host_listing")
+        reconcile = self.native_command_args(
+            "manager-attempt-1",
+            action="reconcile-native-task",
+            decision=f"reconciled:{next_action}",
+            event="reconciled",
+            details={"next_action": next_action},
+        )
+        self.assertEqual(controller.reconcile_native_task(reconcile), 0)
+        outbox = controller.control_store_module().inspect_outbox(
+            self.project, channel="native-task-create"
+        )[0]
+        self.assertEqual(outbox["status"], "leased")
+        self.assertEqual(controller.reconcile_native_task(reconcile), 0)
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        current = retained["runtime_adapter"]["attempts"][0]["native_task_runtime"]
+        self.assertEqual(current["reconciliation"]["next_action"], "reconcile_host_listing")
+        self.assertNotIn("create", current["reconciliation"]["next_action"])
+
+    def test_native_task_prelaunch_cancellation_cancels_create_intent(self) -> None:
+        cycle_id = self.admission_fixture()
+        self.assertEqual(controller.admit_runtime_attempt(self.admission_args(cycle_id)), 0)
+        reason = "cancel before host dispatch"
+        cancel = self.native_command_args(
+            "manager-attempt-1",
+            action="request-native-task-cancellation",
+            decision="cancel_requested",
+            event="cancel_requested",
+            details={"reason": reason, "requested_by": "native-controller"},
+            reason=reason,
+        )
+        self.assertEqual(controller.request_native_task_cancellation(cancel), 0)
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        native = state["runtime_adapter"]["attempts"][0]["native_task_runtime"]
+        next_action = controller.native_task_runtime_module().reconcile_restart(native)["reconciliation"]["next_action"]
+        self.assertEqual(next_action, "finalize_cancelled_before_launch")
+        reconcile = self.native_command_args(
+            "manager-attempt-1",
+            action="reconcile-native-task",
+            decision=f"reconciled:{next_action}",
+            event="reconciled",
+            details={"next_action": next_action},
+        )
+        self.assertEqual(controller.reconcile_native_task(reconcile), 0)
+        final = controller.load_json(self.project / ".company-os" / "control.json")
+        native = final["runtime_adapter"]["attempts"][0]["native_task_runtime"]
+        self.assertEqual(native["status"], "cancelled_before_launch")
+        self.assertEqual(native["receipt"]["status"], "cancelled")
+        self.assertEqual(controller.control_store_module().inspect_outbox(
+            self.project, channel="native-task-create"
+        )[0]["status"], "cancelled")
 
     def test_runtime_admission_audit_rebinds_retained_attempt_to_manifest_identity(self) -> None:
         cycle_id = self.admission_fixture()
@@ -2744,7 +3077,7 @@ class ControllerTests(unittest.TestCase):
                 "decision": "retained-only",
             }
         ]
-        controller.atomic_write_json(self.project / ".company-os" / "control.json", state)
+        self.write_state(state)
         original_runtime = deepcopy(state["runtime_adapter"])
         self.assertEqual(
             controller.replace_program(

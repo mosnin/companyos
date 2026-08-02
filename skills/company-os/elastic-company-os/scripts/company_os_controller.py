@@ -270,6 +270,9 @@ LEASE_TRANSITIONS = frozenset({
     "begin-cycle", "finish-cycle", "resolve-cycle", "release-lease",
     "record-fabric-phase", "decide-fabric-phase",
     "admit-runtime-attempt",
+    "claim-native-task-dispatch", "record-native-task-observation",
+    "request-native-task-cancellation", "claim-native-task-cancellation",
+    "reconcile-native-task",
 })
 RUNTIME_AUDIT_ERROR_PREFIXES = (
     "runtime_adapter",
@@ -281,6 +284,7 @@ RUNTIME_AUDIT_ERROR_PREFIXES = (
     "admission-only runtime",
 )
 _CONTROL_STORE_MODULE: Any | None = None
+_NATIVE_TASK_RUNTIME_MODULE: Any | None = None
 _OPERATOR_BRIEF_MODULE: Any | None = None
 _ACTIVE_CONTROL_STORE_TRANSACTION: contextvars.ContextVar[Any | None] = contextvars.ContextVar(
     "company_os_control_store_transaction",
@@ -310,6 +314,21 @@ def control_store_module() -> Any:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     _CONTROL_STORE_MODULE = module
+    return module
+
+
+def native_task_runtime_module() -> Any:
+    """Load the pure native task state machine without relying on PYTHONPATH."""
+    global _NATIVE_TASK_RUNTIME_MODULE
+    if _NATIVE_TASK_RUNTIME_MODULE is not None:
+        return _NATIVE_TASK_RUNTIME_MODULE
+    module_path = Path(__file__).resolve().with_name("native_task_runtime.py")
+    spec = importlib.util.spec_from_file_location("company_os_native_task_runtime", module_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("native task runtime state machine could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _NATIVE_TASK_RUNTIME_MODULE = module
     return module
 
 
@@ -626,6 +645,14 @@ def _runtime_archive_grant_token_path(parts: tuple[Any, ...]) -> bool:
     ):
         return False
     suffix = parts[3:]
+    if (
+        len(suffix) == 5
+        and suffix[0] == "native_task_runtime"
+        and suffix[1] == "authority_history"
+        and isinstance(suffix[2], int)
+        and suffix[3:] == ("grant", "token")
+    ):
+        return True
     return suffix in {
         ("actor_grant", "token"),
         ("lifecycle", "cancellation", "grant", "token"),
@@ -649,7 +676,9 @@ def _runtime_archive_numeric_token_metric(parts: tuple[Any, ...], value: Any) ->
         or not isinstance(parts[2], int)
     ):
         return False
-    return parts[3:] == ("budget", "token_limit") or parts[3:] in {
+    return parts[3:] in {
+        ("budget", "token_limit"),
+        ("native_task_runtime", "admission", "budget", "token_limit"),
         ("lifecycle", "telemetry", "input_tokens"),
         ("lifecycle", "telemetry", "cached_input_tokens"),
         ("lifecycle", "telemetry", "output_tokens"),
@@ -666,6 +695,9 @@ RUNTIME_ARCHIVE_ATTEMPT_FIELDS = {
     "program_version", "lease_id", "lease_generation", "lease_owner", "status",
     "provider_task_id", "actor_grant", "admitted_at",
 }
+RUNTIME_ARCHIVE_NATIVE_ATTEMPT_FIELDS = (
+    RUNTIME_ARCHIVE_ATTEMPT_FIELDS | {"native_task_runtime"}
+)
 RUNTIME_ARCHIVE_BUDGET_FIELDS = {
     "time_minutes", "token_limit", "cost_usd", "max_concurrency", "max_retries",
 }
@@ -717,7 +749,12 @@ def runtime_archive_shape_errors(value: Any, path: str = "runtime_adapter") -> l
     else:
         for index, attempt in enumerate(attempts):
             label = f"{path}.attempts[{index}]"
-            if not exact_mapping(attempt, RUNTIME_ARCHIVE_ATTEMPT_FIELDS, label):
+            attempt_fields = set(attempt) if isinstance(attempt, dict) else set()
+            if attempt_fields == RUNTIME_ARCHIVE_ATTEMPT_FIELDS:
+                expected_attempt_fields = RUNTIME_ARCHIVE_ATTEMPT_FIELDS
+            else:
+                expected_attempt_fields = RUNTIME_ARCHIVE_NATIVE_ATTEMPT_FIELDS
+            if not exact_mapping(attempt, expected_attempt_fields, label):
                 continue
             attempt_id = attempt.get("attempt_id")
             if isinstance(attempt_id, str):
@@ -727,6 +764,10 @@ def runtime_archive_shape_errors(value: Any, path: str = "runtime_adapter") -> l
             grant = attempt.get("actor_grant")
             if not _runtime_archive_grant_is_audit_shaped(grant):
                 errors.append(f"{label}.actor_grant")
+            native_state = attempt.get("native_task_runtime")
+            if native_state is not None:
+                for native_error in native_task_runtime_module().audit_state(native_state):
+                    errors.append(f"{label}.native_task_runtime.{native_error}")
     inboxes = value.get("observation_inboxes")
     if not isinstance(inboxes, dict):
         errors.append(f"{path}.observation_inboxes")
@@ -3415,6 +3456,8 @@ def validate_state(
             attempt_ids: set[str] = set()
             idempotency_keys: set[str] = set()
             manifest_attempts: set[tuple[Any, Any, Any, Any]] = set()
+            native_task_ids: set[str] = set()
+            native_thread_ids: set[str] = set()
             for attempt in runtime["attempts"]:
                 if not isinstance(attempt, dict):
                     errors.append("runtime_adapter attempts must be objects")
@@ -3508,6 +3551,68 @@ def validate_state(
                         "decision": "admitted", "payload_hash": payload_hash,
                     },
                 )
+                native_state = attempt.get("native_task_runtime")
+                if native_state is not None:
+                    native_module = native_task_runtime_module()
+                    for native_error in native_module.audit_state(native_state):
+                        errors.append(f"native task runtime failed audit: {native_error}")
+                    admission = native_state.get("admission") if isinstance(native_state, dict) else {}
+                    expected_native_admission = {
+                        "attempt_id": attempt.get("attempt_id"),
+                        "idempotency_key": attempt.get("idempotency_key"),
+                        "requested_model": attempt.get("requested_model"),
+                        "project_id": instance.get("project_id"),
+                        "work_id": attempt.get("work_id"),
+                        "cycle_id": attempt.get("cycle_id"),
+                        "parent_runtime_id": attempt.get("parent_runtime_id"),
+                        "role": attempt.get("role"),
+                        "scope": attempt.get("scope"),
+                        "budget": attempt.get("budget"),
+                        "metadata": {
+                            "manifest_identity_id": attempt.get("manifest_identity_id"),
+                            "fabric_manifest_digest": attempt.get("fabric_manifest_digest"),
+                            "phase2_contract_digest": attempt.get("phase2_contract_digest"),
+                        },
+                    }
+                    if admission != expected_native_admission:
+                        errors.append("native task runtime admission does not bind the exact controller attempt")
+                    identity = native_state.get("native_identity") if isinstance(native_state, dict) else None
+                    if isinstance(identity, dict):
+                        task_id = identity.get("task_id")
+                        thread_id = identity.get("thread_id")
+                        if task_id in native_task_ids or thread_id in native_thread_ids:
+                            errors.append("native task or thread identity is bound to more than one attempt")
+                        if isinstance(task_id, str):
+                            native_task_ids.add(task_id)
+                        if isinstance(thread_id, str):
+                            native_thread_ids.add(thread_id)
+                    authority_history = (
+                        native_state.get("authority_history", [])
+                        if isinstance(native_state, dict)
+                        else []
+                    )
+                    for authority in authority_history:
+                        if not isinstance(authority, dict) or set(authority) != {
+                            "action", "actor", "decision", "event", "payload_hash", "grant"
+                        }:
+                            errors.append("native task authority history entry is invalid")
+                            continue
+                        audit_stored_grant(
+                            state,
+                            authority.get("grant"),
+                            errors,
+                            "native task authority grant",
+                            {
+                                "actor": authority.get("actor"),
+                                "action": authority.get("action"),
+                                "resource": f"runtime:{attempt.get('attempt_id')}",
+                                "work_id": attempt.get("work_id"),
+                                "cycle_id": attempt.get("cycle_id"),
+                                "dimension": "native-task-runtime",
+                                "decision": authority.get("decision"),
+                                "payload_hash": authority.get("payload_hash"),
+                            },
+                        )
             inboxes = runtime.get("observation_inboxes")
             if not isinstance(inboxes, dict):
                 errors.append("runtime_adapter observation_inboxes must be an object")
@@ -6962,6 +7067,122 @@ def review_adaptation(args: argparse.Namespace) -> int:
     return 0
 
 
+def native_runtime_attempt(state: dict[str, Any], attempt_id: str) -> dict[str, Any]:
+    runtime = state.get("runtime_adapter")
+    attempts = runtime.get("attempts") if isinstance(runtime, dict) else None
+    matches = [
+        item for item in (attempts or [])
+        if isinstance(item, dict) and item.get("attempt_id") == attempt_id
+    ]
+    if len(matches) != 1:
+        raise ValueError("native task command requires exactly one admitted runtime attempt")
+    attempt = matches[0]
+    if not isinstance(attempt.get("native_task_runtime"), dict):
+        raise ValueError("runtime attempt predates native task dispatch control")
+    return attempt
+
+
+def require_native_store_transaction() -> Any:
+    transaction = _ACTIVE_CONTROL_STORE_TRANSACTION.get()
+    if transaction is None:
+        raise ValueError("native task dispatch requires the transactional SQLite control store")
+    return transaction
+
+
+def native_runtime_command_payload(
+    attempt: dict[str, Any], action: str, details: dict[str, Any]
+) -> dict[str, Any]:
+    return {
+        "attempt_id": attempt.get("attempt_id"),
+        "work_id": attempt.get("work_id"),
+        "cycle_id": attempt.get("cycle_id"),
+        "parent_runtime_id": attempt.get("parent_runtime_id"),
+        "action": action,
+        "details": details,
+    }
+
+
+def authorize_native_runtime_command(
+    state: dict[str, Any],
+    attempt: dict[str, Any],
+    args: argparse.Namespace,
+    *,
+    action: str,
+    decision: str,
+    event: str,
+    details: dict[str, Any],
+) -> tuple[dict[str, Any], str]:
+    actor = getattr(args, "authorized_by", None)
+    payload_hash = command_payload_hash(
+        action, native_runtime_command_payload(attempt, action, details)
+    )
+    grant = verify_actor_grant(
+        state,
+        getattr(args, "actor_grant", None),
+        actor,
+        action,
+        resource=f"runtime:{attempt.get('attempt_id')}",
+        work_id=attempt.get("work_id"),
+        cycle_id=attempt.get("cycle_id"),
+        dimension="native-task-runtime",
+        decision=decision,
+        payload_hash=payload_hash,
+    )
+    authority = {
+        "action": action,
+        "actor": actor,
+        "decision": decision,
+        "event": event,
+        "payload_hash": payload_hash,
+        "grant": grant,
+    }
+    return authority, payload_hash
+
+
+def retained_native_runtime_errors(
+    state: dict[str, Any], project: Path
+) -> list[str]:
+    return [
+        error
+        for error in validate_state(state, expected_project=project)["errors"]
+        if error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
+        or error.startswith("native task")
+    ]
+
+
+def require_native_command_attempt(
+    state: dict[str, Any],
+    project: Path,
+    args: argparse.Namespace,
+    action: str,
+) -> tuple[dict[str, Any], Any]:
+    require_current_lease(state, args, action)
+    attempt = native_runtime_attempt(state, args.attempt_id)
+    cycle = require_running_cycle_lease_fence(state, args, attempt.get("cycle_id"))
+    if (
+        cycle.get("work_id") != attempt.get("work_id")
+        or cycle.get("program_version") != attempt.get("program_version")
+    ):
+        raise ValueError("native task command binds a stale work cycle")
+    retained_errors = retained_native_runtime_errors(state, project)
+    if retained_errors:
+        raise ValueError(
+            "native task retained state failed audit: " + "; ".join(retained_errors)
+        )
+    return attempt, require_native_store_transaction()
+
+
+def native_state_with_authority(
+    native_state: dict[str, Any], authority: dict[str, Any]
+) -> dict[str, Any]:
+    candidate = deepcopy(native_state)
+    history = candidate.get("authority_history")
+    if not isinstance(history, list):
+        raise ValueError("native task authority history is invalid")
+    history.append(authority)
+    return candidate
+
+
 def admit_runtime_attempt(args: argparse.Namespace) -> int:
     project = Path(args.project).resolve()
     try:
@@ -7013,11 +7234,7 @@ def admit_runtime_attempt(args: argparse.Namespace) -> int:
                 or any(not isinstance(item, dict) for item in attempts)
             ):
                 raise ValueError("runtime adapter configuration is invalid")
-            retained_runtime_errors = [
-                error
-                for error in validate_state(state, expected_project=project)["errors"]
-                if error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
-            ]
+            retained_runtime_errors = retained_native_runtime_errors(state, project)
             if retained_runtime_errors:
                 raise ValueError(
                     "runtime adapter retained state failed audit: "
@@ -7094,7 +7311,18 @@ def admit_runtime_attempt(args: argparse.Namespace) -> int:
                 same_payload = all(item.get(key) == value for key, value in payload.items())
                 if item.get("idempotency_key") == args.idempotency_key:
                     if same_payload:
-                        print(json.dumps({"ok": True, "attempt_id": args.attempt_id, "status": "admitted", "idempotent": True}))
+                        native_state = item.get("native_task_runtime")
+                        if not isinstance(native_state, dict):
+                            raise ValueError(
+                                "legacy admission cannot be replayed as a native pre-create receipt"
+                            )
+                        print(json.dumps({
+                            "ok": True,
+                            "attempt_id": args.attempt_id,
+                            "status": "admitted_pre_create",
+                            "dispatch_receipt": native_state.get("dispatch_receipt"),
+                            "idempotent": True,
+                        }))
                         return 0
                     raise ValueError("runtime idempotency key conflicts with a different admission payload")
                 if item.get("attempt_id") == args.attempt_id:
@@ -7106,13 +7334,416 @@ def admit_runtime_attempt(args: argparse.Namespace) -> int:
                     and item.get("manifest_identity_id") == args.manifest_identity_id
                 ):
                     raise ValueError("manifest identity already has an admitted attempt in this work cycle")
+            transaction = require_native_store_transaction()
             grant = verify_actor_grant(state, args.actor_grant, args.admitted_by, "admit-runtime-attempt", resource=f"runtime:{args.attempt_id}", work_id=args.work_id, cycle_id=args.cycle_id, dimension="runtime-admission", decision="admitted", payload_hash=command_payload_hash("admit-runtime-attempt", payload))
-            attempts.append({**payload, "program_version": state["strategy"]["program_version"], "lease_id": args.lease_id, "lease_generation": args.generation, "lease_owner": args.owner, "status": "admitted", "provider_task_id": None, "admitted_by": args.admitted_by, "actor_grant": grant, "admitted_at": utc_now()})
+            native_state = native_task_runtime_module().admit(
+                attempt_id=args.attempt_id,
+                idempotency_key=args.idempotency_key,
+                requested_model=args.requested_model,
+                project_id=state["instance"]["project_id"],
+                work_id=args.work_id,
+                cycle_id=args.cycle_id,
+                parent_runtime_id=args.parent_runtime_id,
+                role=args.role,
+                scope=scope,
+                budget=budget,
+                metadata={
+                    "manifest_identity_id": args.manifest_identity_id,
+                    "fabric_manifest_digest": args.fabric_manifest_digest,
+                    "phase2_contract_digest": args.contract_digest,
+                },
+            )
+            attempts.append({**payload, "program_version": state["strategy"]["program_version"], "lease_id": args.lease_id, "lease_generation": args.generation, "lease_owner": args.owner, "status": "admitted", "provider_task_id": None, "admitted_by": args.admitted_by, "actor_grant": grant, "admitted_at": utc_now(), "native_task_runtime": native_state})
             runtime["observation_inboxes"][args.attempt_id] = runtime_observation_module().empty_inbox()
-            persist_state_event(project, path, state, "runtime_attempt_admitted", attempt_id=args.attempt_id, idempotency_key=args.idempotency_key)
+            dispatch_receipt = native_state["dispatch_receipt"]
+            persist_state_event(
+                project,
+                path,
+                state,
+                "runtime_attempt_admitted",
+                attempt_id=args.attempt_id,
+                idempotency_key=args.idempotency_key,
+                dispatch_receipt=dispatch_receipt,
+            )
+            transaction.enqueue_outbox(
+                channel="native-task-create",
+                key=args.attempt_id,
+                payload=dispatch_receipt,
+            )
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2)); return 2
-    print(json.dumps({"ok": True, "attempt_id": args.attempt_id, "status": "admitted"})); return 0
+    print(json.dumps({"ok": True, "attempt_id": args.attempt_id, "status": "admitted_pre_create", "dispatch_receipt": dispatch_receipt})); return 0
+
+
+def claim_native_task_dispatch(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            attempt, transaction = require_native_command_attempt(
+                state, project, args, "claim-native-task-dispatch"
+            )
+            native_module = native_task_runtime_module()
+            current = attempt["native_task_runtime"]
+            candidate = native_module.claim_dispatch(current)
+            if candidate == current:
+                print(json.dumps({
+                    "ok": True,
+                    "attempt_id": args.attempt_id,
+                    "status": current["status"],
+                    "idempotent": True,
+                }))
+                return 0
+            details = {
+                "dispatch_key": current["dispatch"]["key"],
+                "payload_sha256": current["dispatch"]["payload_sha256"],
+            }
+            authority, _ = authorize_native_runtime_command(
+                state,
+                attempt,
+                args,
+                action="claim-native-task-dispatch",
+                decision="claimed",
+                event="dispatch_claimed",
+                details=details,
+            )
+            authorized = native_state_with_authority(current, authority)
+            candidate = native_module.claim_dispatch(authorized)
+            attempt["native_task_runtime"] = candidate
+            persist_state_event(
+                project,
+                path,
+                state,
+                "native_task_dispatch_claimed",
+                attempt_id=args.attempt_id,
+                dispatch=details,
+            )
+            transaction.reconcile_outbox(
+                channel="native-task-create",
+                key=args.attempt_id,
+                status="leased",
+                expected_status="pending",
+                payload_sha256=current["dispatch"]["payload_sha256"],
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "attempt_id": args.attempt_id,
+        "status": "dispatch_claimed",
+        "next_action": "host_may_create_once",
+    }))
+    return 0
+
+
+def record_native_task_observation(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        try:
+            observation = json.loads(args.observation)
+        except (TypeError, json.JSONDecodeError):
+            raise ValueError("native task observation must be a JSON object") from None
+        if not isinstance(observation, dict):
+            raise ValueError("native task observation must be a JSON object")
+        with locked_state(project) as (path, state):
+            attempt, transaction = require_native_command_attempt(
+                state, project, args, "record-native-task-observation"
+            )
+            native_module = native_task_runtime_module()
+            current = attempt["native_task_runtime"]
+            candidate = native_module.record_event(
+                current, args.event, payload=observation
+            )
+            if candidate == current:
+                print(json.dumps({
+                    "ok": True,
+                    "attempt_id": args.attempt_id,
+                    "event": args.event,
+                    "status": current["status"],
+                    "idempotent": True,
+                }))
+                return 0
+            if args.event == "host_created":
+                task_id = observation.get("task_id")
+                thread_id = observation.get("thread_id")
+                for other in state["runtime_adapter"]["attempts"]:
+                    if other is attempt or not isinstance(other, dict):
+                        continue
+                    identity = (
+                        other.get("native_task_runtime", {}).get("native_identity")
+                        if isinstance(other.get("native_task_runtime"), dict)
+                        else None
+                    )
+                    if isinstance(identity, dict) and (
+                        identity.get("task_id") == task_id
+                        or identity.get("thread_id") == thread_id
+                    ):
+                        raise ValueError("native task or thread identity is already bound")
+            details = {"event": args.event, "observation": observation}
+            decision = f"observed:{args.event}"
+            authority, _ = authorize_native_runtime_command(
+                state,
+                attempt,
+                args,
+                action="record-native-task-observation",
+                decision=decision,
+                event=args.event,
+                details=details,
+            )
+            authorized = native_state_with_authority(current, authority)
+            candidate = native_module.record_event(
+                authorized, args.event, payload=observation
+            )
+            cancellation_dispatch = candidate.get("cancellation", {}).get("dispatch")
+            if args.event == "cooperative_stop_delivered" and isinstance(cancellation_dispatch, dict):
+                cancellation_dispatch["status"] = "delivered"
+            attempt["native_task_runtime"] = candidate
+            persist_state_event(
+                project,
+                path,
+                state,
+                "native_task_observation_recorded",
+                attempt_id=args.attempt_id,
+                native_event=args.event,
+                observation_digest=native_module.canonical_digest(observation),
+                terminal_receipt=candidate.get("receipt"),
+            )
+            if args.event == "host_created":
+                transaction.reconcile_outbox(
+                    channel="native-task-create",
+                    key=args.attempt_id,
+                    status="succeeded",
+                    expected_status="leased",
+                    payload_sha256=current["dispatch"]["payload_sha256"],
+                )
+            elif args.event == "cooperative_stop_delivered" and isinstance(cancellation_dispatch, dict):
+                transaction.reconcile_outbox(
+                    channel="native-task-cancel",
+                    key=args.attempt_id,
+                    status="succeeded",
+                    expected_status="leased",
+                    payload_sha256=cancellation_dispatch["payload_sha256"],
+                )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "attempt_id": args.attempt_id,
+        "event": args.event,
+        "status": candidate["status"],
+        "terminal_receipt": candidate.get("receipt"),
+    }))
+    return 0
+
+
+def request_native_task_cancellation(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            attempt, transaction = require_native_command_attempt(
+                state, project, args, "request-native-task-cancellation"
+            )
+            native_module = native_task_runtime_module()
+            current = attempt["native_task_runtime"]
+            candidate = native_module.request_cancellation(
+                current, reason=args.reason, requested_by=args.authorized_by
+            )
+            if candidate == current:
+                print(json.dumps({
+                    "ok": True,
+                    "attempt_id": args.attempt_id,
+                    "status": current["status"],
+                    "idempotent": True,
+                }))
+                return 0
+            details = {"reason": args.reason, "requested_by": args.authorized_by}
+            authority, _ = authorize_native_runtime_command(
+                state,
+                attempt,
+                args,
+                action="request-native-task-cancellation",
+                decision="cancel_requested",
+                event="cancel_requested",
+                details=details,
+            )
+            authorized = native_state_with_authority(current, authority)
+            candidate = native_module.request_cancellation(
+                authorized, reason=args.reason, requested_by=args.authorized_by
+            )
+            cancellation_payload = None
+            if candidate.get("native_identity") is not None:
+                cancellation_payload = {
+                    "schema": "company-os.native-task-cancellation-intent.v1",
+                    "attempt_id": args.attempt_id,
+                    "native_identity": candidate["native_identity"],
+                    "reason": args.reason,
+                    "request_sha256": native_module.canonical_digest(details),
+                }
+                candidate["cancellation"]["dispatch"] = {
+                    "status": "pending",
+                    "key": args.attempt_id,
+                    "payload_sha256": native_module.canonical_digest(cancellation_payload),
+                }
+            attempt["native_task_runtime"] = candidate
+            persist_state_event(
+                project,
+                path,
+                state,
+                "native_task_cancellation_requested",
+                attempt_id=args.attempt_id,
+                reason=args.reason,
+                cancellation_dispatch=candidate["cancellation"].get("dispatch"),
+            )
+            if cancellation_payload is not None:
+                transaction.enqueue_outbox(
+                    channel="native-task-cancel",
+                    key=args.attempt_id,
+                    payload=cancellation_payload,
+                )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "attempt_id": args.attempt_id,
+        "status": "cancel_requested",
+        "acknowledgement_status": candidate["cancellation"]["acknowledgement_status"],
+    }))
+    return 0
+
+
+def claim_native_task_cancellation(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            attempt, transaction = require_native_command_attempt(
+                state, project, args, "claim-native-task-cancellation"
+            )
+            current = attempt["native_task_runtime"]
+            dispatch = current.get("cancellation", {}).get("dispatch")
+            if not isinstance(dispatch, dict):
+                raise ValueError("native cancellation has no host action to claim")
+            if dispatch.get("status") == "claimed":
+                print(json.dumps({
+                    "ok": True,
+                    "attempt_id": args.attempt_id,
+                    "status": "claimed",
+                    "idempotent": True,
+                }))
+                return 0
+            if dispatch.get("status") != "pending":
+                raise ValueError("native cancellation action is not pending")
+            details = {
+                "key": dispatch.get("key"),
+                "payload_sha256": dispatch.get("payload_sha256"),
+            }
+            authority, _ = authorize_native_runtime_command(
+                state,
+                attempt,
+                args,
+                action="claim-native-task-cancellation",
+                decision="claimed",
+                event="cancellation_dispatch_claimed",
+                details=details,
+            )
+            candidate = native_state_with_authority(current, authority)
+            candidate["cancellation"]["dispatch"]["status"] = "claimed"
+            attempt["native_task_runtime"] = candidate
+            persist_state_event(
+                project,
+                path,
+                state,
+                "native_task_cancellation_claimed",
+                attempt_id=args.attempt_id,
+                cancellation_dispatch=details,
+            )
+            transaction.reconcile_outbox(
+                channel="native-task-cancel",
+                key=args.attempt_id,
+                status="leased",
+                expected_status="pending",
+                payload_sha256=dispatch["payload_sha256"],
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "attempt_id": args.attempt_id,
+        "status": "claimed",
+        "next_action": "host_may_send_cooperative_stop",
+    }))
+    return 0
+
+
+def reconcile_native_task(args: argparse.Namespace) -> int:
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            attempt, transaction = require_native_command_attempt(
+                state, project, args, "reconcile-native-task"
+            )
+            native_module = native_task_runtime_module()
+            current = attempt["native_task_runtime"]
+            derived = native_module.reconcile_restart(current)
+            next_action = derived["reconciliation"]["next_action"]
+            details = {"next_action": next_action}
+            if derived == current and next_action != "finalize_cancelled_before_launch":
+                print(json.dumps({
+                    "ok": True,
+                    "attempt_id": args.attempt_id,
+                    "status": current["status"],
+                    "next_action": next_action,
+                    "idempotent": True,
+                }))
+                return 0
+            authority, _ = authorize_native_runtime_command(
+                state,
+                attempt,
+                args,
+                action="reconcile-native-task",
+                decision=f"reconciled:{next_action}",
+                event="reconciled",
+                details=details,
+            )
+            authorized = native_state_with_authority(current, authority)
+            candidate = native_module.reconcile_restart(authorized)
+            if next_action == "finalize_cancelled_before_launch":
+                candidate = native_module.record_event(
+                    candidate,
+                    "cancelled_before_launch",
+                    payload={"source": "controller_reconciliation"},
+                )
+            attempt["native_task_runtime"] = candidate
+            persist_state_event(
+                project,
+                path,
+                state,
+                "native_task_reconciled",
+                attempt_id=args.attempt_id,
+                next_action=candidate["reconciliation"]["next_action"],
+                terminal_receipt=candidate.get("receipt"),
+            )
+            if next_action == "finalize_cancelled_before_launch":
+                transaction.reconcile_outbox(
+                    channel="native-task-create",
+                    key=args.attempt_id,
+                    status="cancelled",
+                    expected_status="pending",
+                    payload_sha256=current["dispatch"]["payload_sha256"],
+                )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "attempt_id": args.attempt_id,
+        "status": candidate["status"],
+        "next_action": candidate["reconciliation"]["next_action"],
+        "terminal_receipt": candidate.get("receipt"),
+    }))
+    return 0
 
 
 def ingest_runtime_observation(args: argparse.Namespace) -> int:
@@ -7499,6 +8130,60 @@ def build_parser() -> argparse.ArgumentParser:
     admission_parser.add_argument("--admitted-by", required=True)
     admission_parser.add_argument("--actor-grant", required=True)
     admission_parser.set_defaults(handler=admit_runtime_attempt)
+    native_claim_parser = subparsers.add_parser(
+        "claim-native-task-dispatch",
+        help="atomically claim one admitted native create intent before host creation",
+    )
+    native_observation_parser = subparsers.add_parser(
+        "record-native-task-observation",
+        help="record one returned host observation without calling Codex app tools",
+    )
+    native_cancel_parser = subparsers.add_parser(
+        "request-native-task-cancellation",
+        help="record cancellation intent separately from host acknowledgement",
+    )
+    native_cancel_claim_parser = subparsers.add_parser(
+        "claim-native-task-cancellation",
+        help="claim one pending cooperative stop action before host delivery",
+    )
+    native_reconcile_parser = subparsers.add_parser(
+        "reconcile-native-task",
+        help="derive and persist the safe restart action from durable native state",
+    )
+    for native_parser in (
+        native_claim_parser,
+        native_observation_parser,
+        native_cancel_parser,
+        native_cancel_claim_parser,
+        native_reconcile_parser,
+    ):
+        native_parser.add_argument("--project", required=True)
+        native_parser.add_argument("--lease-id", required=True)
+        native_parser.add_argument("--generation", type=int, required=True)
+        native_parser.add_argument("--owner", required=True)
+        native_parser.add_argument("--attempt-id", required=True)
+        native_parser.add_argument("--authorized-by", required=True)
+        native_parser.add_argument("--actor-grant", required=True)
+    native_claim_parser.set_defaults(handler=claim_native_task_dispatch)
+    native_observation_parser.add_argument(
+        "--event",
+        choices=(
+            "host_created",
+            "running",
+            "cooperative_stop_delivered",
+            "hard_cancellation_observed",
+            "terminal",
+        ),
+        required=True,
+    )
+    native_observation_parser.add_argument(
+        "--observation", required=True, help="strict host-returned JSON object"
+    )
+    native_observation_parser.set_defaults(handler=record_native_task_observation)
+    native_cancel_parser.add_argument("--reason", required=True)
+    native_cancel_parser.set_defaults(handler=request_native_task_cancellation)
+    native_cancel_claim_parser.set_defaults(handler=claim_native_task_cancellation)
+    native_reconcile_parser.set_defaults(handler=reconcile_native_task)
     observation_parser = subparsers.add_parser(
         "ingest-runtime-observation",
         help="verify and retain one attempt-scoped provider observation",
@@ -7549,6 +8234,12 @@ def build_parser() -> argparse.ArgumentParser:
         fabric_parser,
         report_parser,
         decision_parser,
+        admission_parser,
+        native_claim_parser,
+        native_observation_parser,
+        native_cancel_parser,
+        native_cancel_claim_parser,
+        native_reconcile_parser,
         propose_parser,
         review_parser,
     ):

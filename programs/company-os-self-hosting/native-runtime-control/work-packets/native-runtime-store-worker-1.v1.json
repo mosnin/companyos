@@ -1,0 +1,157 @@
+{
+  "acceptance": {
+    "checks": [
+      "control-store-focused-tests",
+      "outbox-idempotency-conflict-tests",
+      "restart-and-project-isolation-tests",
+      "transactional-store-audit",
+      "zero-bytecode-residue"
+    ],
+    "independent_review": {
+      "barriers": [
+        "verification"
+      ],
+      "evidence_requirements": [
+        "manager-source-and-test-inspection"
+      ],
+      "required": false
+    },
+    "oracle": "the store exposes exact project-bound outbox inspection and safe reconciliation transitions that commit only with a staged state/event revision, preserve exact idempotency, survive restart, and remain audit-valid"
+  },
+  "artifact_references": [
+    {
+      "kind": "architecture",
+      "path": "programs/company-os-self-hosting/native-runtime-control/architecture.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "75b12ae87f33b19665a602dd52549e054cfd99e1c3d8ed5a9f8d4962a3a97b02",
+      "version": 1
+    },
+    {
+      "kind": "roadmap",
+      "path": "programs/company-os-self-hosting/native-runtime-control/roadmap.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "14cfcee020f1bcd5d0e5298517ecdc248985082e1f9415d2969df7e55ddae010",
+      "version": 1
+    },
+    {
+      "kind": "interfaces",
+      "path": "programs/company-os-self-hosting/native-runtime-control/interfaces.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "4e5bb7ecdbea868f8e815a17441965e7ea5a8ad8213c2016f6dd0f783f11a63e",
+      "version": 1
+    }
+  ],
+  "authorization": {
+    "record_path": "artifacts/company-os-self-hosting/authorizations/native-runtime-store-worker-1.design.v1.json",
+    "record_sha256": "4e7395ae749fadfdb04ae2c361d04354c47cbd95402bf4e9f5256b85a6940784"
+  },
+  "authorization_expectation": {
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "decision_id": "decision-native-runtime-control-design-1",
+    "decision_version": 1,
+    "phase": "design"
+  },
+  "budget": {
+    "max_concurrency": 1,
+    "max_cost_usd": 10.0,
+    "max_retries": 1,
+    "max_tasks": 1,
+    "max_time_minutes": 45,
+    "max_tokens": 24000
+  },
+  "decision_barriers": {
+    "inherited_design_authorization_required": true,
+    "manager_verification_required": true,
+    "worker_waits_for_master": false
+  },
+  "definition_version": 1,
+  "deliverables": [
+    "skills/company-os/elastic-company-os/scripts/control_store.py",
+    "skills/company-os/elastic-company-os/scripts/test_control_store.py"
+  ],
+  "dependencies": [
+    "parent-charter-sha256:b15d0cd4dbc64a08b6052d4fbffca85ebbf3ec0a3443ecb1d9745cbda2933f30",
+    "parent-definition-digest:14036ed6823c8da9ebb3684aa3fc06f453290b8b9966ad928db7aee991530f9a",
+    "accepted-design-evidence-sha256:48b464344a52df67f7d7086805522f32d94a04e3c34c08a8750416c3cb702ae3",
+    "canonical-main:19fe809a9544303fb00150c957b317ed03c7a1a3",
+    "controller-schema:9"
+  ],
+  "ids": {
+    "cycle_id": "native-runtime-control-cycle-1",
+    "parent_task_id": "manager-native-runtime-control-1",
+    "program_id": "company-os-self-hosting",
+    "project_id": "company-os-self-hosting",
+    "task_id": "native-runtime-store-worker-1"
+  },
+  "outcome": "Extend and test the existing SQLite control-store primitives needed for durable native dispatch outbox inspection and reconciliation while preserving atomic state, event, idempotency, and outbox authority.",
+  "outcome_digest": "670ef9ee68483e6f14f5559e942ddca6314bc55ae754c1c8fb57f02b846809a7",
+  "packet_version": 1,
+  "parent_budget_available": {
+    "max_concurrency": 1,
+    "max_cost_usd": 10.0,
+    "max_retries": 1,
+    "max_tasks": 1,
+    "max_time_minutes": 45,
+    "max_tokens": 24000
+  },
+  "parent_manager_charter": {
+    "path": "programs/company-os-self-hosting/native-runtime-control/mission-charter.v6.json",
+    "sha256": "b15d0cd4dbc64a08b6052d4fbffca85ebbf3ec0a3443ecb1d9745cbda2933f30"
+  },
+  "parent_manager_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "permissions": {
+    "allowed_actions": [
+      "read",
+      "write-owned-artifact",
+      "run-local-test"
+    ],
+    "allowed_tools": [
+      "repository",
+      "local-tests"
+    ],
+    "prohibited_actions": [
+      "network",
+      "credential-access",
+      "provider-api-call",
+      "production-mutation",
+      "deploy",
+      "scheduler-enable",
+      "chippy-change",
+      "canonical-main-write"
+    ]
+  },
+  "program_version": 6,
+  "reporting_destination": "task:019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "requested_model": "gpt-5.6-luna",
+  "schema": "company-os.work-packet.v2",
+  "scope": {
+    "owned_paths": [
+      "skills/company-os/elastic-company-os/scripts/control_store.py",
+      "skills/company-os/elastic-company-os/scripts/test_control_store.py"
+    ]
+  },
+  "stop_escalation": {
+    "escalate_on": [
+      "dependency-invalid",
+      "failed-local-check",
+      "runtime-api-gap",
+      "unexpected-side-effect"
+    ],
+    "stop_conditions": [
+      "oracle-passed",
+      "budget-exhausted",
+      "scope-collision",
+      "authority-changed"
+    ]
+  },
+  "task_local_context": {
+    "artifact_paths": [
+      "artifacts/company-os-self-hosting/authorizations/native-runtime-store-worker-1.design.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.design.v1.json",
+      "programs/company-os-self-hosting/native-runtime-control/mission-charter.v6.json",
+      "programs/company-os-self-hosting/native-runtime-control/architecture.v1.md",
+      "programs/company-os-self-hosting/native-runtime-control/roadmap.v1.md",
+      "programs/company-os-self-hosting/native-runtime-control/interfaces.v1.md"
+    ]
+  }
+}

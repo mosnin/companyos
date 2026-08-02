@@ -210,11 +210,12 @@ class RuntimeObservationIntegrationTests(unittest.TestCase):
                 "program_version": state["strategy"]["program_version"],
             },
         )
+        store = controller.control_store_module()
+        before_revision = store.audit(self.project)["revision"]
         envelope = self.envelope(event_id="transactional-event")
         self.assertEqual(self.ingest(envelope), 0)
-        store = controller.control_store_module()
         first_report = store.audit(self.project)
-        self.assertEqual(first_report["revision"], 2)
+        self.assertEqual(first_report["revision"], before_revision + 1)
         connection = store.connect(self.project)
         try:
             count = connection.execute("SELECT COUNT(*) FROM inbox_messages").fetchone()[0]
@@ -222,7 +223,7 @@ class RuntimeObservationIntegrationTests(unittest.TestCase):
             connection.close()
         self.assertEqual(count, 1)
         self.assertEqual(self.ingest(envelope), 0)
-        self.assertEqual(store.audit(self.project)["revision"], 2)
+        self.assertEqual(store.audit(self.project)["revision"], first_report["revision"])
 
     def test_signature_identity_artifact_and_strict_json_rejections_are_atomic(self) -> None:
         other_private = self.project / "other-private.pem"

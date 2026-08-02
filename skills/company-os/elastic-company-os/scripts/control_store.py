@@ -638,6 +638,34 @@ class Transaction:
             state_revision=self.staged_revision,
         )
 
+    def reconcile_outbox(
+        self,
+        *,
+        channel: str,
+        key: str,
+        status: str,
+        expected_status: str | None = None,
+        payload_sha256: str | None = None,
+    ) -> dict[str, Any]:
+        """Apply one provider/restart observation under the staged revision.
+
+        Reconciliation is deliberately not a convenience auto-commit: callers
+        must stage the corresponding state and event first, so the observation
+        and outbox transition commit atomically.
+        """
+        if self.staged_revision is None:
+            raise StoreError("outbox reconciliation requires a staged state/event revision")
+        return outbox_reconcile(
+            self.connection,
+            project_id=self.state["instance"]["project_id"],
+            channel=channel,
+            key=key,
+            status=status,
+            state_revision=self.staged_revision,
+            expected_status=expected_status,
+            payload_sha256=payload_sha256,
+        )
+
     def close(self, success: bool) -> None:
         try:
             if success and self.staged_revision is not None:
@@ -1194,7 +1222,10 @@ def idempotency_record(
     result: dict[str, Any],
     state_revision: int,
     created_at: str,
-) -> None:
+) -> dict[str, Any] | None:
+    existing = idempotency_lookup(connection, project_id, scope, key, payload_sha256)
+    if existing is not None:
+        return {**existing, "idempotent": True}
     encoded_result = canonical_json(result)
     connection.execute(
         "INSERT INTO command_idempotency VALUES (?,?,?,?,?,?,?,?,?)",
@@ -1210,6 +1241,7 @@ def idempotency_record(
             created_at,
         ),
     )
+    return {"result": result, "state_revision": state_revision, "idempotent": False}
 
 
 def outbox_lookup(
@@ -1228,8 +1260,16 @@ def outbox_lookup(
         return None
     if row["payload_sha256"] != payload_sha256:
         raise StoreError("outbox message key conflicts with a different payload digest")
+    if sha256_bytes(row["payload_json"].encode()) != row["payload_sha256"]:
+        raise StoreError("outbox message payload integrity is invalid")
+    try:
+        payload = json.loads(row["payload_json"])
+    except json.JSONDecodeError:
+        raise StoreError("outbox message payload JSON is invalid") from None
+    if not isinstance(payload, dict):
+        raise StoreError("outbox message payload must be an object")
     return {
-        "payload": json.loads(row["payload_json"]),
+        "payload": payload,
         "payload_sha256": row["payload_sha256"],
         "status": row["status"],
         "attempt_count": row["attempt_count"],
@@ -1318,3 +1358,86 @@ def outbox_transition(
         (status, attempt_count, state_revision, project_id, channel, key),
     )
     return {"status": status, "attempt_count": attempt_count, "idempotent": False}
+
+
+def outbox_reconcile(
+    connection: sqlite3.Connection,
+    *,
+    project_id: str,
+    channel: str,
+    key: str,
+    status: str,
+    state_revision: int,
+    expected_status: str | None = None,
+    payload_sha256: str | None = None,
+) -> dict[str, Any]:
+    """Reconcile one retained outbox row with explicit compare-and-set guards."""
+    if not isinstance(state_revision, int) or isinstance(state_revision, bool) or state_revision < 1:
+        raise StoreError("outbox reconciliation revision must be a positive integer")
+    row = connection.execute(
+        "SELECT payload_sha256,status,attempt_count,not_before,created_revision,updated_revision "
+        "FROM outbox_messages WHERE project_id=? AND channel=? AND message_key=?",
+        (project_id, channel, key),
+    ).fetchone()
+    if row is None:
+        raise StoreError("outbox message does not exist")
+    if payload_sha256 is not None and row["payload_sha256"] != payload_sha256:
+        raise StoreError("outbox message key conflicts with a different payload digest")
+    current = row["status"]
+    if expected_status is not None and current != expected_status:
+        raise StoreError(f"outbox reconciliation expected {expected_status}, found {current}")
+    result = outbox_transition(
+        connection, project_id=project_id, channel=channel, key=key,
+        status=status, state_revision=state_revision,
+    )
+    return {
+        **result,
+        "channel": channel,
+        "message_key": key,
+        "payload_sha256": row["payload_sha256"],
+        "updated_revision": state_revision if not result["idempotent"] else row["updated_revision"],
+    }
+
+
+def inspect_outbox(
+    project: Path,
+    *,
+    channel: str | None = None,
+    statuses: tuple[str, ...] | list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Return hash-verified outbox rows scoped to exactly one project store."""
+    project = project.resolve()
+    if not database_path(project).is_file():
+        raise StoreError("transactional control store does not exist")
+    connection = connect(project)
+    try:
+        metadata = _assert_binding(connection, project)
+        allowed = set(statuses or ())
+        if allowed - set(OUTBOX_TRANSITIONS) - {"pending", "leased", "succeeded", "failed", "cancelled"}:
+            raise StoreError("outbox inspection status is invalid")
+        query = (
+            "SELECT channel,message_key,payload_sha256,payload_json,status,attempt_count,"
+            "not_before,created_revision,updated_revision FROM outbox_messages WHERE project_id=?"
+        )
+        params: list[Any] = [metadata["project_id"]]
+        if channel is not None:
+            query += " AND channel=?"; params.append(channel)
+        if allowed:
+            query += " AND status IN (" + ",".join("?" for _ in allowed) + ")"
+            params.extend(sorted(allowed))
+        query += " ORDER BY created_revision,channel,message_key"
+        rows = connection.execute(query, params).fetchall()
+        records = []
+        for row in rows:
+            payload_record = outbox_lookup(
+                connection, metadata["project_id"], row["channel"],
+                row["message_key"], row["payload_sha256"],
+            )
+            records.append({"channel": row["channel"], "message_key": row["message_key"], **payload_record})
+        return records
+    finally:
+        connection.close()
+
+
+# Explicit name for callers that prefer noun-first inspection semantics.
+outbox_inspect = inspect_outbox

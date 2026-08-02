@@ -1513,6 +1513,84 @@ class ControlStoreTests(unittest.TestCase):
         self.assertEqual(store.load(self.project)[0], 6)
         self.assertTrue(store.audit(self.project)["ok"])
 
+    def test_outbox_inspection_is_project_bound_and_reconciliation_is_compare_and_set(self) -> None:
+        state = self.migrate_valid_state()
+        payload = {"attempt_id": "inspect-1", "action": "dispatch"}
+        tx = store.begin(self.project)
+        tx.stage(deepcopy(state), {
+            "at": controller.utc_now(), "type": "dispatch_intent",
+            "project_id": state["instance"]["project_id"], "program_version": 1,
+        })
+        tx.enqueue_outbox(channel="native-dispatch", key="inspect-1", payload=payload)
+        tx.close(True)
+        rows = store.inspect_outbox(self.project, channel="native-dispatch", statuses=["pending"])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["payload"], payload)
+        digest = rows[0]["payload_sha256"]
+
+        tx = store.begin(self.project)
+        tx.stage(deepcopy(tx.state), {
+            "at": controller.utc_now(), "type": "dispatch_reconciled",
+            "project_id": state["instance"]["project_id"], "program_version": 1,
+        })
+        result = tx.reconcile_outbox(
+            channel="native-dispatch", key="inspect-1", status="leased",
+            expected_status="pending", payload_sha256=digest,
+        )
+        self.assertFalse(result["idempotent"])
+        tx.close(True)
+        self.assertEqual(store.inspect_outbox(self.project)[0]["status"], "leased")
+
+        tx = store.begin(self.project)
+        tx.stage(deepcopy(tx.state), {
+            "at": controller.utc_now(), "type": "dispatch_succeeded",
+            "project_id": state["instance"]["project_id"], "program_version": 1,
+        })
+        tx.reconcile_outbox(channel="native-dispatch", key="inspect-1", status="succeeded", expected_status="leased")
+        tx.close(True)
+
+        connection = store.connect(self.project)
+        try:
+            connection.execute(
+                "UPDATE outbox_messages SET payload_json=? WHERE channel=? AND message_key=?",
+                ('{"tampered":true}', "native-dispatch", "inspect-1"),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        with self.assertRaises(store.StoreError):
+            store.inspect_outbox(self.project)
+        connection = store.connect(self.project)
+        try:
+            encoded = store.canonical_json(payload)
+            connection.execute(
+                "UPDATE outbox_messages SET payload_json=?,payload_sha256=? WHERE channel=? AND message_key=?",
+                (encoded, store.sha256_bytes(encoded.encode()), "native-dispatch", "inspect-1"),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+        # A restart preserves the exact row; a compare-and-set mismatch cannot
+        # create a revision or mutate the outbox.
+        before = store.load(self.project)[0]
+        tx = store.begin(self.project)
+        tx.stage(deepcopy(tx.state), {
+            "at": controller.utc_now(), "type": "bad_reconciliation",
+            "project_id": state["instance"]["project_id"], "program_version": 1,
+        })
+        with self.assertRaises(store.StoreError):
+            tx.reconcile_outbox(channel="native-dispatch", key="inspect-1", status="failed", expected_status="pending")
+        tx.close(False)
+        self.assertEqual(store.load(self.project)[0], before)
+
+        other = Path(tempfile.mkdtemp()).resolve()
+        try:
+            with self.assertRaises(store.StoreError):
+                store.inspect_outbox(other)
+        finally:
+            shutil.rmtree(other)
+
 
 if __name__ == "__main__":
     unittest.main()

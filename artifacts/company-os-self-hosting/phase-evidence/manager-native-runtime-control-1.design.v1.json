@@ -1,0 +1,50 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "cycle_id": "native-runtime-control-cycle-1",
+  "decision": "continue",
+  "decision_id": "decision-native-runtime-control-design-1",
+  "definition_version": 1,
+  "design_report": {
+    "baseline_checks": {
+      "bytecode_residue": "none",
+      "control_store_tests": "37_passed",
+      "controller_tests": "126_passed",
+      "distribution_manifest": "passed",
+      "installed_distribution_parity": "passed"
+    },
+    "controller_boundary": "compliant_company_os_native_launches_only",
+    "implementation_workers_are_controller_governed_runtime_proof": false,
+    "repository_intercepts_arbitrary_codex_creation": false,
+    "state_machine": [
+      "atomic_pre_create_admission_and_dispatch_intent",
+      "host_returned_identity_binding_only",
+      "ordered_monotonic_lifecycle_observations",
+      "cancellation_intent_cooperative_delivery_and_hard_ack_separate",
+      "restart_reconciliation_without_automatic_duplicate_create",
+      "content_bound_terminal_receipt"
+    ],
+    "status": "ready_for_decision",
+    "truth_rules": [
+      "requested_model_is_not_observed_model",
+      "unknown_model_tokens_and_cost_remain_unavailable",
+      "post_cancel_success_rejects",
+      "stale_lease_duplicate_binding_cross_project_parent_replay_and_widening_reject",
+      "repository_code_never_calls_codex_app_tools"
+    ]
+  },
+  "manager_id": "manager-native-runtime-control-1",
+  "manager_native_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "73391b5cd8f8582f6108b0152986526a2c5360b89100d64359cd3a178675c1d8",
+  "phase": "design",
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "schema": "company-os.design-phase-evidence.v1",
+  "source_commit": "19fe809a9544303fb00150c957b317ed03c7a1a3",
+  "telemetry": {
+    "cost": "unavailable",
+    "hard_cancellation_acknowledgement": "unavailable",
+    "observed_model": "unavailable",
+    "tokens": "unavailable"
+  }
+}
