@@ -1,0 +1,72 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "authorization_scope": "create and admit one bounded cancellation-repair manager charter; stop at design; no implementation or worker dispatch is authorized by this charter-phase decision alone",
+  "budget": {
+    "max_concurrency": 2,
+    "max_cost_usd": 40.0,
+    "max_retries": 1,
+    "max_tasks": 2,
+    "max_time_minutes": 120,
+    "max_tokens": 80000
+  },
+  "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-cancellation-repair-charter-1",
+  "definition_digest": "8be7449049c9277f8ae8622996f19fb74a42e46451d92dcf7dbe41c2f63a40a5",
+  "definition_version": 1,
+  "dependencies": {
+    "rejected_candidate_commit": "722f5e5bf706d1dd1a48dfbcfacddfff269b7eb1",
+    "rejected_candidate_tree": "dd164733eb9b970792960566080048e8b567dd01",
+    "rejected_review_task_id": "019fc2f8-0465-7db2-9323-762f0537e42c"
+  },
+  "issued_at": "2026-08-02T15:26:59Z",
+  "manager_id": "manager-release-0.5.1-cancellation-repair-1",
+  "master_rework_directive": "Use the global $manage-company-program skill. The independent final reviewer rejected exact candidate 722f5e5bf706d1dd1a48dfbcfacddfff269b7eb1 / tree dd164733eb9b970792960566080048e8b567dd01 and the master issued REWORK. Create ONLY a new authenticated repair charter package and commit it in /Users/preston/Documents/Codex/company-os-native-runtime-control. Do not implement the repair yet and do not launch workers yet. New outcome: repair the verified P1 cancellation-evidence defect in the 0.5.1 native runtime foundation. Current defect: native_task_runtime.py independently validates hard_status and acknowledgement_status but permits contradictory combinations (including failed+acknowledged, refused+acknowledged, acknowledged+not_acknowledged), persists them, derives cancel_acknowledged, and audit_state reports clean. Required outcome: define and enforce legal cross-product semantics; derive acknowledged, not-acknowledged, refused, failed, requested/delivered states distinctly and truthfully; reject or audit-fail contradictory persisted/replayed evidence; add direct, store, controller, and replay adversarial tests for every legal and illegal pairing; preserve cancellation dominance, hard-ack non-invention, authority binding, downgrade rejection, and ambiguous-restart no-relaunch. Also fix the two reviewer P2 documentation defects: README's upgrade example must bind exact prior 0.5.0 for this release, and the ledger must distinguish canonical repository path from reviewed worktree path. Refresh the distribution manifest only after implementation changes. Do not sign or install; a fresh independent signature/review follows. Create a new namespace such as programs/company-os-self-hosting/release-0.5.1-cancellation-repair/ plus matching project-local authorization and phase evidence. Produce exact company-os.mission-charter.v2 for a Sol manager using global manager skill and Luna workers using global $execute-bounded-task: program/project company-os-self-hosting, program_version 6; unique cycle/task/decision IDs; parent task 019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3; dependency candidate 722f5e5... and rejected review task 019fc2f8-0465-7db2-9323-762f0537e42c; content-addressed versioned architecture/roadmap/interfaces; all six budgets, max 2 Luna workers/concurrency 2, no worker child delegation; allowed read/write/local-test/commit only in exact owned repair source, tests, README, ledger, manifest, and charter artifacts; prohibit signing, global installation, canonical-main mutation, runtime/scheduler activation, provider/network/credential/production/Chippy actions; one writer per owned path; explicit design, verification, integration master barriers; acceptance: zero P0/P1; cancellation/evidence/authority/durability/security >=9; all others >8; focused adversarial and full discovered suites green; manifest exact; independent Sol review required; manager must inspect Luna diffs/tests itself and report each phase. Use canonical repository-fixture authorization/signature preimage and validate the exact dispatched charter plus repository role package. Commit only the charter package, leave worktree clean, and report exact paths, commit/tree/digests, budgets, and the requested charter/design decision.",
+  "master_rework_directive_sha256": "e56201778d29c5f40c9741a002c7832bd64e49b02e069f644b942c09eb6c83fd",
+  "master_scope_decision": "AUTHENTICATED MASTER SCOPE DECISION: do not change or weaken the lowercase owned-path schema for this repair. Split the two uppercase documentation P2s out of Luna/manager worker authority. Proceed with the repair charter package for only the exact lowercase runtime source, test, report if lowercase, distribution-manifest, and charter artifact paths that the schema can truthfully bind. In the architecture, roadmap, interfaces, and acceptance criteria, record README.md and programs/company-os-self-hosting/LEDGER.md as master-owned post-worker integration corrections required before final signing/review, not as manager or worker owned paths and not as accepted deliverables of Luna. Do not use lowercase aliases, parent-directory authority, globs, or schema weakening. Keep all other requested budgets, Luna worker routing, barriers, prohibitions, cancellation matrix, tests, manifest refresh, and independent review gates. Restore clean state if needed, create, authenticate, validate, and commit only the corrected charter package, then stop for the design decision.",
+  "master_scope_decision_sha256": "749360110feabec28d4c7d19044d8571443b34e4ce91ef347472b05911b3e7ae",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b",
+  "package": {
+    "architecture": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/architecture.v1.md",
+      "sha256": "305697ad0d457cd5feb7937137b2a2bb63a7581a53e5de55a13965954cdb2738",
+      "version": 1
+    },
+    "interfaces": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/interfaces.v1.md",
+      "sha256": "5488b92d2a619681492de4b0e4f69a1edead2bf417a159a1d5f71fbff3715531",
+      "version": 1
+    },
+    "mission_charter": {
+      "definition_digest": "8be7449049c9277f8ae8622996f19fb74a42e46451d92dcf7dbe41c2f63a40a5",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v1.json",
+      "version": 1
+    },
+    "roadmap": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/roadmap.v1.md",
+      "sha256": "4ec30f53d023a85803b0ff6962afd588fee0305d37ec85c6618bcc4c778c3a98",
+      "version": 1
+    }
+  },
+  "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "phase": "charter",
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "project_id": "company-os-self-hosting",
+  "requested_model": "gpt-5.6-sol",
+  "schema": "company-os.charter-phase-evidence.v2",
+  "scope_resolution": {
+    "lowercase_aliases_used": false,
+    "master_owned_post_worker_paths": [
+      "README.md",
+      "programs/company-os-self-hosting/LEDGER.md"
+    ],
+    "manager_owned_path_count": 13,
+    "parent_directory_authority_used": false,
+    "schema_weakened": false,
+    "worker_documentation_deliverables": false
+  },
+  "status": "accepted",
+  "task_id": "manager-release-0.5.1-cancellation-repair-1"
+}
