@@ -5,9 +5,11 @@
 `DRY_RUN_COMPLETE / SOURCE_REVIEW_REQUIRED / RELEASE_REQUIRED / NOT_APPLIED`
 
 This handoff is derived read-only from the authoritative SQLite history in
-`/Users/preston/Documents/Codex/company-os-core`. Candidate commit `7c96e918`
-was independently rejected and is superseded by the follow-up remediation that
-contains this handoff; the re-review request must name the final exact commit.
+`/Users/preston/Documents/Codex/company-os-core`. Candidate commits `7c96e918`
+and `7e538716` were independently rejected. Source remediation commit
+`d989d9274fcd24ad3940bc0d7945f05ca108e6ed` replaces their denylist archive
+boundary with the positive runtime archive schema described here. The fresh
+re-review request must name the final clean branch tip containing this handoff.
 No grant was minted, no command was executed, and authoritative revision 130
 was not changed.
 
@@ -131,7 +133,8 @@ and signed adaptation and quality grant claims:
 - `runtime-first-adaptation-sol-reviewer`
 
 The reviewer must also be different from the implementation author and the
-independent source reviewer for candidate commit `7c96e918`, so the application
+independent source reviewers for the rejected candidates and source remediation
+commit `d989d9274fcd24ad3940bc0d7945f05ca108e6ed`, so the application
 decision does not collapse implementation, source acceptance, and state repair
 authority into one actor.
 
@@ -160,7 +163,9 @@ left unset in this dry run; no grant has been minted.
 
 ## Release decision
 
-Cherry-picking `7c96e918` changes the canonical controller source but does not
+Cherry-picking the accepted series through source remediation commit
+`d989d9274fcd24ad3940bc0d7945f05ca108e6ed` changes the canonical controller
+source but does not
 change any of these version gates:
 
 - distribution `VERSION` remains `0.4.2`;
@@ -183,8 +188,10 @@ existing versioned-distribution acceptance contract and is NO-GO.
 
 ## Application sequence after the gates pass
 
-1. Independently re-review the exact final remediation commit; stop on any P0
-   or P1. Commit `7c96e918` remains unaccepted.
+1. Independently re-review the exact clean branch tip containing source
+   remediation commit `d989d9274fcd24ad3940bc0d7945f05ca108e6ed` and this
+   handoff; stop on any P0 or P1. The source remains unaccepted until that
+   exact-tip review returns GO.
 2. Produce and independently accept a `0.4.3` release containing the exact
    accepted source; refresh the content-addressed manifest and prove clean
    detached-source and installed-copy parity.

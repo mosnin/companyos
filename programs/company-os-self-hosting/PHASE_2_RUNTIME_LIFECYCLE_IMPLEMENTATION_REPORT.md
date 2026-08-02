@@ -49,9 +49,11 @@ The feature-off repair slice now:
   adaptation/quality/runtime archives and repair record/event history, and
   rejects unrelated mutation, archive, event, evidence, strategy, score, grant,
   source-history, runtime-history, and candidate-state tampering;
-- rejects token, bearer, authorization, credential, secret, password, cookie,
-  session, and private/API/access/client-key variants before archival; the only
-  token exemptions are exact numeric budget/telemetry fields and exact
+- enforces a positive, versioned runtime-archive schema for the adapter,
+  provider allowlist, admissions, budgets, lease fences, signed grants,
+  observation inboxes, provider claims, and typed audit records; unknown fields
+  and credential-shaped keys or values fail before archival. The only token
+  exemptions are exact numeric budget/telemetry fields and exact
   cryptographically verified retained-grant structures at governed paths;
 - prevents prior-program quality grants from becoming live again when work is
   queued under the replacement program.
