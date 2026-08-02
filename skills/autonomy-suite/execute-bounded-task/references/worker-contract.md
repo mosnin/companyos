@@ -13,18 +13,40 @@ project/program/cycle bindings, an unaccepted dependency, a scope that exceeds
 the packet, a non-Luna requested model, or a budget above one task,
 concurrency one, and retry one.
 
-The packet's `authorization` is attributable evidence of the manager's already
-accepted master design decision. Its decision, decider, definition, evidence,
-and authentication digests must be populated before dispatch. The definition
-digest is SHA-256 over canonical sorted compact JSON for every top-level field
-except `authorization`, so post-decision mutation fails. It is inherited
-authority, not a worker-owned wait condition. The worker never contacts or
-awaits the master; it returns its receipt to the manager, and the manager owns
-the later verification barrier.
+The packet references the exact byte-digested accepted parent manager charter
+and a versioned project-local `company-os.authorization-decision.v1` record for
+the master-accepted design. Recompute the record's canonical SHA-256, exact
+phase-evidence byte digest, and `company-os.fixture-hmac-sha256.v1` signature.
+Require `accepted` plus `continue` and exact project/program/version,
+cycle/task/parent, parent-definition, worker-definition/outcome/model, phase,
+decision, and decider bindings. Reject arbitrary hashes, stale parent digests,
+cross-manager replay, and any substituted program, phase, definition, outcome,
+or decider. This proves only deterministic repository-fixture integrity, not
+live identity authentication. The definition digest excludes only the
+authorization reference, so post-decision mutation fails. The design record is
+inherited authority, not a worker-owned wait condition. The worker never
+contacts or awaits the master; it returns only to the canonical
+`task:<parent_manager_task_id>` destination. Here `ids.parent_task_id` is the
+Company OS mission parent and must equal the accepted parent charter's mission
+task ID; `parent_manager_task_id` is the separately bound native Codex task ID
+observed in the accepted design record. Host identity never substitutes for
+mission lineage.
+
+Load and validate the parent charter before accepting the packet. Every owned
+scope must equal or descend from a parent scope; allowed actions and tools must
+be subsets; parent prohibitions must remain; and token, cost, time, task,
+concurrency, and retry caps must not exceed the signed parent-available
+allocation or the parent charter. Reject cross-project identity or paths.
 
 Owned scopes are lowercase ASCII project-relative POSIX paths. Reject case,
 Unicode, absolute/backslash/dot-segment ambiguity, and equal or
 ancestor/descendant writer overlap rather than normalizing aliases.
+
+Resolve architecture, roadmap, interface, authorization, phase-evidence, and
+parent-charter references only from versioned paths beneath an allowed local
+repository root and the exact project namespace. Reject absolute paths,
+backslashes, dot segments, escapes, symlinks, missing files, mutable names, and
+digests that do not match exact bytes. Never expose file contents in errors.
 
 ## Side-effect rule
 

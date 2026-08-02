@@ -147,6 +147,20 @@ class CodexNativeFabricTests(unittest.TestCase):
         result = fabric.validate_scenario(scenario)
         self.assertIn("scope_collision", result["error_codes"])
 
+    def test_manager_manager_ancestor_overlap_is_rejected(self) -> None:
+        scenario = json.loads(json.dumps(self.payload["scenarios"][0]))
+        manager = json.loads(json.dumps(scenario["tasks"][0]))
+        manager["task_id"] = "manager-synthetic-02"
+        manager["native_metadata"]["thread_id"] = "synthetic-manager-02-thread"
+        manager["scope"] = ["manager/synthetic/child"]
+        manager["scope_digest"] = fabric.digest(manager["scope"])
+        manager["report"]["scope_digest"] = manager["scope_digest"]
+        manager["artifact"]["task_id"] = manager["task_id"]
+        scenario["tasks"].append(manager)
+        scenario["budget"]["max_tasks"] += 1
+        result = fabric.validate_scenario(scenario)
+        self.assertIn("manager_scope_collision", result["error_codes"])
+
     def test_case_unicode_and_path_ambiguity_fail_closed(self) -> None:
         for scope in ("Worker/Synthetic", "worker/synthétic", "worker//synthetic", "../worker"):
             with self.subTest(scope=scope):

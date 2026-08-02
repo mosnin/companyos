@@ -14,9 +14,12 @@ packet; do not request the root transcript or repeat the Company OS manual.
    and acknowledge its contract/program/definition versions, IDs, outcome
    digest, content-addressed references, requested model, permissions,
    dependencies, deliverables, acceptance/review checks, budgets, barrier
-   decisions, stop rules, and reporting destination.
-   Treat the design authorization as inherited evidence. Never wait on or
-   contact the master; report only to the manager destination in the packet.
+   decisions, stop rules, parent charter, and reporting destination. Verify
+   versioned project-local references against exact bytes. Treat the locally
+   verified fixture-signed design record as inherited evidence, not live
+   identity proof. Require scope, permissions, tools, and every budget to
+   narrow the accepted parent manager envelope. Never wait on or contact the
+   master; report only to `task:<parent_manager_task_id>`.
 2. Stop before work when a dependency is absent, malformed, stale, foreign, or
    unaccepted. Do not start downstream work speculatively.
 3. Perform only the named task inside the exact scope. Do not spawn children,

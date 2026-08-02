@@ -32,8 +32,9 @@ remain historical regression evidence, not current execution direction.
   concurrency, and authority conditions pass. The master may override.
 - Workers cannot delegate, self-accept, widen scope, deploy, publish, message
   externally, or mutate during a read-only task.
-- The manager charter carries attributable authenticated charter authorization.
-  Each worker packet carries attributable inherited accepted-design evidence;
+- The manager charter references a project-local accepted charter decision
+  record. Each worker packet references the exact accepted parent charter and
+  inherited accepted-design decision record;
   it is not a worker-owned wait condition. Workers never await the master and
   return only to the manager destination.
 
@@ -41,8 +42,9 @@ remain historical regression evidence, not current execution direction.
 
 The exact source assets carry charter/packet, program, and definition versions;
 project/program/cycle/task/parent IDs; outcome plus SHA-256; requested model;
-attributable phase authorization with definition, evidence, and authentication
-digests; versioned SHA-256-bound architecture,
+an authorization expectation plus a versioned local decision record with exact
+contract/parent/phase/decider bindings, byte-verified phase evidence, canonical
+digest, and repository-fixture HMAC; versioned project-local SHA-256-bound architecture,
 roadmap, and interface references; task-local artifact paths; canonical scope;
 allowed actions/tools and prohibitions; dependencies; deliverables; objective
 oracle/checks and independent-review requirements; decision policy; token,
@@ -51,6 +53,8 @@ reporting destination. Dispatched values may reference content-addressed
 artifacts but may not embed transcripts or global context.
 The authorization definition digest binds canonical sorted compact JSON for
 every top-level field except `authorization`; post-decision mutation fails.
+The public repository-fixture key proves deterministic offline integrity only;
+it is not live identity authentication for a person or Codex host.
 
 ## Identity and evidence
 
@@ -85,6 +89,22 @@ must verify them independently and may not upgrade the receipt to complete.
 Writer scopes are lowercase ASCII project-relative POSIX paths. Case, Unicode,
 absolute/backslash/dot-segment ambiguity and equal or ancestor/descendant
 overlap fail closed.
+
+Before worker dispatch, load the exact parent manager charter and bind
+packet mission lineage to its manager charter. Separately bind the native
+`parent_manager_task_id` from the accepted design record to the canonical
+`reporting_destination`; host identity never becomes lineage. Child scope must be contained;
+allowed actions/tools must be subsets; parent prohibitions must remain; and
+token, cost, time, task, concurrency, and retry limits must fit both the parent
+available allocation and charter. Reject stale parent digests, cross-manager
+replay, and manager-manager writer overlap.
+
+Resolve artifact references only from versioned project-namespaced paths under
+an allowed local repository root. Reject absolute/backslash/dot/escape and
+symlink ambiguity, missing or mutable files, foreign project bindings,
+path-string hashes, and any SHA-256 mismatch against exact bytes. Numeric
+budgets reject booleans, strings, negatives, NaN, and infinity; positive-only
+fields reject zero.
 
 Read-only checks set `PYTHONDONTWRITEBYTECODE=1` or use a disposable copy.
 Tracked Git cleanliness is insufficient when ignored artifacts changed.

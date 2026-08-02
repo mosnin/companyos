@@ -13,20 +13,20 @@
   "outcome": "",
   "outcome_digest": null,
   "requested_model": "gpt-5.6-sol",
-  "authorization": {
+  "authorization_expectation": {
     "phase": "charter",
-    "decision": "continue",
     "decision_id": "",
-    "decider_id": "",
     "decision_version": 1,
-    "definition_digest": null,
-    "evidence_digest": null,
-    "authentication_digest": null
+    "decider_id": ""
+  },
+  "authorization": {
+    "record_path": "",
+    "record_sha256": null
   },
   "artifact_references": [
-    {"kind": "architecture", "path": "", "version": 1, "sha256": null},
-    {"kind": "roadmap", "path": "", "version": 1, "sha256": null},
-    {"kind": "interfaces", "path": "", "version": 1, "sha256": null}
+    {"kind": "architecture", "project_id": "", "path": "", "version": 1, "sha256": null},
+    {"kind": "roadmap", "project_id": "", "path": "", "version": 1, "sha256": null},
+    {"kind": "interfaces", "project_id": "", "path": "", "version": 1, "sha256": null}
   ],
   "task_local_context": {"artifact_paths": []},
   "scope": {"owned_paths": []},

@@ -11,17 +11,31 @@ actions/tools; prohibitions; all six budgets; independent-review requirements;
 and decision-barrier data. Identifiers bind exact project, program, cycle,
 task, and parent lineage. A changed outcome, scope, budget, reference, or
 dependency set requires a new authenticated versioned charter from the master.
-The charter's `authorization` must identify the authenticated master charter
-decision, decider, definition digest, evidence digest, and authentication
-digest; a policy list alone is never admission evidence. The definition digest
-is SHA-256 over canonical sorted compact JSON for every top-level field except
-`authorization`, so any post-decision mutation invalidates admission.
+The charter's `authorization` references a versioned project-local
+`company-os.authorization-decision.v1` JSON record. Recompute its canonical
+SHA-256, its exact phase-evidence byte digest, and its
+`company-os.fixture-hmac-sha256.v1` signature using the public repository test
+key. This repository-fixture authority check requires `accepted` plus
+`continue`, and exact project/program/version,
+cycle/task/parent, definition/outcome/model, phase, decision, and decider
+bindings. Reject arbitrary hashes and cross-program, phase, definition,
+outcome, decider, or replay substitution. This is deterministic offline fixture
+verification, not live identity authentication. A policy list alone is never
+admission evidence. The definition digest is SHA-256 over canonical sorted
+compact JSON for every top-level field except `authorization`, so any
+post-decision mutation invalidates admission.
 That validated reference satisfies the initial charter barrier; the manager
 does not request or await a duplicate charter decision.
 
 Owned scopes are lowercase ASCII project-relative POSIX paths. Reject case,
 Unicode, absolute/backslash/dot-segment ambiguity, and equal or
 ancestor/descendant writer overlap rather than normalizing aliases.
+
+Architecture, roadmap, interface, authorization, and phase-evidence paths are
+versioned beneath an allowed repository root and the exact project namespace.
+Reject absolute paths, backslashes, dot segments, escapes, symlinks, missing
+files, mutable names, foreign project bindings, and SHA-256 values that do not
+match the exact bytes. Never read or include file contents in an error.
 
 ## Native coordination
 

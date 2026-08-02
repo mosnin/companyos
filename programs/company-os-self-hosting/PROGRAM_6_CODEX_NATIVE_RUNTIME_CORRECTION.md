@@ -41,6 +41,10 @@ asking a task to stop is cooperative intent, not a proven hard interrupt.
    plus five deterministic simulation scenarios.
 5. Preserve scheduling, controller-native admission, installation, and external
    effects as blocked future gates.
+6. Enforce source-only dispatch with project-local decision/evidence records,
+   exact parent-manager narrowing and routing, finite budgets, and exact-byte
+   versioned artifact references. Repository-fixture signatures prove offline
+   integrity only; live authentication remains unproven.
 
 ## Acceptance boundary
 

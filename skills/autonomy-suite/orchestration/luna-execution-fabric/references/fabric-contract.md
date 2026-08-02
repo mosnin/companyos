@@ -118,12 +118,15 @@ described after this legacy example.
 native role inputs. Their exact source assets carry role-contract,
 program/definition versions; IDs; outcome and SHA-256; requested model;
 attributable charter or inherited-design authorization with definition,
-evidence, and authentication digests; versioned
+parent-definition, decision, decider, exact phase-evidence bytes, canonical
+record digest, and repository-fixture HMAC bindings; versioned project-local
 SHA-256-bound architecture, roadmap, and interface artifact references;
 task-local paths; canonical scope; allowed actions/tools and prohibitions;
 dependencies and deliverables; oracle/checks and review requirements; barrier
 policy; token/cost/time/task/concurrency/retry caps; stop/escalation; and one
 reporting destination. They never carry a transcript or global context.
+The fixture HMAC is an offline integrity oracle with a public test key; it is
+not live identity authentication for a user or host.
 
 ## Authority
 
@@ -156,6 +159,18 @@ write scope. Evidence and exceptions move upward. The executable depth remains
 master → manager → worker. Each worker has concurrency one, and sibling time,
 token, cost, and concurrency allocations must fit within their manager; manager
 allocations must fit within the program envelope.
+Before worker dispatch, resolve the exact accepted parent manager charter and
+design record. Require matching project/program/cycle/parent identity and
+parent definition digest; make actions/tools subsets, retain every parent
+prohibition, contain child scope, and compare every child budget field against
+both the signed parent-available allocation and parent charter. Reject stale
+parent digests and cross-manager replay.
+
+Artifact paths must be lowercase ASCII, versioned, project-namespaced, and
+beneath an allowed repository root. Reject absolute paths, backslashes, dot or
+parent segments, escapes, symlinks, missing files, mutable names, and digest
+mismatch after hashing exact bytes. Manager-manager and worker-worker writer
+scopes reject equality or ancestor/descendant overlap.
 
 ## Manager Charter
 

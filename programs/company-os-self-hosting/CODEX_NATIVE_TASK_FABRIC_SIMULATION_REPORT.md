@@ -1,11 +1,16 @@
 # Codex-native task fabric simulation report
 
-Status: `V2_REWORK_LOCALLY_VALIDATED / BROADER_RUNTIME_NO_GO`.
+Status: `V2_FINAL_ENFORCEMENT_REWORK_LOCALLY_VALIDATED / BROADER_RUNTIME_NO_GO`.
 
 Independent review of commit `16592d4c95671638c6d538e0d2932488020ace91`
 was NO-GO: overall 5.8, with 0 P0, 4 P1, and 3 P2 findings. The v2
 rework below closes those seven source-contract findings; it does not upgrade
 the full runtime.
+
+Independent exact-commit review of `d6f6a03dc848e45b3624859d72f1efc6142af03b`
+then closed those seven findings but returned NO-GO at 6.8/10 with three P1
+and two P2 enforcement gaps. The final bounded rework closes all five locally;
+it does not claim installed behavior, live authentication, or runtime readiness.
 
 ## Native task evidence
 
@@ -35,6 +40,9 @@ with 0; its fail-closed post-test scan returned
 The v2 rework reran the complete relevant lane with bytecode disabled. Its
 repository-wide before/after receipt was
 `full-v2-acceptance-passed pyc_before=0 pyc_after=0 cache_dirs_before=0 cache_dirs_after=0 shim=absent`.
+The final enforcement rerun retained the same zero-artifact boundary and
+recorded `final-enforcement-passed pyc_before=0 pyc_after=0
+cache_dirs_before=0 cache_dirs_after=0 shim=absent`.
 
 Task/thread ID is native identity. The more specific host value is current
 coordination metadata; the earlier `local` value is retained as a raw normalized
@@ -57,7 +65,7 @@ The concrete input and before-state defects are retained in
 | Known-answer synthetic project | Worker and manager JSON answer must equal 42 with valid digests | accepted |
 | Three-step malformed dependency | Bad upstream digest; both downstream create/start orders must remain null | blocked; neither downstream task is created or starts |
 | One manager plus two tasks requested as `gpt-5.6-luna` | Disjoint scopes, exact IDs, real durations, manager integration review; observed model unavailable | rework; Worker A accepted and Worker B failure preserved |
-| Fault and pressure injection | Stale report, scope drift, fail/refuse, task and concurrency caps | blocked with every injected defect named |
+| Fault and pressure injection | Stale report, scope drift, fail/refuse, task/concurrency caps, and overlapping manager scopes | blocked with every injected defect named, including manager-manager ancestry overlap |
 | Similar project isolation | `project-native-01-copy` artifact inserted into `project-native-01` | rejected for task and artifact isolation |
 
 ## Defect-to-iteration map
@@ -76,6 +84,11 @@ The concrete input and before-state defects are retained in
 | 8 | Rerun mappings were unchecked | Require unique iteration IDs and nonempty unique existing scenario references | empty, duplicate, and foreign mappings reject |
 | 9 | Scope equality missed path aliases and ancestors | Require lowercase ASCII relative POSIX paths and reject ancestor overlap | case, Unicode, ambiguous path, and descendant attacks reject |
 | 10 | Agent metadata could invoke roles implicitly | Added structurally parsed `allow_implicit_invocation: false` | missing, true, and malformed metadata reject without PyYAML |
+| 11 | Authorization accepted arbitrary attributable-looking hashes | Added versioned project-local decision records with exact bindings, exact evidence bytes, canonical digest, and repository-fixture HMAC | arbitrary hash/signature and cross-program/phase/definition/outcome/decider/replay substitutions reject |
+| 12 | Worker destination could target the master or another manager | Bound mission parent to the charter and separately bound the design-record native manager ID to canonical `task:<parent_manager_task_id>` | wrong-master and cross-manager packets reject; host identity does not become lineage; workers never contact or await master |
+| 13 | Worker authority was validated independently of its parent | Load exact accepted parent charter; enforce scope containment, action/tool subsets, retained prohibitions, and six-field budget narrowing against available allocation and charter | cross-project, stale-parent, scope, permission, tool, budget, and replay attacks reject |
+| 14 | `max_cost_usd` accepted non-finite values | Added fail-closed finite numeric validation for all six budget fields | NaN, infinities, booleans, strings, negatives, and invalid boundaries reject without exceptions |
+| 15 | Artifact references trusted path strings rather than local bytes | Resolve versioned project-local allowed-root files and hash exact bytes | path-string hash, missing, mismatch, foreign project, mutable, absolute, backslash, dot/escape, and symlink attacks reject |
 
 ## Brutal manager scorecard
 
@@ -85,20 +98,23 @@ operation or installed skill behavior.
 | Dimension | Score | Evidence and residual defect |
 | --- | ---: | --- |
 | Phase authority integrity | 9.1 | Authenticated true barriers, bounded silence escalation, routine execution-only auto-continuation, and no worker-owned master wait are validated across every authoritative source |
-| Compact contract integrity | 9.0 | Strict v2 charter/packet keys carry versions, outcome/reference digests, requested model, permissions, six budgets, review, barrier policy, and authorization bound to exact definition/evidence/authentication digests |
+| Authorization and authority integrity | 9.1 | Accepted local decision records bind exact program/definition/outcome/phase/decider/task/parent data and byte-verified evidence under a deterministic fixture signature; live identity remains unproven |
+| Compact contract integrity | 9.1 | Strict v2 charter/packet keys carry versions, real local reference bytes, requested model, permissions, six budgets, parent allocation, review, barrier policy, and exact authorization records |
 | Lifecycle/concurrency integrity | 9.0 | Current versus terminal state, native identity, ordered events, and open active intervals are adversarially tested |
 | Cancellation integrity | 9.2 | Contract refuses to invent hard cancellation and treats stop as cooperative; operational hard interrupt remains unavailable and blocks broader runtime |
 | Evidence integrity | 9.2 | Task IDs/durations, requested/observed split, allowlisted native model sources, failed receipt preservation, digests, and objective oracles |
-| Project/scope isolation | 9.0 | Foreign bindings, case/Unicode/path ambiguity, and equal/ancestor writer overlap reject; multi-project live tasks remain untested |
+| Parent/project/scope isolation | 9.1 | Foreign bindings, stale/cross-manager parents, child scope escape, permission/tool widening, case/Unicode/path ambiguity, and manager-manager or worker-worker ancestor overlap reject; live multi-project tasks remain untested |
 | Iteration mapping integrity | 8.8 | Rerun mappings must be nonempty, unique, and reference existing scenario IDs |
 | Agent policy integrity | 9.0 | Both source roles disable implicit invocation through a bounded structural parser |
 | Dependency safety | 9.3 | Malformed upstream artifact blocks both downstream starts deterministically |
 | Failure and rework | 9.3 | Real Worker B failure is rejected and never upgraded; synthetic fail/refuse paths block |
-| Budget truth | 8.8 | All six caps are explicit; unavailable native token/cost enforcement remains a full-runtime blocker |
-| Regression strength | 9.0 | 41 repository; 16 native-fabric; 126 controller; 37 store; 8 observation; 10 gateway; 14 lifecycle; 9 receipt; 29 Responses-fixture; 30 operator-brief; and 10 reference tests pass, plus strict role/fabric validators, manifest, 28-file syntax, diff, secret/scope, and zero-bytecode gates |
+| Artifact evidence integrity | 9.1 | Allowed-root, project namespace, version, regular-file, no-symlink, and exact-byte SHA-256 rules are adversarially tested without exposing file content |
+| Budget truth | 9.0 | Every numeric field is finite/type/boundary checked and worker allocations narrow the parent; native token/cost observation and enforcement remain full-runtime blockers |
+| Routing integrity | 9.2 | Worker lineage, parent charter/design evidence, manager task ID, and reporting destination must agree; master or cross-manager routing rejects |
+| Regression strength | 9.0 | 55 repository; 23 role-contract; 17 native-fabric; 126 controller; 37 store; 8 observation; 10 gateway; 14 lifecycle; 9 receipt; 29 Responses-fixture; 30 operator-brief; and 10 reference tests pass, plus strict role/fabric validators, manifest, syntax, diff, secret/scope, and zero-bytecode gates |
 
-Every applicable local-correction score exceeds 8; authority, cancellation
-integrity, and evidence integrity exceed 9. Operational hard cancellation is
+Every applicable local-correction score exceeds 8; authority, routing,
+cancellation integrity, and evidence integrity exceed 9. Operational hard cancellation is
 not being scored as implemented: it is absent, so the broader autonomous
 runtime is explicitly NO-GO.
 

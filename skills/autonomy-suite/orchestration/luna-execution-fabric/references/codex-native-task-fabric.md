@@ -18,15 +18,19 @@ records only and must not claim it can call app task tools.
 ## Dispatch playbook
 
 1. Master versions the program and gives a manager `$manage-company-program`
-   plus one `company-os.mission-charter.v2` asset carrying the authenticated
-   master decision that admits the charter.
-2. Manager validates the attributable charter authorization, performs
+   plus one `company-os.mission-charter.v2` asset referencing the accepted
+   charter decision record.
+2. Manager locally verifies the record's exact bindings, content digest,
+   phase-evidence bytes, and repository-fixture signature, performs
    discovery, then submits the design/worker DAG. It waits only within the
-   declared time budget for the authenticated design decision. Silence never
+   declared time budget for the authenticated master decision at design. Silence never
    grants the barrier; timeout escalates.
 3. Manager gives each Luna task `$execute-bounded-task` plus one
-   `company-os.work-packet.v2` asset carrying inherited accepted-design
-   authorization evidence. Workers never await the master and may not delegate.
+   `company-os.work-packet.v2` asset carrying the exact parent charter,
+   parent-available budget, canonical parent task destination, and inherited
+   accepted-design decision record. Validate each packet against that parent:
+   child scope, actions, tools, and all six budgets may only narrow. Workers
+   never await the master and may not delegate.
 4. Do not create a task whose dependencies are absent, malformed, foreign, or
    unaccepted. Keep concurrency at three workers per manager and six globally.
 5. Wait and read bounded task sets. Inspect artifacts and checks directly.
@@ -58,6 +62,16 @@ observation source.
 Canonical writer scopes are lowercase ASCII project-relative POSIX paths.
 Reject case, Unicode, absolute, backslash, empty-segment, dot-segment, and
 parent-segment ambiguity. Equal or ancestor/descendant writer scopes overlap.
+Apply overlap checks independently to manager peers and worker peers.
+
+All native contract references are versioned, project-local paths under a
+caller-authorized local repository root. Reject absolute/backslash/dot/escape
+or symlink paths, missing files, mutable names, foreign project bindings, and
+hashes that do not match exact bytes. Authorization records use canonical JSON
+digests plus a public repository-fixture HMAC and bind the accepted decision to
+the exact contract, parent, phase evidence, and decider. That offline fixture
+check is not live identity authentication; the runtime remains NO-GO for live
+authorization.
 
 Track tokens, cost, cancellation acknowledgement, and observed model as
 independent fields. One available metric never fills another. A follow-up stop

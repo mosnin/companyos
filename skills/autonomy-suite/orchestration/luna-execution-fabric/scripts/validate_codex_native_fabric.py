@@ -167,6 +167,7 @@ def validate_scenario(scenario: Any) -> dict[str, Any]:
 
     active_windows: list[tuple[int, int | None, str]] = []
     worker_scopes: list[tuple[str, str]] = []
+    manager_scopes: list[tuple[str, str]] = []
     native_thread_ids: dict[str, str] = {}
     for task_id, task in by_id.items():
         if task.get("project_id") != project_id or task.get("program_id") != program_id or task.get("program_version") != program_version:
@@ -296,6 +297,12 @@ def validate_scenario(scenario: Any) -> dict[str, Any]:
                     if _scopes_overlap(item, existing):
                         _error(errors, "scope_collision", f"{task_id} scope {item} overlaps {owner} scope {existing}")
                 worker_scopes.append((item, task_id))
+        elif role == "manager":
+            for item in scope:
+                for existing, owner in manager_scopes:
+                    if _scopes_overlap(item, existing):
+                        _error(errors, "manager_scope_collision", f"{task_id} manager scope {item} overlaps {owner} scope {existing}")
+                manager_scopes.append((item, task_id))
 
         report = task.get("report")
         if not isinstance(report, dict):

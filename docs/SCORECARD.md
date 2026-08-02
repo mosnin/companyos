@@ -107,7 +107,7 @@ mapping 8.8, and agent policy 9.0. No dimension is above 8 without a matching
 strict or adversarial check. These remain source-level scores, not installed or
 operational runtime evidence.
 
-Regression integrity scores 9.0 after 41 repository, 16 focused native-fabric,
+Regression integrity scores 9.0 after 55 repository, 23 role-contract, 17 focused native-fabric,
 126 controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt,
 29 Responses-fixture, 30 operator-brief, and 10 reference tests, with manifest,
 syntax, and repository-wide zero-bytecode gates.
@@ -116,6 +116,19 @@ Full-system readiness remains NO-GO: hard cancellation 2.0, controller-native
 admission 1.0, installed fresh-thread role behavior 2.0, clean two-Luna
 integration 3.0, observed model identity 2.0, tokens/cost 1.0, durable native
 lifecycle 2.0, and protected scheduling 0.0.
+
+Independent review of `d6f6a03` then scored 6.8/10 with three P1 and two P2
+enforcement gaps despite closing the previous seven findings. The bounded
+Phase 2D rework adds executable local-decision verification, exact
+parent-to-child narrowing and routing, finite numeric budgets, exact-byte local
+artifact resolution, and manager-manager overlap detection. Local scores are:
+authorization/authority 9.1, parent-child isolation 9.1, artifact evidence 9.1,
+numeric budget integrity 9.0, routing 9.2, and regression strength 9.0. The
+repository-fixture HMAC is deliberately not scored as live authentication.
+The final lane passed 55 repository, 23 role-contract, 17 native-fabric, 126
+controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt, 29
+Responses-fixture, 30 operator-brief, and 10 reference tests.
+Full-system readiness scores and NO-GO decision remain unchanged.
 
 Company OS must not be called operational until these dimensions become
 applicable, independently evidenced, and score at least 8/10. Security,

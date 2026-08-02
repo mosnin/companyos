@@ -11,15 +11,19 @@ charter; never require the root transcript or a repeated Company OS manual.
 ## Run the outcome
 
 1. Validate the charter against [references/manager-contract.md](references/manager-contract.md).
-   Its attributable authorization is the initial charter decision; validate it
-   and do not create a second charter wait.
+   Resolve its versioned project-local authorization record, recompute the
+   decision/evidence digests and repository-fixture signature, and do not
+   create a second charter wait. This proves fixture integrity, not live user
+   identity.
 2. Acknowledge the exact contract/program/definition versions, IDs, outcome
    digest, content-addressed architecture/roadmap/interface references,
    requested model, permissions, budgets, review requirements, barriers, and
    reporting destination before dispatch.
 3. Decompose only after the design barrier. Give each Luna task one compact
    work packet using `$execute-bounded-task` and that skill's
-   `assets/work-packet.json`. The manager's own input uses
+   `assets/work-packet.json`. Bind it to this exact accepted manager charter,
+   parent task destination, available budget, and narrower scope/permissions.
+   The manager's own input uses
    [assets/mission-charter.json](assets/mission-charter.json).
 4. Use native Codex task creation, waiting, reading, listing, and messaging only
    from the interactive host. Repository code does not call those app tools.
@@ -27,6 +31,8 @@ charter; never require the root transcript or a repeated Company OS manual.
    delegation, and one writer per ownership scope.
 6. Inspect every artifact, check, scope, dependency, and receipt. Reject stale,
    weak, failed, refused, scope-drifted, cross-project, or side-effecting work.
+   Resolve references only from versioned project-local repository paths and
+   verify exact bytes; never read an absolute, escaped, or symlinked target.
 7. Report upward at charter, discovery, design, execution, verification, and
    integration. Require an authenticated master decision at the charter,
    design, verification, and final-integration barriers. Never infer that

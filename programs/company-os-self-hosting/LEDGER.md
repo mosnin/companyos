@@ -226,6 +226,36 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
   successful two-requested-Luna integration, telemetry, durable reconciliation,
   and scheduling remain far below gate.
 
+### Phase 2D — final v2 enforcement rework locally validated
+
+- Independent exact-commit review of `d6f6a03` closed the previous seven
+  findings but returned NO-GO at 6.8/10 with three P1 and two P2 enforcement
+  gaps. No new worker tasks were authorized or created for this rework.
+- Authorization now resolves a versioned project-local
+  `company-os.authorization-decision.v1` record, recomputes its canonical
+  digest and exact phase-evidence byte digest, verifies a repository-fixture
+  HMAC, and matches accepted decision, program, versions, outcome, phase,
+  decider, task lineage, requested model, and parent definition. Arbitrary
+  hashes and replay substitutions fail. This is not live identity proof.
+- Worker packets load the exact accepted parent manager charter, bind mission
+  lineage to that charter, and separately bind the design-record native
+  `parent_manager_task_id` to the destination. They reject cross-project or
+  cross-manager replay, stale parent digest, scope escape, action/tool
+  widening, weakened prohibitions, or any of six budgets above signed parent
+  availability or charter limits.
+- Artifact references resolve only versioned project-namespaced regular files
+  under allowed local roots. Exact bytes are hashed; absolute, backslash,
+  dot/escape, symlink, missing, mutable, foreign-project, path-string-hash, and
+  digest-mismatch cases fail without exposing content.
+- Every numeric budget rejects booleans, strings, negatives, invalid zero
+  boundaries, NaN, and infinities without raising. Manager-manager ancestor
+  overlap joins worker-worker overlap in the executable simulation validator.
+- Final bytecode-disabled verification passed 55 repository, 23 role-contract,
+  17 native-fabric, 126 controller, 37 store, 8 observation, 10 gateway, 14
+  lifecycle, 9 receipt, 29 Responses-fixture, 30 operator-brief, and 10
+  reference tests, plus strict role/simulation/legacy-fabric validators and
+  distribution manifest verification.
+
 ## Not yet implemented
 
 - A network-capable provider adapter and protected launcher.

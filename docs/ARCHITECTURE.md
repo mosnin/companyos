@@ -52,10 +52,13 @@ not repository-callable APIs. The controller does not yet admit or durably
 observe native task creation, so the full runtime remains disabled.
 
 Native source contracts use strict v2 compact assets. A manager charter carries
-an authenticated charter authorization and content-addressed architecture,
-roadmap, and interface references. A worker packet carries inherited accepted
-design authorization but never waits on the master; its receipt returns to the
-manager for verification. Authenticated master decisions fence charter,
+an offline-verifiable accepted charter record and exact-byte architecture,
+roadmap, and interface references. A worker packet references the exact parent
+manager charter, its available budget, and inherited accepted-design record,
+but never waits on the master; its canonical destination is that manager task.
+Child scope, actions, tools, restrictions, and all six budgets must narrow the
+parent envelope. Fixture HMAC validation proves deterministic repository
+integrity only, not live identity. Authenticated master decisions fence charter,
 design, verification, and final integration. Only visible routine execution
 subphases inside the unchanged accepted charter may auto-continue.
 
@@ -63,6 +66,10 @@ Task evidence separates current from optional terminal state and orders create,
 start, and terminal events. An open active interval consumes concurrency until
 terminal evidence arrives. Writer scopes are lowercase ASCII relative POSIX
 paths; case, Unicode, path aliases, and ancestor overlap reject.
+Manager-manager and worker-worker overlaps are separate fail-closed checks.
+Referenced evidence must be a versioned project-namespaced regular file under
+an allowed repository root; exact bytes are hashed and unsafe, missing,
+mutable, symlinked, foreign, or escaped paths reject without exposing content.
 
 Requested and observed model identity remain separate. Task/thread IDs and host
 IDs are coordination metadata; host identity is not lineage. Status and elapsed

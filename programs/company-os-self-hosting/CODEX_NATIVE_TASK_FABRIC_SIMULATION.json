@@ -24,6 +24,14 @@
     "p2": 3,
     "decision": "no_go"
   },
+  "independent_review_before_final_enforcement": {
+    "commit": "d6f6a03dc848e45b3624859d72f1efc6142af03b",
+    "overall_score": 6.8,
+    "p0": 0,
+    "p1": 3,
+    "p2": 2,
+    "decision": "no_go"
+  },
   "iterations": [
     {"iteration_id": "iteration-0-direction", "defect": "active roadmap required an external provider gateway", "correction": "made native Codex tasks the host-operated target and froze provider code as fixture history", "rerun_scenarios": ["scenario-1-known-answer", "scenario-3-native-manager-workers"]},
     {"iteration_id": "iteration-1-side-effects", "defect": "Worker B generated and cleaned ignored bytecode during read-only work", "correction": "rejected its receipt and required bytecode-disabled or disposable-copy checks", "rerun_scenarios": ["scenario-3-native-manager-workers", "scenario-4-fault-pressure"]},
@@ -35,7 +43,12 @@
     {"iteration_id": "iteration-7-lifecycle-concurrency", "defect": "active was stored as terminal and open active intervals escaped concurrency accounting", "correction": "separated current and terminal state, enforced create/start/terminal order, and included open active intervals", "rerun_scenarios": ["scenario-2-malformed-dependency", "scenario-3-native-manager-workers", "scenario-4-fault-pressure"]},
     {"iteration_id": "iteration-8-rerun-integrity", "defect": "iteration rerun mappings could be empty, duplicated, or foreign", "correction": "validated unique iteration IDs and nonempty unique existing scenario references", "rerun_scenarios": ["scenario-1-known-answer", "scenario-5-project-isolation"]},
     {"iteration_id": "iteration-9-scope-canonicalization", "defect": "scope equality missed ancestor overlaps and case, Unicode, or path aliases", "correction": "required lowercase ASCII project-relative POSIX scopes and rejected equality or ancestor overlap", "rerun_scenarios": ["scenario-4-fault-pressure", "scenario-5-project-isolation"]},
-    {"iteration_id": "iteration-10-agent-policy", "defect": "role metadata did not disable implicit invocation or structurally validate policy", "correction": "added explicit false policy and a bounded no-dependency metadata parser with malformed-type tests", "rerun_scenarios": ["scenario-1-known-answer", "scenario-3-native-manager-workers"]}
+    {"iteration_id": "iteration-10-agent-policy", "defect": "role metadata did not disable implicit invocation or structurally validate policy", "correction": "added explicit false policy and a bounded no-dependency metadata parser with malformed-type tests", "rerun_scenarios": ["scenario-1-known-answer", "scenario-3-native-manager-workers"]},
+    {"iteration_id": "iteration-11-offline-authorization", "defect": "authorization fields accepted arbitrary attributable-looking hashes without verifying an accepted decision artifact", "correction": "require a project-local versioned authorization-decision.v1 record with exact contract and lineage bindings, byte-verified phase evidence, canonical digest, and repository-fixture HMAC without claiming live identity", "rerun_scenarios": ["scenario-1-known-answer", "scenario-3-native-manager-workers"]},
+    {"iteration_id": "iteration-12-parent-routing", "defect": "worker reporting destination could target a non-parent task", "correction": "bind mission parent to the charter and separately bind parent_manager_task_id plus task destination to the exact native manager ID in accepted design evidence", "rerun_scenarios": ["scenario-3-native-manager-workers", "scenario-5-project-isolation"]},
+    {"iteration_id": "iteration-13-parent-narrowing", "defect": "worker scope, tools, permissions, and budgets were validated independently of the accepted parent manager charter", "correction": "load and verify the exact parent charter and reject scope escape, authority widening, stale parent digest, cross-manager replay, or any budget dimension above parent available allocation", "rerun_scenarios": ["scenario-3-native-manager-workers", "scenario-4-fault-pressure", "scenario-5-project-isolation"]},
+    {"iteration_id": "iteration-14-numeric-budgets", "defect": "max_cost_usd accepted NaN and infinity", "correction": "all six numeric budgets reject booleans, strings, invalid integer boundaries, negatives, NaN, and infinities without raising", "rerun_scenarios": ["scenario-1-known-answer", "scenario-4-fault-pressure"]},
+    {"iteration_id": "iteration-15-local-artifacts", "defect": "artifact references trusted path-string hashes and did not resolve local bytes", "correction": "resolve only versioned project-local allowed-root regular files, reject ambiguous or symlink paths, and hash exact bytes", "rerun_scenarios": ["scenario-1-known-answer", "scenario-5-project-isolation"]}
   ],
   "validation_hygiene": {
     "evidence_kind": "local_filesystem_observation",
@@ -46,7 +59,8 @@
     "post_rerun_pyc_count": 0,
     "rerun_environment": "PYTHONDONTWRITEBYTECODE=1",
     "terminal_check": "acceptance-rerun-passed pyc_before=0 pyc_after=0",
-    "v2_rework_terminal_check": "full-v2-acceptance-passed pyc_before=0 pyc_after=0 cache_dirs_before=0 cache_dirs_after=0 shim=absent"
+    "v2_rework_terminal_check": "full-v2-acceptance-passed pyc_before=0 pyc_after=0 cache_dirs_before=0 cache_dirs_after=0 shim=absent",
+    "final_enforcement_terminal_check": "final-enforcement-passed pyc_before=0 pyc_after=0 cache_dirs_before=0 cache_dirs_after=0 shim=absent"
   },
   "scorecard": [
     {"dimension": "phase_authority_integrity", "score": 9.1, "evidence": "authenticated true barriers and visible routine-only auto-continuation validated across every authoritative source"},
@@ -57,6 +71,11 @@
     {"dimension": "project_scope_isolation", "score": 9.0, "evidence": "foreign bindings, ambiguous paths, and ancestor/descendant scope overlap fail closed"},
     {"dimension": "iteration_mapping_integrity", "score": 8.8, "evidence": "nonempty unique existing rerun scenario references enforced"},
     {"dimension": "agent_policy_integrity", "score": 9.0, "evidence": "both roles disable implicit invocation through structurally parsed bounded YAML"},
+    {"dimension": "offline_authorization_integrity", "score": 9.1, "evidence": "accepted local decision record binds exact lineage and evidence bytes under canonical digest and repository-fixture HMAC without a live identity claim"},
+    {"dimension": "parent_child_authority_narrowing", "score": 9.1, "evidence": "exact parent charter, manager route, scope, permissions, tools, prohibitions, and every budget dimension fail closed on widening or replay"},
+    {"dimension": "local_artifact_reference_integrity", "score": 9.1, "evidence": "versioned project-local allowed-root regular files are hashed by exact bytes; ambiguous, foreign, missing, mutable, and symlink paths reject"},
+    {"dimension": "numeric_budget_integrity", "score": 9.0, "evidence": "all six budget fields reject wrong types, invalid boundaries, negatives, NaN, and infinity without raising"},
+    {"dimension": "parent_routing_integrity", "score": 9.2, "evidence": "worker lineage, parent charter/design record, parent task ID, and reporting destination must agree"},
     {"dimension": "regression_integrity", "score": 9.0, "evidence": "focused adversarial, full regression, manifest, syntax, diff, and repository-wide zero-bytecode gates"}
   ],
   "runtime_readiness_decision": "no_go",
@@ -310,10 +329,13 @@
       "master_task_id": "master-fault-01",
       "budget": {"max_concurrency": 1, "max_tasks": 3},
       "expected_after": "blocked",
-      "expected_error_codes": ["budget_concurrency_pressure", "budget_task_pressure", "report_scope_changed", "report_stale", "scope_changed", "task_terminal_failure"],
+      "expected_error_codes": ["budget_concurrency_pressure", "budget_task_pressure", "manager_scope_collision", "report_scope_changed", "report_stale", "scope_changed", "task_terminal_failure"],
       "tasks": [
         {
           "task_id": "manager-fault-01", "parent_task_id": "master-fault-01", "project_id": "project-fault-01", "program_id": "program-fault-01", "program_version": 1, "role": "manager", "requested_model": "gpt-5.6-sol", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "fault-manager-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["fault/manager"], "scope_digest": "62f6364e2915414934cfed2b49be7986abe80adddb1a8bf1c32e097feaf1be27", "current_status": "blocked", "created_order": 1, "started_order": 2, "terminal_status": "blocked", "terminal_order": 8, "report": {"version": 1, "scope_digest": "62f6364e2915414934cfed2b49be7986abe80adddb1a8bf1c32e097feaf1be27"}, "artifact": null, "acceptance_oracle": {"kind": "json_equals", "key": "decision", "value": "accepted"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 80, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "manager-fault-overlap", "parent_task_id": "master-fault-01", "project_id": "project-fault-01", "program_id": "program-fault-01", "program_version": 1, "role": "manager", "requested_model": "gpt-5.6-sol", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "fault-manager-overlap-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["fault/manager/overlap"], "scope_digest": "4b36d1d54e952531f396459f03c3d294365a7c516ee4edb32e232a6bf71a0f3e", "current_status": "blocked", "created_order": 1, "started_order": 2, "terminal_status": "blocked", "terminal_order": 8, "report": {"version": 1, "scope_digest": "4b36d1d54e952531f396459f03c3d294365a7c516ee4edb32e232a6bf71a0f3e"}, "artifact": null, "acceptance_oracle": {"kind": "json_equals", "key": "decision", "value": "accepted"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 80, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
         },
         {
           "task_id": "worker-fault-stale", "parent_task_id": "manager-fault-01", "project_id": "project-fault-01", "program_id": "program-fault-01", "program_version": 1, "role": "worker", "requested_model": "gpt-5.6-luna", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "fault-stale-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["fault/stale"], "scope_digest": "changed-scope", "current_status": "failed", "created_order": 2, "started_order": 3, "terminal_status": "failed", "terminal_order": 6, "report": {"version": 0, "scope_digest": "old-scope"}, "artifact": {"project_id": "project-fault-01", "task_id": "worker-fault-stale", "content": {"report": "stale"}, "sha256": "a684f00e474bfd30f7d011f3f67d4ea046062106af2b32cc4fbfc6a7e705daf1"}, "acceptance_oracle": {"kind": "json_equals", "key": "report", "value": "current"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 40, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
