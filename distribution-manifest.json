@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.4.2",
+  "distribution_version": "0.4.3",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -57,8 +57,8 @@
     },
     {
       "path": "company-os/elastic-company-os/assets/instance-template.json",
-      "sha256": "07cf45e500a955a65bff02eb0cfd33df75de033f7e1347b183d9964d0faea939",
-      "size": 2445
+      "sha256": "0e07ec37f5f20223d406cd722d9c29e24880a607e8bba43d73b2cb9c6ba69bf3",
+      "size": 2591
     },
     {
       "path": "company-os/elastic-company-os/references/control-contract.md",
@@ -67,13 +67,18 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "4721cc74206f729cc62276bdce77ebe6d445925d6aaced5785b81acc6af9f39a",
-      "size": 307434
+      "sha256": "fb15e8b4d3a5c7c8f0e694d5e5a7302ac699cb258380c2ac85ef0f78c1c13b7c",
+      "size": 383198
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "d374dbc78e58a45b94a0dbefa62ef3502be3413e0c59d241dadc5d641040ad7d",
-      "size": 42385
+      "sha256": "8e42c3c0c24978cf6964c892c18d99aa40b51a5c2171251f354ddf0f3936554c",
+      "size": 57288
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/openai_responses_gateway.py",
+      "sha256": "871e951c709931808e8120fe544481a719c0a51895c66c4aa8a9c60f2f510599",
+      "size": 61126
     },
     {
       "path": "company-os/elastic-company-os/scripts/operator_brief.py",
@@ -81,19 +86,39 @@
       "size": 68373
     },
     {
+      "path": "company-os/elastic-company-os/scripts/runtime_gateway.py",
+      "sha256": "9bde8786392ed0feec427c8eb5a584299e7937466620b8237c9eaeaf4c225d8e",
+      "size": 30272
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/runtime_lifecycle.py",
+      "sha256": "75e18b9a2e1ace78fd63ccb58f159e49a71572843d1ecf8b7cc8b4bacaaa0131",
+      "size": 30948
+    },
+    {
       "path": "company-os/elastic-company-os/scripts/runtime_observations.py",
       "sha256": "bde70196ab379ae2d812525977a8902bcea744ab7bf70a9fca3591508516819b",
       "size": 23293
     },
     {
+      "path": "company-os/elastic-company-os/scripts/runtime_receipts.py",
+      "sha256": "938763d369401704a764b722406df7cfff44815e12db1c976c30e9a64360f427",
+      "size": 38227
+    },
+    {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "1d6e7f67d142c846b73f2a98837f7426ed215b4ca000a7376b3cf05f4e0eff61",
-      "size": 184731
+      "sha256": "4a3b67a096dc1a6386b025174c5911c3c869efdf332904311c1fd341a4d5d05a",
+      "size": 197045
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "dbf3d6d8b5bbb75710d2f72e22985acc200c3b2031dde0a5ae4f0309e36b0c29",
-      "size": 38420
+      "sha256": "e8263ae8c70134be2260c560a8da67c2f48a35b3e92d052c866bafa6c9efe78a",
+      "size": 67433
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/test_openai_responses_gateway_contract.py",
+      "sha256": "28156138ac4483ad06759fc590845082009cbe22bff5351aa52a90c204e52ea9",
+      "size": 60833
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_operator_brief.py",
@@ -101,9 +126,24 @@
       "size": 32552
     },
     {
+      "path": "company-os/elastic-company-os/scripts/test_runtime_gateway.py",
+      "sha256": "8130927df4b46ac1eef468735951478949a9fa62fcfb03a046ee8699406380b5",
+      "size": 22558
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/test_runtime_lifecycle.py",
+      "sha256": "bb4e546d660baf35583848e5f979d2bf292b1f101098adb601dedd73d462ea87",
+      "size": 38839
+    },
+    {
       "path": "company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
       "sha256": "87adeeb7ff6312b30ba51f7f403bd2289818a5b65bff0ff53de4055217ca4e11",
       "size": 15552
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/test_runtime_receipts.py",
+      "sha256": "3ee00c9521ada8b6fa4ba93b4655a0a414ff3101b337148ef14f9572db2a1361",
+      "size": 25873
     },
     {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",
@@ -217,8 +257,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
-      "sha256": "ab213a58646d419a0270531adfb9e1016cb2e8941656b37d56c51c032f5a2bd7",
-      "size": 10599
+      "sha256": "0e9086155445162af6f08e519138a0b3d3293f159ca6db25d7a71026e0afb71a",
+      "size": 10841
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",

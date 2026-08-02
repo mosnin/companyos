@@ -7,14 +7,22 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version 0.4.2 retains the independently accepted Operator Command Center and
-adds a separately governed semantic-evidence correction for one narrowly typed
-failure: a structurally valid immutable JSON record whose `/commit` identity is
-factually wrong. The transition is append-only, dual-authorized, content-
-addressed, lineage-audited, and unable to perform generic semantic edits. It
-also preserves the 0.4.1 recursive-feedback correction: quality scores bind a
-canonical set of independent artifacts and fail closed on duplicate IDs,
-digest substitution, or evidence-set drift.
+Version 0.4.3 retains the independently accepted Operator Command Center and
+adds two locally verified, feature-off foundations. First, program replacement
+now uses a positive, versioned archive schema and rejects credential-shaped or
+unknown runtime material transactionally. Second, a provider-neutral lifecycle
+contract and fixture-only OpenAI Responses gateway prove signed request/result
+separation, bounded usage provenance, cancellation receipts, and crash-safe
+no-relaunch semantics. This release does not enable a provider, scheduler, or
+autonomous execution.
+
+It also preserves the 0.4.2 semantic-evidence correction for one narrowly
+typed failure: a structurally valid immutable JSON record whose `/commit`
+identity is factually wrong. The transition is append-only, dual-authorized,
+content-addressed, lineage-audited, and unable to perform generic semantic
+edits. Quality scores continue to bind a canonical set of independent
+artifacts and fail closed on duplicate IDs, digest substitution, or
+evidence-set drift.
 
 The Operator Command Center remains a
 read-only decision surface on top of immutable, content-addressed evidence,
