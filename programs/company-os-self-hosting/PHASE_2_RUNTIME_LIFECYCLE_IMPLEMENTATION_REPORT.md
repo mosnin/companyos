@@ -30,21 +30,25 @@ The feature-off repair slice now:
 - archives and clears pending/applied adaptations and every quality score,
   binding, scorer grant, and reviewer grant on every future program replacement;
 - retains the complete source strategy and digest, original transition reason,
-  exact evidence-backed scorecard, and signed adaptation authority;
+  exact evidence-backed scorecard, complete archived evidence authority, signed
+  adaptation authority, and exact runtime attempt/observation/audit state;
 - permits one narrowly eligible repair only when the instance is paused,
   scheduling is off, no lease/cycle/live work/evidence/runtime attempt exists,
   and every affected record belongs to exactly the immediately prior program;
 - requires a new independent `repair-program-transition` grant whose actor is
-  distinct from every affected proposal and quality actor derived from retained
-  signed grant claims;
+  distinct from every affected proposal, quality, evidence author/reviewer, and
+  retained signed-grant actor;
 - binds the grant to the exact source/transition revisions and hashes, complete
-  adaptation and quality archive hashes, transition identity/reason, and the
-  exact post-repair candidate-state hash;
+  adaptation, quality, and runtime archive hashes, the exact retained
+  `program_replaced` event, both complete strategy documents, transition
+  identity/reason, and the exact post-repair candidate-state hash;
 - commits the repair and its command receipt as one SQLite revision/event;
   exact command-key replay is a no-op, while a distinct retry fails closed;
 - replays the candidate hash and prior-state hashes from immutable transactional
-  history, requires one-to-one repair record/event history, and rejects archive,
-  strategy, score, grant, source-history, and candidate-state tampering;
+  history, reconstructs the exact old replace mutation, requires one-to-one
+  adaptation/quality/runtime archives and repair record/event history, and
+  rejects unrelated mutation, archive, event, evidence, strategy, score, grant,
+  source-history, runtime-history, and candidate-state tampering;
 - prevents prior-program quality grants from becoming live again when work is
   queued under the replacement program.
 
@@ -157,8 +161,14 @@ All evidence is local/test-key evidence (`M`). It is not provider-runtime
 evidence (`R`).
 
 Current local evidence: the full controller/control-store/runtime/observation/
-operator suite passes 222 tests, including seven focused adversarial transition
-repair/replace tests, along with Python compilation and whitespace validation.
+operator suite passes 230 tests in 213.412 seconds, including thirteen focused
+adversarial transition-repair/replace tests, along with Python compilation and
+whitespace validation.
+The separate repository release suite is intentionally not green: 24 of 26
+tests pass, while manifest freshness and signed Operator Command Center surface
+parity fail because the remediated controller has not yet been independently
+accepted, versioned, manifested, signed, or installed as 0.4.3. Those two
+failures are release gates, not passing implementation evidence.
 The repository skill validator itself did not execute because its host Python
 environment lacks the `yaml` module (`ModuleNotFoundError`); no dependency was
 installed and this is not counted as passing evidence.
@@ -193,10 +203,11 @@ log. Runtime and scheduler feature gates remain disabled throughout this work.
    artifact, usage, or reconciliation evidence exists.
 5. Restart/crash reconciliation is specified and unit-tested as pure state
    behavior, not proven through a persisted process fault matrix.
-6. Three independent repair reviews exposed and closed the full local P1 set;
-   the final independent re-review returned `GO` with no remaining P0/P1 in
-   this feature-off slice. Controller-wide integration acceptance remains a
-   separate required gate.
+6. The latest independent repair review returned `NO-GO` with three P1s. The
+   exact-event/state binding, full archived-evidence authority audit, and
+   digest-chained runtime archive repairs now pass the focused and complete
+   local suites, but the remediated exact commit still requires independent
+   re-review. Controller-wide integration acceptance remains a separate gate.
 
 The next safe action is a separate controller-integration change that keeps the
 adapter disabled, followed by an authenticated connector and one real

@@ -330,6 +330,7 @@ def _entity_records(state: dict[str, Any]) -> list[tuple[str, str, int | None, s
     for collection, entity_type in (
         ("archived_adaptations", "adaptation_archive"),
         ("archived_quality_scorecards", "quality_archive"),
+        ("archived_runtime_adapters", "runtime_archive"),
         ("program_transition_repairs", "program_transition_repair"),
     ):
         for item in state.get("feedback", {}).get(collection, []):
@@ -502,6 +503,41 @@ class Transaction:
             raise StoreError("transactional control state must be an object")
         _assert_binding(self.connection, self.project, state)
         return state
+
+    def load_event(self, revision: int) -> dict[str, Any]:
+        """Read one fully verified historical event inside the governing lock."""
+        if not isinstance(revision, int) or isinstance(revision, bool) or revision < 1:
+            raise StoreError("historical event revision must be a positive integer")
+        row = self.connection.execute(
+            """
+            SELECT event_id,project_id,program_version,event_type,payload_json,
+                   payload_sha256,state_revision
+            FROM events WHERE state_revision=?
+            """,
+            (revision,),
+        ).fetchone()
+        if row is None:
+            raise StoreError("historical event does not exist")
+        raw = row["payload_json"].encode("utf-8")
+        if sha256_bytes(raw) != row["payload_sha256"]:
+            raise StoreError("historical event payload hash is invalid")
+        try:
+            event = json.loads(row["payload_json"])
+        except json.JSONDecodeError as exc:
+            raise StoreError(f"historical event JSON is invalid: {exc}") from None
+        if (
+            not isinstance(event, dict)
+            or event.get("event_id") != row["event_id"]
+            or event.get("project_id") != row["project_id"]
+            or event.get("program_version") != row["program_version"]
+            or event.get("type") != row["event_type"]
+            or event.get("state_revision") != row["state_revision"]
+        ):
+            raise StoreError("historical event does not match its authoritative row")
+        return {
+            "event": event,
+            "payload_sha256": row["payload_sha256"],
+        }
 
     def stage(self, state: dict[str, Any], event: dict[str, Any]) -> int:
         if self.staged_revision is not None:
@@ -740,6 +776,13 @@ def _audit_program_transition_repair_events(
             ),
             None,
         )
+        runtime_archive = next(
+            (
+                item for item in repair_state.get("feedback", {}).get("archived_runtime_adapters", [])
+                if isinstance(item, dict) and item.get("transition_id") == transition_id
+            ),
+            None,
+        )
         repair_record = next(
             (
                 item for item in repair_state.get("feedback", {}).get("program_transition_repairs", [])
@@ -747,9 +790,55 @@ def _audit_program_transition_repair_events(
             ),
             None,
         )
-        if not all(isinstance(item, dict) for item in (adaptation_archive, quality_archive, repair_record)):
+        if not all(
+            isinstance(item, dict)
+            for item in (adaptation_archive, quality_archive, runtime_archive, repair_record)
+        ):
             errors.append(f"{label} lacks its retained transition records")
             continue
+        transition_event_row = next(
+            (
+                row for row in event_rows
+                if int(row["state_revision"]) == transition_revision
+            ),
+            None,
+        )
+        retained_payload = repair_record.get("payload")
+        transition_binding = (
+            retained_payload.get("transition_event")
+            if isinstance(retained_payload, dict)
+            else None
+        )
+        if transition_event_row is None or not isinstance(transition_binding, dict):
+            errors.append(f"{label} lacks its exact retained replace-program event")
+        else:
+            try:
+                transition_event = json.loads(transition_event_row["payload_json"])
+            except json.JSONDecodeError:
+                transition_event = None
+            strategy_transition = transition_binding.get("strategy_transition")
+            expected_strategy_transition = {
+                "source_strategy": source_state.get("strategy"),
+                "replacement_strategy": transition_state.get("strategy"),
+            }
+            if (
+                not isinstance(transition_event, dict)
+                or transition_event_row["event_type"] != "program_replaced"
+                or transition_binding.get("event_id") != transition_event_row["event_id"]
+                or transition_binding.get("event_type") != transition_event_row["event_type"]
+                or transition_binding.get("project_id") != transition_event_row["project_id"]
+                or transition_binding.get("program_version") != transition_event_row["program_version"]
+                or transition_binding.get("state_revision") != transition_revision
+                or transition_binding.get("old_program_version")
+                != source_state.get("strategy", {}).get("program_version")
+                or transition_binding.get("reason") != transition_event.get("reason")
+                or transition_binding.get("event_payload_sha256")
+                != transition_event_row["payload_sha256"]
+                or strategy_transition != expected_strategy_transition
+                or transition_binding.get("strategy_transition_digest")
+                != sha256_bytes(canonical_json(expected_strategy_transition).encode())
+            ):
+                errors.append(f"{label} retained replace-program event binding is not replay-valid")
         if (
             adaptation_archive.get("source_strategy") != source_state.get("strategy")
             or adaptation_archive.get("pending_adaptations")
@@ -757,21 +846,43 @@ def _audit_program_transition_repair_events(
             or adaptation_archive.get("applied_adaptations")
             != transition_state.get("feedback", {}).get("applied_adaptations")
             or quality_archive.get("quality") != transition_state.get("quality")
+            or runtime_archive.get("runtime_adapter") != source_state.get("runtime_adapter")
         ):
             errors.append(f"{label} archives do not exactly preserve the source transition")
         if (
             event.get("adaptation_archive_digest") != adaptation_archive.get("archive_digest")
             or event.get("quality_archive_digest") != quality_archive.get("archive_digest")
+            or event.get("runtime_archive_digest") != runtime_archive.get("archive_digest")
             or event.get("repair_grant_digest")
             != repair_record.get("repair_grant", {}).get("grant_digest")
+            or event.get("transition_event_id") != transition_binding.get("event_id")
+            or event.get("transition_event_payload_sha256")
+            != transition_binding.get("event_payload_sha256")
+            or event.get("strategy_transition_digest")
+            != transition_binding.get("strategy_transition_digest")
         ):
             errors.append(f"{label} event does not bind its retained authority")
-        retained_payload = repair_record.get("payload")
         for field in (
             "candidate_state_digest", "source_state_revision", "source_state_digest",
-            "transition_state_revision", "transition_state_digest",
+            "transition_state_revision", "transition_state_digest", "transition_event",
         ):
-            if not isinstance(retained_payload, dict) or retained_payload.get(field) != event.get(field):
+            event_value = (
+                {
+                    "event_id": event.get("transition_event_id"),
+                    "event_payload_sha256": event.get("transition_event_payload_sha256"),
+                    "strategy_transition_digest": event.get("strategy_transition_digest"),
+                }
+                if field == "transition_event"
+                else event.get(field)
+            )
+            payload_value = retained_payload.get(field) if isinstance(retained_payload, dict) else None
+            if field == "transition_event":
+                payload_value = {
+                    "event_id": (payload_value or {}).get("event_id"),
+                    "event_payload_sha256": (payload_value or {}).get("event_payload_sha256"),
+                    "strategy_transition_digest": (payload_value or {}).get("strategy_transition_digest"),
+                }
+            if payload_value != event_value:
                 errors.append(f"{label} signed payload does not match event field {field}")
         candidate = deepcopy(repair_state)
         candidate["feedback"]["program_transition_repairs"] = [

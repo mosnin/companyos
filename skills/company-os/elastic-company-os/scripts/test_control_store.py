@@ -41,6 +41,29 @@ class ControlStoreTests(unittest.TestCase):
     def initialize_stale_transition(self) -> tuple[dict, dict, dict]:
         source = self.fixture.valid_state()
         stale = self.fixture.stale_program_transition_state(source)
+        transition_event_record = self.stage_stale_transition(source, stale)
+        _, payload, _ = controller.prepare_stale_program_transition_repair(
+            stale,
+            source_state=source,
+            transition_event_record=transition_event_record,
+            source_state_revision=1,
+            source_state_digest=controller.hashlib.sha256(
+                controller.canonical_json(source).encode("utf-8")
+            ).hexdigest(),
+            transition_state_revision=2,
+            transition_state_digest=controller.hashlib.sha256(
+                controller.canonical_json(stale).encode("utf-8")
+            ).hexdigest(),
+        )
+        return source, stale, payload
+
+    def stage_stale_transition(
+        self,
+        source: dict,
+        stale: dict,
+        *,
+        event_updates: dict | None = None,
+    ) -> dict:
         store.initialize(
             self.project,
             source,
@@ -53,30 +76,27 @@ class ControlStoreTests(unittest.TestCase):
         )
         transition = store.begin(self.project)
         try:
+            event = {
+                "at": controller.utc_now(),
+                "type": "program_replaced",
+                "project_id": stale["instance"]["project_id"],
+                "program_version": 2,
+                "old_program_version": 1,
+                "reason": stale["feedback"]["archived_evidence"][-1]["reason"],
+            }
+            event.update(event_updates or {})
             transition.stage(
                 stale,
-                {
-                    "at": controller.utc_now(),
-                    "type": "legacy_program_replaced",
-                    "project_id": stale["instance"]["project_id"],
-                    "program_version": 2,
-                },
+                event,
             )
         finally:
             transition.close(True)
-        _, payload, _ = controller.prepare_stale_program_transition_repair(
-            stale,
-            source_strategy=source["strategy"],
-            source_state_revision=1,
-            source_state_digest=controller.hashlib.sha256(
-                controller.canonical_json(source).encode("utf-8")
-            ).hexdigest(),
-            transition_state_revision=2,
-            transition_state_digest=controller.hashlib.sha256(
-                controller.canonical_json(stale).encode("utf-8")
-            ).hexdigest(),
-        )
-        return source, stale, payload
+        read_transaction = store.begin(self.project)
+        try:
+            transition_event_record = read_transaction.load_event(2)
+        finally:
+            read_transaction.close(False)
+        return transition_event_record
 
     def repair_command(
         self,
@@ -567,16 +587,24 @@ class ControlStoreTests(unittest.TestCase):
                 stale,
                 {
                     "at": controller.utc_now(),
-                    "type": "legacy_program_replaced",
+                    "type": "program_replaced",
                     "project_id": stale["instance"]["project_id"],
                     "program_version": 2,
+                    "old_program_version": 1,
+                    "reason": stale["feedback"]["archived_evidence"][-1]["reason"],
                 },
             )
         finally:
             transition.close(True)
+        read_transaction = store.begin(self.project)
+        try:
+            transition_event_record = read_transaction.load_event(2)
+        finally:
+            read_transaction.close(False)
         _, repair_payload, affected_actors = controller.prepare_stale_program_transition_repair(
             stale,
-            source_strategy=source["strategy"],
+            source_state=source,
+            transition_event_record=transition_event_record,
             source_state_revision=1,
             source_state_digest=controller.hashlib.sha256(
                 controller.canonical_json(source).encode("utf-8")
@@ -810,6 +838,134 @@ class ControlStoreTests(unittest.TestCase):
         report = store.audit(self.project)
         self.assertIn(
             "program transition repair records and atomic repair events are not one-to-one",
+            report["errors"],
+        )
+
+    def test_transition_repair_rejects_unrelated_source_to_transition_mutation_before_grant(self) -> None:
+        source = self.fixture.valid_state()
+        stale = self.fixture.stale_program_transition_state(source)
+        stale["profile"]["maturity"] = "unrelated-mutation"
+        self.stage_stale_transition(source, stale)
+        before_revision, before_state = store.load(self.project)
+        command = [
+            "company-os", "repair-program-transition", "--project", str(self.project),
+            "--reviewer", "independent-repair-reviewer", "--repair-grant", "not-a-grant",
+            "--command-key", "reject-unrelated-transition-mutation",
+        ]
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(output := io.StringIO()):
+            self.assertEqual(controller.main(), 2)
+        self.assertIn("unrelated transition mutation", output.getvalue())
+        self.assertEqual(store.load(self.project), (before_revision, before_state))
+
+    def test_transition_repair_store_audit_catches_later_replace_event_tamper(self) -> None:
+        _, _, payload = self.initialize_stale_transition()
+        command, _ = self.repair_command(payload)
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.main(), 0)
+        connection = store.connect(self.project)
+        try:
+            row = connection.execute(
+                "SELECT payload_json FROM events WHERE state_revision=2"
+            ).fetchone()
+            event = json.loads(row["payload_json"])
+            event["reason"] = "tampered after independently authorized repair"
+            encoded = store.canonical_json(event)
+            connection.execute(
+                "UPDATE events SET payload_json=?,payload_sha256=? WHERE state_revision=2",
+                (encoded, store.sha256_bytes(encoded.encode())),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        report = store.audit(self.project)
+        self.assertTrue(
+            any("retained replace-program event binding is not replay-valid" in error for error in report["errors"]),
+            report["errors"],
+        )
+
+    def test_transition_repair_rejects_bogus_archived_evidence_snapshot_before_grant(self) -> None:
+        source = self.fixture.valid_state()
+        evidence = source["evidence"]["verification"][0]
+        bogus_digest = "a" * 64
+        bogus_path = f".company-os/evidence/sha256/{bogus_digest}"
+        evidence.update(
+            {
+                "artifact_path": bogus_path,
+                "artifact_sha256": bogus_digest,
+                "snapshot_path": bogus_path,
+                "snapshot_sha256": bogus_digest,
+            }
+        )
+        stale = self.fixture.stale_program_transition_state(source)
+        self.stage_stale_transition(source, stale)
+        before = store.load(self.project)
+        command = [
+            "company-os", "repair-program-transition", "--project", str(self.project),
+            "--reviewer", "independent-repair-reviewer", "--repair-grant", "not-a-grant",
+            "--command-key", "reject-bogus-evidence-snapshot",
+        ]
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(output := io.StringIO()):
+            self.assertEqual(controller.main(), 2)
+        self.assertIn("snapshot does not exist", output.getvalue())
+        self.assertEqual(store.load(self.project), before)
+
+    def test_transition_repair_rejects_archived_evidence_self_review_before_grant(self) -> None:
+        source = self.fixture.valid_state()
+        evidence = source["evidence"]["verification"][0]
+        evidence["reviewer"] = evidence["author"]
+        stale = self.fixture.stale_program_transition_state(source)
+        self.stage_stale_transition(source, stale)
+        before = store.load(self.project)
+        command = [
+            "company-os", "repair-program-transition", "--project", str(self.project),
+            "--reviewer", "independent-repair-reviewer", "--repair-grant", "not-a-grant",
+            "--command-key", "reject-evidence-self-review",
+        ]
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(output := io.StringIO()):
+            self.assertEqual(controller.main(), 2)
+        self.assertIn("lacks independent review", output.getvalue())
+        self.assertEqual(store.load(self.project), before)
+
+    def test_transition_repair_rejects_every_archived_evidence_actor_as_reviewer(self) -> None:
+        source, _, payload = self.initialize_stale_transition()
+        evidence = source["evidence"]["verification"][0]
+        for index, actor in enumerate((evidence["author"], evidence["reviewer"])):
+            command, _ = self.repair_command(
+                payload,
+                reviewer=actor,
+                command_key=f"reject-evidence-actor-{index}",
+            )
+            before = store.load(self.project)
+            with mock.patch.object(controller.sys, "argv", command), redirect_stdout(output := io.StringIO()):
+                self.assertEqual(controller.main(), 2)
+            self.assertIn("independent of every affected authority actor", output.getvalue())
+            self.assertEqual(store.load(self.project), before)
+
+    def test_transition_repair_runtime_archive_tamper_fails_history_replay(self) -> None:
+        _, _, payload = self.initialize_stale_transition()
+        command, _ = self.repair_command(payload)
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.main(), 0)
+        connection = store.connect(self.project)
+        try:
+            row = connection.execute(
+                "SELECT state_json FROM state_revisions WHERE revision=3"
+            ).fetchone()
+            repaired = json.loads(row["state_json"])
+            runtime_archive = repaired["feedback"]["archived_runtime_adapters"][0]
+            runtime_archive["runtime_adapter"]["status"] = "enabled"
+            runtime_archive["archive_digest"] = controller.transition_archive_digest(runtime_archive)
+            encoded = store.canonical_json(repaired)
+            connection.execute(
+                "UPDATE state_revisions SET state_json=?,state_sha256=? WHERE revision=3",
+                (encoded, store.sha256_bytes(encoded.encode())),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        report = store.audit(self.project)
+        self.assertTrue(
+            any("archives do not exactly preserve the source transition" in error for error in report["errors"]),
             report["errors"],
         )
 

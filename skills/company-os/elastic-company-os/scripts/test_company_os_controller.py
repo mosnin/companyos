@@ -349,7 +349,7 @@ class ControllerTests(unittest.TestCase):
 
     def stale_program_transition_state(self, source_state: dict | None = None) -> dict:
         """Reproduce the exact v1-to-v2 contamination left by the old replace path."""
-        state = deepcopy(source_state) if source_state is not None else self.valid_state()
+        source = source_state if source_state is not None else self.valid_state()
         proposal = {
             "id": "adapt-prior-program",
             "program_version": 1,
@@ -385,9 +385,10 @@ class ControllerTests(unittest.TestCase):
             "reviewer": "adaptation-reviewer",
             "review_decision": "accepted",
             "reviewed_at": controller.utc_now(),
-            "reviewer_grant": self.grant_record(state, "adaptation-reviewer", token),
+            "reviewer_grant": self.grant_record(source, "adaptation-reviewer", token),
         }
-        state["feedback"]["applied_adaptations"] = [reviewed]
+        source["feedback"]["applied_adaptations"] = [reviewed]
+        state = deepcopy(source)
         archived_at = controller.utc_now()
         reason = "replace the accepted prior program with the next mandate"
         state["feedback"]["archived_evidence"].append(
@@ -408,6 +409,24 @@ class ControllerTests(unittest.TestCase):
             }
         )
         state["strategy"]["program_fingerprint"] = controller.strategy_fingerprint(state["strategy"])
+        cancelled_at = controller.utc_now()
+        for work in source["portfolio"].get("active_work", []):
+            state["portfolio"].setdefault("cancelled_work", []).append(
+                {
+                    **work,
+                    "status": "cancelled",
+                    "cancelled_at": cancelled_at,
+                    "reason": reason,
+                }
+            )
+        state["feedback"].setdefault("archived_execution_fabrics", []).append(
+            {
+                "program_version": 1,
+                "archived_at": cancelled_at,
+                "reason": reason,
+                "execution_fabric": deepcopy(source["execution_fabric"]),
+            }
+        )
         state["instance"]["status"] = "paused"
         state["phase"] = "reality_audit"
         state["portfolio"]["active_work"] = []
@@ -426,6 +445,7 @@ class ControllerTests(unittest.TestCase):
                 "restart_checkpoint": None,
             }
         )
+        state["controller"]["lease_generation"] = source["controller"]["lease_generation"] + 1
         return state
 
     def bind_delivery_evidence(self, cycle_id: str) -> None:
@@ -2711,6 +2731,76 @@ class ControllerTests(unittest.TestCase):
             all(item["score"] is None for item in replaced["quality"]["dimensions"].values())
         )
         self.assertFalse(any("runtime_adapter belongs to a stale program" in error for error in self.report(replaced)["errors"]))
+
+    def test_future_program_replacement_archives_exact_runtime_attempt_observation_and_audit_evidence(self) -> None:
+        cycle_id = self.admission_fixture()
+        self.assertEqual(controller.admit_runtime_attempt(self.admission_args(cycle_id)), 0)
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        inbox = state["runtime_adapter"]["observation_inboxes"]["manager-attempt-1"]
+        inbox["audit_evidence"] = [
+            {
+                "event_id": "provider-observation-audit-1",
+                "payload_sha256": "a" * 64,
+                "decision": "retained-only",
+            }
+        ]
+        controller.atomic_write_json(self.project / ".company-os" / "control.json", state)
+        original_runtime = deepcopy(state["runtime_adapter"])
+        self.assertEqual(
+            controller.replace_program(
+                namespace(
+                    project=str(self.project),
+                    north_star="A new runtime mandate",
+                    current_outcome="Prove the next provider lifecycle",
+                    success_metric="One independently accepted provider result",
+                    reason="replace the runtime program",
+                )
+            ),
+            0,
+        )
+        replaced = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(replaced["runtime_adapter"], controller.empty_runtime_adapter(2))
+        self.assertEqual(len(replaced["feedback"]["archived_runtime_adapters"]), 1)
+        archive = replaced["feedback"]["archived_runtime_adapters"][0]
+        self.assertEqual(archive["transition_id"], "program-transition-1-to-2")
+        self.assertEqual(archive["runtime_adapter"], original_runtime)
+        self.assertEqual(archive["sensitive_paths"], [])
+        self.assertEqual(archive["archive_digest"], controller.transition_archive_digest(archive))
+        self.assertTrue(archive["runtime_adapter"]["attempts"])
+        self.assertEqual(
+            archive["runtime_adapter"]["observation_inboxes"]["manager-attempt-1"]["audit_evidence"],
+            inbox["audit_evidence"],
+        )
+
+    def test_future_program_replacement_rejects_secret_shaped_runtime_archive_atomically(self) -> None:
+        state = self.valid_state()
+        state["runtime_adapter"]["provider_api_key"] = "must-never-enter-history"
+        self.write_state(state)
+        before = (
+            (self.project / ".company-os" / "control.json").read_bytes(),
+            (self.project / ".company-os" / "events.jsonl").read_bytes(),
+        )
+        with redirect_stdout(output := io.StringIO()):
+            self.assertEqual(
+                controller.replace_program(
+                    namespace(
+                        project=str(self.project),
+                        north_star="A new mandate",
+                        current_outcome="Reject secret retention",
+                        success_metric="No authoritative mutation",
+                        reason="secret-shaped runtime probe",
+                    )
+                ),
+                2,
+            )
+        self.assertIn("secret-shaped fields", output.getvalue())
+        self.assertEqual(
+            before,
+            (
+                (self.project / ".company-os" / "control.json").read_bytes(),
+                (self.project / ".company-os" / "events.jsonl").read_bytes(),
+            ),
+        )
 
     def test_schema_eight_upgrade_archives_runtime_and_carries_no_attempt_forward(self) -> None:
         state = self.valid_state()
