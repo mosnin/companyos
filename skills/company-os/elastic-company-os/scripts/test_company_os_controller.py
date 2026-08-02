@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import importlib.util
 import base64
-import hashlib
-import hmac
 import io
 import json
 import os
@@ -54,45 +52,37 @@ class ControllerTests(unittest.TestCase):
             os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = self.previous_actor_public_key
         self.temporary.cleanup()
 
-    def test_native_runtime_scope_amendment_is_content_bound_and_prospective(self) -> None:
+    def test_native_runtime_replacement_charter_uses_canonical_authority(self) -> None:
         root = Path(__file__).resolve().parents[4]
-        evidence_path = root / "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.scope-amendment.v1.json"
-        decision_path = root / "artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.scope-amendment.v1.json"
-        evidence_bytes = evidence_path.read_bytes()
-        evidence = json.loads(evidence_bytes)
-        decision = json.loads(decision_path.read_bytes())
-        self.assertEqual(
-            decision["evidence_reference"]["sha256"],
-            hashlib.sha256(evidence_bytes).hexdigest(),
+        validator_spec = importlib.util.spec_from_file_location(
+            "validate_native_runtime_charter", root / "scripts/validate_role_skills.py"
         )
-        charter_path = root / evidence["bindings"]["accepted_manager_charter"]["path"]
-        self.assertEqual(
-            evidence["bindings"]["accepted_manager_charter"]["sha256"],
-            hashlib.sha256(charter_path.read_bytes()).hexdigest(),
-        )
-        self.assertFalse(evidence["effect"]["retroactive"])
-        self.assertEqual(
-            evidence["master_directive_sha256"],
-            hashlib.sha256(evidence["master_directive"].encode("utf-8")).hexdigest(),
+        assert validator_spec and validator_spec.loader
+        validator = importlib.util.module_from_spec(validator_spec)
+        validator_spec.loader.exec_module(validator)
+        charter = json.loads(
+            (root / "programs/company-os-self-hosting/native-runtime-control/mission-charter.v7.json").read_text()
         )
         self.assertEqual(
-            evidence["effect"]["added_owned_path"],
+            validator.validate_contract_payload(
+                charter,
+                "manage-company-program",
+                template=False,
+                artifact_root=root,
+            ),
+            [],
+        )
+        self.assertEqual(charter["charter_version"], 2)
+        self.assertEqual(charter["definition_version"], 2)
+        self.assertIn(
             "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
+            charter["scope"]["owned_paths"],
         )
-        signature = decision["authentication"].pop("signature")
-        digest = hashlib.sha256(
-            json.dumps(
-                decision, sort_keys=True, separators=(",", ":"),
-                ensure_ascii=False, allow_nan=False,
-            ).encode("utf-8")
-        ).hexdigest()
-        self.assertEqual(
-            signature,
-            hmac.new(
-                b"company-os-public-test-fixture-key-v1",
-                digest.encode("ascii"),
-                hashlib.sha256,
-            ).hexdigest(),
+        self.assertFalse(
+            (root / "artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.scope-amendment.v1.json").exists()
+        )
+        self.assertFalse(
+            (root / "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.scope-amendment.v1.json").exists()
         )
 
     def grant(
