@@ -3,9 +3,10 @@
 ## Current checkpoint
 
 - Canonical repository: `/Users/preston/Documents/Codex/company-os-core`
-- Distribution version: accepted `0.4.3`; the canonical 72-file distribution
+- Distribution version: accepted `0.5.0`; the canonical 83-file distribution
   is installed byte-exact under `/Users/preston/.codex/skills`
-- Canonical release: `a761efab3884555ac352c95cc7378017bbc9415a`
+- Canonical source acceptance: `0900cfe1d4661dffbbd612695aea57dfa4562448`;
+  release metadata is the current canonical `main` HEAD
 - Authoritative control revision: 131; program 6 is paused in Reality Audit,
   unscheduled, uncertified, runtime-disabled, and lease-free
 - Canonical controller: schema 9 / core 2.6
@@ -14,8 +15,8 @@
 - Production or customer effects: none
 - Program 6 direction: Codex-native task fabric; external provider/API gateway
   implementation retired from the active roadmap
-- Candidate state: source-only, uninstalled, scheduler-off, broader runtime
-  NO-GO
+- Release state: source distribution accepted and installed; scheduler-off;
+  broader runtime NO-GO
 
 ## Accepted evidence
 
@@ -276,11 +277,23 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
   role/simulation/legacy-fabric validators, manifest, syntax, diff,
   secret/scope, fail-closed, and repository-wide zero-bytecode gates.
 
+### Phase 2F — source distribution accepted
+
+- Independent exact-commit review of `0900cfe` returned 0 P0, 0 P1, and 0 P2
+  findings and scored source readiness 9.1/10.
+- The review approved only a manifest-backed global source installation. It did
+  not approve controller/runtime or scheduler activation.
+- Version 0.5.0 packages the manager and worker role skills as global reusable
+  policy. Task prompts carry only the explicit skill invocation and compact,
+  versioned charter or packet; they do not carry the operating system prose.
+- The governed installation preserves the exact accepted 0.4.3 manifest for
+  rollback and replaces both bundles transactionally.
+
 ## Not yet implemented
 
 - A network-capable provider adapter and protected launcher.
 - Provider launch or provider-observed identity in a real account.
-- Real Sol manager or GPT-5.6 Luna worker execution.
+- Successful fresh installed-role Sol-manager/two-requested-Luna forward test.
 - Controller integration that advances one real provider lifecycle through
   heartbeats, terminal receipt, cancellation, telemetry, and reconciliation.
 - Self-hosted accepted capability or adaptation cycle.
@@ -289,9 +302,8 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 
 ## Exact next action
 
-Package and independently accept the candidate role skills without changing the
-accepted 0.4.3 surface, install them through the governed distribution path,
-then forward-test a fresh Sol manager and two fresh Luna tasks using only the
-skill invocation plus compact charter/packet. Do not enable scheduling. The
+Forward-test a fresh Sol manager and two fresh tasks requested as GPT-5.6 Luna
+using only the global skill invocation plus compact charter/packet. Do not
+enable scheduling. The
 following gate must add controller admission-before-create and prove a hard
 native cancellation acknowledgement before broader runtime acceptance.

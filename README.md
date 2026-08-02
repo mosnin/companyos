@@ -7,23 +7,24 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-The accepted distribution remains 0.4.3. The uninstalled `0.5.0-dev.1`
-candidate contains a locally validated Codex-native task-fabric correction:
-concise Sol-manager and Luna-worker role skills, strict v2 mission contracts,
-deterministic task-evidence validation, and a five-scenario simulation ladder.
-Independent review rejected the first candidate commit at 5.8; the bounded v2
-rework closes those seven source findings locally. In this development session
-the Sol manager manually used native Codex task tools; the Company OS controller
-does not yet invoke, admit, cancel, or durably observe them.
+Version 0.5.0 is the accepted globally distributed source release. It adds
+concise global Sol-manager and Luna-worker role skills, strict v2 mission
+contracts, deterministic task-evidence validation, and a five-scenario
+simulation ladder. After two rejected candidates and bounded rework,
+independent exact-commit review of `0900cfe` found 0 P0, 0 P1, and 0 P2 defects
+and scored the source contract 9.1/10. In this development session the Sol
+manager manually used native Codex task tools; the Company OS controller still
+does not invoke, admit, cancel, or durably observe them.
 
-Version 0.4.3 retains the independently accepted Operator Command Center and
-adds two locally verified, feature-off foundations. First, program replacement
+Version 0.5.0 retains the independently accepted 0.4.3 Operator Command Center
+and its two locally verified, feature-off foundations. First, program replacement
 now uses a positive, versioned archive schema and rejects credential-shaped or
 unknown runtime material transactionally. Second, a provider-neutral lifecycle
 contract and fixture-only OpenAI Responses gateway prove signed request/result
 separation, bounded usage provenance, cancellation receipts, and crash-safe
-no-relaunch semantics. This release does not enable a provider, scheduler, or
-autonomous execution.
+no-relaunch semantics. This source release does not enable a provider,
+scheduler, or autonomous execution. Global skill availability is not runtime
+certification.
 
 It also preserves the 0.4.2 semantic-evidence correction for one narrowly
 typed failure: a structurally valid immutable JSON record whose `/commit`

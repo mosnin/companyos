@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.5.0-dev.1",
+  "distribution_version": "0.5.0",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
