@@ -1,0 +1,62 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "authorization_scope": "create and admit only one authenticated read-only independent Sol pre-signing-review charter package; this decision does not authorize signing, release, install, runtime, scheduler, provider, production, credential, task creation, or Chippy action",
+  "budget_interpretation": {
+    "max_concurrency": 1,
+    "max_cost_usd": 0.0,
+    "max_retries": 0,
+    "max_tasks": 1,
+    "max_time_minutes": 60,
+    "max_tokens": 40000,
+    "worker_creation_authorized": false,
+    "zero_worker_authority_note": "schema requires positive max_tasks and max_concurrency; both use the strictest valid value while create-native-task is prohibited"
+  },
+  "cycle_id": "release-0.5.1-pre-signing-review-cycle-2",
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-pre-signing-review-charter-2",
+  "definition_digest": "78839fa9f6c81d7a4bf71998307e8d9d39ae221014c311776d23c50c56e3ed46",
+  "definition_version": 2,
+  "dependencies": {
+    "canonical_baseline_commit": "19fe809a9544303fb00150c957b317ed03c7a1a3",
+    "clean_release_candidate_commit": "ed4863b4d7832c03c1bc892aa768cdad32ba29b8",
+    "manifest_exact_implementation_commit": "1e489780e6587a38c36e6e4bb38042dd8ed03835",
+    "verification_carrier_commit": "a79fb8c37af674cbdd0609d5bc349145aebe5c8d"
+  },
+  "issued_at": "2026-08-02T17:01:36Z",
+  "manager_id": "manager-release-0.5.1-pre-signing-review-2",
+  "master_directive": "AUTHENTICATED MASTER CHARTER DECISION: create and admit only the version-2 read-only pre-signing review package for exact candidate ed4863b4d7832c03c1bc892aa768cdad32ba29b8, baseline 19fe809a9544303fb00150c957b317ed03c7a1a3, implementation 1e489780e6587a38c36e6e4bb38042dd8ed03835, and verification carrier a79fb8c37af674cbdd0609d5bc349145aebe5c8d. Reuse no stale acceptance. The reviewer may read and run non-writing local tests only; it must prove the old 21-file signature rejects for this candidate and return READY-TO-SIGN or REWORK with separate source, install, runtime, and scheduler decisions. No write, signing, task creation, install, runtime, scheduler, provider, network, credential, production, canonical-main, or Chippy action.",
+  "master_directive_sha256": "fa08f848fa368dd9a2318911c6d251ff4fea473dd06d39310e32de427ca5fec2",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "847991b386c409e61e7047c887003c3bb7407261948c72541bfc313137dcbc8c",
+  "package": {
+    "architecture": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-final-review/architecture.v2.md",
+      "sha256": "03f78402393517f02d59329e8de36930aa7567e501186e635631c50992eb01b7",
+      "version": 2
+    },
+    "interfaces": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-final-review/interfaces.v2.md",
+      "sha256": "4a576a40f467dc817c7a7ac9229a0ea673b94ec8df73333405744677487ce934",
+      "version": 2
+    },
+    "mission_charter": {
+      "definition_digest": "78839fa9f6c81d7a4bf71998307e8d9d39ae221014c311776d23c50c56e3ed46",
+      "path": "programs/company-os-self-hosting/release-0.5.1-final-review/mission-charter.v2.json",
+      "version": 2
+    },
+    "roadmap": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-final-review/roadmap.v2.md",
+      "sha256": "551daa57d615118bc5026fe9f5ee3e09fce7930dd8db2bb9af36836fb5938104",
+      "version": 2
+    }
+  },
+  "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "phase": "charter",
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "project_id": "company-os-self-hosting",
+  "requested_model": "gpt-5.6-sol",
+  "schema": "company-os.charter-phase-evidence.v2",
+  "status": "accepted",
+  "task_id": "manager-release-0.5.1-pre-signing-review-2"
+}
