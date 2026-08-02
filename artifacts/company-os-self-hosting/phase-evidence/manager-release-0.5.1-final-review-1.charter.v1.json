@@ -1,0 +1,60 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "authorization_scope": "create only one authenticated read-only independent Sol final-release-review charter package; this decision does not launch the reviewer or authorize release, install, runtime, scheduler, provider, production, or Chippy action",
+  "budget_interpretation": {
+    "max_concurrency": 1,
+    "max_cost_usd": 0.0,
+    "max_retries": 0,
+    "max_tasks": 1,
+    "max_time_minutes": 60,
+    "max_tokens": 40000,
+    "worker_creation_authorized": false,
+    "zero_worker_authority_note": "schema requires positive max_tasks and max_concurrency; both use the strictest valid value while create-native-task is prohibited"
+  },
+  "cycle_id": "release-0.5.1-final-review-cycle-1",
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-final-review-charter-1",
+  "definition_digest": "d5063f6cb77e69b5a9f5652852d18f3a4411c4afd7485e0b3254b07382c5d6c8",
+  "definition_version": 1,
+  "dependencies": {
+    "canonical_baseline_commit": "19fe809a9544303fb00150c957b317ed03c7a1a3",
+    "clean_release_candidate_commit": "ca09765716f468f37916d546c636286060ae616c"
+  },
+  "issued_at": "2026-08-02T14:58:39Z",
+  "manager_id": "manager-release-0.5.1-final-review-1",
+  "master_directive": "Use $manage-company-program. Create only the missing authenticated final-release-review charter package in /Users/preston/Documents/Codex/company-os-native-runtime-control, based on clean release candidate ca09765716f468f37916d546c636286060ae616c. New namespace: programs/company-os-self-hosting/release-0.5.1-final-review/ plus matching artifacts/company-os-self-hosting/{authorizations,phase-evidence}. Produce an exact company-os.mission-charter.v2 for one read-only independent Sol final release review: project/program company-os-self-hosting, program version 6, new cycle/task IDs distinct from all prior actors, parent task 019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3, exact outcome digest, requested gpt-5.6-sol, SHA-256-bound versioned architecture/roadmap/interfaces references, reporting destination, all six bounded budgets, zero worker tasks/concurrency or the strictest schema-valid read-only values, allowed read/local-test only, prohibitions covering writes/sign/install/activate/deploy/network/provider/scheduler/Chippy, exact acceptance thresholds and three separate decisions (source release, install permission, runtime/scheduler). Bind ca097657 and baseline 19fe809 as dependencies. Create standard project-local company-os.authorization-decision.v1 and phase evidence using canonical fixture HMAC/signature preimage; no custom scheme. Validate with scripts/validate_role_skills.py. Do not change any signed 21-file surface path, VERSION, manifest, README/ledger, runtime, tests, or release artifacts. Commit exact charter package and return paths, digests, commit, and validation result.",
+  "master_directive_sha256": "d4acb22b31f5964b120aa8b3e4d1ed465f1b83624a0c1594e9d1889eeab71de7",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "e45ebd6123722930c8a3e908d6dca74708b021c09159ae73e4e89797e491029b",
+  "package": {
+    "architecture": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-final-review/architecture.v1.md",
+      "sha256": "e2c82b5edfa06e466652c3904a99e1ee5e7b07e7beb887ee7c95646cd5d0a499",
+      "version": 1
+    },
+    "interfaces": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-final-review/interfaces.v1.md",
+      "sha256": "c4fc1a57d4c2bed0c9e04967d0e3caff7fe158448fced36be2ebe0dc40a9cff5",
+      "version": 1
+    },
+    "mission_charter": {
+      "definition_digest": "d5063f6cb77e69b5a9f5652852d18f3a4411c4afd7485e0b3254b07382c5d6c8",
+      "path": "programs/company-os-self-hosting/release-0.5.1-final-review/mission-charter.v1.json",
+      "version": 1
+    },
+    "roadmap": {
+      "path": "programs/company-os-self-hosting/release-0.5.1-final-review/roadmap.v1.md",
+      "sha256": "70f7ae89800c315f7648873ec437fc20c9f073d748d8a2f0810433a7a71d5955",
+      "version": 1
+    }
+  },
+  "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "phase": "charter",
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "project_id": "company-os-self-hosting",
+  "requested_model": "gpt-5.6-sol",
+  "schema": "company-os.charter-phase-evidence.v2",
+  "status": "accepted",
+  "task_id": "manager-release-0.5.1-final-review-1"
+}

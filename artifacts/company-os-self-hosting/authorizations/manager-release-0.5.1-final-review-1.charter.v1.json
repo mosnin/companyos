@@ -1,0 +1,36 @@
+{
+  "authentication": {
+    "key_id": "company-os-repository-test-v1",
+    "scheme": "company-os.fixture-hmac-sha256.v1",
+    "signature": "4b44035a725656c8f302c600957d6a21ad08d7e2ea911ccae38a83f5db46b3e4"
+  },
+  "bindings": {
+    "cycle_id": "release-0.5.1-final-review-cycle-1",
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "definition_digest": "d5063f6cb77e69b5a9f5652852d18f3a4411c4afd7485e0b3254b07382c5d6c8",
+    "definition_version": 1,
+    "outcome_digest": "e45ebd6123722930c8a3e908d6dca74708b021c09159ae73e4e89797e491029b",
+    "parent_definition_digest": null,
+    "parent_manager_native_task_id": null,
+    "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "phase": "charter",
+    "program_id": "company-os-self-hosting",
+    "program_version": 6,
+    "project_id": "company-os-self-hosting",
+    "requested_model": "gpt-5.6-sol",
+    "task_id": "manager-release-0.5.1-final-review-1"
+  },
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-final-review-charter-1",
+  "decision_version": 1,
+  "evidence_kind": "repository_fixture",
+  "evidence_reference": {
+    "path": "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-final-review-1.charter.v1.json",
+    "project_id": "company-os-self-hosting",
+    "sha256": "09aa5f8a365359ff43f25e6b113d12d21e3bd80ff4944cd1339ffa33687a2ecc",
+    "version": 1
+  },
+  "record_version": 1,
+  "schema": "company-os.authorization-decision.v1",
+  "status": "accepted"
+}
