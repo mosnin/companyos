@@ -834,6 +834,64 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         self.assertEqual(query_transport.retrieve_calls, [])
         self.assertEqual(len(transport.create_calls), 1)
 
+    def test_post_create_identity_write_failure_persists_unknown_and_cleans_attempt_artifacts(self) -> None:
+        gateway = self.gateway()
+        original_write = gateway._write_state
+        write_calls = 0
+
+        def fail_first_post_effect_write(state: dict[str, Any]) -> None:
+            nonlocal write_calls
+            write_calls += 1
+            if write_calls == 2:
+                raise responses_gateway.ResponsesGatewayError("one-shot fixture state fault")
+            original_write(state)
+
+        gateway._write_state = fail_first_post_effect_write  # type: ignore[method-assign]
+        command = self.signed_command()
+        transport = RecordingTransport(create=self.response_bytes())
+        self.assert_gateway_error(lambda: gateway.handle(command, transport=transport))
+
+        retained = json.loads(self.state_path.read_text(encoding="utf-8"))
+        entry = retained["attempts"]["manager-attempt-1"]
+        self.assertEqual(entry["status"], "launch_unknown")
+        self.assertIsNone(entry["provider_task_id"])
+        self.assertNotIn("raw_retained", entry)
+        self.assertFalse(any(self.artifacts.iterdir()))
+        replay = gateway.handle(command, transport=transport)
+        self.assertEqual(replay["claims"]["event_type"], "launch_unknown")
+        self.assertEqual(len(transport.create_calls), 1)
+
+    def test_persistent_post_create_state_failure_is_fatal_but_replay_never_relaunches(self) -> None:
+        gateway = self.gateway()
+        original_write = gateway._write_state
+        write_calls = 0
+
+        def fail_every_post_effect_write(state: dict[str, Any]) -> None:
+            nonlocal write_calls
+            write_calls += 1
+            if write_calls >= 2:
+                raise responses_gateway.ResponsesGatewayError("persistent fixture state fault")
+            original_write(state)
+
+        gateway._write_state = fail_every_post_effect_write  # type: ignore[method-assign]
+        command = self.signed_command()
+        transport = RecordingTransport(create=self.response_bytes())
+        with self.assertRaisesRegex(
+            responses_gateway.ResponsesGatewayError,
+            "launch_state_unpersisted",
+        ):
+            gateway.handle(command, transport=transport)
+
+        retained = json.loads(self.state_path.read_text(encoding="utf-8"))
+        entry = retained["attempts"]["manager-attempt-1"]
+        self.assertEqual(entry["status"], "launching")
+        self.assertIsNone(entry["provider_task_id"])
+        self.assertFalse(any(self.artifacts.iterdir()))
+
+        recovered = self.gateway().handle(command, transport=transport)
+        self.assertEqual(recovered["claims"]["event_type"], "launch_unknown")
+        self.assertEqual(len(transport.create_calls), 1)
+
     def test_restart_after_crash_boundaries_never_blind_relaunches(self) -> None:
         class SimulatedProcessCrash(BaseException):
             pass

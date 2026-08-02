@@ -578,6 +578,71 @@ class FixtureResponsesGateway:
             raise ResponsesGatewayError("fixture artifact cannot be persisted") from exc
         return relative
 
+    def _artifact_snapshot(self) -> set[str]:
+        """Capture the serialized fixture artifact namespace under the gateway lock."""
+        return {
+            item.name
+            for item in self.artifact_root.iterdir()
+            if item.is_file() and not item.is_symlink()
+        }
+
+    def _cleanup_attempt_artifacts(self, before: set[str]) -> bool:
+        """Remove only files created by the current serialized attempt."""
+        clean = True
+        try:
+            candidates = list(self.artifact_root.iterdir())
+        except OSError:
+            return False
+        for item in candidates:
+            if item.name in before:
+                continue
+            try:
+                if item.is_symlink() or not item.is_file():
+                    clean = False
+                    continue
+                _owner_only(item, mode=0o600, kind=stat.S_ISREG)
+                item.unlink()
+            except (OSError, ResponsesGatewayError):
+                clean = False
+        try:
+            directory = os.open(str(self.artifact_root), os.O_RDONLY)
+            try:
+                os.fsync(directory)
+            finally:
+                os.close(directory)
+        except OSError:
+            clean = False
+        return clean
+
+    def _persist_launch_unknown_after_effect(
+        self,
+        *,
+        state: dict[str, Any],
+        entry: dict[str, Any],
+        artifact_snapshot: set[str],
+    ) -> None:
+        """Best-effort durable ambiguity boundary after a possible create effect."""
+        cleanup_complete = self._cleanup_attempt_artifacts(artifact_snapshot)
+        for field in ("model", "raw_retained", "result"):
+            entry.pop(field, None)
+        entry.update({
+            "status": "launch_unknown",
+            "provider_task_id": None,
+            "terminal": False,
+            "sequence": 1,
+        })
+        try:
+            self._write_state(state)
+        except ResponsesGatewayError:
+            raise ResponsesGatewayError(
+                "launch_state_unpersisted: provider create may have taken effect; "
+                "the retained launching tombstone forbids automatic relaunch"
+            ) from None
+        if not cleanup_complete:
+            raise ResponsesGatewayError(
+                "provider create outcome is ambiguous and attempt artifact cleanup is incomplete"
+            )
+
     def _provider(
         self,
         raw_bytes: bytes,
@@ -771,6 +836,7 @@ class FixtureResponsesGateway:
                             result, details = self._unknown(request, request_digest, 1)
                             entry["status"] = "launch_unknown"
                         else:
+                            artifact_snapshot = self._artifact_snapshot()
                             try:
                                 info = self._provider(
                                     raw, request, operation, None, retain=False
@@ -788,13 +854,11 @@ class FixtureResponsesGateway:
                                 # returned identity or retained evidence is invalid.
                                 # Persist the terminal transport ambiguity now; a
                                 # later exact replay must never call create again.
-                                entry.update({
-                                    "status": "launch_unknown",
-                                    "provider_task_id": None,
-                                    "terminal": False,
-                                    "sequence": 1,
-                                })
-                                self._write_state(state)
+                                self._persist_launch_unknown_after_effect(
+                                    state=state,
+                                    entry=entry,
+                                    artifact_snapshot=artifact_snapshot,
+                                )
                                 if isinstance(exc, ResponsesGatewayError):
                                     raise
                                 raise ResponsesGatewayError(
@@ -803,7 +867,17 @@ class FixtureResponsesGateway:
                             # Persist identity and exact raw evidence first.  The optional fault
                             # seam deliberately leaves this state without a signed result.
                             entry.update({"status": "raw_retained", "provider_task_id": info["task_id"], "model": info["model"], "sequence": 1, "raw_retained": details, "terminal": bool(info["terminal"])})
-                            self._write_state(state)
+                            try:
+                                self._write_state(state)
+                            except ResponsesGatewayError:
+                                self._persist_launch_unknown_after_effect(
+                                    state=state,
+                                    entry=entry,
+                                    artifact_snapshot=artifact_snapshot,
+                                )
+                                raise ResponsesGatewayError(
+                                    "provider create outcome is ambiguous after identity retention failure"
+                                ) from None
                             fault = getattr(transport, "fixture_fault_after_raw_retain", None)
                             if isinstance(fault, BaseException):
                                 raise fault
