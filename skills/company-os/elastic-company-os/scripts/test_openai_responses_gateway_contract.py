@@ -126,6 +126,7 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         self.artifacts.mkdir(mode=0o700)
         self.request_private, self.request_public = self.make_keypair("request")
         self.gateway_private, self.gateway_public = self.make_keypair("gateway")
+        self.decision_private, self.decision_public = self.make_keypair("decision")
         self.request_keyring = self.root / "request-keyring.json"
         self.gateway_keyring = self.root / "gateway-keyring.json"
         self.write_keyrings()
@@ -277,6 +278,59 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         )
         return base64.urlsafe_b64encode(signature.read_bytes()).decode("ascii").rstrip("=")
 
+    def signed_decision_token(self, claims: dict[str, Any]) -> str:
+        encoded = base64.urlsafe_b64encode(
+            canonical_json(claims).encode("utf-8")
+        ).decode("ascii").rstrip("=")
+        payload = self.root / f"decision-{uuid.uuid4().hex}.txt"
+        signature = self.root / f"decision-{uuid.uuid4().hex}.bin"
+        payload.write_text(encoded, encoding="ascii")
+        subprocess.run(
+            [
+                "openssl", "dgst", "-sha256", "-sign", str(self.decision_private),
+                "-out", str(signature), str(payload),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        encoded_signature = base64.urlsafe_b64encode(
+            signature.read_bytes()
+        ).decode("ascii").rstrip("=")
+        return f"{encoded}.{encoded_signature}"
+
+    def cancellation_token(
+        self,
+        attempt: dict[str, Any],
+        *,
+        requested_by: str = "master-sol",
+        reason: str = "stop the fixture runtime",
+        requested_at: str | None = None,
+        after_observation_count: int = 0,
+    ) -> tuple[str, str, str]:
+        requested_at = requested_at or self.now.isoformat()
+        request_payload = {
+            "attempt_id": attempt["attempt_id"],
+            "requested_by": requested_by,
+            "reason": reason,
+            "requested_at": requested_at,
+            "after_observation_count": after_observation_count,
+        }
+        claims = {
+            "actor": requested_by,
+            "action": "cancel-runtime",
+            "resource": f"runtime:{attempt['attempt_id']}",
+            "project_id": attempt["project_id"],
+            "program_version": attempt["program_version"],
+            "work_id": attempt["work_id"],
+            "cycle_id": attempt["cycle_id"],
+            "dimension": "runtime-cancellation",
+            "decision": "cancelled",
+            "payload_hash": runtime_lifecycle.sha256_json(request_payload),
+            "nonce": uuid.uuid4().hex,
+            "expiry": (self.now + timedelta(minutes=5)).isoformat(),
+        }
+        return self.signed_decision_token(claims), requested_at, reason
+
     def signed_command(
         self,
         request: dict[str, Any] | None = None,
@@ -348,6 +402,7 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             gateway_keyring_path=self.gateway_keyring,
             gateway_key_id="responses-gateway-1",
             gateway_private_key_path=self.gateway_private,
+            decision_public_key_path=self.decision_public,
             now=self.now,
         )
 
@@ -359,6 +414,17 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         transport = RecordingTransport(create=self.response_bytes())
         command = self.signed_command(private=self.gateway_private)
         self.assert_gateway_error(lambda: self.gateway().handle(command, transport=transport))
+        self.assertEqual(transport.create_calls, [])
+        self.assertFalse(self.state_path.exists())
+
+    def test_request_verification_and_result_signing_keys_must_be_cryptographically_distinct(self) -> None:
+        self.request_public = self.gateway_public
+        self.write_keyrings()
+        transport = RecordingTransport(create=self.response_bytes())
+        self.assert_gateway_error(lambda: self.gateway().handle(
+            self.signed_command(private=self.gateway_private),
+            transport=transport,
+        ))
         self.assertEqual(transport.create_calls, [])
         self.assertFalse(self.state_path.exists())
 
@@ -391,6 +457,7 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             gateway_keyring_path=self.gateway_keyring,
             gateway_key_id="responses-gateway-1",
             gateway_private_key_path=self.gateway_private,
+            decision_public_key_path=self.decision_public,
             now=self.now,
         )
         self.assert_gateway_error(lambda: invalid.handle(command, transport=transport))
@@ -426,6 +493,10 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         self.assertEqual(verified["claims"]["provider_task_id"], "resp_phase2_1")
         self.assertEqual(verified["claims"]["observed_model"], "gpt-5.6-sol")
         self.assertEqual(verified["raw"]["payload"]["provider_status"], "in_progress")
+        self.assertEqual(
+            verified["raw"]["payload"]["provider_fixture_schema"],
+            "responses-fixture-no-tools-v1",
+        )
         self.assertEqual(
             verified["raw"]["payload"]["fixed_input_sha256"],
             hashlib.sha256(
@@ -522,13 +593,95 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         )
         self.assertEqual(terminal_record["raw"]["payload"]["provider_status"], "completed")
 
+    def test_provider_shaped_credentials_are_rejected_before_raw_retention(self) -> None:
+        credential_fields = {
+            "access_token": "access-fixture-secret",
+            "client_token": "client-fixture-secret",
+            "provider_token": "provider-fixture-secret",
+            "bearer_token": "bearer-fixture-secret",
+            "authorization": "Bearer authorization-fixture-secret",
+            "metadata": "Authorization: Bearer embedded-fixture-secret",
+            "signing_keys": "plural-signing-fixture-secret",
+            "privateKeys": "camel-private-fixture-secret",
+            "jwt": "jwt-fixture-secret",
+            "api-keys": "kebab-api-key-fixture-secret",
+            "id": "Authorization: Bearer allowed-field-fixture-secret",
+        }
+        for index, (field, secret) in enumerate(credential_fields.items()):
+            with self.subTest(field=field):
+                payload = json.loads(self.response_bytes())
+                payload[field] = secret
+                state_name = f"secret-{index}.json"
+                artifact_name = f"secret-artifacts-{index}"
+                gateway = self.gateway(state_name=state_name, artifact_name=artifact_name)
+                transport = RecordingTransport(create=canonical_json(payload).encode("utf-8"))
+                self.assert_gateway_error(lambda: gateway.handle(
+                    self.signed_command(), transport=transport,
+                ))
+                retained_state = json.loads((self.root / state_name).read_text())
+                self.assertEqual(
+                    retained_state["attempts"]["manager-attempt-1"]["status"],
+                    "launch_unknown",
+                )
+                artifact_bytes = b"".join(
+                    path.read_bytes()
+                    for path in (self.root / artifact_name).iterdir()
+                    if path.is_file()
+                )
+                self.assertNotIn(secret.encode("utf-8"), artifact_bytes)
+
+    def test_unknown_provider_fields_are_rejected_by_the_versioned_positive_schema(self) -> None:
+        payload = json.loads(self.response_bytes())
+        payload["harmless_future_field"] = "not a credential"
+        transport = RecordingTransport(create=canonical_json(payload).encode("utf-8"))
+        command = self.signed_command()
+        self.assert_gateway_error(lambda: self.gateway().handle(command, transport=transport))
+        retained = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(retained["attempts"]["manager-attempt-1"]["status"], "launch_unknown")
+        self.assertFalse(any(self.artifacts.iterdir()))
+        replay = self.gateway().handle(command, transport=transport)
+        self.assertEqual(replay["claims"]["event_type"], "launch_unknown")
+        self.assertEqual(len(transport.create_calls), 1)
+
+    def test_duplicate_provider_task_rejects_before_retaining_the_conflicting_body(self) -> None:
+        self.gateway().handle(
+            self.signed_command(),
+            transport=RecordingTransport(create=self.response_bytes()),
+        )
+        before_artifacts = {path.name for path in self.artifacts.iterdir()}
+        second_attempt = deepcopy(self.attempt)
+        second_attempt["attempt_id"] = "manager-attempt-2"
+        second_attempt["idempotency_key"] = "phase-2-responses-manager-2"
+        second_request = runtime_gateway.build_request(
+            second_attempt,
+            manifest=self.manifest,
+            operation="launch",
+            now=self.now,
+        )
+        conflicting_payload = json.loads(self.response_bytes())
+        conflicting_payload["created_at"] = 1785671999
+        transport = RecordingTransport(
+            create=canonical_json(conflicting_payload).encode("utf-8")
+        )
+        self.assert_gateway_error(lambda: self.gateway().handle(
+            self.signed_command(second_request),
+            transport=transport,
+        ))
+        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(state["attempts"]["manager-attempt-2"]["status"], "launch_unknown")
+        self.assertEqual({path.name for path in self.artifacts.iterdir()}, before_artifacts)
+
     def test_model_mismatch_fails_closed_without_a_signed_success_or_provider_binding(self) -> None:
         transport = RecordingTransport(create=self.response_bytes(model="gpt-5.6-terra"))
-        self.assert_gateway_error(lambda: self.gateway().handle(self.signed_command(), transport=transport))
-        if self.state_path.exists():
-            retained = self.state_path.read_text(encoding="utf-8")
-            self.assertNotIn("resp_phase2_1", retained)
-            self.assertNotIn("gpt-5.6-terra", retained)
+        command = self.signed_command()
+        self.assert_gateway_error(lambda: self.gateway().handle(command, transport=transport))
+        retained = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(retained["attempts"]["manager-attempt-1"]["status"], "launch_unknown")
+        self.assertNotIn("resp_phase2_1", canonical_json(retained))
+        self.assertNotIn("gpt-5.6-terra", canonical_json(retained))
+        replay = self.gateway().handle(command, transport=transport)
+        self.assertEqual(replay["claims"]["event_type"], "launch_unknown")
+        self.assertEqual(len(transport.create_calls), 1)
 
     def test_ambiguous_create_becomes_launch_unknown_and_never_blind_retries(self) -> None:
         transport = RecordingTransport(create=ConnectionError("connection lost after provider effect"))
@@ -687,18 +840,42 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             "terminal_status": "cancelled",
             "cancellation": {"grant": {"claims": {"action": "cancel-runtime"}}},
         }
-        attestation = self.gateway().attest_receipt(
+        self.assert_gateway_error(lambda: self.gateway().attest_receipt(
             attempt=cancelled_attempt,
             provider_task_id="resp_phase2_1",
             receipt_payload_hash="e" * 64,
-        )
-        verified_attestation = runtime_gateway.verify_receipt_attestation(
-            attestation,
-            attempt=cancelled_attempt,
-            keyring_path=self.gateway_keyring,
+        ))
+
+        signed_cancellation = deepcopy(self.attempt)
+        signed_cancellation["lifecycle"] = {
+            **runtime_lifecycle.empty_lifecycle(),
+            "status": "launched",
+            "provider_task_id": "resp_phase2_1",
+        }
+        grant_token, requested_at, reason = self.cancellation_token(signed_cancellation)
+        signed_cancellation = runtime_lifecycle.request_cancellation(
+            signed_cancellation,
+            requested_by="master-sol",
+            reason=reason,
+            grant_token=grant_token,
+            decision_public_key_path=self.decision_public,
+            requested_at=requested_at,
             now=self.now,
         )
-        self.assertEqual(verified_attestation["claims"]["gateway_key_id"], "responses-gateway-1")
+        signed_cancellation["lifecycle"].update({
+            "status": "cancelled",
+            "terminal_status": "cancelled",
+            "terminal_authority": "provider_observation",
+            "terminal_observation_digest": late_record["observation_digest"],
+            "terminal_provider_event_id": late_record["claims"]["provider_event_id"],
+        })
+        # A valid decision signature alone is still insufficient: the entire
+        # lifecycle must replay from the signed provider observations.
+        self.assert_gateway_error(lambda: self.gateway().attest_receipt(
+            attempt=signed_cancellation,
+            provider_task_id="resp_phase2_1",
+            receipt_payload_hash="a" * 64,
+        ))
         provider_raw = self.artifacts / late_record["raw"]["payload"]["provider_raw_artifact_path"]
         provider_raw.write_bytes(provider_raw.read_bytes() + b" ")
         self.assert_gateway_error(lambda: self.gateway().attest_receipt(

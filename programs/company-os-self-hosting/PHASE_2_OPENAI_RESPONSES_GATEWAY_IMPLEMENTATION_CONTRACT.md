@@ -38,6 +38,7 @@ class FixtureResponsesGateway:
         gateway_keyring_path: Path,
         gateway_key_id: str,
         gateway_private_key_path: Path,
+        decision_public_key_path: Path,
         now: datetime,
     ) -> None: ...
 
@@ -107,7 +108,11 @@ The gateway private key may be read only by the signing operation.  Its public
 key is supplied through the existing gateway keyring to Company OS.  Before
 signing, the adapter verifies that the configured key ID is active at the
 injected clock and that the private key matches that exact public key. Request
-verification and result signing use distinct keys; key substitution fails.
+verification and result signing use cryptographically distinct normalized
+public-key material, not merely different paths or key IDs; key substitution
+fails before state mutation. The explicit `decision_public_key_path` pins the
+issuer used to replay retained cancellation grants and is never read from
+ambient configuration.
 
 ## Durable command semantics
 
@@ -120,7 +125,7 @@ fixture root.
 | Operation | Required transition | Idempotency rule |
 | --- | --- | --- |
 | `launch` | Persist `launching` tombstone before `transport.create` | Exact replay returns retained signed result. A changed replay conflicts. |
-| ambiguous create | Persist `launch_unknown` when no valid response ID was durably retained | It never calls `create` again. Automatic transport reconciliation is terminally blocked. |
+| ambiguous create | Persist `launch_unknown` in the same call when no valid response ID was durably retained, including returned-byte validation or retention failure after the possible effect | It never calls `create` again. Automatic transport reconciliation is terminally blocked. |
 | `query` after `launch_unknown` | Return the retained blocked `launch_unknown` result without transport | A task with no durable Response ID cannot be retrieved. Only a future separately authorized, cryptographically proven external reconciliation may introduce an ID; that surface is out of scope. |
 | `observe` | Use `retrieve` only for its retained provider task ID | It cannot change the task or model. |
 | `cancel` | Persist cancellation intent before `transport.cancel` | Repeated cancel returns the same canonical cancellation result. |
@@ -155,6 +160,9 @@ Raw Responses JSON must be retained byte-for-byte and decoded strictly (UTF-8,
 duplicate keys and non-finite constants rejected). A valid provider record has
 all of:
 
+- exact `responses-fixture-no-tools-v1` top-level fields only: `id`, `object`,
+  `created_at`, `status`, and `model`, plus `completed_at` and `usage` only for
+  a terminal status; `object` is exactly `response` and unknown fields reject;
 - non-empty `id` bound as `provider_task_id`;
 - non-empty returned `model` exactly equal to `requested_model`;
 - non-empty provider `status` mapped deterministically to the existing event
@@ -163,7 +171,9 @@ all of:
   `completed_at`, converted to canonical UTC only after their exact source
   bytes are retained; provider timestamps remain distinct from gateway ISO
   sent/received/signed timestamps;
-- a required terminal `usage` object with non-negative integer token counts;
+- a required terminal `usage` object with exactly the versioned input/output/
+  total token fields and their exact cached/cache-write/reasoning detail fields,
+  all non-negative integers;
 - a SHA-256 digest and size calculated directly from the captured provider
   bytes, plus a separate normalized `RAW_FIELDS` projection whose signed
   payload binds that provider-byte digest.
@@ -171,6 +181,12 @@ all of:
 Missing/inconsistent identity, status, timestamps, or terminal usage fails
 closed. Requested model never fills a missing observed model. A returned model
 mismatch has no signed success envelope, no task admission, and no receipt.
+Provider-shaped credentials (`access_token`, `client_token`, `provider_token`,
+`bearer_token`, authorization fields, and Bearer/Basic credential values) fail
+before raw retention. Legitimate token counts are permitted only at the exact
+contracted `usage` paths; transformed/redacted evidence is never mislabeled as
+the exact provider response. Duplicate provider-task identity is also rejected
+before retaining the conflicting body.
 
 ## Existing verifier compatibility
 
@@ -194,10 +210,17 @@ adapter therefore retains the exact provider `usage` object as
 `provider_usage`, emits `cost_status: unavailable`, and emits no numeric
 `cost_usd`. It must never invent `$0`. A successful completion receipt remains
 NO-GO until a separate signed, versioned pricing attestation or provider
-billing record supplies conservative cost. This phase may attest a cancelled
-terminal receipt only when the caller presents the exact admitted identity and
-an authoritative cancelled lifecycle that agrees with the retained cancel
-intent. A caller-supplied success state can never override cancellation.
+billing record supplies conservative cost. This phase can attest a cancelled
+terminal receipt only when the exact admitted identity's entire lifecycle
+deterministically replays from retained signed gateway observations and a full
+cancellation decision grant verifies against the explicitly pinned decision
+issuer. The replay binds the exact project, program, work, cycle, attempt,
+provider task, capabilities, terminal event, and cancellation payload.
+Caller-supplied claims or an otherwise valid grant without a replay-valid
+lifecycle are insufficient. Because this fixture deliberately lacks
+authoritative priced usage, no current fixture path is expected to satisfy the
+full receipt gate. A caller-supplied success state can never override
+cancellation.
 
 ```python
 gateway.attest_receipt(

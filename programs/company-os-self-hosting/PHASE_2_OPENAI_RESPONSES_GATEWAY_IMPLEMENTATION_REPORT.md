@@ -25,7 +25,8 @@ The adapter:
 - revalidates the exact provider-neutral runtime request, admitted model,
   immutable attempt identity, scope, budget, capabilities, lease fence, and
   admission-grant binding;
-- requires distinct active request-verification and gateway-signing keys;
+- compares normalized cryptographic public material and requires distinct
+  active request-verification and gateway-signing keys;
 - requires an injected transport carrying the immutable `fixture_only = True`
   marker and contains no HTTP client, provider URL, API-key lookup, listener,
   or network-connect implementation;
@@ -35,18 +36,27 @@ The adapter:
   repeats an ambiguous cancellation;
 - serializes duplicate commands with an owner-only file lock and rejects
   changed nonce, request, attempt, model, or provider-task identities;
-- retains the exact provider bytes, digest, and size before strict parsing, and
-  separately retains the normalized raw observation consumed by the existing
-  signed gateway verifier;
+- captures the raw provider bytes, validates their strict positive schema
+  before persistence, then retains the accepted bytes, digest, and size exactly
+  alongside the normalized observation consumed by the existing signed gateway
+  verifier;
+- admits only the signed `responses-fixture-no-tools-v1` positive provider
+  schema, including exact top-level and nested usage fields; unknown fields are
+  rejected before retention, as are bodies that conflict with an already-bound
+  provider task;
 - rejects duplicate JSON keys, non-finite values, malformed identity, future
   timestamps, model substitution, task substitution, invalid usage, secret-
-  shaped fixture data, artifact tamper, and signing-key substitution;
+  shaped fixture data (including provider/access/client/bearer tokens and
+  authorization values) before raw retention, artifact tamper, and signing-key
+  substitution;
 - preserves late provider success as evidence while retaining cancellation
   dominance; and
 - refuses successful receipt attribution because the Responses object does not
   supply authoritative dollar cost. It emits `cost_status: unavailable`, never
-  fabricates `$0`, and permits only the narrowly contracted cancelled receipt
-  attestation path.
+  fabricates `$0`, and rejects cancelled receipt attestation unless the entire
+  lifecycle replays from signed observations and a cancellation decision grant
+  verifies against the explicitly pinned issuer. No current fixture path has
+  the priced lifecycle evidence needed to pass that gate.
 
 The fixed fixture request has exactly the five contracted keys: admitted exact
 model, the read-only `READY` input, `background: true`, `store: false`, and an
@@ -61,7 +71,7 @@ other provider.
 
 | Lane | Result |
 | --- | --- |
-| Responses gateway adversarial contract | 20/20 passed |
+| Responses gateway adversarial contract | 24/24 passed |
 | Provider-neutral runtime gateway | 10/10 passed |
 | Runtime lifecycle | 14/14 passed |
 | Runtime receipts | 9/9 passed |
@@ -75,8 +85,8 @@ other provider.
 | Python compilation, including the new module and test | passed |
 | `git diff --check` | passed |
 
-Total test evidence: **271 passed and one known distribution-manifest error**
-across 272 executed unit tests. The direct command-center surface verification
+Total test evidence: **275 passed and one known distribution-manifest error**
+across 276 executed unit tests. The direct command-center surface verification
 requires externally supplied reviewer identity and public-key digest variables;
 they were unavailable in this checkout, so no surface-attestation claim is
 made.

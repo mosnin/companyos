@@ -14,6 +14,7 @@ import importlib.util
 import json
 import math
 import os
+import re
 import stat
 import subprocess
 import tempfile
@@ -28,6 +29,15 @@ REQUEST_KEYRING_SCHEMA = "company-os.openai-responses-request-keyring.v1"
 RESULT_SCHEMA = "company-os.runtime-gateway-result.v1"
 RECEIPT_SCHEMA = "company-os.runtime-receipt-attestation.v1"
 FIXED_INPUT = "Return exactly READY. Do not call tools or perform external actions."
+PROVIDER_FIXTURE_SCHEMA = "responses-fixture-no-tools-v1"
+PROVIDER_BASE_FIELDS = {"id", "object", "created_at", "status", "model"}
+PROVIDER_TERMINAL_FIELDS = PROVIDER_BASE_FIELDS | {"completed_at", "usage"}
+PROVIDER_USAGE_FIELDS = {
+    "input_tokens", "input_tokens_details", "output_tokens",
+    "output_tokens_details", "total_tokens",
+}
+PROVIDER_INPUT_DETAIL_FIELDS = {"cached_tokens", "cache_write_tokens"}
+PROVIDER_OUTPUT_DETAIL_FIELDS = {"reasoning_tokens"}
 COMMAND_FIELDS = {
     "schema", "request_key_id", "gateway_request", "gateway_request_digest",
     "nonce", "issued_at", "expires_at",
@@ -65,6 +75,7 @@ def _module(name: str) -> Any:
 
 runtime_gateway = _module("runtime_gateway")
 observations = _module("runtime_observations")
+runtime_lifecycle = _module("runtime_lifecycle")
 
 
 def _canonical(value: Any) -> str:
@@ -145,18 +156,102 @@ def _has_symlink_component(path: Path) -> bool:
     return False
 
 
-def _contains_secret(value: Any, *, key: str = "") -> bool:
+def _public_key_fingerprint(path: Path) -> str:
+    """Compare normalized DER public material rather than path or PEM spelling."""
+    try:
+        result = subprocess.run(
+            ["openssl", "pkey", "-pubin", "-in", str(path), "-outform", "DER"],
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        raise ResponsesGatewayError("public-key verification support is unavailable") from None
+    if result.returncode != 0 or not result.stdout:
+        raise ResponsesGatewayError("public-key material is invalid")
+    return _bytes_digest(result.stdout)
+
+
+_SAFE_PROVIDER_TOKEN_PATHS = {
+    ("usage", "input_tokens"),
+    ("usage", "output_tokens"),
+    ("usage", "total_tokens"),
+    ("usage", "input_tokens_details"),
+    ("usage", "output_tokens_details"),
+    ("usage", "input_tokens_details", "cached_tokens"),
+    ("usage", "input_tokens_details", "cache_write_tokens"),
+    ("usage", "output_tokens_details", "reasoning_tokens"),
+}
+
+
+def _normalized_key(value: object) -> str:
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", str(value)).casefold().replace("-", "_")
+
+
+def _contains_secret(value: Any, *, key: str = "", path: tuple[str, ...] = ()) -> bool:
     """Reject authority-bearing input without ever reflecting it in diagnostics."""
-    lowered = key.casefold()
-    if key != "admission_grant_token" and any(word in lowered for word in ("secret", "credential", "api_key", "private_key", "authorization")):
+    lowered = _normalized_key(key)
+    current_path = (*path, lowered) if key else path
+    safe_token_count = current_path in _SAFE_PROVIDER_TOKEN_PATHS
+    if key != "admission_grant_token" and (
+        any(word in lowered for word in (
+            "secret", "credential", "password", "api_key", "private_key",
+            "authorization", "access_token", "refresh_token", "bearer_token",
+        ))
+        or ((lowered == "token" or lowered.endswith("_token")) and not safe_token_count)
+    ):
         return True
     if isinstance(value, dict):
-        return any(_contains_secret(item, key=str(name)) for name, item in value.items())
+        return any(
+            _contains_secret(item, key=str(name), path=current_path)
+            for name, item in value.items()
+        )
     if isinstance(value, list):
-        return any(_contains_secret(item) for item in value)
+        return any(_contains_secret(item, path=current_path) for item in value)
     if isinstance(value, str):
         sample = value.casefold()
-        return "authorization bearer" in sample or sample.startswith("sk-")
+        return bool(
+            sample.startswith("sk-")
+            or re.search(r"(?:authorization\s*:\s*)?(?:bearer|basic)\s+[^\s]{4,}", sample)
+        )
+    return False
+
+
+def _provider_contains_credential(
+    value: Any, *, key: str = "", path: tuple[str, ...] = ()
+) -> bool:
+    """Aggressive defense-in-depth for the accepted provider fixture shape."""
+    lowered = _normalized_key(key)
+    current_path = (*path, lowered) if key else path
+    safe_token_count = current_path in _SAFE_PROVIDER_TOKEN_PATHS
+    if key and not safe_token_count and (
+        any(word in lowered for word in (
+            "secret", "credential", "password", "authorization", "auth",
+            "token", "jwt", "private_key", "signing_key", "api_key",
+            "access_key", "client_key", "provider_key", "bearer",
+        ))
+        or lowered == "key"
+        or lowered.endswith("_key")
+        or lowered.endswith("_keys")
+    ):
+        return True
+    if isinstance(value, dict):
+        return any(
+            _provider_contains_credential(item, key=str(name), path=current_path)
+            for name, item in value.items()
+        )
+    if isinstance(value, list):
+        return any(_provider_contains_credential(item, path=current_path) for item in value)
+    if isinstance(value, str):
+        sample = value.strip()
+        return bool(
+            sample.casefold().startswith("sk-")
+            or re.search(
+                r"(?:authorization\s*:\s*)?(?:bearer|basic)\s+[^\s]{4,}",
+                sample,
+                re.I,
+            )
+            or re.fullmatch(r"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", sample)
+        )
     return False
 
 
@@ -171,6 +266,7 @@ class FixtureResponsesGateway:
         gateway_keyring_path: Path,
         gateway_key_id: str,
         gateway_private_key_path: Path,
+        decision_public_key_path: Path,
         now: datetime,
     ) -> None:
         self.socket_path = Path(socket_path)
@@ -180,6 +276,7 @@ class FixtureResponsesGateway:
         self.gateway_keyring_path = Path(gateway_keyring_path)
         self.gateway_key_id = gateway_key_id
         self.gateway_private_key_path = Path(gateway_private_key_path)
+        self.decision_public_key_path = Path(decision_public_key_path)
         if not isinstance(now, datetime) or now.tzinfo is None:
             raise ResponsesGatewayError("fixture clock is invalid")
         self.now = now.astimezone(timezone.utc)
@@ -207,6 +304,11 @@ class FixtureResponsesGateway:
             raise ResponsesGatewayError("fixture artifact root escapes its root")
         if self.state_path.exists():
             _owner_only(self.state_path, mode=0o600, kind=stat.S_ISREG)
+        if (
+            _has_symlink_component(self.decision_public_key_path)
+            or not self.decision_public_key_path.is_file()
+        ):
+            raise ResponsesGatewayError("decision issuer public key is unavailable")
         lock = self.state_path.with_name(self.state_path.name + ".lock")
         if lock.exists():
             _owner_file(lock)
@@ -243,7 +345,7 @@ class FixtureResponsesGateway:
             raise ResponsesGatewayError("request public key is unavailable")
         return public
 
-    def _verify_command(self, envelope: Any) -> tuple[dict[str, Any], dict[str, Any], str, str]:
+    def _verify_command(self, envelope: Any) -> tuple[dict[str, Any], dict[str, Any], str, str, str]:
         if not isinstance(envelope, dict) or set(envelope) != {"claims", "signature"}:
             raise ResponsesGatewayError("command envelope is invalid")
         claims = envelope.get("claims")
@@ -263,7 +365,7 @@ class FixtureResponsesGateway:
             observations.verify_signature(claims, envelope.get("signature"), public)
         except ValueError as exc:
             raise ResponsesGatewayError("command signature is invalid") from exc
-        return claims, request, request_digest, _digest(claims)
+        return claims, request, request_digest, _digest(claims), _public_key_fingerprint(public)
 
     def _request(self, request: Any) -> dict[str, Any]:
         if not isinstance(request, dict):
@@ -323,7 +425,7 @@ class FixtureResponsesGateway:
             raise ResponsesGatewayError("gateway request has invalid provider task identity")
         return request
 
-    def _gateway_key(self) -> Path:
+    def _gateway_key(self) -> tuple[Path, str]:
         try:
             public = observations.load_gateway_key(self.gateway_keyring_path, _text(self.gateway_key_id, "gateway_key_id"), self.now)
         except ValueError as exc:
@@ -336,7 +438,7 @@ class FixtureResponsesGateway:
             raise ResponsesGatewayError("gateway signing support is unavailable") from None
         if derived.returncode != 0 or derived.stdout != public.read_bytes():
             raise ResponsesGatewayError("gateway private key does not match active public key")
-        return public
+        return public, _public_key_fingerprint(public)
 
     def _sign(self, claims: dict[str, Any]) -> dict[str, Any]:
         self._gateway_key()
@@ -430,15 +532,32 @@ class FixtureResponsesGateway:
             raise ResponsesGatewayError("fixture artifact cannot be persisted") from exc
         return relative
 
-    def _provider(self, raw_bytes: bytes, request: dict[str, Any], operation: str, retained_task: str | None) -> dict[str, Any]:
+    def _provider(
+        self,
+        raw_bytes: bytes,
+        request: dict[str, Any],
+        operation: str,
+        retained_task: str | None,
+        *,
+        retain: bool = True,
+    ) -> dict[str, Any]:
         if not isinstance(raw_bytes, bytes):
             raise ResponsesGatewayError("fixture transport must return raw bytes")
         try:
             provider = observations.load_json_bytes_strict(raw_bytes)
         except ValueError as exc:
             raise ResponsesGatewayError("provider fixture JSON is invalid") from exc
-        if not isinstance(provider, dict) or _contains_secret(provider):
+        if (
+            not isinstance(provider, dict)
+            or _contains_secret(provider)
+            or _provider_contains_credential(provider)
+        ):
             raise ResponsesGatewayError("provider fixture is invalid")
+        raw_status = provider.get("status")
+        terminal = raw_status in {"completed", "failed", "cancelled", "incomplete"}
+        expected_fields = PROVIDER_TERMINAL_FIELDS if terminal else PROVIDER_BASE_FIELDS
+        if set(provider) != expected_fields or provider.get("object") != "response":
+            raise ResponsesGatewayError("provider fixture schema is invalid")
         task_id = _text(provider.get("id"), "provider response id")
         model = _text(provider.get("model"), "provider response model")
         status = _text(provider.get("status"), "provider response status")
@@ -453,7 +572,6 @@ class FixtureResponsesGateway:
             provider_time = datetime.fromtimestamp(created_at, timezone.utc)
         except (OverflowError, OSError, ValueError):
             raise ResponsesGatewayError("provider response timestamp is invalid") from None
-        terminal = status in {"completed", "failed", "cancelled", "incomplete"}
         if terminal:
             completed_at = provider.get("completed_at")
             if not isinstance(completed_at, (int, float)) or isinstance(completed_at, bool) or not math.isfinite(completed_at) or completed_at < created_at:
@@ -467,7 +585,14 @@ class FixtureResponsesGateway:
         provider_usage: dict[str, Any] | None = None
         if terminal:
             source = provider.get("usage")
-            if not isinstance(source, dict):
+            if (
+                not isinstance(source, dict)
+                or set(source) != PROVIDER_USAGE_FIELDS
+                or not isinstance(source.get("input_tokens_details"), dict)
+                or set(source["input_tokens_details"]) != PROVIDER_INPUT_DETAIL_FIELDS
+                or not isinstance(source.get("output_tokens_details"), dict)
+                or set(source["output_tokens_details"]) != PROVIDER_OUTPUT_DETAIL_FIELDS
+            ):
                 raise ResponsesGatewayError("provider terminal usage is invalid")
             required = ("input_tokens", "output_tokens", "total_tokens")
             if any(not isinstance(source.get(name), int) or isinstance(source.get(name), bool) or source[name] < 0 for name in required):
@@ -481,21 +606,42 @@ class FixtureResponsesGateway:
             provider_usage = source
         if status not in {"in_progress", "queued", "completed", "failed", "cancelled", "incomplete"}:
             raise ResponsesGatewayError("provider response status is unsupported")
-        raw_source_path = self._write_artifact("provider", raw_bytes)
         normalized_status = {"completed": "succeeded", "failed": "failed", "cancelled": "cancelled", "incomplete": "failed"}.get(status)
         payload: dict[str, Any] = {
             "provider_status": status,
             "status": normalized_status,
             "usage": None,
-            "provider_raw_artifact_path": raw_source_path,
-            "provider_raw_sha256": _bytes_digest(raw_bytes),
-            "provider_raw_size": len(raw_bytes),
             "fixed_input_sha256": _bytes_digest(FIXED_INPUT.encode("utf-8")),
+            "provider_fixture_schema": PROVIDER_FIXTURE_SCHEMA,
         }
         if terminal:
             payload["provider_usage"] = provider_usage
             payload["cost_status"] = "unavailable"
-        return {"task_id": task_id, "model": model, "status": status, "terminal": terminal, "provider_time": _iso(provider_time), "payload": payload, "raw_source_path": raw_source_path, "raw_sha": _bytes_digest(raw_bytes)}
+        info = {
+            "task_id": task_id,
+            "model": model,
+            "status": status,
+            "terminal": terminal,
+            "provider_time": _iso(provider_time),
+            "payload": payload,
+            "raw_sha": _bytes_digest(raw_bytes),
+        }
+        return self._retain_provider(info, raw_bytes) if retain else info
+
+    def _retain_provider(self, info: dict[str, Any], raw_bytes: bytes) -> dict[str, Any]:
+        """Retain exact bytes only after every positive-schema/identity check."""
+        retained = {
+            **info,
+            "payload": dict(info["payload"]),
+        }
+        raw_source_path = self._write_artifact("provider", raw_bytes)
+        retained["raw_source_path"] = raw_source_path
+        retained["payload"].update({
+            "provider_raw_artifact_path": raw_source_path,
+            "provider_raw_sha256": _bytes_digest(raw_bytes),
+            "provider_raw_size": len(raw_bytes),
+        })
+        return retained
 
     def _record(self, request: dict[str, Any], request_digest: str, event: str, info: dict[str, Any], sequence: int) -> tuple[dict[str, Any], dict[str, Any]]:
         attempt = request["attempt"]
@@ -533,10 +679,12 @@ class FixtureResponsesGateway:
         self._boundary()
         if getattr(transport, "fixture_only", None) is not True or any(not callable(getattr(transport, name, None)) for name in ("create", "retrieve", "cancel")):
             raise ResponsesGatewayError("fixture transport is not explicitly fixture-only")
-        claims, request, request_digest, command_digest = self._verify_command(signed_command)
+        claims, request, request_digest, command_digest, request_key_fingerprint = self._verify_command(signed_command)
         # Validate the distinct signing authority before creating a tombstone
         # or crossing the fixture transport boundary.
-        self._gateway_key()
+        _, gateway_key_fingerprint = self._gateway_key()
+        if request_key_fingerprint == gateway_key_fingerprint:
+            raise ResponsesGatewayError("request verification and result signing keys must be distinct")
         lock_path = self.state_path.with_name(self.state_path.name + ".lock")
         lock_flags = os.O_WRONLY | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0)
         try:
@@ -592,14 +740,35 @@ class FixtureResponsesGateway:
                             result, details = self._unknown(request, request_digest, 1)
                             entry["status"] = "launch_unknown"
                         else:
-                            info = self._provider(raw, request, operation, None)
-                            if any(
-                                other_id != attempt_id and other.get("provider_task_id") == info["task_id"]
-                                for other_id, other in state["attempts"].items()
-                                if isinstance(other, dict)
-                            ):
-                                raise ResponsesGatewayError("provider task is already bound")
-                            result, details = self._record(request, request_digest, "launch", info, 1)
+                            try:
+                                info = self._provider(
+                                    raw, request, operation, None, retain=False
+                                )
+                                if any(
+                                    other_id != attempt_id and other.get("provider_task_id") == info["task_id"]
+                                    for other_id, other in state["attempts"].items()
+                                    if isinstance(other, dict)
+                                ):
+                                    raise ResponsesGatewayError("provider task is already bound")
+                                info = self._retain_provider(info, raw)
+                                result, details = self._record(request, request_digest, "launch", info, 1)
+                            except Exception as exc:
+                                # The provider effect may already exist even when its
+                                # returned identity or retained evidence is invalid.
+                                # Persist the terminal transport ambiguity now; a
+                                # later exact replay must never call create again.
+                                entry.update({
+                                    "status": "launch_unknown",
+                                    "provider_task_id": None,
+                                    "terminal": False,
+                                    "sequence": 1,
+                                })
+                                self._write_state(state)
+                                if isinstance(exc, ResponsesGatewayError):
+                                    raise
+                                raise ResponsesGatewayError(
+                                    "provider create outcome is ambiguous"
+                                ) from None
                             # Persist identity and exact raw evidence first.  The optional fault
                             # seam deliberately leaves this state without a signed result.
                             entry.update({"status": "raw_retained", "provider_task_id": info["task_id"], "model": info["model"], "sequence": 1, "raw_retained": details, "terminal": bool(info["terminal"])})
@@ -757,16 +926,39 @@ class FixtureResponsesGateway:
             or not isinstance(entry.get("cancel_command_digest"), str)
             or not entry["cancel_command_digest"]
             or not isinstance(lifecycle, dict)
+            or set(lifecycle) != set(runtime_lifecycle.empty_lifecycle())
             or lifecycle.get("status") != "cancelled"
             or lifecycle.get("terminal_status") != "cancelled"
+            or lifecycle.get("provider_task_id") != provider_task_id
+            or lifecycle.get("terminal_authority") != "provider_observation"
             or not isinstance(lifecycle.get("cancellation"), dict)
-            or not isinstance(lifecycle["cancellation"].get("grant"), dict)
-            or not isinstance(lifecycle["cancellation"]["grant"].get("claims"), dict)
-            or lifecycle["cancellation"]["grant"]["claims"].get("action") != "cancel-runtime"
         ):
-            # Completion attribution is intentionally NO-GO while cost is
-            # unavailable; only an authoritative cancellation can be attested.
             raise ResponsesGatewayError("receipt attribution is not eligible")
+        try:
+            lifecycle_errors = runtime_lifecycle.audit_attempt(
+                attempt,
+                keyring_path=self.gateway_keyring_path,
+                decision_public_key_path=self.decision_public_key_path,
+            )
+        except ValueError as exc:
+            raise ResponsesGatewayError("cancelled lifecycle authority is invalid") from exc
+        if lifecycle_errors:
+            raise ResponsesGatewayError("cancelled lifecycle authority is invalid")
+        terminal_result = entry.get("result")
+        terminal_claims = (
+            terminal_result.get("claims")
+            if isinstance(terminal_result, dict)
+            else None
+        )
+        if (
+            not isinstance(terminal_claims, dict)
+            or terminal_claims.get("event_type") != "terminal"
+            or terminal_claims.get("provider_task_id") != provider_task_id
+            or lifecycle.get("terminal_observation_digest") != _digest(terminal_claims)
+            or lifecycle.get("terminal_provider_event_id")
+            != terminal_claims.get("provider_event_id")
+        ):
+            raise ResponsesGatewayError("cancelled lifecycle does not bind terminal gateway evidence")
         details = entry.get("raw_retained")
         if not isinstance(details, dict):
             raise ResponsesGatewayError("terminal raw evidence is missing")
