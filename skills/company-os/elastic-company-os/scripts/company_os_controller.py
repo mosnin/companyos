@@ -538,6 +538,233 @@ def adaptation_proposal_digest(proposal: dict[str, Any]) -> str:
     }).encode("utf-8")).hexdigest()
 
 
+def transition_archive_digest(record: dict[str, Any]) -> str:
+    """Digest one immutable program-transition archive without self-reference."""
+    payload = deepcopy(record)
+    payload.pop("archive_digest", None)
+    return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def program_transition_id(source_program_version: int, replacement_program_version: int) -> str:
+    return f"program-transition-{source_program_version}-to-{replacement_program_version}"
+
+
+def archive_program_transition_state(
+    state: dict[str, Any],
+    *,
+    source_program_version: int,
+    replacement_program_version: int,
+    archived_at: str,
+    reason: str,
+    trigger: str,
+    source_strategy: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Append exact adaptation and scorecard snapshots for one version boundary."""
+    feedback = state.setdefault("feedback", {})
+    adaptation_archives = feedback.setdefault("archived_adaptations", [])
+    quality_archives = feedback.setdefault("archived_quality_scorecards", [])
+    if not isinstance(adaptation_archives, list) or not isinstance(quality_archives, list):
+        raise ValueError("program transition archives must be arrays")
+    transition_id = program_transition_id(source_program_version, replacement_program_version)
+    if any(
+        isinstance(item, dict) and item.get("transition_id") == transition_id
+        for item in [*adaptation_archives, *quality_archives]
+    ):
+        raise ValueError("program transition was already archived")
+    common = {
+        "transition_id": transition_id,
+        "source_program_version": source_program_version,
+        "replacement_program_version": replacement_program_version,
+        "archived_at": archived_at,
+        "reason": reason,
+        "trigger": trigger,
+        "source_strategy_digest": hashlib.sha256(
+            canonical_json(source_strategy).encode("utf-8")
+        ).hexdigest(),
+    }
+    adaptation_archive = {
+        **common,
+        "source_strategy": deepcopy(source_strategy),
+        "previous_archive_digest": (
+            adaptation_archives[-1].get("archive_digest")
+            if adaptation_archives and isinstance(adaptation_archives[-1], dict)
+            else None
+        ),
+        "pending_adaptations": deepcopy(feedback.get("pending_adaptations", [])),
+        "applied_adaptations": deepcopy(feedback.get("applied_adaptations", [])),
+    }
+    adaptation_archive["archive_digest"] = transition_archive_digest(adaptation_archive)
+    quality_archive = {
+        **common,
+        "previous_archive_digest": (
+            quality_archives[-1].get("archive_digest")
+            if quality_archives and isinstance(quality_archives[-1], dict)
+            else None
+        ),
+        "quality": deepcopy(state.get("quality", {})),
+    }
+    quality_archive["archive_digest"] = transition_archive_digest(quality_archive)
+    adaptation_archives.append(adaptation_archive)
+    quality_archives.append(quality_archive)
+    return adaptation_archive, quality_archive
+
+
+def prepare_stale_program_transition_repair(
+    state: dict[str, Any],
+    *,
+    source_strategy: dict[str, Any],
+    source_state_revision: int,
+    source_state_digest: str,
+    transition_state_revision: int,
+    transition_state_digest: str,
+) -> tuple[dict[str, Any], dict[str, Any], set[str]]:
+    """Build the sole eligible mechanical repair without introducing authority."""
+    current_version = state.get("strategy", {}).get("program_version")
+    if not isinstance(current_version, int) or current_version < 2:
+        raise ValueError("stale transition repair requires a replacement program")
+    source_version = current_version - 1
+    if (
+        not isinstance(source_state_revision, int)
+        or source_state_revision < 1
+        or not isinstance(transition_state_revision, int)
+        or transition_state_revision != source_state_revision + 1
+        or not isinstance(source_state_digest, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", source_state_digest)
+        or not isinstance(transition_state_digest, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", transition_state_digest)
+    ):
+        raise ValueError("stale transition repair requires exact contiguous state revisions")
+    if (
+        not isinstance(source_strategy, dict)
+        or source_strategy.get("program_version") != source_version
+        or source_strategy.get("program_fingerprint") != strategy_fingerprint(source_strategy)
+    ):
+        raise ValueError("stale transition repair requires the exact prior strategy snapshot")
+    if state.get("schema_version") != SCHEMA_VERSION or state.get("core_version") != CORE_VERSION:
+        raise ValueError("stale transition repair requires the current controller schema")
+    if state.get("instance", {}).get("status") != "paused":
+        raise ValueError("stale transition repair requires a paused instance")
+    controller_state = state.get("controller", {})
+    if controller_state.get("schedule_enabled") is not False:
+        raise ValueError("stale transition repair requires scheduling to be disabled")
+    if controller_state.get("lease") is not None:
+        raise ValueError("stale transition repair refuses a live lease")
+    feedback = state.get("feedback", {})
+    if feedback.get("cycles") != []:
+        raise ValueError("stale transition repair refuses retained cycle work")
+    portfolio = state.get("portfolio", {})
+    if portfolio.get("active_work") != [] or portfolio.get("committed_outcomes") != []:
+        raise ValueError("stale transition repair refuses active or committed work")
+    if any(items != [] for items in state.get("evidence", {}).values()):
+        raise ValueError("stale transition repair refuses live evidence")
+    fabric = state.get("execution_fabric", {})
+    if (
+        fabric.get("program_version") != current_version
+        or fabric.get("status") != "unconfigured"
+        or fabric.get("cycle_id") is not None
+        or fabric.get("work_id") is not None
+        or fabric.get("managers") not in ({}, None)
+    ):
+        raise ValueError("stale transition repair refuses configured execution work")
+    runtime = state.get("runtime_adapter", {})
+    if (
+        runtime.get("program_version") != current_version
+        or runtime.get("status") != "disabled"
+        or runtime.get("enabled") is not False
+        or runtime.get("attempts") != []
+    ):
+        raise ValueError("stale transition repair refuses runtime work")
+
+    pending = feedback.get("pending_adaptations", [])
+    applied = feedback.get("applied_adaptations", [])
+    if not isinstance(pending, list) or not isinstance(applied, list) or not (pending or applied):
+        raise ValueError("stale transition repair requires prior-program adaptations")
+    if any(
+        not isinstance(item, dict) or item.get("program_version") != source_version
+        for item in [*pending, *applied]
+    ):
+        raise ValueError("stale transition repair accepts only the immediately prior program adaptations")
+
+    quality = state.get("quality", {})
+    dimensions = quality.get("dimensions", {})
+    if not isinstance(dimensions, dict) or set(dimensions) != set(BASE_DIMENSIONS):
+        raise ValueError("stale transition repair requires the complete quality scorecard")
+    scored = [item for item in dimensions.values() if isinstance(item, dict) and item.get("score") is not None]
+    if not scored:
+        raise ValueError("stale transition repair requires a prior-program scored quality card")
+    for item in scored:
+        grants = (item.get("scorer_grant"), item.get("reviewer_grant"))
+        if any(
+            not isinstance(grant, dict)
+            or not isinstance(grant.get("claims"), dict)
+            or grant["claims"].get("program_version") != source_version
+            for grant in grants
+        ):
+            raise ValueError("stale transition repair accepts only prior-program quality authority")
+
+    evidence_archives = [
+        item
+        for item in feedback.get("archived_evidence", [])
+        if isinstance(item, dict) and item.get("program_version") == source_version
+    ]
+    if len(evidence_archives) != 1:
+        raise ValueError("stale transition repair requires one exact prior-program evidence archive")
+    evidence_archive = evidence_archives[0]
+    archived_at = evidence_archive.get("archived_at")
+    reason = evidence_archive.get("reason")
+    if not isinstance(archived_at, str) or not archived_at or not isinstance(reason, str) or not reason:
+        raise ValueError("stale transition repair requires the original transition time and reason")
+
+    candidate = deepcopy(state)
+    candidate_feedback = candidate.setdefault("feedback", {})
+    candidate_feedback.setdefault("archived_adaptations", [])
+    candidate_feedback.setdefault("archived_quality_scorecards", [])
+    candidate_feedback.setdefault("program_transition_repairs", [])
+    adaptation_archive, quality_archive = archive_program_transition_state(
+        candidate,
+        source_program_version=source_version,
+        replacement_program_version=current_version,
+        archived_at=archived_at,
+        reason=reason,
+        trigger="stale_transition_repair",
+        source_strategy=source_strategy,
+    )
+    candidate_feedback["pending_adaptations"] = []
+    candidate_feedback["applied_adaptations"] = []
+    clear_quality_scores(candidate)
+    candidate_state_digest = governance_digest(candidate)
+    payload = {
+        "transition_id": adaptation_archive["transition_id"],
+        "source_program_version": source_version,
+        "replacement_program_version": current_version,
+        "reason": reason,
+        "adaptation_archive_digest": adaptation_archive["archive_digest"],
+        "quality_archive_digest": quality_archive["archive_digest"],
+        "candidate_state_digest": candidate_state_digest,
+        "source_state_revision": source_state_revision,
+        "source_state_digest": source_state_digest,
+        "transition_state_revision": transition_state_revision,
+        "transition_state_digest": transition_state_digest,
+    }
+    affected_actors: set[str] = set()
+    for item in [*pending, *applied]:
+        if not isinstance(item, dict):
+            continue
+        if isinstance(item.get("proposer"), str) and item["proposer"]:
+            affected_actors.add(item["proposer"])
+        grant_actor = (item.get("reviewer_grant") or {}).get("claims", {}).get("actor")
+        if isinstance(grant_actor, str) and grant_actor:
+            affected_actors.add(grant_actor)
+    for item in dimensions.values():
+        if not isinstance(item, dict):
+            continue
+        for grant_name in ("scorer_grant", "reviewer_grant"):
+            grant_actor = (item.get(grant_name) or {}).get("claims", {}).get("actor")
+            if isinstance(grant_actor, str) and grant_actor:
+                affected_actors.add(grant_actor)
+    return candidate, payload, affected_actors
+
+
 def fabric_phase_decision_payload(
     state: dict[str, Any],
     manager_id: str,
@@ -717,17 +944,7 @@ def evidence_snapshot_fields(item: dict[str, Any]) -> bool:
 
 def governance_digest(state: dict[str, Any]) -> str:
     """Hash all governable state, excluding only self-referential or live lease fields."""
-    payload = deepcopy(state)
-    controller = payload.get("controller", {})
-    # These fields are operationally volatile (live lease/fence/schedule/timestamp)
-    # or contain this digest itself.
-    for field in (
-        "validation", "validated", "lease", "lease_generation", "last_cycle_at", "schedule_enabled",
-        "consumed_grant_nonces",
-    ):
-        controller.pop(field, None)
-    payload.get("instance", {}).pop("status", None)  # activation follows certification.
-    return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+    return control_store_module().governance_digest(state)
 
 
 def evidence_digest(state: dict[str, Any]) -> str:
@@ -763,21 +980,30 @@ def quality_command_payload(values: Any) -> dict[str, Any]:
     return payload
 
 
-def completion_evidence_digest(state: dict[str, Any], evidence_ids: list[str]) -> str:
-    evidence_by_id = {
-        item.get("id"): item
-        for bucket in state.get("evidence", {}).values()
-        for item in bucket
-        if isinstance(item, dict)
-    }
+def evidence_records_digest(
+    evidence_by_id: dict[str, dict[str, Any]], evidence_ids: list[str]
+) -> str:
     payload = [
         {
             key: evidence_by_id.get(evidence_id, {}).get(key)
-            for key in ("id", "artifact_path", "artifact_sha256", "outcome_id", "work_id", "cycle_id", "rubric_version")
+            for key in (
+                "id", "artifact_path", "artifact_sha256", "outcome_id",
+                "work_id", "cycle_id", "rubric_version",
+            )
         }
         for evidence_id in sorted(evidence_ids)
     ]
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def completion_evidence_digest(state: dict[str, Any], evidence_ids: list[str]) -> str:
+    evidence_by_id: dict[str, dict[str, Any]] = {
+        item.get("id"): item
+        for bucket in state.get("evidence", {}).values()
+        for item in bucket
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+    return evidence_records_digest(evidence_by_id, evidence_ids)
 
 
 def finish_command_payload(state: dict[str, Any], values: Any) -> dict[str, Any]:
@@ -1976,6 +2202,407 @@ def init_instance(args: argparse.Namespace) -> int:
     return 0
 
 
+def audit_archived_program_transitions(
+    state: dict[str, Any], errors: list[str]
+) -> None:
+    """Reconstruct archived transition authority under each original program."""
+    feedback = state.get("feedback", {})
+    adaptation_archives = feedback.get("archived_adaptations", [])
+    quality_archives = feedback.get("archived_quality_scorecards", [])
+    repairs = feedback.get("program_transition_repairs", [])
+    for name, collection in (
+        ("archived_adaptations", adaptation_archives),
+        ("archived_quality_scorecards", quality_archives),
+        ("program_transition_repairs", repairs),
+    ):
+        if not isinstance(collection, list):
+            errors.append(f"feedback.{name} must be an array")
+            return
+
+    adaptation_by_transition: dict[str, dict[str, Any]] = {}
+    previous_digest: str | None = None
+    required_adaptation_fields = (
+        "id", "failure_pattern", "hypothesis", "experiment", "success_metric",
+        "rollback", "proposer", "time_cap_minutes", "cost_cap_usd", "program_version",
+    )
+    for index, archive in enumerate(adaptation_archives):
+        label = f"feedback.archived_adaptations[{index}]"
+        if not isinstance(archive, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        transition_id = archive.get("transition_id")
+        source_version = archive.get("source_program_version")
+        replacement_version = archive.get("replacement_program_version")
+        if not isinstance(transition_id, str) or not transition_id:
+            errors.append(f"{label} lacks transition_id")
+            continue
+        if transition_id in adaptation_by_transition:
+            errors.append(f"{label} duplicates transition_id {transition_id}")
+        adaptation_by_transition[transition_id] = archive
+        if (
+            not isinstance(source_version, int)
+            or not isinstance(replacement_version, int)
+            or replacement_version != source_version + 1
+            or transition_id != program_transition_id(source_version, replacement_version)
+        ):
+            errors.append(f"{label} has an invalid program boundary")
+        if archive.get("trigger") not in {"program_replaced", "stale_transition_repair"}:
+            errors.append(f"{label} has an invalid trigger")
+        if archive.get("previous_archive_digest") != previous_digest:
+            errors.append(f"{label} breaks the append-only digest chain")
+        if archive.get("archive_digest") != transition_archive_digest(archive):
+            errors.append(f"{label} archive digest is invalid")
+        previous_digest = archive.get("archive_digest")
+        source_strategy = archive.get("source_strategy")
+        expected_strategy_digest = (
+            hashlib.sha256(canonical_json(source_strategy).encode("utf-8")).hexdigest()
+            if isinstance(source_strategy, dict)
+            else None
+        )
+        if (
+            not isinstance(source_strategy, dict)
+            or source_strategy.get("program_version") != source_version
+            or source_strategy.get("program_fingerprint") != strategy_fingerprint(source_strategy)
+            or archive.get("source_strategy_digest") != expected_strategy_digest
+        ):
+            errors.append(f"{label} lacks an audit-valid source strategy snapshot")
+        seen_ids: set[str] = set()
+        for collection_name, allowed_statuses in (
+            ("pending_adaptations", {"proposed"}),
+            ("applied_adaptations", {"applied", "rejected"}),
+        ):
+            proposals = archive.get(collection_name)
+            if not isinstance(proposals, list):
+                errors.append(f"{label}.{collection_name} must be an array")
+                continue
+            for proposal in proposals:
+                proposal_label = f"{label}.{collection_name} adaptation {proposal.get('id') if isinstance(proposal, dict) else None}"
+                if not isinstance(proposal, dict):
+                    errors.append(f"{proposal_label} must be an object")
+                    continue
+                proposal_id = proposal.get("id")
+                if not isinstance(proposal_id, str) or proposal_id in seen_ids:
+                    errors.append(f"{proposal_label} has a missing or duplicate id")
+                else:
+                    seen_ids.add(proposal_id)
+                if proposal.get("status") not in allowed_statuses:
+                    errors.append(f"{proposal_label} has an invalid status")
+                if proposal.get("program_version") != source_version:
+                    errors.append(f"{proposal_label} does not belong to its archived program")
+                for field in required_adaptation_fields:
+                    if proposal.get(field) in (None, ""):
+                        errors.append(f"{proposal_label} lacks {field}")
+                if proposal.get("meta_depth") != 1:
+                    errors.append(f"{proposal_label} exceeds the meta-loop depth")
+                if proposal.get("proposal_digest") != adaptation_proposal_digest(proposal):
+                    errors.append(f"{proposal_label} proposal digest is invalid")
+                if not nonnegative_integer(proposal.get("time_cap_minutes")):
+                    errors.append(f"{proposal_label} time_cap_minutes is invalid")
+                if not finite_nonnegative_number(proposal.get("cost_cap_usd")):
+                    errors.append(f"{proposal_label} cost_cap_usd is invalid")
+                protected = set(proposal.get("changes", [])) & PROTECTED_ADAPTATION_FIELDS
+                if protected:
+                    errors.append(f"{proposal_label} changes protected fields: {sorted(protected)}")
+                if collection_name == "pending_adaptations":
+                    if any(
+                        proposal.get(field) not in (None, "")
+                        for field in ("reviewer", "review_decision", "reviewed_at", "reviewer_grant")
+                    ):
+                        errors.append(f"{proposal_label} carries reviewed authority")
+                    continue
+                expected_decision = "accepted" if proposal.get("status") == "applied" else "rejected"
+                if (
+                    not proposal.get("reviewer")
+                    or proposal.get("reviewer") == proposal.get("proposer")
+                    or proposal.get("review_decision") != expected_decision
+                ):
+                    errors.append(f"{proposal_label} lacks an independent matching review")
+                audit_stored_grant(
+                    state,
+                    proposal.get("reviewer_grant"),
+                    errors,
+                    f"{proposal_label} reviewer grant",
+                    {
+                        "actor": proposal.get("reviewer"),
+                        "action": "review-adaptation",
+                        "resource": f"adaptation:{proposal_id}",
+                        "work_id": "",
+                        "cycle_id": "",
+                        "dimension": "meta-loop",
+                        "decision": expected_decision,
+                        "payload_hash": command_payload_hash(
+                            "review-adaptation",
+                            {
+                                "adaptation_id": proposal_id,
+                                "proposal_digest": proposal.get("proposal_digest"),
+                                "reviewer": proposal.get("reviewer"),
+                                "decision": expected_decision,
+                            },
+                        ),
+                    },
+                    expected_program_version=source_version,
+                )
+
+    evidence_archives_by_program: dict[int, list[dict[str, Any]]] = {}
+    for archive in feedback.get("archived_evidence", []):
+        if isinstance(archive, dict) and isinstance(archive.get("program_version"), int):
+            evidence_archives_by_program.setdefault(archive["program_version"], []).append(archive)
+
+    quality_by_transition: dict[str, dict[str, Any]] = {}
+    previous_digest = None
+    for index, archive in enumerate(quality_archives):
+        label = f"feedback.archived_quality_scorecards[{index}]"
+        if not isinstance(archive, dict):
+            errors.append(f"{label} must be an object")
+            continue
+        transition_id = archive.get("transition_id")
+        source_version = archive.get("source_program_version")
+        replacement_version = archive.get("replacement_program_version")
+        if not isinstance(transition_id, str) or not transition_id:
+            errors.append(f"{label} lacks transition_id")
+            continue
+        if transition_id in quality_by_transition:
+            errors.append(f"{label} duplicates transition_id {transition_id}")
+        quality_by_transition[transition_id] = archive
+        if (
+            not isinstance(source_version, int)
+            or not isinstance(replacement_version, int)
+            or replacement_version != source_version + 1
+            or transition_id != program_transition_id(source_version, replacement_version)
+        ):
+            errors.append(f"{label} has an invalid program boundary")
+        if archive.get("previous_archive_digest") != previous_digest:
+            errors.append(f"{label} breaks the append-only digest chain")
+        if archive.get("archive_digest") != transition_archive_digest(archive):
+            errors.append(f"{label} archive digest is invalid")
+        previous_digest = archive.get("archive_digest")
+        paired = adaptation_by_transition.get(transition_id)
+        for field in (
+            "source_program_version", "replacement_program_version", "archived_at",
+            "reason", "trigger", "source_strategy_digest",
+        ):
+            if not isinstance(paired, dict) or archive.get(field) != paired.get(field):
+                errors.append(f"{label} does not match its adaptation archive {field}")
+        scorecard = archive.get("quality")
+        if not isinstance(scorecard, dict) or scorecard.get("threshold") != 9:
+            errors.append(f"{label} has an invalid quality scorecard")
+            continue
+        dimensions = scorecard.get("dimensions")
+        if not isinstance(dimensions, dict) or set(dimensions) != set(BASE_DIMENSIONS):
+            errors.append(f"{label} lacks the complete governed dimension set")
+            continue
+        evidence_matches = evidence_archives_by_program.get(source_version, [])
+        if len(evidence_matches) != 1:
+            errors.append(f"{label} requires one exact archived evidence set")
+            evidence_by_id: dict[str, dict[str, Any]] = {}
+        else:
+            evidence_by_id = {
+                item.get("id"): item
+                for items in evidence_matches[0].get("evidence", {}).values()
+                for item in items if isinstance(item, dict) and isinstance(item.get("id"), str)
+            }
+        for name, item in dimensions.items():
+            item_label = f"{label} quality dimension {name}"
+            if not isinstance(item, dict):
+                errors.append(f"{item_label} must be an object")
+                continue
+            if item.get("critical") != BASE_DIMENSIONS[name]:
+                errors.append(f"{item_label} changes its criticality")
+            score = item.get("score")
+            if score is None:
+                if any(
+                    item.get(field) not in (None, [], "")
+                    for field in (
+                        "evidence", "rubric_version", "scored_by", "reviewed_by",
+                        "scorer_grant", "reviewer_grant", "binding",
+                    )
+                ):
+                    errors.append(f"{item_label} has authority without a score")
+                continue
+            if not isinstance(score, (int, float)) or isinstance(score, bool) or not 0 <= score <= 10:
+                errors.append(f"{item_label} score is invalid")
+                continue
+            binding = item.get("binding")
+            evidence_ids = item.get("evidence")
+            if (
+                not isinstance(binding, dict)
+                or not isinstance(evidence_ids, list)
+                or not evidence_ids
+                or len(evidence_ids) != len(set(evidence_ids))
+            ):
+                errors.append(f"{item_label} lacks an exact evidence binding")
+                continue
+            for field in ("outcome_id", "work_id", "cycle_id", "rubric_version"):
+                if not isinstance(binding.get(field), str) or not binding[field]:
+                    errors.append(f"{item_label} binding lacks {field}")
+            if binding.get("rubric_version") != item.get("rubric_version"):
+                errors.append(f"{item_label} binding rubric does not match")
+            evidence_digest_value = binding.get("evidence_digest")
+            artifact_digest = binding.get("artifact_digest")
+            if bool(evidence_digest_value) == bool(artifact_digest):
+                errors.append(f"{item_label} must bind exactly one evidence digest")
+            elif evidence_digest_value is not None and evidence_digest_value != evidence_records_digest(evidence_by_id, evidence_ids):
+                errors.append(f"{item_label} evidence digest is invalid")
+            if (
+                not item.get("scored_by")
+                or not item.get("reviewed_by")
+                or item.get("scored_by") == item.get("reviewed_by")
+            ):
+                errors.append(f"{item_label} lacks independent scoring authority")
+            quality_values = {
+                "dimension": name,
+                "score": score,
+                "evidence_ids": evidence_ids,
+                "rubric_version": item.get("rubric_version"),
+                "scored_by": item.get("scored_by"),
+                "reviewed_by": item.get("reviewed_by"),
+                "outcome_id": binding.get("outcome_id"),
+                "work_id": binding.get("work_id"),
+                "cycle_id": binding.get("cycle_id"),
+                "artifact_digest": artifact_digest,
+                "evidence_digest": evidence_digest_value,
+            }
+            grant_base = {
+                "resource": f"quality:{name}",
+                "work_id": binding.get("work_id"),
+                "cycle_id": binding.get("cycle_id"),
+                "dimension": name,
+                "payload_hash": command_payload_hash(
+                    "score-quality", quality_command_payload(quality_values)
+                ),
+            }
+            audit_stored_grant(
+                state, item.get("scorer_grant"), errors, f"{item_label} scorer grant",
+                {
+                    **grant_base, "actor": item.get("scored_by"), "action": "score-quality",
+                    "decision": f"score:{score}",
+                },
+                expected_program_version=source_version,
+            )
+            audit_stored_grant(
+                state, item.get("reviewer_grant"), errors, f"{item_label} reviewer grant",
+                {
+                    **grant_base, "actor": item.get("reviewed_by"), "action": "score-quality-review",
+                    "decision": f"review:{score}",
+                },
+                expected_program_version=source_version,
+            )
+            for evidence_id in evidence_ids:
+                evidence = evidence_by_id.get(evidence_id)
+                if (
+                    not isinstance(evidence, dict)
+                    or evidence.get("program_version") != source_version
+                    or name not in evidence.get("quality_dimensions", [])
+                    or evidence.get("outcome_id") != binding.get("outcome_id")
+                    or evidence.get("work_id") != binding.get("work_id")
+                    or evidence.get("cycle_id") != binding.get("cycle_id")
+                    or evidence.get("rubric_version") != item.get("rubric_version")
+                    or (
+                        artifact_digest is not None
+                        and evidence.get("artifact_sha256") != artifact_digest
+                    )
+                ):
+                    errors.append(f"{item_label} cites invalid archived evidence {evidence_id}")
+
+    if set(adaptation_by_transition) != set(quality_by_transition):
+        errors.append("adaptation and quality transition archives are not one-to-one")
+
+    repair_by_transition: dict[str, dict[str, Any]] = {}
+    for index, repair in enumerate(repairs):
+        label = f"feedback.program_transition_repairs[{index}]"
+        if not isinstance(repair, dict) or not isinstance(repair.get("transition_id"), str):
+            errors.append(f"{label} must be an identified object")
+            continue
+        transition_id = repair["transition_id"]
+        if transition_id in repair_by_transition:
+            errors.append(f"{label} duplicates transition_id {transition_id}")
+        repair_by_transition[transition_id] = repair
+        adaptation_archive = adaptation_by_transition.get(transition_id)
+        quality_archive = quality_by_transition.get(transition_id)
+        if not isinstance(adaptation_archive, dict) or not isinstance(quality_archive, dict):
+            errors.append(f"{label} lacks its paired archives")
+            continue
+        source_version = adaptation_archive.get("source_program_version")
+        replacement_version = adaptation_archive.get("replacement_program_version")
+        payload = repair.get("payload")
+        if not isinstance(payload, dict):
+            errors.append(f"{label} lacks its signed payload")
+            continue
+        candidate_digest = payload.get("candidate_state_digest")
+        expected_payload = {
+            "transition_id": transition_id,
+            "source_program_version": source_version,
+            "replacement_program_version": replacement_version,
+            "reason": adaptation_archive.get("reason"),
+            "adaptation_archive_digest": adaptation_archive.get("archive_digest"),
+            "quality_archive_digest": quality_archive.get("archive_digest"),
+            "candidate_state_digest": candidate_digest,
+            "source_state_revision": payload.get("source_state_revision"),
+            "source_state_digest": payload.get("source_state_digest"),
+            "transition_state_revision": payload.get("transition_state_revision"),
+            "transition_state_digest": payload.get("transition_state_digest"),
+        }
+        if (
+            payload != expected_payload
+            or not isinstance(candidate_digest, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", candidate_digest)
+            or not isinstance(payload.get("source_state_revision"), int)
+            or payload.get("source_state_revision", 0) < 1
+            or payload.get("transition_state_revision") != payload.get("source_state_revision") + 1
+            or any(
+                not isinstance(payload.get(field), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", payload[field])
+                for field in ("source_state_digest", "transition_state_digest")
+            )
+        ):
+            errors.append(f"{label} payload does not match its exact archives")
+        affected_actors: set[str] = set()
+        for item in [
+            *adaptation_archive.get("pending_adaptations", []),
+            *adaptation_archive.get("applied_adaptations", []),
+        ]:
+            if not isinstance(item, dict):
+                continue
+            if isinstance(item.get("proposer"), str) and item["proposer"]:
+                affected_actors.add(item["proposer"])
+            actor = (item.get("reviewer_grant") or {}).get("claims", {}).get("actor")
+            if isinstance(actor, str) and actor:
+                affected_actors.add(actor)
+        for item in quality_archive.get("quality", {}).get("dimensions", {}).values():
+            if not isinstance(item, dict):
+                continue
+            for grant_name in ("scorer_grant", "reviewer_grant"):
+                actor = (item.get(grant_name) or {}).get("claims", {}).get("actor")
+                if isinstance(actor, str) and actor:
+                    affected_actors.add(actor)
+        if repair.get("reviewer") in affected_actors:
+            errors.append(f"{label} reviewer is not independent")
+        audit_stored_grant(
+            state,
+            repair.get("repair_grant"),
+            errors,
+            f"{label} repair grant",
+            {
+                "actor": repair.get("reviewer"),
+                "action": "repair-program-transition",
+                "resource": f"program-transition:{source_version}:{replacement_version}",
+                "work_id": "",
+                "cycle_id": "",
+                "dimension": "state-integrity",
+                "decision": "archive-stale-authority",
+                "payload_hash": command_payload_hash("repair-program-transition", expected_payload),
+            },
+            expected_program_version=replacement_version,
+        )
+
+    for transition_id, archive in adaptation_by_transition.items():
+        has_repair = transition_id in repair_by_transition
+        if archive.get("trigger") == "stale_transition_repair" and not has_repair:
+            errors.append(f"transition archive {transition_id} lacks independent repair authority")
+        if archive.get("trigger") == "program_replaced" and has_repair:
+            errors.append(f"transition archive {transition_id} has unnecessary repair authority")
+
+
 def validate_state(
     state: dict[str, Any],
     *,
@@ -3074,6 +3701,14 @@ def validate_state(
             errors.append(f"quality dimension {name} must be an object")
             quality_ready = False
             continue
+        score = item.get("score")
+        if score is not None and any(
+            not isinstance(item.get(grant_name), dict)
+            or item[grant_name].get("claims", {}).get("program_version") != program_version
+            for grant_name in ("scorer_grant", "reviewer_grant")
+        ):
+            errors.append(f"quality dimension {name} belongs to a stale program")
+            quality_ready = False
         required = name in required_quality_dimensions
         if required and not item.get("applicable", True):
             errors.append(f"quality dimension {name} is required for the current phase/work")
@@ -3084,7 +3719,6 @@ def validate_state(
             continue
         if not required:
             continue
-        score = item.get("score")
         if score is None:
             quality_ready = False
             continue
@@ -3260,6 +3894,8 @@ def validate_state(
             protected = set(proposal.get("changes", [])) & PROTECTED_ADAPTATION_FIELDS
             if protected:
                 errors.append(f"adaptation {proposal.get('id')} changes protected fields: {sorted(protected)}")
+
+    audit_archived_program_transitions(state, errors)
 
     for candidate in feedback.get("core_promotion_candidates", []):
         project_ids = set(candidate.get("validated_project_ids", [])) if isinstance(candidate, dict) else set()
@@ -3611,6 +4247,9 @@ def upgrade_state(state: dict[str, Any]) -> dict[str, Any]:
     portfolio["cancelled_work"] = []
 
     feedback.setdefault("archived_evidence", [])
+    feedback.setdefault("archived_adaptations", [])
+    feedback.setdefault("archived_quality_scorecards", [])
+    feedback.setdefault("program_transition_repairs", [])
     upgraded["evidence"] = {key: [] for key in EVIDENCE_BUCKETS}
     feedback["cycles"] = []
     feedback["pending_adaptations"] = []
@@ -3666,6 +4305,7 @@ def replace_program(args: argparse.Namespace) -> int:
             if state.get("schema_version") != SCHEMA_VERSION:
                 raise ValueError("run upgrade before replacing the program")
             old_version = state["strategy"]["program_version"]
+            old_strategy = deepcopy(state["strategy"])
             state["feedback"].setdefault("archived_evidence", []).append(
                 {
                     "program_version": old_version,
@@ -3706,6 +4346,18 @@ def replace_program(args: argparse.Namespace) -> int:
                 }
             )
             state["strategy"]["program_fingerprint"] = strategy_fingerprint(state["strategy"])
+            archive_program_transition_state(
+                state,
+                source_program_version=old_version,
+                replacement_program_version=old_version + 1,
+                archived_at=cancelled_at,
+                reason=args.reason,
+                trigger="program_replaced",
+                source_strategy=old_strategy,
+            )
+            state["feedback"]["pending_adaptations"] = []
+            state["feedback"]["applied_adaptations"] = []
+            clear_quality_scores(state)
             state["feedback"].setdefault("archived_execution_fabrics", []).append(
                 {
                     "program_version": old_version,
@@ -3728,6 +4380,110 @@ def replace_program(args: argparse.Namespace) -> int:
         print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
         return 2
     print(json.dumps({"ok": True, "program_version": old_version + 1, "status": "paused"}))
+    return 0
+
+
+def repair_program_transition(args: argparse.Namespace) -> int:
+    """Archive one exact stale replace-program transition under independent authority."""
+    project = Path(args.project).resolve()
+    try:
+        if not control_store_module().exists(project):
+            raise ValueError("repair-program-transition requires the transactional control store")
+        if _ACTIVE_COMMAND_ENVELOPE.get() is None:
+            raise ValueError("repair-program-transition requires a stable command key")
+        with locked_state(project) as (path, state):
+            current_version = state.get("strategy", {}).get("program_version")
+            source_version = current_version - 1 if isinstance(current_version, int) else None
+            transition_id = (
+                program_transition_id(source_version, current_version)
+                if isinstance(source_version, int) and isinstance(current_version, int)
+                else None
+            )
+            repairs = state.get("feedback", {}).get("program_transition_repairs", [])
+            existing = next(
+                (
+                    item for item in repairs
+                    if isinstance(item, dict) and item.get("transition_id") == transition_id
+                ),
+                None,
+            )
+            if existing is not None:
+                raise ValueError(
+                    "program transition is already repaired; only the original exact command receipt may be replayed"
+                )
+
+            store_transaction = _ACTIVE_CONTROL_STORE_TRANSACTION.get()
+            if store_transaction is None or store_transaction.base_revision < 2:
+                raise ValueError("repair requires the exact pre-transition state revision")
+            source_state = store_transaction.load_revision(store_transaction.base_revision - 1)
+            candidate, payload, affected_actors = prepare_stale_program_transition_repair(
+                state,
+                source_strategy=source_state.get("strategy", {}),
+                source_state_revision=store_transaction.base_revision - 1,
+                source_state_digest=hashlib.sha256(
+                    canonical_json(source_state).encode("utf-8")
+                ).hexdigest(),
+                transition_state_revision=store_transaction.base_revision,
+                transition_state_digest=hashlib.sha256(
+                    canonical_json(state).encode("utf-8")
+                ).hexdigest(),
+            )
+            reviewer = args.reviewer.strip() if isinstance(args.reviewer, str) else ""
+            if not reviewer:
+                raise ValueError("repair reviewer must be a non-empty actor")
+            if reviewer in affected_actors:
+                raise ValueError("repair reviewer must be independent of every affected authority actor")
+            repair_grant = verify_actor_grant(
+                candidate,
+                args.repair_grant,
+                reviewer,
+                "repair-program-transition",
+                resource=f"program-transition:{payload['source_program_version']}:{payload['replacement_program_version']}",
+                work_id="",
+                cycle_id="",
+                dimension="state-integrity",
+                decision="archive-stale-authority",
+                payload_hash=command_payload_hash("repair-program-transition", payload),
+            )
+            repaired_at = utc_now()
+            candidate["feedback"].setdefault("program_transition_repairs", []).append(
+                {
+                    "transition_id": payload["transition_id"],
+                    "source_program_version": payload["source_program_version"],
+                    "replacement_program_version": payload["replacement_program_version"],
+                    "reason": payload["reason"],
+                    "repaired_at": repaired_at,
+                    "reviewer": reviewer,
+                    "payload": payload,
+                    "repair_grant": repair_grant,
+                }
+            )
+            persist_state_event(
+                project,
+                path,
+                candidate,
+                "program_transition_repaired",
+                transition_id=payload["transition_id"],
+                source_program_version=payload["source_program_version"],
+                adaptation_archive_digest=payload["adaptation_archive_digest"],
+                quality_archive_digest=payload["quality_archive_digest"],
+                candidate_state_digest=payload["candidate_state_digest"],
+                source_state_revision=payload["source_state_revision"],
+                source_state_digest=payload["source_state_digest"],
+                transition_state_revision=payload["transition_state_revision"],
+                transition_state_digest=payload["transition_state_digest"],
+                reviewer=reviewer,
+                repair_grant_digest=repair_grant["grant_digest"],
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "transition_id": payload["transition_id"],
+        "program_version": payload["replacement_program_version"],
+        "idempotent": False,
+    }))
     return 0
 
 
@@ -5738,6 +6494,14 @@ def build_parser() -> argparse.ArgumentParser:
     replace_parser.add_argument("--success-metric", required=True)
     replace_parser.add_argument("--reason", required=True)
     replace_parser.set_defaults(handler=replace_program)
+    repair_transition_parser = subparsers.add_parser(
+        "repair-program-transition",
+        help="archive one exact stale prior-program transition under independent authority",
+    )
+    repair_transition_parser.add_argument("--project", required=True)
+    repair_transition_parser.add_argument("--reviewer", required=True)
+    repair_transition_parser.add_argument("--repair-grant", required=True)
+    repair_transition_parser.set_defaults(handler=repair_program_transition)
     cancel_parser = subparsers.add_parser("cancel", help="authoritatively cancel work and leases")
     cancel_parser.add_argument("--project", required=True)
     cancel_parser.add_argument("--reason", required=True)
@@ -6004,6 +6768,7 @@ def build_parser() -> argparse.ArgumentParser:
     review_parser.set_defaults(handler=review_adaptation)
     for mutating_parser in (
         replace_parser,
+        repair_transition_parser,
         cancel_parser,
         evidence_parser,
         supersede_parser,

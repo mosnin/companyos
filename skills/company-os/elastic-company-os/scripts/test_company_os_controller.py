@@ -63,8 +63,12 @@ class ControllerTests(unittest.TestCase):
         dimension: str,
         decision: str,
         payload_hash: str,
+        program_version: int = 1,
     ) -> str:
-        cache_key = (actor, action, resource, work_id, cycle_id, dimension, decision, payload_hash)
+        cache_key = (
+            actor, action, resource, work_id, cycle_id, dimension, decision,
+            payload_hash, str(program_version),
+        )
         if cache_key in self.grant_cache:
             return self.grant_cache[cache_key]
         payload = {
@@ -72,7 +76,7 @@ class ControllerTests(unittest.TestCase):
             "action": action,
             "resource": resource,
             "project_id": "test-123",
-            "program_version": 1,
+            "program_version": program_version,
             "work_id": work_id,
             "cycle_id": cycle_id,
             "dimension": dimension,
@@ -341,6 +345,87 @@ class ControllerTests(unittest.TestCase):
             "evidence_digest": controller.evidence_digest(state),
             "certifier_grant": certifier_grant,
         }
+        return state
+
+    def stale_program_transition_state(self, source_state: dict | None = None) -> dict:
+        """Reproduce the exact v1-to-v2 contamination left by the old replace path."""
+        state = deepcopy(source_state) if source_state is not None else self.valid_state()
+        proposal = {
+            "id": "adapt-prior-program",
+            "program_version": 1,
+            "failure_pattern": "The prior program missed its runtime outcome",
+            "hypothesis": "A bounded runtime experiment will produce observable value",
+            "experiment": "Run one isolated feature-off experiment",
+            "success_metric": "One independently accepted result",
+            "rollback": "Restore the prior feature-off state",
+            "proposer": "adaptation-proposer",
+            "proposed_at": controller.utc_now(),
+            "time_cap_minutes": 30,
+            "cost_cap_usd": 1.0,
+            "changes": ["runtime_review_cadence"],
+            "meta_depth": 1,
+            "status": "proposed",
+        }
+        proposal["proposal_digest"] = controller.adaptation_proposal_digest(proposal)
+        review_payload = {
+            "adaptation_id": proposal["id"],
+            "proposal_digest": proposal["proposal_digest"],
+            "reviewer": "adaptation-reviewer",
+            "decision": "accepted",
+        }
+        token = self.grant(
+            "adaptation-reviewer", "review-adaptation",
+            resource=f"adaptation:{proposal['id']}", work_id="", cycle_id="",
+            dimension="meta-loop", decision="accepted",
+            payload_hash=controller.command_payload_hash("review-adaptation", review_payload),
+        )
+        reviewed = {
+            **proposal,
+            "status": "applied",
+            "reviewer": "adaptation-reviewer",
+            "review_decision": "accepted",
+            "reviewed_at": controller.utc_now(),
+            "reviewer_grant": self.grant_record(state, "adaptation-reviewer", token),
+        }
+        state["feedback"]["applied_adaptations"] = [reviewed]
+        archived_at = controller.utc_now()
+        reason = "replace the accepted prior program with the next mandate"
+        state["feedback"]["archived_evidence"].append(
+            {
+                "program_version": 1,
+                "archived_at": archived_at,
+                "reason": reason,
+                "evidence": deepcopy(state["evidence"]),
+            }
+        )
+        state["strategy"].update(
+            {
+                "north_star": "Execute the replacement program",
+                "current_outcome": "Prove the next bounded capability",
+                "success_metric": "One accepted replacement result",
+                "program_version": 2,
+                "program_updated_at": archived_at,
+            }
+        )
+        state["strategy"]["program_fingerprint"] = controller.strategy_fingerprint(state["strategy"])
+        state["instance"]["status"] = "paused"
+        state["phase"] = "reality_audit"
+        state["portfolio"]["active_work"] = []
+        state["portfolio"]["committed_outcomes"] = []
+        state["feedback"]["cycles"] = []
+        state["evidence"] = {key: [] for key in controller.EVIDENCE_BUCKETS}
+        state["execution_fabric"] = controller.empty_execution_fabric(2)
+        state["runtime_adapter"] = controller.empty_runtime_adapter(2)
+        state["controller"].update(
+            {
+                "validated": False,
+                "validation": None,
+                "schedule_enabled": False,
+                "lease": None,
+                "cancellation_requested": False,
+                "restart_checkpoint": None,
+            }
+        )
         return state
 
     def bind_delivery_evidence(self, cycle_id: str) -> None:
@@ -2584,6 +2669,15 @@ class ControllerTests(unittest.TestCase):
 
     def test_replace_program_versions_and_clears_stale_state(self) -> None:
         state = self.valid_state()
+        with_adaptation = self.stale_program_transition_state(state)
+        state["feedback"]["applied_adaptations"] = deepcopy(
+            with_adaptation["feedback"]["applied_adaptations"]
+        )
+        state["controller"]["consumed_grant_nonces"] = list(
+            with_adaptation["controller"]["consumed_grant_nonces"]
+        )
+        original_adaptations = deepcopy(state["feedback"]["applied_adaptations"])
+        original_quality = deepcopy(state["quality"])
         self.write_state(state)
         result = controller.replace_program(
             namespace(
@@ -2603,6 +2697,19 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(replaced["instance"]["status"], "paused")
         self.assertIsNone(replaced["controller"]["restart_checkpoint"])
         self.assertEqual(replaced["runtime_adapter"], controller.empty_runtime_adapter(2))
+        self.assertEqual(len(replaced["feedback"]["archived_quality_scorecards"]), 1)
+        archived_quality = replaced["feedback"]["archived_quality_scorecards"][0]
+        self.assertEqual(archived_quality["source_program_version"], 1)
+        self.assertEqual(archived_quality["replacement_program_version"], 2)
+        self.assertEqual(archived_quality["quality"], original_quality)
+        self.assertEqual(
+            replaced["feedback"]["archived_adaptations"][0]["applied_adaptations"],
+            original_adaptations,
+        )
+        self.assertEqual(replaced["feedback"]["applied_adaptations"], [])
+        self.assertTrue(
+            all(item["score"] is None for item in replaced["quality"]["dimensions"].values())
+        )
         self.assertFalse(any("runtime_adapter belongs to a stale program" in error for error in self.report(replaced)["errors"]))
 
     def test_schema_eight_upgrade_archives_runtime_and_carries_no_attempt_forward(self) -> None:

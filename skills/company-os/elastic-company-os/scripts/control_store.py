@@ -13,6 +13,7 @@ import os
 import sqlite3
 import sys
 import uuid
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -37,6 +38,22 @@ def json_bytes(value: Any, *, pretty: bool = False) -> bytes:
 
 def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def governance_digest(state: dict[str, Any]) -> str:
+    """Hash governable state under the controller's stable exclusion contract."""
+    payload = deepcopy(state)
+    controller = payload.get("controller", {})
+    for field in (
+        "validation", "validated", "lease", "lease_generation", "last_cycle_at",
+        "schedule_enabled", "consumed_grant_nonces",
+    ):
+        controller.pop(field, None)
+    payload.get("instance", {}).pop("status", None)
+    encoded = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
+    return sha256_bytes(encoded.encode("utf-8"))
 
 
 def database_path(project: Path) -> Path:
@@ -310,6 +327,22 @@ def _entity_records(state: dict[str, Any]) -> list[tuple[str, str, int | None, s
         for item in state.get("feedback", {}).get(collection, []):
             if isinstance(item, dict) and isinstance(item.get("id"), str):
                 records.append(("adaptation", item["id"], item.get("program_version"), item.get("status"), item))
+    for collection, entity_type in (
+        ("archived_adaptations", "adaptation_archive"),
+        ("archived_quality_scorecards", "quality_archive"),
+        ("program_transition_repairs", "program_transition_repair"),
+    ):
+        for item in state.get("feedback", {}).get(collection, []):
+            if isinstance(item, dict) and isinstance(item.get("transition_id"), str):
+                records.append(
+                    (
+                        entity_type,
+                        item["transition_id"],
+                        item.get("source_program_version"),
+                        item.get("trigger", "repaired"),
+                        item,
+                    )
+                )
     return records
 
 
@@ -447,6 +480,28 @@ class Transaction:
         self.base_revision, self.state = _load_latest(self.connection)
         _assert_binding(self.connection, self.project, self.state)
         self.staged_revision: int | None = None
+
+    def load_revision(self, revision: int) -> dict[str, Any]:
+        """Read one hash-verified prior state inside the governing write lock."""
+        if not isinstance(revision, int) or isinstance(revision, bool) or revision < 1:
+            raise StoreError("historical revision must be a positive integer")
+        row = self.connection.execute(
+            "SELECT state_json,state_sha256 FROM state_revisions WHERE revision=?",
+            (revision,),
+        ).fetchone()
+        if row is None:
+            raise StoreError("historical revision does not exist")
+        raw = row["state_json"].encode("utf-8")
+        if sha256_bytes(raw) != row["state_sha256"]:
+            raise StoreError("transactional control state revision hash is invalid")
+        try:
+            state = json.loads(row["state_json"])
+        except json.JSONDecodeError as exc:
+            raise StoreError(f"transactional control state JSON is invalid: {exc}") from None
+        if not isinstance(state, dict):
+            raise StoreError("transactional control state must be an object")
+        _assert_binding(self.connection, self.project, state)
+        return state
 
     def stage(self, state: dict[str, Any], event: dict[str, Any]) -> int:
         if self.staged_revision is not None:
@@ -622,6 +677,135 @@ def repair_exports(project: Path) -> dict[str, Any]:
     return {"revision": revision, "state_sha256": sha256_bytes(state_bytes), "events_sha256": sha256_bytes(events_bytes)}
 
 
+def _audit_program_transition_repair_events(
+    revision_rows: list[sqlite3.Row],
+    event_rows: list[sqlite3.Row],
+    errors: list[str],
+) -> None:
+    """Replay the exact historical state bound by each transition repair grant."""
+    revisions = {int(row["revision"]): row for row in revision_rows}
+    repair_event_counts: dict[str, int] = {}
+    for event_row in event_rows:
+        if event_row["event_type"] != "program_transition_repaired":
+            continue
+        label = f"program transition repair event at revision {event_row['state_revision']}"
+        try:
+            event = json.loads(event_row["payload_json"])
+        except json.JSONDecodeError:
+            errors.append(f"{label} contains invalid JSON")
+            continue
+        repair_revision = int(event_row["state_revision"])
+        source_revision = event.get("source_state_revision")
+        transition_revision = event.get("transition_state_revision")
+        if (
+            not isinstance(source_revision, int)
+            or not isinstance(transition_revision, int)
+            or transition_revision != source_revision + 1
+            or repair_revision != transition_revision + 1
+        ):
+            errors.append(f"{label} does not bind three contiguous revisions")
+            continue
+        source_row = revisions.get(source_revision)
+        transition_row = revisions.get(transition_revision)
+        repair_row = revisions.get(repair_revision)
+        if source_row is None or transition_row is None or repair_row is None:
+            errors.append(f"{label} references missing state history")
+            continue
+        if (
+            event.get("source_state_digest") != source_row["state_sha256"]
+            or event.get("transition_state_digest") != transition_row["state_sha256"]
+        ):
+            errors.append(f"{label} historical state digest does not match")
+        try:
+            source_state = json.loads(source_row["state_json"])
+            transition_state = json.loads(transition_row["state_json"])
+            repair_state = json.loads(repair_row["state_json"])
+        except json.JSONDecodeError:
+            errors.append(f"{label} cannot reconstruct retained state")
+            continue
+        transition_id = event.get("transition_id")
+        if isinstance(transition_id, str):
+            repair_event_counts[transition_id] = repair_event_counts.get(transition_id, 0) + 1
+        adaptation_archive = next(
+            (
+                item for item in repair_state.get("feedback", {}).get("archived_adaptations", [])
+                if isinstance(item, dict) and item.get("transition_id") == transition_id
+            ),
+            None,
+        )
+        quality_archive = next(
+            (
+                item for item in repair_state.get("feedback", {}).get("archived_quality_scorecards", [])
+                if isinstance(item, dict) and item.get("transition_id") == transition_id
+            ),
+            None,
+        )
+        repair_record = next(
+            (
+                item for item in repair_state.get("feedback", {}).get("program_transition_repairs", [])
+                if isinstance(item, dict) and item.get("transition_id") == transition_id
+            ),
+            None,
+        )
+        if not all(isinstance(item, dict) for item in (adaptation_archive, quality_archive, repair_record)):
+            errors.append(f"{label} lacks its retained transition records")
+            continue
+        if (
+            adaptation_archive.get("source_strategy") != source_state.get("strategy")
+            or adaptation_archive.get("pending_adaptations")
+            != transition_state.get("feedback", {}).get("pending_adaptations")
+            or adaptation_archive.get("applied_adaptations")
+            != transition_state.get("feedback", {}).get("applied_adaptations")
+            or quality_archive.get("quality") != transition_state.get("quality")
+        ):
+            errors.append(f"{label} archives do not exactly preserve the source transition")
+        if (
+            event.get("adaptation_archive_digest") != adaptation_archive.get("archive_digest")
+            or event.get("quality_archive_digest") != quality_archive.get("archive_digest")
+            or event.get("repair_grant_digest")
+            != repair_record.get("repair_grant", {}).get("grant_digest")
+        ):
+            errors.append(f"{label} event does not bind its retained authority")
+        retained_payload = repair_record.get("payload")
+        for field in (
+            "candidate_state_digest", "source_state_revision", "source_state_digest",
+            "transition_state_revision", "transition_state_digest",
+        ):
+            if not isinstance(retained_payload, dict) or retained_payload.get(field) != event.get(field):
+                errors.append(f"{label} signed payload does not match event field {field}")
+        candidate = deepcopy(repair_state)
+        candidate["feedback"]["program_transition_repairs"] = [
+            item
+            for item in candidate.get("feedback", {}).get("program_transition_repairs", [])
+            if not isinstance(item, dict) or item.get("transition_id") != transition_id
+        ]
+        if governance_digest(candidate) != event.get("candidate_state_digest"):
+            errors.append(f"{label} candidate state digest is not replay-valid")
+        if (
+            candidate.get("feedback", {}).get("pending_adaptations") != []
+            or candidate.get("feedback", {}).get("applied_adaptations") != []
+            or any(
+                isinstance(item, dict) and item.get("score") is not None
+                for item in candidate.get("quality", {}).get("dimensions", {}).values()
+            )
+        ):
+            errors.append(f"{label} candidate state did not clear stale live authority")
+    if revision_rows:
+        try:
+            latest_state = json.loads(revision_rows[-1]["state_json"])
+        except json.JSONDecodeError:
+            return
+        retained_counts: dict[str, int] = {}
+        for repair in latest_state.get("feedback", {}).get("program_transition_repairs", []):
+            if isinstance(repair, dict) and isinstance(repair.get("transition_id"), str):
+                transition_id = repair["transition_id"]
+                retained_counts[transition_id] = retained_counts.get(transition_id, 0) + 1
+        if retained_counts != repair_event_counts or any(count != 1 for count in retained_counts.values()):
+            errors.append(
+                "program transition repair records and atomic repair events are not one-to-one"
+            )
+
+
 def audit(project: Path) -> dict[str, Any]:
     project = project.resolve()
     errors: list[str] = []
@@ -712,6 +896,7 @@ def audit(project: Path) -> dict[str, Any]:
             ):
                 errors.append("an audit event does not exactly bind its state revision")
                 break
+        _audit_program_transition_repair_events(revision_rows, event_rows, errors)
         for row in connection.execute(
             "SELECT project_id,payload_json,payload_sha256 FROM legacy_events ORDER BY sequence"
         ):

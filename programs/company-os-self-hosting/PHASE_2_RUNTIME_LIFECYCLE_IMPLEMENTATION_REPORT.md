@@ -13,6 +13,44 @@ The implementation is deliberately separate from
 `company_os_controller.py`. Canonical controller integration, persistence, a
 real provider connector, and real provider evidence are later reviewed gates.
 
+The controller now also contains one prerequisite state-integrity repair for a
+previously committed program transition. That repair does not integrate or
+activate the runtime boundary; it prevents stale prior-program authority from
+contaminating the future integration.
+
+## Pre-integration transition repair
+
+The former `replace-program` path archived evidence and execution-fabric state
+but left live adaptation decisions and the complete prior-program quality
+scorecard in the replacement program. The reality phase happened not to require
+those dimensions, so the stale scorecard was not previously evaluated.
+
+The feature-off repair slice now:
+
+- archives and clears pending/applied adaptations and every quality score,
+  binding, scorer grant, and reviewer grant on every future program replacement;
+- retains the complete source strategy and digest, original transition reason,
+  exact evidence-backed scorecard, and signed adaptation authority;
+- permits one narrowly eligible repair only when the instance is paused,
+  scheduling is off, no lease/cycle/live work/evidence/runtime attempt exists,
+  and every affected record belongs to exactly the immediately prior program;
+- requires a new independent `repair-program-transition` grant whose actor is
+  distinct from every affected proposal and quality actor derived from retained
+  signed grant claims;
+- binds the grant to the exact source/transition revisions and hashes, complete
+  adaptation and quality archive hashes, transition identity/reason, and the
+  exact post-repair candidate-state hash;
+- commits the repair and its command receipt as one SQLite revision/event;
+  exact command-key replay is a no-op, while a distinct retry fails closed;
+- replays the candidate hash and prior-state hashes from immutable transactional
+  history, requires one-to-one repair record/event history, and rejects archive,
+  strategy, score, grant, source-history, and candidate-state tampering;
+- prevents prior-program quality grants from becoming live again when work is
+  queued under the replacement program.
+
+This is a local code/test result only. The repair has not been applied to the
+authoritative Company OS instance in this branch report.
+
 ## Fixed first vertical slice
 
 - Exactly one manager using the exact provider-observed model
@@ -118,9 +156,9 @@ The focused suite covers:
 All evidence is local/test-key evidence (`M`). It is not provider-runtime
 evidence (`R`).
 
-Current local evidence: 33 focused gateway/lifecycle/receipt tests and 183
-existing controller/control-store/observation/operator regressions pass (216
-tests total), along with Python compilation and whitespace validation.
+Current local evidence: the full controller/control-store/runtime/observation/
+operator suite passes 222 tests, including seven focused adversarial transition
+repair/replace tests, along with Python compilation and whitespace validation.
 The repository skill validator itself did not execute because its host Python
 environment lacks the `yaml` module (`ModuleNotFoundError`); no dependency was
 installed and this is not counted as passing evidence.

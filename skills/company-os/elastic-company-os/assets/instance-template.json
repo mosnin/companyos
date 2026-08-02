@@ -97,6 +97,9 @@
     "failure_patterns": [],
     "pending_adaptations": [],
     "applied_adaptations": [],
+    "archived_adaptations": [],
+    "archived_quality_scorecards": [],
+    "program_transition_repairs": [],
     "core_promotion_candidates": [],
     "archived_evidence": []
   }
