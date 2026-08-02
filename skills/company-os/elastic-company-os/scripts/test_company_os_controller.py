@@ -2835,6 +2835,41 @@ class ControllerTests(unittest.TestCase):
             controller.runtime_archive_sensitive_paths(forged),
         )
 
+    def test_runtime_archive_uses_a_positive_schema_for_credential_and_unknown_fields(self) -> None:
+        credential_keys = (
+            "provider_tokens", "access_tokens", "client_tokens", "bearer_tokens",
+            "api_keys", "signing_key", "signing_keys", "private_keys", "secret_keys",
+            "auth_headers", "authorization_headers", "jwt", "jwts", "key", "keys",
+            "providerTokens", "api-keys", "authorization headers",
+        )
+        for key in credential_keys:
+            with self.subTest(key=key):
+                runtime = controller.empty_runtime_adapter(1)
+                runtime[key] = "SECRET-MATERIAL"
+                self.assertIn(
+                    f"runtime_adapter.{key}",
+                    controller.runtime_archive_sensitive_paths(runtime),
+                )
+
+        runtime = controller.empty_runtime_adapter(1)
+        runtime["provider_allowlist"] = [{
+            "provider": "fixture",
+            "surface": "responses",
+            "account": "fixture-account",
+            "signing_key": "SECRET-MATERIAL",
+        }]
+        self.assertIn(
+            "runtime_adapter.provider_allowlist[0].signing_key",
+            controller.runtime_archive_sensitive_paths(runtime),
+        )
+
+        runtime = controller.empty_runtime_adapter(1)
+        runtime["unknown_runtime_extension"] = {"innocent": "value"}
+        self.assertIn(
+            "runtime_adapter.unknown_runtime_extension",
+            controller.runtime_archive_sensitive_paths(runtime),
+        )
+
     def test_schema_eight_upgrade_archives_runtime_and_carries_no_attempt_forward(self) -> None:
         state = self.valid_state()
         state["schema_version"] = 8

@@ -657,9 +657,122 @@ def _runtime_archive_numeric_token_metric(parts: tuple[Any, ...], value: Any) ->
     }
 
 
+RUNTIME_ARCHIVE_ADAPTER_FIELDS = set(empty_runtime_adapter(0))
+RUNTIME_ARCHIVE_ATTEMPT_FIELDS = {
+    "attempt_id", "manifest_identity_id", "work_id", "cycle_id",
+    "parent_runtime_id", "role", "requested_model", "provider", "surface",
+    "account", "scope", "scope_digest", "budget", "fabric_manifest_digest",
+    "phase2_contract_digest", "idempotency_key", "admitted_by", "lease_fence",
+    "program_version", "lease_id", "lease_generation", "lease_owner", "status",
+    "provider_task_id", "actor_grant", "admitted_at",
+}
+RUNTIME_ARCHIVE_BUDGET_FIELDS = {
+    "time_minutes", "token_limit", "cost_usd", "max_concurrency", "max_retries",
+}
+RUNTIME_ARCHIVE_LEASE_FIELDS = {
+    "lease_id", "generation", "owner", "program_version", "expires_at",
+    "allowed_transitions",
+}
+RUNTIME_ARCHIVE_INBOX_FIELDS = {
+    "enabled", "status", "attempt_binding_digest", "bound_provider_task_id",
+    "trusted_observations", "consumed_nonces",
+}
+RUNTIME_ARCHIVE_OBSERVATION_FIELDS = {
+    "event_key", "observation_digest", "claims", "signature", "signature_digest",
+    "verified_at", "trust",
+}
+RUNTIME_ARCHIVE_AUDIT_EVIDENCE_FIELDS = {
+    "event_id", "payload_sha256", "decision",
+}
+
+
+def runtime_archive_shape_errors(value: Any, path: str = "runtime_adapter") -> list[str]:
+    """Require an explicit archival schema; unknown runtime fields fail closed."""
+    errors: list[str] = []
+
+    def exact_mapping(item: Any, expected: set[str], label: str) -> bool:
+        if not isinstance(item, dict):
+            errors.append(label)
+            return False
+        for key in sorted(set(item) ^ expected, key=str):
+            errors.append(f"{label}.{key}")
+        return set(item) == expected
+
+    if not exact_mapping(value, RUNTIME_ARCHIVE_ADAPTER_FIELDS, path):
+        return errors
+    allowlist = value.get("provider_allowlist")
+    if not isinstance(allowlist, list):
+        errors.append(f"{path}.provider_allowlist")
+    else:
+        for index, provider in enumerate(allowlist):
+            exact_mapping(
+                provider,
+                {"provider", "surface", "account"},
+                f"{path}.provider_allowlist[{index}]",
+            )
+    attempts = value.get("attempts")
+    attempt_ids: set[str] = set()
+    if not isinstance(attempts, list):
+        errors.append(f"{path}.attempts")
+    else:
+        for index, attempt in enumerate(attempts):
+            label = f"{path}.attempts[{index}]"
+            if not exact_mapping(attempt, RUNTIME_ARCHIVE_ATTEMPT_FIELDS, label):
+                continue
+            attempt_id = attempt.get("attempt_id")
+            if isinstance(attempt_id, str):
+                attempt_ids.add(attempt_id)
+            exact_mapping(attempt.get("budget"), RUNTIME_ARCHIVE_BUDGET_FIELDS, f"{label}.budget")
+            exact_mapping(attempt.get("lease_fence"), RUNTIME_ARCHIVE_LEASE_FIELDS, f"{label}.lease_fence")
+            grant = attempt.get("actor_grant")
+            if not _runtime_archive_grant_is_audit_shaped(grant):
+                errors.append(f"{label}.actor_grant")
+    inboxes = value.get("observation_inboxes")
+    if not isinstance(inboxes, dict):
+        errors.append(f"{path}.observation_inboxes")
+    else:
+        for attempt_id, inbox in inboxes.items():
+            label = f"{path}.observation_inboxes.{attempt_id}"
+            allowed_inbox_fields = RUNTIME_ARCHIVE_INBOX_FIELDS | {"audit_evidence"}
+            if not isinstance(inbox, dict):
+                errors.append(label)
+                continue
+            inbox_fields = set(inbox)
+            if inbox_fields not in (RUNTIME_ARCHIVE_INBOX_FIELDS, allowed_inbox_fields):
+                for key in sorted(inbox_fields ^ RUNTIME_ARCHIVE_INBOX_FIELDS, key=str):
+                    if key != "audit_evidence":
+                        errors.append(f"{label}.{key}")
+            observations = inbox.get("trusted_observations")
+            if not isinstance(observations, list):
+                errors.append(f"{label}.trusted_observations")
+            else:
+                claim_fields = set(runtime_observation_module().CLAIM_FIELDS)
+                for observation_index, observation in enumerate(observations):
+                    observation_label = f"{label}.trusted_observations[{observation_index}]"
+                    if exact_mapping(observation, RUNTIME_ARCHIVE_OBSERVATION_FIELDS, observation_label):
+                        exact_mapping(observation.get("claims"), claim_fields, f"{observation_label}.claims")
+            nonces = inbox.get("consumed_nonces")
+            if not isinstance(nonces, list) or any(not isinstance(item, str) for item in nonces):
+                errors.append(f"{label}.consumed_nonces")
+            if "audit_evidence" in inbox:
+                audit_evidence = inbox.get("audit_evidence")
+                if not isinstance(audit_evidence, list):
+                    errors.append(f"{label}.audit_evidence")
+                else:
+                    for evidence_index, evidence in enumerate(audit_evidence):
+                        exact_mapping(
+                            evidence,
+                            RUNTIME_ARCHIVE_AUDIT_EVIDENCE_FIELDS,
+                            f"{label}.audit_evidence[{evidence_index}]",
+                        )
+        if set(inboxes) != attempt_ids:
+            errors.append(f"{path}.observation_inboxes")
+    return sorted(set(errors))
+
+
 def runtime_archive_sensitive_paths(value: Any, path: str = "runtime_adapter") -> list[str]:
     """Find secret-shaped runtime fields with exact audited-record exemptions."""
-    sensitive: list[str] = []
+    sensitive: list[str] = runtime_archive_shape_errors(value, path)
 
     def walk(item: Any, display_path: str, parts: tuple[Any, ...]) -> None:
         if isinstance(item, dict):
@@ -682,9 +795,14 @@ def runtime_archive_sensitive_paths(value: Any, path: str = "runtime_adapter") -
         elif isinstance(item, list):
             for index, child_value in enumerate(item):
                 walk(child_value, f"{display_path}[{index}]", (*parts, index))
+        elif isinstance(item, str) and (
+            item.casefold().startswith("sk-")
+            or re.search(r"(?:authorization\s*:\s*)?(?:bearer|basic)\s+\S{4,}", item, re.I)
+        ):
+            sensitive.append(display_path)
 
     walk(value, path, (path,))
-    return sensitive
+    return sorted(set(sensitive))
 
 
 def strategy_transition_payload(
