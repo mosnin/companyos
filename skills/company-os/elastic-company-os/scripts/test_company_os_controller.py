@@ -2767,6 +2767,24 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(archive["sensitive_paths"], [])
         self.assertEqual(archive["archive_digest"], controller.transition_archive_digest(archive))
         self.assertTrue(archive["runtime_adapter"]["attempts"])
+        archived_grant = archive["runtime_adapter"]["attempts"][0]["actor_grant"]
+        self.assertEqual(
+            archived_grant["token"],
+            original_runtime["attempts"][0]["actor_grant"]["token"],
+        )
+        grant_errors: list[str] = []
+        self.assertEqual(
+            controller.audit_stored_grant(
+                replaced,
+                archived_grant,
+                grant_errors,
+                "archived runtime admission grant",
+                expected_program_version=1,
+            ),
+            "cryptographic",
+        )
+        self.assertEqual(grant_errors, [])
+        self.assertEqual(controller.runtime_archive_sensitive_paths(original_runtime), [])
         self.assertEqual(
             archive["runtime_adapter"]["observation_inboxes"]["manager-attempt-1"]["audit_evidence"],
             inbox["audit_evidence"],
@@ -2800,6 +2818,21 @@ class ControllerTests(unittest.TestCase):
                 (self.project / ".company-os" / "control.json").read_bytes(),
                 (self.project / ".company-os" / "events.jsonl").read_bytes(),
             ),
+        )
+
+    def test_runtime_archive_grant_token_exemption_requires_exact_cryptographic_structure(self) -> None:
+        cycle_id = self.admission_fixture()
+        self.assertEqual(controller.admit_runtime_attempt(self.admission_args(cycle_id)), 0)
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        runtime = state["runtime_adapter"]
+        self.assertEqual(controller.runtime_archive_sensitive_paths(runtime), [])
+        forged = deepcopy(runtime)
+        grant = forged["attempts"][0]["actor_grant"]
+        grant["token"] = "provider-token-without-a-valid-signature"
+        grant["grant_digest"] = controller.hashlib.sha256(grant["token"].encode()).hexdigest()
+        self.assertIn(
+            "runtime_adapter.attempts[0].actor_grant.token",
+            controller.runtime_archive_sensitive_paths(forged),
         )
 
     def test_schema_eight_upgrade_archives_runtime_and_carries_no_attempt_forward(self) -> None:

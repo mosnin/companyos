@@ -969,6 +969,132 @@ class ControlStoreTests(unittest.TestCase):
             report["errors"],
         )
 
+    def test_replace_program_rejects_nested_token_variants_without_authority_mutation(self) -> None:
+        source = self.fixture.valid_state()
+        source["runtime_adapter"]["archive_probe"] = {
+            "provider": {"provider_token": "provider-secret"},
+            "transport": {"bearer_token": "bearer-secret"},
+            "client": {"client_token": "client-secret"},
+        }
+        store.initialize(
+            self.project,
+            source,
+            {
+                "at": controller.utc_now(),
+                "type": "instance_initialized",
+                "project_id": source["instance"]["project_id"],
+                "program_version": 1,
+            },
+        )
+        before_revision, before_state = store.load(self.project)
+        directory = self.project / ".company-os"
+        before_exports = (
+            (directory / "control.json").read_bytes(),
+            (directory / "events.jsonl").read_bytes(),
+        )
+        connection = store.connect(self.project)
+        try:
+            before_counts = tuple(
+                connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                for table in ("state_revisions", "events", "command_idempotency")
+            )
+        finally:
+            connection.close()
+        with redirect_stdout(output := io.StringIO()):
+            self.assertEqual(
+                controller.replace_program(
+                    controller_test.namespace(
+                        project=str(self.project),
+                        north_star="Reject archived runtime credentials",
+                        current_outcome="Preserve authority atomically",
+                        success_metric="No revision, event, or nonce mutation",
+                        reason="nested token variants",
+                    )
+                ),
+                2,
+            )
+        for field in ("provider_token", "bearer_token", "client_token"):
+            self.assertIn(field, output.getvalue())
+        self.assertEqual(store.load(self.project), (before_revision, before_state))
+        self.assertEqual(
+            store.load(self.project)[1]["controller"]["consumed_grant_nonces"],
+            before_state["controller"]["consumed_grant_nonces"],
+        )
+        self.assertEqual(
+            before_exports,
+            (
+                (directory / "control.json").read_bytes(),
+                (directory / "events.jsonl").read_bytes(),
+            ),
+        )
+        connection = store.connect(self.project)
+        try:
+            self.assertEqual(
+                tuple(
+                    connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                    for table in ("state_revisions", "events", "command_idempotency")
+                ),
+                before_counts,
+            )
+        finally:
+            connection.close()
+
+    def test_transition_repair_rejects_nested_token_variants_without_authority_mutation(self) -> None:
+        source = self.fixture.valid_state()
+        source["runtime_adapter"]["archive_probe"] = {
+            "provider": {"provider_token": "provider-secret"},
+            "transport": {"bearer_token": "bearer-secret"},
+            "client": {"client_token": "client-secret"},
+        }
+        stale = self.fixture.stale_program_transition_state(source)
+        self.stage_stale_transition(source, stale)
+        before_revision, before_state = store.load(self.project)
+        directory = self.project / ".company-os"
+        before_exports = (
+            (directory / "control.json").read_bytes(),
+            (directory / "events.jsonl").read_bytes(),
+        )
+        connection = store.connect(self.project)
+        try:
+            before_counts = tuple(
+                connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                for table in ("state_revisions", "events", "command_idempotency")
+            )
+        finally:
+            connection.close()
+        command = [
+            "company-os", "repair-program-transition", "--project", str(self.project),
+            "--reviewer", "independent-repair-reviewer", "--repair-grant", "not-a-grant",
+            "--command-key", "reject-nested-runtime-token-variants",
+        ]
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(output := io.StringIO()):
+            self.assertEqual(controller.main(), 2)
+        for field in ("provider_token", "bearer_token", "client_token"):
+            self.assertIn(field, output.getvalue())
+        self.assertEqual(store.load(self.project), (before_revision, before_state))
+        self.assertEqual(
+            store.load(self.project)[1]["controller"]["consumed_grant_nonces"],
+            before_state["controller"]["consumed_grant_nonces"],
+        )
+        self.assertEqual(
+            before_exports,
+            (
+                (directory / "control.json").read_bytes(),
+                (directory / "events.jsonl").read_bytes(),
+            ),
+        )
+        connection = store.connect(self.project)
+        try:
+            self.assertEqual(
+                tuple(
+                    connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                    for table in ("state_revisions", "events", "command_idempotency")
+                ),
+                before_counts,
+            )
+        finally:
+            connection.close()
+
     def test_supersede_evidence_cli_retry_is_exact_across_restart_and_conflicts_fail_closed(self) -> None:
         state = self.fixture.valid_state()
         state["instance"]["status"] = "paused"

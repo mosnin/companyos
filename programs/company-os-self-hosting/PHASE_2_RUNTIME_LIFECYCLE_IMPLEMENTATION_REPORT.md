@@ -49,6 +49,10 @@ The feature-off repair slice now:
   adaptation/quality/runtime archives and repair record/event history, and
   rejects unrelated mutation, archive, event, evidence, strategy, score, grant,
   source-history, runtime-history, and candidate-state tampering;
+- rejects token, bearer, authorization, credential, secret, password, cookie,
+  session, and private/API/access/client-key variants before archival; the only
+  token exemptions are exact numeric budget/telemetry fields and exact
+  cryptographically verified retained-grant structures at governed paths;
 - prevents prior-program quality grants from becoming live again when work is
   queued under the replacement program.
 
@@ -161,9 +165,11 @@ All evidence is local/test-key evidence (`M`). It is not provider-runtime
 evidence (`R`).
 
 Current local evidence: the full controller/control-store/runtime/observation/
-operator suite passes 230 tests in 213.412 seconds, including thirteen focused
-adversarial transition-repair/replace tests, along with Python compilation and
-whitespace validation.
+operator suite passes 233 tests in 216.826 seconds. The transition slice passes
+12 tests and the runtime-archive token/grant slice passes 5 tests, including
+atomic state/revision/event/idempotency/nonce/export rollback for nested
+`provider_token`, `bearer_token`, and `client_token` probes. Python compilation
+and whitespace validation also pass.
 The separate repository release suite is intentionally not green: 24 of 26
 tests pass, while manifest freshness and signed Operator Command Center surface
 parity fail because the remediated controller has not yet been independently
@@ -203,11 +209,12 @@ log. Runtime and scheduler feature gates remain disabled throughout this work.
    artifact, usage, or reconciliation evidence exists.
 5. Restart/crash reconciliation is specified and unit-tested as pure state
    behavior, not proven through a persisted process fault matrix.
-6. The latest independent repair review returned `NO-GO` with three P1s. The
-   exact-event/state binding, full archived-evidence authority audit, and
-   digest-chained runtime archive repairs now pass the focused and complete
-   local suites, but the remediated exact commit still requires independent
-   re-review. Controller-wide integration acceptance remains a separate gate.
+6. Independent re-review closed the original three P1s and found one new P1:
+   arbitrary token-shaped runtime fields could bypass the archive guard. The
+   path/structure-aware cryptographic grant exemption and fail-closed token-key
+   repair now pass the focused and complete local suites, but the exact follow-up
+   commit still requires independent re-review. Controller-wide integration
+   acceptance remains a separate gate.
 
 The next safe action is a separate controller-integration change that keeps the
 adapter disabled, followed by an authenticated connector and one real

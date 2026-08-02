@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import binascii
 import contextvars
 import fcntl
 import hashlib
@@ -549,22 +550,140 @@ def program_transition_id(source_program_version: int, replacement_program_versi
     return f"program-transition-{source_program_version}-to-{replacement_program_version}"
 
 
+def _runtime_archive_key_terms(key: Any) -> tuple[str, ...]:
+    """Normalize snake, kebab, spaced, and camel-case field names."""
+    expanded = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", str(key))
+    return tuple(term for term in re.split(r"[^a-z0-9]+", expanded.casefold()) if term)
+
+
+def _runtime_archive_sensitive_key(key: Any) -> bool:
+    terms = _runtime_archive_key_terms(key)
+    compact = "".join(terms)
+    if any(
+        term in {
+            "token", "bearer", "auth", "authorization", "authentication", "oauth",
+            "credential", "credentials", "secret", "secrets", "password", "passwd",
+            "passphrase", "cookie", "cookies", "session", "sessions",
+        }
+        for term in terms
+    ):
+        return True
+    term_set = set(terms)
+    return compact in {
+        "privatekey", "privatekeys", "apikey", "accesskey", "refreshkey", "clientkey",
+    } or (
+        "key" in term_set
+        and bool(term_set & {"private", "api", "access", "refresh", "client"})
+    )
+
+
+def _runtime_archive_grant_is_audit_shaped(grant: Any) -> bool:
+    """Recognize only the exact retained signed-grant records replay audits accept."""
+    if not isinstance(grant, dict):
+        return False
+    required = {
+        "claims", "token", "grant_digest", "verification_key_pem",
+        "verification_key_sha256",
+    }
+    if set(grant) not in (required, required | {"actor"}):
+        return False
+    token = grant.get("token")
+    claims = grant.get("claims")
+    verification_key_pem = grant.get("verification_key_pem")
+    if (
+        not isinstance(token, str)
+        or not token
+        or not isinstance(claims, dict)
+        or not isinstance(verification_key_pem, str)
+        or not verification_key_pem
+        or grant.get("grant_digest") != hashlib.sha256(token.encode()).hexdigest()
+        or grant.get("verification_key_sha256")
+        != hashlib.sha256(verification_key_pem.encode("utf-8")).hexdigest()
+        or ("actor" in grant and grant.get("actor") != claims.get("actor"))
+    ):
+        return False
+    try:
+        encoded, signature = token.split(".", 1)
+        token_claims = json.loads(
+            base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4))
+        )
+        verify_asymmetric_signature(
+            encoded,
+            signature,
+            verification_key_pem=verification_key_pem,
+        )
+    except (ValueError, TypeError, UnicodeError, json.JSONDecodeError, binascii.Error):
+        return False
+    return bool(signature) and token_claims == claims
+
+
+def _runtime_archive_grant_token_path(parts: tuple[Any, ...]) -> bool:
+    if (
+        len(parts) < 5
+        or parts[:2] != ("runtime_adapter", "attempts")
+        or not isinstance(parts[2], int)
+        or parts[-1] != "token"
+    ):
+        return False
+    suffix = parts[3:]
+    return suffix in {
+        ("actor_grant", "token"),
+        ("lifecycle", "cancellation", "grant", "token"),
+        ("lifecycle", "receipt", "attestation_record", "grant", "token"),
+        ("lifecycle", "reconciliation", "grant", "token"),
+    }
+
+
+def _runtime_archive_numeric_token_metric(parts: tuple[Any, ...], value: Any) -> bool:
+    """Permit exact numeric token budgets/telemetry, never credential-like strings."""
+    if (
+        not isinstance(value, (int, float))
+        or isinstance(value, bool)
+        or not math.isfinite(value)
+        or value < 0
+    ):
+        return False
+    if (
+        parts[:2] != ("runtime_adapter", "attempts")
+        or len(parts) < 5
+        or not isinstance(parts[2], int)
+    ):
+        return False
+    return parts[3:] == ("budget", "token_limit") or parts[3:] in {
+        ("lifecycle", "telemetry", "input_tokens"),
+        ("lifecycle", "telemetry", "cached_input_tokens"),
+        ("lifecycle", "telemetry", "output_tokens"),
+        ("lifecycle", "telemetry", "total_tokens"),
+    }
+
+
 def runtime_archive_sensitive_paths(value: Any, path: str = "runtime_adapter") -> list[str]:
-    """Find provider-secret shaped fields while retaining signed audit grants."""
+    """Find secret-shaped runtime fields with exact audited-record exemptions."""
     sensitive: list[str] = []
-    if isinstance(value, dict):
-        for key, item in value.items():
-            child = f"{path}.{key}"
-            if re.search(
-                r"(^|_)(private(_key)?|secret|credential|password|api_key|access_token|refresh_token|authorization|cookie|session)(_|$)",
-                str(key),
-                re.I,
-            ):
-                sensitive.append(child)
-            sensitive.extend(runtime_archive_sensitive_paths(item, child))
-    elif isinstance(value, list):
-        for index, item in enumerate(value):
-            sensitive.extend(runtime_archive_sensitive_paths(item, f"{path}[{index}]"))
+
+    def walk(item: Any, display_path: str, parts: tuple[Any, ...]) -> None:
+        if isinstance(item, dict):
+            for key, child_value in item.items():
+                child_display = f"{display_path}.{key}"
+                child_parts = (*parts, key)
+                secret_shaped = _runtime_archive_sensitive_key(key)
+                exact_grant_token = (
+                    secret_shaped
+                    and _runtime_archive_grant_token_path(child_parts)
+                    and _runtime_archive_grant_is_audit_shaped(item)
+                )
+                exact_numeric_metric = (
+                    secret_shaped
+                    and _runtime_archive_numeric_token_metric(child_parts, child_value)
+                )
+                if secret_shaped and not exact_grant_token and not exact_numeric_metric:
+                    sensitive.append(child_display)
+                walk(child_value, child_display, child_parts)
+        elif isinstance(item, list):
+            for index, child_value in enumerate(item):
+                walk(child_value, f"{display_path}[{index}]", (*parts, index))
+
+    walk(value, path, (path,))
     return sensitive
 
 
