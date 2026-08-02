@@ -167,11 +167,13 @@ All evidence is local/test-key evidence (`M`). It is not provider-runtime
 evidence (`R`).
 
 Current local evidence: the full controller/control-store/runtime/observation/
-operator suite passes 233 tests in 216.826 seconds. The transition slice passes
-12 tests and the runtime-archive token/grant slice passes 5 tests, including
-atomic state/revision/event/idempotency/nonce/export rollback for nested
-`provider_token`, `bearer_token`, and `client_token` probes. Python compilation
-and whitespace validation also pass.
+operator suite passes 234 tests in 219.348 seconds. The transition-filtered
+slice passes 20 tests, the archive-filtered slice passes 14 tests, and the four
+focused positive-schema/archive tests pass. These include atomic
+state/revision/event/idempotency/nonce/export rollback for credential-shaped
+and benign unknown fields, plus exact preservation and re-audit of the signed
+grant and typed observation history. Python compilation and whitespace
+validation also pass.
 The separate repository release suite is intentionally not green: 24 of 26
 tests pass, while manifest freshness and signed Operator Command Center surface
 parity fail because the remediated controller has not yet been independently
