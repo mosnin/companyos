@@ -1,174 +1,142 @@
-# Native task runtime control — verification report v1
+# Native task runtime control — verification rework report v1
 
-## Barrier status
+## Manager receipt
 
-**VERIFICATION BARRIER REACHED — STOPPED, NOT ACCEPTED, NOT INTEGRATED.**
+- Contract: `company-os.manager-role.v2`
+- Disposition: `rework_complete_at_verification_barrier`
+- Program / definition: `company-os-self-hosting` v6 / definition v1
+- Cycle / manager: `native-runtime-control-cycle-1` / `manager-native-runtime-control-1`
+- Master task: `019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3`
+- Outcome digest: `73391b5cd8f8582f6108b0152986526a2c5360b89100d64359cd3a178675c1d8`
+- Rejected predecessor: `6a038b4fb2ff0166d6508494da749b5fe7ef52fe`
+- Independent REWORK review: task `019fc26b-1deb-7070-aa43-f2b893982fe8` (`0 P0`, `2 P1`, `3 P2`)
+- Exact source commit under test: `315924018da7a7684787c79922dd3fd4887209c0`
+- Branch: `codex/native-runtime-control`
+- Status: **stopped at verification; not independently accepted, integrated, installed, deployed, or enabled**
 
-This report is bound to:
+This slice governs compliant Company OS native launches only. It does not
+intercept arbitrary Codex host task creation, and repository code does not call
+or claim to call Codex app tools. The prior Luna tasks remain manual native
+coordination evidence, not controller-governed runtime proof. No new workers
+were dispatched in this rework cycle.
 
-- program: `company-os-self-hosting`, program version `6`, definition version `1`
-- cycle: `native-runtime-control-cycle-1`
-- manager: `manager-native-runtime-control-1`
-- authenticated master task: `019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3`
-- manager native task: `019fc22b-f9f4-76e0-b26c-b181c21e1ab4`
-- accepted outcome digest: `73391b5cd8f8582f6108b0152986526a2c5360b89100d64359cd3a178675c1d8`
-- source baseline: `19fe809a9544303fb00150c957b317ed03c7a1a3`
-- accepted design evidence SHA-256: `48b464344a52df67f7d7086805522f32d94a04e3c34c08a8750416c3cb702ae3`
-- exact charter bytes SHA-256: `b15d0cd4dbc64a08b6052d4fbffca85ebbf3ec0a3443ecb1d9745cbda2933f30`
+## Rework delivered
 
-The slice governs compliant Company OS native launches. It does not intercept
-arbitrary Codex host task creation. Repository code does not call or claim to
-call Codex app tools. The two implementation workers were manually coordinated
-native tasks and are not controller-governed runtime proof.
+### Retained lifecycle replay and exact authority binding
 
-## Delivered feature-off slice
+`native_task_runtime.audit_state` now rebuilds lifecycle-controlled state from
+the pre-create admission event and reduces every later retained event in order.
+It compares the replayed status, dispatch, native identity, host observations,
+cancellation state, sequence, events, terminal state, receipt, and restart
+reconciliation with the persisted projection. Reordered, duplicated, deleted,
+or state-only running/terminal histories therefore fail closed even when an
+attacker resequences events and recomputes unkeyed event or receipt digests.
 
-The implementation adds a pure native-task state machine and controller
-commands that require the transactional SQLite authority before admission or a
-lifecycle mutation. Admission commits the exact attempt plus a content-bound
-`admitted_pre_create` receipt and `native-task-create` outbox row atomically.
-Only a separately authorized dispatch claim may move that row to `leased`,
-after which a returned host observation may bind the immutable native
-`task_id`, `thread_id`, and `host_id`.
+Cancellation dispatch creation, claim, and cooperative delivery are retained
+as lifecycle transitions rather than direct state mutations. Pre-launch
+cancellation retains its exact reconciliation action. Authority is attached
+only after the corresponding event exists, and terminal receipt hashes are
+recomputed after that attachment.
 
-Ordered host observations retain sequence numbers and payload digests.
-Terminal success requires create and running observations. The terminal
-receipt binds admission, dispatch, returned identity, all host observations,
-cancellation state, terminal state, unavailable telemetry, and retained
-authority history.
+Every retained authority entry now contains the exact command details and
+lifecycle sequence. The pure audit recomputes the controller command payload
+hash from the admitted attempt lineage and verifies the exact retained event or
+observation payload. The controller additionally requires one ordered authority
+entry for every post-admission event and independently re-audits its signed
+grant. Missing, duplicated, reordered, wrong-event, wrong-detail, or altered
+payload-hash authority fails.
 
-Cancellation persists desired intent independently from cooperative delivery,
-hard-cancellation status, and acknowledgement status. Success or failure after
-cancellation intent is rejected. A task cancelled before dispatch claim is
-terminalized as `cancelled_before_launch` and its create outbox is cancelled.
-An in-flight claim without returned identity reconciles to
-`reconcile_host_listing`; it is never converted into a second create intent.
+Adversarial regressions cover reordered create/running events, duplicate
+running events, deleted running/terminal history with retained terminal state,
+state-only running state, altered authority payload hashes, missing authority
+coverage, cancellation dispatch replay, and pre-launch reconciliation.
 
-Requested model remains separate from observed model. Observed model, provider
-usage/tokens, and cost remain structured `unavailable` values because the
-native host did not expose them. No values are inferred from the request.
+### Persisted schema and downgrade boundary
 
-The retained-state audit fails closed on unknown native fields, altered
-admission or dispatch receipts, reordered observations, identity conflicts,
-forged authority history, invented telemetry, and invalid terminal receipts.
-The controller rejects stale leases, duplicate task/thread binding,
-cross-project grant replay, parent mismatch, idempotency conflict, and manifest
-scope/model/budget widening.
+New native state is explicitly `company-os.native-task-runtime.v2`. A tested
+assessment API covers both active attempts and exact archived runtime-adapter
+snapshots. Reading v2 with the v2 reader is safe. Downgrade to v1 or to the
+schema-9 pre-native-runtime reader is explicitly `blocked` because lifecycle
+replay and authority bindings cannot be represented losslessly. The required
+action is to retain the v2 reader or use a later, separately authorized,
+lossless migration. No downgrade transformation is claimed or performed.
 
-## Durable store changes
+### Prospective scope amendment
 
-The existing SQLite state/event/idempotency/outbox authority is reused. Outbox
-reconciliation now supports explicit compare-and-set guards for expected
-status and payload digest under the same staged state/event revision. Outbox
-inspection verifies the project binding, stored JSON type, and content digest.
-Idempotency recording is replay-safe for the exact retained payload.
+The master-authorized integration-test correction is represented by:
 
-No scheduler, provider, production, credential, deployment, installation,
-canonical-main, or Chippy action occurred.
+- evidence: `artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.scope-amendment.v1.json`, SHA-256 `9e8cd5af40d19e555633c65cf61761e7aead39dbfbd65b082423f079b82fc1b7`
+- decision: `artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.scope-amendment.v1.json`, SHA-256 `19786d87c49795d50f57438581f26b34d595e2b8d5f34fa2edfa20957dec7c8e`
 
-## Worker evidence disposition
+The record binds the exact master directive, charter bytes and definition,
+accepted design evidence, rejected commit, review task, program lineage, and
+the one added test path. It states an actual issuance time, is expressly
+prospective for the next candidate, and does not retroactively authorize the
+rejected commit. Its HMAC is labeled and tested only as offline repository
+fixture integrity, not live identity authentication. Every original
+prohibition remains present.
 
-Both compact v2 packets were validated before native creation and were scoped
-to disjoint files:
+## Exact verification evidence
 
-- state packet: `programs/company-os-self-hosting/native-runtime-control/work-packets/native-runtime-state-worker-1.v1.json`, SHA-256 `ceb57dc8eb9fdb380cc7c76acb286617c0ef16e27e85e73a00951774cee9d457`
-- store packet: `programs/company-os-self-hosting/native-runtime-control/work-packets/native-runtime-store-worker-1.v1.json`, SHA-256 `271d7a2c20d25a38da3453cf392202a570aa3f2830715e7aa6fdee33a1944467`
+All passing checks below were rerun against exact source commit
+`315924018da7a7684787c79922dd3fd4887209c0` with bytecode writing disabled.
 
-The store worker receipt is provisionally accepted based on manager inspection
-and a clean 38-test store suite. The state worker's final `complete` label is
-rejected because it disclosed one outdated failing test after its only allowed
-rework. The manager independently repaired, strengthened, and reverified that
-state-machine lane. Worker completion labels are not treated as acceptance.
-
-## Verification evidence
-
-| Check | Result | Evidence boundary |
+| Check | Exact result | Evidence boundary |
 |---|---:|---|
-| Native state-machine suite | 11/11 passed | Pure local state transitions; no host/runtime proof |
-| Transactional store suite | 38/38 passed | Local SQLite durability, crash rollback, outbox CAS and integrity |
-| Controller suite | 150/150 passed | Local controller, archive, lease, authority and negative-path coverage |
-| Complete packaged skill discovery | 299/299 passed | Full local packaged controller regression after master-owned integration-test correction |
-| Diff integrity | passed | `git diff --check` clean |
-| Python bytecode residue | passed | No `.pyc`, `.pyo`, or `__pycache__` remains under the script tree |
-| Distribution manifest | blocked as expected | `verify-manifest` reports stale; root manifest is outside owned paths and integration is prohibited |
-| Installed distribution parity | not run | Installation and integration were prohibited; source differs intentionally |
-| Provider/native live run | not run | Provider calls and runtime enablement were prohibited |
-| Independent Sol review | not performed | The two-task charter budget was fully allocated to the two required Luna workers |
+| Native state-machine focused suite | 16 / 16 passed | Pure local replay, adversarial history, authority, cancellation, schema boundary |
+| Transactional store focused suite | 38 / 38 passed | Local SQLite crash, CAS, idempotency, outbox integrity |
+| Observation integration focused suite | 8 / 8 passed | Local transactional observation ingestion and retry |
+| Complete packaged script discovery | 306 / 306 passed | Full relevant packaged regression, including controller and all negative paths |
+| Reference contract discovery | 10 / 10 passed | Local reference contracts |
+| Diff integrity | passed | `git diff --check` clean before source commit |
+| Script bytecode residue | passed | no `.pyc`, `.pyo`, or `__pycache__` retained |
+| Root discovery | **55 / 59 passed; 2 failures, 2 errors** | blocked only by prohibited manifest/signed-surface integration gates |
+| Distribution manifest | **blocked** | `distribution manifest is stale; run write-manifest` |
+| Provider/native live run | not run | prohibited; no provider/runtime proof claimed |
 
-The manager initially stopped at 298/299 because
-`test_transactional_store_projects_one_inbox_message_and_retry_adds_no_revision`
-asserted an absolute revision of `2`. The accepted design migrates the fixture
-to SQLite before admission, so that number was unrelated to the functional
-contract. At the master verification boundary, the test was corrected to
-capture the pre-ingestion revision, assert exactly one increment for the first
-durable observation, and assert no additional revision for exact replay. The
-complete packaged discovery then passed 299/299.
+The root failures are disclosed, not waived:
 
-The distribution manifest is also stale because the new module/test and the
-changed packaged files have not been integrated into the root manifest. That
-is an integration task and was intentionally not performed at this barrier.
+1. `test_check_install_creates_no_lock_or_other_artifact_for_external_target`
+   errors because the distribution manifest is stale.
+2. `test_current_surface_and_independent_signature_verify` errors because
+   `company_os_controller.py` differs from the independently signed Operator
+   Command Center surface.
+3. The two negative signature-drift tests fail early on that same source drift
+   instead of reaching their intended signature-tamper assertions.
 
-Focused negative and fault evidence covers:
+Updating `VERSION`, the distribution manifest, or the independently signed
+Operator Command Center surface is expressly reserved for master integration
+after independent source acceptance. This manager did not modify those files.
 
-- stale, expired, wrong-owner, wrong-program and transition-disallowed leases
-- malformed, expired, consumed, project-mismatched and payload-mismatched grants
-- create outbox pending/leased/succeeded and pre-launch cancelled transitions
-- compare-and-set mismatch rollback without a new store revision
-- corrupted outbox payload JSON/digest and wrong-project inspection
-- create claim crash/restart with no identity and no relaunch
-- terminal observation before create/running
-- missing or non-host task/thread/host identity
-- duplicate task/thread binding across attempts
-- conflicting attempt, idempotency, parent, scope, budget and model bindings
-- cooperative cancellation without invented hard acknowledgement
-- rejected post-cancellation success
-- terminal receipt, observation chain, unknown-field, authority and telemetry tampering
-- exact retry no-ops for admission, dispatch claim, observations and reconciliation
+## Source artifact digests at the tested commit
 
-One incidental syntax check initially created
-`scripts/__pycache__/native_task_runtime.cpython-314.pyc`; the exact file and
-the empty directory were removed immediately. Final residue is zero.
-
-## Source artifact digests
-
-- `company_os_controller.py`: `437adbfc4128dca80696f63553b29eecd3c0e71af4daffdbd795e19df2ea757c`
+- `company_os_controller.py`: `cc4f0ccb20942982d29eef39dc75f12f25b5224c08587d57d7870bbfb23ec7c4`
 - `control_store.py`: `e4361ecb2eb07b5a7f6557e852065ca10a9fbacfff6386f157f68464a7179aac`
-- `native_task_runtime.py`: `e808682ff83db9d078f28e47fd2f12724c4df54059314a5c434b311db81eb6ca`
-- `test_company_os_controller.py`: `545be88cb42e95e5f255ce09d2bec3d0ccb9a519165b37c21064c495cd97b45e`
+- `native_task_runtime.py`: `2c50b4541b491f4fd64b04704d4d4652bb44dd0b094f9d0096ca88a5c2d48956`
+- `test_company_os_controller.py`: `cdd9d872887d83865acdc510dd0dcdcb368f68a870f50a9d624981e1a5142510`
 - `test_control_store.py`: `fff4cec7effd48d1d623e924f586221952a7ac2bc566dd408703d6b0a9de4e90`
-- `test_native_task_runtime.py`: `af5fa94823ae56c714f9c8cca5929847c7213ce9806d68695d8517af31883d75`
+- `test_native_task_runtime.py`: `1bfcd665b6c05846b0fe15eda34592723107845c7452c33fa7098b642fc5bab1`
 - `test_runtime_observation_integration.py`: `c7ba5f91ae7df0ba0fc31f7ec00eb0c885e38b07981616160335d9943701f01e`
 
-These are working-tree digests, not commit evidence. No exact implementation
-commit exists because integration and canonical-main writes were prohibited.
+## Worker and policy disposition
 
-## Provisional manager scorecard
+- Existing worker task evidence: retained; no new worker task created.
+- Direct manager repair: accepted as routine execution under the authenticated
+  rework directive.
+- Collision or policy event: none in the authoritative worktree.
+- Telemetry: requested model `gpt-5.6-sol`; observed model, provider tokens,
+  provider cost, and hard-cancellation acknowledgement are unavailable and were
+  not invented.
 
-These scores are the implementing manager's assessment, not the required
-independent Sol verdict:
+## Unresolved gates and next action
 
-| Dimension | Score / 10 | Basis |
-|---|---:|---|
-| Security | 9.2 | Feature-off, no I/O state machine, strict host-returned identity, no secret/provider path |
-| Authority | 9.3 | Project/cycle/lease-fenced signed decisions retained and audited per transition |
-| Durability | 9.2 | Atomic SQLite state/event/idempotency/outbox writes with CAS reconciliation |
-| Cancellation | 9.1 | Intent, delivery, hard status, acknowledgement and terminal outcome remain distinct |
-| Evidence integrity | 9.2 | Content-bound receipts, ordered digests, unavailable telemetry and tamper rejection |
-| Reliability | 8.8 | Deterministic restart actions and exact no-op replay; no live host exercise |
-| Maintainability | 8.5 | Pure state module and controller/store separation; controller integration remains substantial |
-| Test strength | 9.0 | Strong negative/crash matrix and clean 299-test packaged discovery; live host behavior remains unproven |
-| Observability | 8.7 | Durable ordered lifecycle and terminal receipt; host/provider fields remain unavailable |
-| Rollback readiness | 8.4 | Feature-off source-only change; no install or runtime activation |
+The next action is an independent Sol source review of commit
+`315924018da7a7684787c79922dd3fd4887209c0` and this report. Acceptance still
+requires no P0/P1 findings and the charter score thresholds. Only after that
+source acceptance may the master authorize integration-owned version,
+manifest, signed-surface, installation/parity, or runtime work.
 
-## Verification decision required
-
-The implementation is ready for an authenticated master verification decision,
-but it does **not** satisfy final acceptance yet. The master must arrange:
-
-1. an independent Sol review with no P0/P1 findings and an independent scored verdict;
-2. integration-owned distribution manifest and signed-surface updates with passing integrity checks;
-3. full regression and installed-distribution parity after integration.
-
-Until those conditions are met, the correct disposition is **verification
-pending / runtime NO-GO**. No integration, merge, install, enablement,
-scheduler, provider, production, or Chippy action is authorized by this report.
+Until then the manager receipt is **REWORK COMPLETE / VERIFICATION PENDING /
+RUNTIME NO-GO**. No integration, canonical-main merge, installation,
+deployment, runtime or scheduler activation, provider/production action, or
+Chippy action is authorized or performed.
