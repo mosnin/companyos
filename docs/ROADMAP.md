@@ -50,19 +50,27 @@ commercial leverage, operational readiness, and north-star alignment below
 the required gate. Those failures drive Phase 2; they are not normalized into
 a successful Learning certification.
 
-## Phase 2 — Provider-authenticated execution
+## Phase 2 — Codex-native task fabric
 
-Add a provider-neutral runtime gateway to the canonical observation boundary.
-Implement admission-before-launch, heartbeats, terminal receipts, cancellation propagation,
-provider-derived identity/usage, and reconciliation. Never substitute another
-model while labeling a worker Luna. Exit requires real success, failure,
-cancellation, ambiguous-launch, and restart evidence.
+Use the Codex task runtime as the host-operated execution surface: master Sol
+task → Sol manager tasks → Luna worker tasks. Ship concise versioned manager and
+worker role skills, compact charters/packets, dependency and phase gates,
+evidence receipts, bounded concurrency, project isolation, and deterministic
+simulation. Repository code validates exported evidence; it does not call app
+task tools. Existing provider gateways remain historical feature-off fixtures.
 
-## Phase 3 — Self-hosting capability
+The safe contract correction may exit locally with all applicable scores above
+gate. The broader runtime remains NO-GO until controller admission occurs before
+native create, a hard cancellation/acknowledgement surface is proven, installed
+fresh-thread role skills pass, and one clean two-Luna integration succeeds.
 
-Use Company OS to build its own live scorecard through one Sol master, bounded
-Sol managers, and GPT-5.6 Luna workers. Capture actual cost, tokens, lead time,
-rework, collisions, and evidence. Activity without an accepted outcome fails.
+## Phase 3 — Native self-hosting capability
+
+Use the installed role skills and compact packets to build Company OS's live
+scorecard through one Sol master, bounded Sol managers, and GPT-5.6 Luna tasks.
+Record only host-exposed task IDs, status, duration, model, token, cost, and
+cancellation fields; unavailable remains unavailable. Activity without an
+accepted outcome fails.
 
 ## Phase 4 — Recursive adaptation
 
@@ -78,7 +86,7 @@ three without weakening protected controls.
 
 ## Phase 6 — Protected recurring operation
 
-Deploy an external issuer and protected launcher, one fenced wake per project,
+Deploy a protected native-task launcher/issuer boundary, one fenced wake per project,
 zero-work empty wakes, authoritative cancellation, and a live exception-based
 scorecard. Exit requires unattended success, failure, cancellation, and crash
 recovery.

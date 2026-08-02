@@ -1,0 +1,322 @@
+{
+  "schema": "company-os.codex-native-task-fabric-simulation.v1",
+  "observed_at": "2026-08-02",
+  "host_metadata_observations": {
+    "earlier_normalized": "local",
+    "later_specific": "slingshot:env_e_6a45bba84594832ebfa9502583df2b6b",
+    "interpretation": "coordination metadata only; normalization is not lineage"
+  },
+  "before": {
+    "direction": "external provider gateway and narrative-only task contracts",
+    "defects": [
+      "no Codex-native task and host identity contract",
+      "no dependency start gate",
+      "no deterministic report freshness or scope check",
+      "no concrete cross-project rejection simulation",
+      "read-only checks could generate ignored bytecode while tracked status stayed clean"
+    ]
+  },
+  "iterations": [
+    {"iteration_id": "iteration-0-direction", "defect": "active roadmap required an external provider gateway", "correction": "made native Codex tasks the host-operated target and froze provider code as fixture history", "rerun_scenarios": ["scenario-1-known-answer", "scenario-3-native-manager-workers"]},
+    {"iteration_id": "iteration-1-side-effects", "defect": "Worker B generated and cleaned ignored bytecode during read-only work", "correction": "rejected its receipt and required bytecode-disabled or disposable-copy checks", "rerun_scenarios": ["scenario-3-native-manager-workers", "scenario-4-fault-pressure"]},
+    {"iteration_id": "iteration-2-role-routing", "defect": "manager skill pointed Luna work at the manager charter and required routine approval", "correction": "routed to the worker packet and added exception-based auto-continuation with master visibility", "rerun_scenarios": ["scenario-1-known-answer", "scenario-4-fault-pressure"]},
+    {"iteration_id": "iteration-3-evidence-boundary", "defect": "fixture time and active manager lifecycle could be mislabeled as terminal native observation", "correction": "required scenario and metric evidence source and separated active lifecycle from rework disposition", "rerun_scenarios": ["scenario-1-known-answer", "scenario-2-malformed-dependency", "scenario-3-native-manager-workers", "scenario-4-fault-pressure", "scenario-5-project-isolation"]}
+  ],
+  "validation_hygiene": {
+    "evidence_kind": "local_filesystem_observation",
+    "evidence_source": "bounded scans of the three authorized test trees before cleanup and after the acceptance rerun",
+    "worker_b_failure_preserved": true,
+    "pre_cleanup_pyc_count": 16,
+    "pre_rerun_pyc_count": 0,
+    "post_rerun_pyc_count": 0,
+    "rerun_environment": "PYTHONDONTWRITEBYTECODE=1",
+    "terminal_check": "acceptance-rerun-passed pyc_before=0 pyc_after=0"
+  },
+  "scorecard": [
+    {"dimension": "authority_integrity", "score": 9.3, "evidence": "role narrowing and master-only final acceptance"},
+    {"dimension": "cancellation_integrity", "score": 9.2, "evidence": "contract refuses to fabricate hard cancellation"},
+    {"dimension": "evidence_integrity", "score": 9.4, "evidence": "source-labeled fixtures and native observations with digest oracles"},
+    {"dimension": "project_isolation", "score": 9.2, "evidence": "foreign task and artifact rejection fixture"},
+    {"dimension": "budget_concurrency", "score": 8.8, "evidence": "deterministic pressure rejection without token or cost enforcement"}
+  ],
+  "runtime_readiness_decision": "no_go",
+  "runtime_readiness_scorecard": [
+    {"dimension": "hard_cancellation", "score": 2.0, "evidence": "no proven native interrupt or cancellation acknowledgement"},
+    {"dimension": "controller_native_admission", "score": 1.0, "evidence": "controller does not invoke or admit native task creation"},
+    {"dimension": "installed_fresh_thread_roles", "score": 2.0, "evidence": "candidate source is not installed or forward-tested"},
+    {"dimension": "successful_two_luna_integration", "score": 3.0, "evidence": "one worker accepted and one worker failed"},
+    {"dimension": "observed_model_identity", "score": 2.0, "evidence": "requested model exposed; observed model unavailable"},
+    {"dimension": "token_cost_telemetry", "score": 1.0, "evidence": "tokens and cost unavailable"},
+    {"dimension": "durable_native_reconciliation", "score": 2.0, "evidence": "interactive observations are not controller lifecycle state"},
+    {"dimension": "protected_scheduling", "score": 0.0, "evidence": "disabled"}
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "scenario-1-known-answer",
+      "evidence_kind": "deterministic_fixture",
+      "evidence_source": "validate_codex_native_fabric.py known-answer fixture",
+      "project_id": "project-synthetic-01",
+      "program_id": "program-known-answer-01",
+      "program_version": 1,
+      "master_task_id": "master-synthetic-01",
+      "budget": {"max_concurrency": 2, "max_tasks": 2},
+      "expected_after": "accepted",
+      "expected_error_codes": [],
+      "tasks": [
+        {
+          "task_id": "manager-synthetic-01",
+          "parent_task_id": "master-synthetic-01",
+          "project_id": "project-synthetic-01",
+          "program_id": "program-known-answer-01",
+          "program_version": 1,
+          "role": "manager",
+          "requested_model": "gpt-5.6-sol",
+          "observed_model": {"status": "unavailable", "value": null, "source": null},
+          "native_metadata": {"thread_id": "synthetic-manager-thread", "host_id": "synthetic-host"},
+          "dependencies": [],
+          "scope": ["manager/synthetic"],
+          "scope_digest": "e6d09ae6ac60b8fbe8b5611a9ec174e809304d568dffda89d648887214b1ec5e",
+          "start_status": "created",
+          "start_order": 1,
+          "terminal_status": "accepted",
+          "terminal_order": 5,
+          "report": {"version": 1, "scope_digest": "e6d09ae6ac60b8fbe8b5611a9ec174e809304d568dffda89d648887214b1ec5e"},
+          "artifact": {"project_id": "project-synthetic-01", "task_id": "manager-synthetic-01", "content": {"answer": 42, "integrated": true}, "sha256": "0428a9944c6260ccf7c33c0c4a5dac9292ff66a157512b6beda7d2fe5602013d"},
+          "acceptance_oracle": {"kind": "json_equals", "key": "answer", "value": 42},
+          "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 40, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "worker-synthetic-01",
+          "parent_task_id": "manager-synthetic-01",
+          "project_id": "project-synthetic-01",
+          "program_id": "program-known-answer-01",
+          "program_version": 1,
+          "role": "worker",
+          "requested_model": "gpt-5.6-luna",
+          "observed_model": {"status": "unavailable", "value": null, "source": null},
+          "native_metadata": {"thread_id": "synthetic-worker-thread", "host_id": "synthetic-host"},
+          "dependencies": [],
+          "scope": ["worker/synthetic"],
+          "scope_digest": "09194953b7ddccd858a2df4240dc7efb1a21487e27038ca97709ba7f24140bff",
+          "start_status": "created",
+          "start_order": 2,
+          "terminal_status": "accepted",
+          "terminal_order": 4,
+          "report": {"version": 1, "scope_digest": "09194953b7ddccd858a2df4240dc7efb1a21487e27038ca97709ba7f24140bff"},
+          "artifact": {"project_id": "project-synthetic-01", "task_id": "worker-synthetic-01", "content": {"left": 19, "right": 23, "answer": 42}, "sha256": "5421103a227d6a400d90f849e093dc09f4b0375061f20d3c43f628c9ebd2b0b0"},
+          "acceptance_oracle": {"kind": "json_equals", "key": "answer", "value": 42},
+          "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 20, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        }
+      ]
+    },
+    {
+      "scenario_id": "scenario-2-malformed-dependency",
+      "evidence_kind": "deterministic_fixture",
+      "evidence_source": "validate_codex_native_fabric.py dependency fixture",
+      "project_id": "project-chain-01",
+      "program_id": "program-chain-01",
+      "program_version": 1,
+      "master_task_id": "master-chain-01",
+      "budget": {"max_concurrency": 1, "max_tasks": 3},
+      "expected_after": "blocked",
+      "expected_error_codes": ["artifact_digest", "dependency_blocked"],
+      "tasks": [
+        {
+          "task_id": "manager-chain-upstream",
+          "parent_task_id": "master-chain-01",
+          "project_id": "project-chain-01",
+          "program_id": "program-chain-01",
+          "program_version": 1,
+          "role": "manager",
+          "requested_model": "gpt-5.6-sol",
+          "observed_model": {"status": "unavailable", "value": null, "source": null},
+          "native_metadata": {"thread_id": "chain-upstream-thread", "host_id": "synthetic-host"},
+          "dependencies": [],
+          "scope": ["chain/upstream"],
+          "scope_digest": "e899758e57d12b891c12a5b1cc18d396e7f94d503f22b7d7406beb061212d70a",
+          "start_status": "created",
+          "start_order": 1,
+          "terminal_status": "blocked",
+          "terminal_order": 2,
+          "report": {"version": 1, "scope_digest": "e899758e57d12b891c12a5b1cc18d396e7f94d503f22b7d7406beb061212d70a"},
+          "artifact": {"project_id": "project-chain-01", "task_id": "manager-chain-upstream", "content": {"format": "wrong"}, "sha256": "malformed"},
+          "acceptance_oracle": {"kind": "json_equals", "key": "format", "value": "normalized"},
+          "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 10, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "worker-chain-middle",
+          "parent_task_id": "manager-chain-upstream",
+          "project_id": "project-chain-01",
+          "program_id": "program-chain-01",
+          "program_version": 1,
+          "role": "worker",
+          "requested_model": "gpt-5.6-luna",
+          "observed_model": {"status": "unavailable", "value": null, "source": null},
+          "native_metadata": {"thread_id": null, "host_id": null},
+          "dependencies": ["manager-chain-upstream"],
+          "scope": ["chain/middle"],
+          "scope_digest": "528db7285128476ae74dcbfd40d272d429b092a4a5b888efdc421b1afcd574c6",
+          "start_status": "planned",
+          "start_order": null,
+          "terminal_status": "blocked",
+          "terminal_order": null,
+          "report": {"version": 1, "scope_digest": "528db7285128476ae74dcbfd40d272d429b092a4a5b888efdc421b1afcd574c6"},
+          "artifact": null,
+          "acceptance_oracle": {"kind": "json_equals", "key": "normalized", "value": true},
+          "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "unavailable", "value": null, "source": null}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "worker-chain-downstream",
+          "parent_task_id": "manager-chain-upstream",
+          "project_id": "project-chain-01",
+          "program_id": "program-chain-01",
+          "program_version": 1,
+          "role": "worker",
+          "requested_model": "gpt-5.6-luna",
+          "observed_model": {"status": "unavailable", "value": null, "source": null},
+          "native_metadata": {"thread_id": null, "host_id": null},
+          "dependencies": ["worker-chain-middle"],
+          "scope": ["chain/downstream"],
+          "scope_digest": "f0b09a5f09324f7021293d8b6ff53fe1de0297813b69ee291eb1ce46d94c59a8",
+          "start_status": "planned",
+          "start_order": null,
+          "terminal_status": "blocked",
+          "terminal_order": null,
+          "report": {"version": 1, "scope_digest": "f0b09a5f09324f7021293d8b6ff53fe1de0297813b69ee291eb1ce46d94c59a8"},
+          "artifact": null,
+          "acceptance_oracle": {"kind": "json_equals", "key": "published", "value": true},
+          "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "unavailable", "value": null, "source": null}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        }
+      ]
+    },
+    {
+      "scenario_id": "scenario-3-native-manager-workers",
+      "evidence_kind": "native_observation",
+      "evidence_source": "create_thread, wait_threads, and read_thread results retained by the Sol manager",
+      "project_id": "company-os-native-thread-runtime",
+      "program_id": "company-os-program-6",
+      "program_version": 6,
+      "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+      "budget": {"max_concurrency": 3, "max_tasks": 3},
+      "observed_lifecycle_status": "manager_active",
+      "simulation_disposition": "rework_required",
+      "simulation_disposition_reason": "Worker B failed the read-only side-effect boundary",
+      "expected_after": "rework",
+      "expected_error_codes": ["task_terminal_failure"],
+      "tasks": [
+        {
+          "task_id": "019fc171-8330-7303-9046-656c75cf2109",
+          "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+          "project_id": "company-os-native-thread-runtime",
+          "program_id": "company-os-program-6",
+          "program_version": 6,
+          "role": "manager",
+          "requested_model": "gpt-5.6-sol",
+          "observed_model": {"status": "unavailable", "value": null, "source": null},
+          "native_metadata": {"thread_id": "019fc171-8330-7303-9046-656c75cf2109", "host_id": "slingshot:env_e_6a45bba84594832ebfa9502583df2b6b"},
+          "dependencies": [],
+          "scope": ["program6/manager"],
+          "scope_digest": "4262f92c8bfb3603a8075b215cc1fc191227ae44424b25f1efd29ca33c6d1cf5",
+          "start_status": "created",
+          "start_order": 1,
+          "terminal_status": "active",
+          "terminal_order": null,
+          "report": {"version": 1, "scope_digest": "4262f92c8bfb3603a8075b215cc1fc191227ae44424b25f1efd29ca33c6d1cf5"},
+          "artifact": null,
+          "acceptance_oracle": {"kind": "json_equals", "key": "integration_decision", "value": "accept"},
+          "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "unavailable", "value": null, "source": null}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "019fc173-86b9-7310-ac9e-1ea1e819c2ef",
+          "parent_task_id": "019fc171-8330-7303-9046-656c75cf2109",
+          "project_id": "company-os-native-thread-runtime",
+          "program_id": "company-os-program-6",
+          "program_version": 6,
+          "role": "worker",
+          "requested_model": "gpt-5.6-luna",
+          "observed_model": {"status": "unavailable", "value": null, "source": null},
+          "native_metadata": {"thread_id": "019fc173-86b9-7310-ac9e-1ea1e819c2ef", "host_id": "slingshot:env_e_6a45bba84594832ebfa9502583df2b6b"},
+          "dependencies": [],
+          "scope": ["program6/inventory"],
+          "scope_digest": "f94b9a0cce340c2910afd5c43ba13fe96b0243a6da0e14c34671c059788f770e",
+          "start_status": "created",
+          "start_order": 2,
+          "terminal_status": "accepted",
+          "terminal_order": 4,
+          "report": {"version": 1, "scope_digest": "f94b9a0cce340c2910afd5c43ba13fe96b0243a6da0e14c34671c059788f770e"},
+          "artifact": {"project_id": "company-os-native-thread-runtime", "task_id": "019fc173-86b9-7310-ac9e-1ea1e819c2ef", "content": {"finding_count": 5, "status": "complete"}, "sha256": "24defbf51b26ab02dbef79ce65b3eda5bf80358ec85a8287697e23be1166bc7f"},
+          "acceptance_oracle": {"kind": "json_equals", "key": "status", "value": "complete"},
+          "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "observed", "value": 184227, "source": "wait_threads completed durationMs"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "019fc173-7c60-76c0-8d8d-43455e70d3b2",
+          "parent_task_id": "019fc171-8330-7303-9046-656c75cf2109",
+          "project_id": "company-os-native-thread-runtime",
+          "program_id": "company-os-program-6",
+          "program_version": 6,
+          "role": "worker",
+          "requested_model": "gpt-5.6-luna",
+          "observed_model": {"status": "unavailable", "value": null, "source": null},
+          "native_metadata": {"thread_id": "019fc173-7c60-76c0-8d8d-43455e70d3b2", "host_id": "slingshot:env_e_6a45bba84594832ebfa9502583df2b6b"},
+          "dependencies": [],
+          "scope": ["program6/design-analysis"],
+          "scope_digest": "35a8932e4ac9551453e0d8f909e61f68025b13c7e661fa7981b473536f80eb22",
+          "start_status": "created",
+          "start_order": 2,
+          "terminal_status": "failed",
+          "terminal_order": 5,
+          "report": {"version": 1, "scope_digest": "35a8932e4ac9551453e0d8f909e61f68025b13c7e661fa7981b473536f80eb22"},
+          "artifact": {"project_id": "company-os-native-thread-runtime", "task_id": "019fc173-7c60-76c0-8d8d-43455e70d3b2", "content": {"finding_count": 5, "status": "failed_policy_exception"}, "sha256": "4087c303e70a2a53fce2d6f40f7de008d06a594591f206baf51621966da142fd"},
+          "acceptance_oracle": {"kind": "json_equals", "key": "status", "value": "complete"},
+          "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "observed", "value": 234219, "source": "wait_threads completed durationMs"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        }
+      ]
+    },
+    {
+      "scenario_id": "scenario-4-fault-pressure",
+      "evidence_kind": "deterministic_fixture",
+      "evidence_source": "validate_codex_native_fabric.py pressure fixture informed by Worker B failure",
+      "project_id": "project-fault-01",
+      "program_id": "program-fault-01",
+      "program_version": 1,
+      "master_task_id": "master-fault-01",
+      "budget": {"max_concurrency": 1, "max_tasks": 3},
+      "expected_after": "blocked",
+      "expected_error_codes": ["budget_concurrency_pressure", "budget_task_pressure", "report_scope_changed", "report_stale", "scope_changed", "task_terminal_failure"],
+      "tasks": [
+        {
+          "task_id": "manager-fault-01", "parent_task_id": "master-fault-01", "project_id": "project-fault-01", "program_id": "program-fault-01", "program_version": 1, "role": "manager", "requested_model": "gpt-5.6-sol", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "fault-manager-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["fault/manager"], "scope_digest": "62f6364e2915414934cfed2b49be7986abe80adddb1a8bf1c32e097feaf1be27", "start_status": "created", "start_order": 1, "terminal_status": "blocked", "terminal_order": 8, "report": {"version": 1, "scope_digest": "62f6364e2915414934cfed2b49be7986abe80adddb1a8bf1c32e097feaf1be27"}, "artifact": null, "acceptance_oracle": {"kind": "json_equals", "key": "decision", "value": "accepted"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 80, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "worker-fault-stale", "parent_task_id": "manager-fault-01", "project_id": "project-fault-01", "program_id": "program-fault-01", "program_version": 1, "role": "worker", "requested_model": "gpt-5.6-luna", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "fault-stale-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["fault/stale"], "scope_digest": "changed-scope", "start_status": "created", "start_order": 2, "terminal_status": "failed", "terminal_order": 6, "report": {"version": 0, "scope_digest": "old-scope"}, "artifact": {"project_id": "project-fault-01", "task_id": "worker-fault-stale", "content": {"report": "stale"}, "sha256": "a684f00e474bfd30f7d011f3f67d4ea046062106af2b32cc4fbfc6a7e705daf1"}, "acceptance_oracle": {"kind": "json_equals", "key": "report", "value": "current"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 40, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "worker-fault-refused", "parent_task_id": "manager-fault-01", "project_id": "project-fault-01", "program_id": "program-fault-01", "program_version": 1, "role": "worker", "requested_model": "gpt-5.6-luna", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "fault-refused-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["fault/refused"], "scope_digest": "074d54811e60449ed0cc1811699859aee1a7fbb9cfa9e864004c07b28b4badaa", "start_status": "created", "start_order": 2, "terminal_status": "refused", "terminal_order": 5, "report": {"version": 1, "scope_digest": "074d54811e60449ed0cc1811699859aee1a7fbb9cfa9e864004c07b28b4badaa"}, "artifact": {"project_id": "project-fault-01", "task_id": "worker-fault-refused", "content": {"status": "refused"}, "sha256": "e2d414999d670e2263bd410ac373094269c0df7b06a1fc0f1c173a98fd014d29"}, "acceptance_oracle": {"kind": "json_equals", "key": "status", "value": "complete"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 30, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "worker-fault-pressure", "parent_task_id": "manager-fault-01", "project_id": "project-fault-01", "program_id": "program-fault-01", "program_version": 1, "role": "worker", "requested_model": "gpt-5.6-luna", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "fault-pressure-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["fault/pressure"], "scope_digest": "24d17d5a20cd7c0dc60d70168b6787fe0d0c51f4417e305cf48107ef6d1b39d9", "start_status": "created", "start_order": 2, "terminal_status": "blocked", "terminal_order": 7, "report": {"version": 1, "scope_digest": "24d17d5a20cd7c0dc60d70168b6787fe0d0c51f4417e305cf48107ef6d1b39d9"}, "artifact": null, "acceptance_oracle": {"kind": "json_equals", "key": "status", "value": "complete"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 50, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        }
+      ]
+    },
+    {
+      "scenario_id": "scenario-5-project-isolation",
+      "evidence_kind": "deterministic_fixture",
+      "evidence_source": "validate_codex_native_fabric.py isolation fixture",
+      "project_id": "project-native-01",
+      "program_id": "program-isolation-01",
+      "program_version": 1,
+      "master_task_id": "master-isolation-01",
+      "budget": {"max_concurrency": 2, "max_tasks": 2},
+      "expected_after": "rejected",
+      "expected_error_codes": ["artifact_isolation", "project_isolation"],
+      "tasks": [
+        {
+          "task_id": "manager-isolation-01", "parent_task_id": "master-isolation-01", "project_id": "project-native-01", "program_id": "program-isolation-01", "program_version": 1, "role": "manager", "requested_model": "gpt-5.6-sol", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "isolation-manager-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["project-a/manager"], "scope_digest": "fab9e76f64bce2d8c4b1b2a8a1573c30091ffd8ee11953f35a979dfe73a201d8", "start_status": "created", "start_order": 1, "terminal_status": "blocked", "terminal_order": 5, "report": {"version": 1, "scope_digest": "fab9e76f64bce2d8c4b1b2a8a1573c30091ffd8ee11953f35a979dfe73a201d8"}, "artifact": null, "acceptance_oracle": {"kind": "json_equals", "key": "decision", "value": "accepted"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 50, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        },
+        {
+          "task_id": "worker-isolation-01", "parent_task_id": "manager-isolation-01", "project_id": "project-native-01-copy", "program_id": "program-isolation-01", "program_version": 1, "role": "worker", "requested_model": "gpt-5.6-luna", "observed_model": {"status": "unavailable", "value": null, "source": null}, "native_metadata": {"thread_id": "isolation-worker-thread", "host_id": "synthetic-host"}, "dependencies": [], "scope": ["project-a/worker"], "scope_digest": "086e0588b26365669695c0f0085f90deee27608c163f6a45f855ce4e9d135471", "start_status": "created", "start_order": 2, "terminal_status": "accepted", "terminal_order": 4, "report": {"version": 1, "scope_digest": "086e0588b26365669695c0f0085f90deee27608c163f6a45f855ce4e9d135471"}, "artifact": {"project_id": "project-native-01-copy", "task_id": "worker-isolation-01", "content": {"project": "project-native-01-copy"}, "sha256": "0dbf672ae7af3949232367d4980c613a1b921490b9c5e193b385b27f7677a124"}, "acceptance_oracle": {"kind": "json_equals", "key": "project", "value": "project-native-01-copy"}, "telemetry": {"tokens": {"status": "unavailable", "value": null, "source": null}, "cost_usd": {"status": "unavailable", "value": null, "source": null}, "elapsed_ms": {"status": "fixture", "value": 20, "source": "deterministic fixture clock"}, "cancellation_acknowledgement": {"status": "unavailable", "value": null, "source": null}}
+        }
+      ]
+    }
+  ]
+}

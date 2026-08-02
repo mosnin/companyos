@@ -12,6 +12,10 @@
 - Client work: frozen; Chippy is not an implementation target
 - Recurring automation: disabled
 - Production or customer effects: none
+- Program 6 direction: Codex-native task fabric; external provider/API gateway
+  implementation retired from the active roadmap
+- Candidate state: source-only, uninstalled, scheduler-off, broader runtime
+  NO-GO
 
 ## Accepted evidence
 
@@ -156,6 +160,37 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 - This is source and disposable-fixture proof only. It is not live OpenAI,
   GPT-5.6 Luna, protected-launcher, provider-cost, or production evidence.
 
+### Phase 2B — Codex-native task-fabric correction accepted locally
+
+- Exactly two projectless tasks were requested as `gpt-5.6-luna`. Native task
+  IDs, host observations, status, and elapsed durations were exposed; observed
+  model, tokens, cost, and cancellation acknowledgement were not.
+- Worker A completed and its source inventory was manager-verified. Worker B
+  failed after violating the read-only boundary through bytecode creation and
+  cleanup. Its execution receipt remains rejected; no status upgrade occurred.
+- The failure drove a side-effect-free validation rule, explicit ignored-file
+  inspection, and `PYTHONDONTWRITEBYTECODE=1` for subsequent checks.
+- The final hygiene audit found 16 `.pyc` files in the three authorized test
+  trees, timestamped to Worker B's compilation window. Only those caches were
+  removed. The acceptance rerun began with 0 bytecode artifacts and ended with
+  0; its fail-closed scan reported
+  `acceptance-rerun-passed pyc_before=0 pyc_after=0`.
+- New versioned `manage-company-program` and `execute-bounded-task` source
+  skills keep stable role policy outside compact prompts. Installation and
+  fresh-thread forward testing are not claimed.
+- Five concrete scenarios deterministically accept the known-answer fixture,
+  block a malformed dependency chain, preserve real manager rework, reject
+  stale/scope/failure/budget pressure, and reject cross-project artifacts.
+- Verification passed: 32 repository tests, 7 focused native-fabric tests, 126
+  controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt, 29
+  Responses-fixture, and 10 reference tests, plus both fabric validators,
+  strict role validation, distribution manifest verification, and 26-file AST
+  parsing. Standard `quick_validate.py` lacked its real PyYAML dependency; a
+  compatibility-shim result is not acceptance evidence.
+- Local contract scores pass, but full-system hard cancellation, controller
+  admission, installed behavior, successful two-Luna integration, telemetry,
+  durable reconciliation, and scheduling remain far below gate.
+
 ## Not yet implemented
 
 - A network-capable provider adapter and protected launcher.
@@ -169,11 +204,9 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 
 ## Exact next action
 
-Record one decision-grade, independently challenged Program 6 Reality Audit
-artifact, then advance only into Intelligence. Intelligence must resolve the
-current OpenAI Responses/provider identity, protected-launcher design, dedicated
-credential and spend boundary, controller integration seam, and one exact
-minimal live-job acceptance matrix. Only then implement and prove one
-authenticated, budgeted, cancellable Sol-to-Luna job. Recursive self-hosting,
-multi-project isolation, protected scheduling, and Chippy onboarding remain
-later gated phases. Production and customer systems remain frozen.
+Package and independently accept the candidate role skills without changing the
+accepted 0.4.3 surface, install them through the governed distribution path,
+then forward-test a fresh Sol manager and two fresh Luna tasks using only the
+skill invocation plus compact charter/packet. Do not enable scheduling. The
+following gate must add controller admission-before-create and prove a hard
+native cancellation acknowledgement before broader runtime acceptance.

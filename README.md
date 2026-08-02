@@ -7,6 +7,14 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
+The accepted distribution remains 0.4.3. The uninstalled `0.5.0-dev.1`
+candidate contains a locally validated Codex-native task-fabric correction:
+concise Sol-manager and Luna-
+worker role skills, compact mission packets, deterministic task-evidence
+validation, and a five-scenario simulation ladder. In this development session
+the Sol manager manually used native Codex task tools; the Company OS controller
+does not yet invoke, admit, cancel, or durably observe them.
+
 Version 0.4.3 retains the independently accepted Operator Command Center and
 adds two locally verified, feature-off foundations. First, program replacement
 now uses a positive, versioned archive schema and rejects credential-shaped or
@@ -42,8 +50,8 @@ idempotency, and fenced leases commit under one project lock. JSON and JSONL
 are deterministic compatibility exports, not authority. The controller can
 verify and retain signed provider observations without changing attempt
 lifecycle or launching work. It is **not yet an autonomous company**:
-provider launch, lifecycle advancement, real Sol-manager/Luna-worker
-execution, recursive dogfood, multi-project proof, and protected scheduling
+controller-native admission, hard cancellation, clean two-Luna integration,
+installed fresh-thread role proof, recursive dogfood, and protected scheduling
 remain gated roadmap work.
 
 Chippy is not part of this repository and is frozen as a Company OS client

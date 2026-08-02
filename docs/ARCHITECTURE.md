@@ -45,10 +45,19 @@ disjoint outcomes, and at most three GPT-5.6 Luna workers per manager perform
 bounded labor. Every child receives a narrower outcome, authority envelope,
 budget, scope, and stop condition. Evidence and exceptions reconcile upward.
 
-Requested and provider-observed model identity remain separate. Provider
-launch, observation, heartbeats, terminal receipts, cancellation, telemetry,
-and reconciliation must be attributable and idempotent before a result can be
-accepted.
+The interactive Codex host is the target execution surface. It creates native
+Sol manager and Luna worker tasks, while Company OS provides mission lineage,
+scope, budgets, phase rules, evidence, and reconciliation. App task tools are
+not repository-callable APIs. The controller does not yet admit or durably
+observe native task creation, so the full runtime remains disabled.
+
+Requested and observed model identity remain separate. Task/thread IDs and host
+IDs are coordination metadata; host identity is not lineage. Status and elapsed
+duration may be observable even when model, tokens, cost, and cancellation
+acknowledgement are unavailable. No absent field is inferred from another.
+
+The provider-neutral lifecycle and fixture-only Responses code is retained as
+historical regression machinery. It is not the active Program 6 runtime path.
 
 Evidence bytes are published once under a project-local SHA-256 content
 address. Governed records bind that immutable snapshot; the original source

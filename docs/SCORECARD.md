@@ -97,6 +97,19 @@ manifest, detached-source parity, and transactional installed upgrade.
 | Protected scheduling | Disabled |
 | Cross-project promotion | No qualifying project evidence |
 
+## Program 6 Codex-native correction
+
+The source-level contract and simulation slice passes locally: authority 9.3,
+cancellation truth/integrity 9.2, evidence integrity 9.4, project isolation 9.2,
+dependency safety 9.3, failure/rework 9.3, budget/concurrency 8.8, and role/prompt
+architecture 9.1. These scores mean the contract fails closed and reports gaps
+honestly; they do not score missing runtime capabilities as implemented.
+
+Full-system readiness remains NO-GO: hard cancellation 2.0, controller-native
+admission 1.0, installed fresh-thread role behavior 2.0, clean two-Luna
+integration 3.0, observed model identity 2.0, tokens/cost 1.0, durable native
+lifecycle 2.0, and protected scheduling 0.0.
+
 Company OS must not be called operational until these dimensions become
 applicable, independently evidenced, and score at least 8/10. Security,
 authority, durability, cancellation, and evidence integrity require 9/10.

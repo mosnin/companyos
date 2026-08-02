@@ -1,0 +1,4 @@
+interface:
+  display_name: "Execute Bounded Task"
+  short_description: "Execute one bounded Luna work packet"
+  default_prompt: "Use $execute-bounded-task with one compact work packet and return an evidence receipt."

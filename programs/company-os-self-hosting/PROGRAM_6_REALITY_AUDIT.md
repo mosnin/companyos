@@ -1,5 +1,10 @@
 # Program 6 Reality Audit
 
+> Historical provider-path audit. The current Program 6 reality and intelligence
+> direction is `PROGRAM_6_CODEX_NATIVE_RUNTIME_CORRECTION.md`. Provider gateway,
+> credential, and external API implementation are retired from the active
+> roadmap; this artifact is preserved as evidence of the superseded assumption.
+
 **Runtime outcome: NO-GO.  Current phase exit: NO-GO until this reality is
 recorded and independently accepted.**  Acceptance of the reality record would
 make Program 6 eligible only for the Intelligence questions in this document;

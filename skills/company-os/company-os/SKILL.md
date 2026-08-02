@@ -18,7 +18,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
-| Execution | Deliver approved work through Sol manager threads and bounded Luna labor with durable state and verification | `$autonomy-suite`, `$luna-execution-fabric` |
+| Execution | Deliver approved work through Sol manager tasks and bounded Luna labor with durable state and verification | `$manage-company-program`, `$execute-bounded-task`, `$autonomy-suite`, `$luna-execution-fabric` |
 | Elastic control | Create an isolated project operating model and improve it through independently reviewed feedback | `$elastic-company-os` |
 
 ## Project isolation
@@ -41,7 +41,10 @@ For a multi-manager delivery program, the primary thread acts as the Company OS
 master. It versions the Program Contract, spawns one Sol manager thread per
 bounded roadmap outcome, and receives a compact report at charter, discovery,
 design, execution, verification, and integration. Managers use
-`$luna-execution-fabric` for bounded labor and may not change the project
+`$manage-company-program` and `$luna-execution-fabric`; workers use
+`$execute-bounded-task`. Send the role skill plus one compact mission charter
+or work packet instead of repeating the operating system in every prompt.
+Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.
 

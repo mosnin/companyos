@@ -66,37 +66,25 @@ launching manager threads or changing the default limits.
 
 ## Runtime adapter
 
-For work governed by an Elastic Company OS instance, runtime admission is
-always first. Before any provider call, native subagent spawn, or task/thread
-creation, require all of the following:
+The execution surface is the native Codex task runtime operated from the
+interactive host: master Sol task → Sol manager task → Luna worker tasks. Read
+[references/codex-native-task-fabric.md](references/codex-native-task-fabric.md)
+before dispatch or acceptance.
 
-- the exact validated and configured fabric manifest;
-- the current program, work, cycle, and unexpired lease fence;
-- the exact manager or worker identity, parent, model, canonical full scope,
-  and budget from that manifest;
-- an allowlisted provider, surface, and account;
-- a single-capability signed master admission grant; and
-- a successfully persisted `admit-runtime-attempt` record with its unique
-  attempt ID and idempotency key.
+Invoke `$manage-company-program` for each manager and `$execute-bounded-task`
+for each worker. Send only their compact versioned charter or work packet.
+Native task tools are host capabilities, not repository-callable APIs.
 
-The canonical schema-9 controller implements only feature-off admission and a
-signed-observation inbox. Provider-neutral lifecycle, gateway request/result,
-receipt-root, telemetry, cancellation, and reconciliation modules exist as a
-separate local contract, but they are not yet wired into controller commands or
-any provider connector. Therefore do not spawn a governed manager or worker
-from this skill yet. Record the slice as `feature_off_code_complete` and
-`runtime_unverified`; provider execution remains blocked until an accepted
-controller integration consumes admission before launch and a real connector
-proves the exact provider model and terminal evidence.
+For an Elastic Company OS instance, controller admission remains feature-off
+and is not yet integrated with native task creation. A manually created task
+may supply simulation evidence, but it is not a governed controller launch.
+Keep scheduling and the broader autonomous runtime NO-GO until controller
+admission, cancellation authority, and durable reconciliation are accepted.
 
-Outside an Elastic Company OS instance, prefer a native Luna subagent only when
-the active collaboration surface explicitly lists `gpt-5.6-luna`; otherwise use
-an isolated Luna task/thread. This non-governed fallback must not be represented
-as Company OS admission, provider execution evidence, or real Luna dogfood.
-
-Never substitute Terra or Sol while recording the worker as Luna. If neither
-native subagents nor Luna tasks are callable, pause dispatch and report the
-capability gap.
+Record requested model separately from observed model. Record thread/task and
+host metadata only when exposed. Treat tokens, cost, and cancellation
+acknowledgement as unavailable when absent; elapsed duration may be observed
+independently. Never substitute Terra or Sol while labeling labor Luna.
 
 ## Default limits
 

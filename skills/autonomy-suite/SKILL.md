@@ -17,6 +17,8 @@ Use this as the single entry point for the named Autonomy Suite. Load only the c
 | Nested delegation | `$supervised-subagent-tree` | Approval-gated child tasks, restricted inheritance, lineage, and budgets. |
 | Cost and capability selection | `$tiered-agent-routing` | Strong planning/review with cheaper bounded execution lanes. |
 | Sol-managed Luna labor | `$luna-execution-fabric` | Isolated Sol manager threads supervising bounded Luna worker teams with compressed evidence handoffs. |
+| Sol manager role | `$manage-company-program` | Decompose one charter, coordinate native Luna tasks, inspect evidence, and integrate or escalate. |
+| Luna worker role | `$execute-bounded-task` | Execute one exact work packet with no child delegation and an honest evidence receipt. |
 | Portfolio and product direction | `$strategy-pillar` | Run the separate strategy layer that chooses outcomes before execution. |
 | Adaptive project operating model | `$elastic-company-os` | Create one isolated project control instance and evolve its method through reviewed feedback. |
 
@@ -30,6 +32,9 @@ Use this as the single entry point for the named Autonomy Suite. Load only the c
 6. Add **Supervised Subagent Tree** only if nested delegation is necessary; define approvals and budgets first.
 7. Add **Tiered Agent Routing** whenever tasks vary materially in ambiguity, blast radius, or verification cost.
 8. Add **Luna Execution Fabric** when the user explicitly wants hierarchical manager threads or Luna-heavy parallel execution. Keep the master at Sol, managers at Sol, and bounded labor at Luna.
+9. Invoke **Manage Company Program** for every Sol manager and **Execute
+   Bounded Task** for every Luna worker. Pass only the compact versioned charter
+   or packet; keep stable role policy in the skills.
 
 ## Default operating contract
 

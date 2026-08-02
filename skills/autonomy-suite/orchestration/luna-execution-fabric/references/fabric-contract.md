@@ -18,17 +18,16 @@ Threads alone do not isolate files, tools, credentials, or side effects.
 
 ## Runtime modes
 
-1. **Native nested mode:** the manager spawns a `gpt-5.6-luna` subagent and
-   retains parent/child communication.
-2. **Thread fabric mode:** the manager creates an isolated Luna task/thread and
-   coordinates it through thread messages and waits.
-3. **Master spawn proxy:** when the manager lacks task-creation authority, it
-   sends a validated worker contract to the master; the master creates the Luna
-   task and returns its thread ID, while the manager remains responsible for
-   supervision and acceptance.
+Use one authoritative mode: the Sol manager creates an isolated native Codex
+task requesting `gpt-5.6-luna`, then coordinates it through bounded waits,
+reads, follow-up messages, and list reconciliation. If the manager lacks native
+task authority, it asks the master to create the task and returns the resulting
+task/thread ID; responsibility remains with the manager.
 
-Record the actual model and runtime mode in every worker receipt. Pause when
-Luna is unavailable; do not silently reroute and mislabel work.
+Record the requested model and observed model separately. A task creation
+request proves only the request. Record actual task/thread and host metadata
+only when the host exposes them, and never use host identity as lineage. Pause
+when Luna cannot be requested; do not silently reroute and mislabel work.
 
 ## Required program manifest
 
@@ -162,7 +161,7 @@ master change increments the version and invalidates stale worker contracts.
   "program_version": 1,
   "manager_id": "manager-a",
   "phase": "design",
-  "status": "ready_for_decision",
+  "status": "phase_checks_passed",
   "outcome_state": "on_track",
   "artifacts": ["immutable reference"],
   "evidence": ["check and result"],
@@ -182,13 +181,17 @@ master change increments the version and invalidates stale worker contracts.
     "failed": 0,
     "collisions": 0
   },
-  "requested_decision": "continue",
+  "continuation": "auto_continue_if_clear",
   "next_plan": ["bounded next action"]
 }
 ```
 
-The master records `continue | rework | pause | terminate`. No implicit
-approval is valid.
+Every report is visible to the master, who may override. The manager
+auto-continues only when the accepted charter is unchanged, every phase check
+passes, time and concurrency budgets remain valid, and no authority,
+cancellation, model, evidence, collision, or scope exception exists. It pauses
+and escalates any exception; it never treats silence as approval for a changed
+charter or failed gate.
 
 ## Isolation
 
@@ -208,7 +211,8 @@ approval is valid.
 4. Batch deterministic operations sharing one scope and acceptance test.
 5. Stop accepted branches immediately.
 6. Cache stable system and repository prefixes when supported.
-7. Track input, cached input, and output tokens separately by role.
+7. Track input, cached input, and output tokens separately by role only when the
+   host exposes them. Otherwise record each as unavailable.
 
 Parallelism succeeds only when accepted lead time or cost improves.
 
