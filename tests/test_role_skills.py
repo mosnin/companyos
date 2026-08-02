@@ -256,6 +256,22 @@ def resign_record(payload: dict, root: Path, mutate) -> None:
     payload["authorization"]["record_sha256"] = digest
 
 
+def rewrite_parent_charter(payload: dict, root: Path, mutate) -> None:
+    reference = payload["parent_manager_charter"]
+    path = root / reference["path"]
+    parent = json.loads(path.read_text(encoding="utf-8"))
+    mutate(parent)
+    encoded = write_json(root, reference["path"], parent)
+    reference["sha256"] = sha_bytes(encoded)
+
+
+def assign_nested(target: dict, path: tuple[str, ...], value: object) -> None:
+    cursor = target
+    for key in path[:-1]:
+        cursor = cursor[key]
+    cursor[path[-1]] = copy.deepcopy(value)
+
+
 class RoleSkillTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -327,6 +343,11 @@ class RoleSkillTests(unittest.TestCase):
             "definition": lambda record: record["bindings"].__setitem__("definition_digest", sha("foreign-definition")),
             "outcome": lambda record: record["bindings"].__setitem__("outcome_digest", sha("foreign-outcome")),
             "decider": lambda record: record["bindings"].__setitem__("decider_id", "master-2"),
+            "task": lambda record: record["bindings"].__setitem__("task_id", "worker-2"),
+            "parent-task": lambda record: record["bindings"].__setitem__("parent_task_id", "manager-2"),
+            "mission-parent": lambda record: record["bindings"].__setitem__(
+                "parent_manager_native_task_id", "native-manager-2"
+            ),
             "replay": lambda record: record.__setitem__("decision_id", "decision-replayed"),
         }
         for name, mutate in attacks.items():
@@ -335,6 +356,36 @@ class RoleSkillTests(unittest.TestCase):
                 resign_record(payload, self.repository_root, mutate)
                 errors = self.validate_payload(payload, "execute-bounded-task")
                 self.assertTrue(any("authorization" in item for item in errors), errors)
+
+    def test_whole_signed_authorization_record_substitution_fails_closed(self) -> None:
+        payload = dispatched_payload("execute-bounded-task", self.repository_root)
+        manager_record_path = (
+            self.repository_root
+            / "artifacts/project-1/authorizations/manager-1.charter.v1.json"
+        )
+        substituted = json.loads(manager_record_path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            substituted["authentication"]["signature"],
+            MODULE.authorization_fixture_signature(substituted),
+        )
+        write_json(
+            self.repository_root,
+            payload["authorization"]["record_path"],
+            substituted,
+        )
+        digest = MODULE.canonical_digest(substituted)
+        self.assertIsNotNone(digest)
+        payload["authorization"]["record_sha256"] = digest
+        errors = self.validate_payload(payload, "execute-bounded-task")
+        self.assertIn(
+            "authorization record does not bind the exact contract and lineage",
+            errors,
+        )
+        self.assertIn(
+            "authorization decision identity/version does not match expectation",
+            errors,
+        )
+        self.assertNotIn("authorization fixture signature is invalid", errors)
 
     def test_unaccepted_authorization_decision_fails(self) -> None:
         payload = dispatched_payload("manage-company-program", self.repository_root)
@@ -433,6 +484,114 @@ class RoleSkillTests(unittest.TestCase):
                         any(f"budget.{field} cannot be compared" in item for item in errors),
                         errors,
                     )
+
+    def test_parent_scope_malformed_values_fail_closed(self) -> None:
+        for value in ([1], None, {}, False, ["program", 1]):
+            with self.subTest(value=value):
+                payload = dispatched_payload(
+                    "execute-bounded-task", self.repository_root
+                )
+                rewrite_parent_charter(
+                    payload,
+                    self.repository_root,
+                    lambda parent, malformed=copy.deepcopy(value): parent["scope"].__setitem__(
+                        "owned_paths", malformed
+                    ),
+                )
+                first = self.validate_payload(payload, "execute-bounded-task")
+                second = self.validate_payload(payload, "execute-bounded-task")
+                self.assertEqual(first, second)
+                self.assertTrue(first)
+                self.assertNotEqual(
+                    ["malformed JSON-shaped contract failed closed"], first
+                )
+
+    def test_malformed_parent_nested_fields_fail_closed(self) -> None:
+        cases = (
+            (("ids",), None),
+            (("ids", "project_id"), False),
+            (("scope",), []),
+            (("permissions",), None),
+            (("permissions", "allowed_actions"), {}),
+            (("permissions", "allowed_tools"), True),
+            (("permissions", "prohibited_actions"), ["deploy", 1]),
+            (("budget",), False),
+            (("budget", "max_tokens"), {}),
+            (("artifact_references",), None),
+            (("artifact_references",), [1]),
+            (("authorization",), True),
+            (("authorization_expectation",), []),
+            (("task_local_context",), False),
+            (("stop_escalation", "stop_conditions"), {}),
+            (("reporting_destination",), ["task:master-1"]),
+        )
+        for path, value in cases:
+            with self.subTest(path=path, value=value):
+                payload = dispatched_payload(
+                    "execute-bounded-task", self.repository_root
+                )
+                rewrite_parent_charter(
+                    payload,
+                    self.repository_root,
+                    lambda parent, keys=path, malformed=value: assign_nested(
+                        parent, keys, malformed
+                    ),
+                )
+                errors = self.validate_payload(payload, "execute-bounded-task")
+                self.assertTrue(errors)
+
+    def test_bounded_json_schema_fuzz_is_deterministic_and_never_raises(self) -> None:
+        paths = (
+            ("ids",),
+            ("ids", "parent_task_id"),
+            ("authorization_expectation",),
+            ("authorization",),
+            ("artifact_references",),
+            ("task_local_context",),
+            ("scope",),
+            ("scope", "owned_paths"),
+            ("permissions",),
+            ("permissions", "allowed_actions"),
+            ("permissions", "allowed_tools"),
+            ("permissions", "prohibited_actions"),
+            ("dependencies",),
+            ("deliverables",),
+            ("acceptance",),
+            ("acceptance", "checks"),
+            ("acceptance", "independent_review"),
+            ("decision_barriers",),
+            ("budget",),
+            ("budget", "max_cost_usd"),
+            ("stop_escalation",),
+            ("stop_escalation", "escalate_on"),
+            ("reporting_destination",),
+        )
+        malformed_values = (None, False, {}, [1], ["mixed", 1])
+        for location in ("worker", "parent"):
+            for path in paths:
+                for value in malformed_values:
+                    with self.subTest(location=location, path=path, value=value):
+                        payload = dispatched_payload(
+                            "execute-bounded-task", self.repository_root
+                        )
+                        if location == "worker":
+                            assign_nested(payload, path, value)
+                        else:
+                            rewrite_parent_charter(
+                                payload,
+                                self.repository_root,
+                                lambda parent, keys=path, malformed=value: assign_nested(
+                                    parent, keys, malformed
+                                ),
+                            )
+                        first = self.validate_payload(
+                            payload, "execute-bounded-task"
+                        )
+                        second = self.validate_payload(
+                            payload, "execute-bounded-task"
+                        )
+                        self.assertEqual(first, second)
+                        self.assertTrue(first)
 
     def test_cross_project_child_fails_parent_binding(self) -> None:
         payload = dispatched_payload("execute-bounded-task", self.repository_root)

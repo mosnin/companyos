@@ -133,6 +133,16 @@ def _string_set(value: Any) -> set[str] | None:
     return set(value)
 
 
+def _nonempty_string_set(value: Any) -> set[str] | None:
+    if (
+        not isinstance(value, list)
+        or not value
+        or any(not _nonempty(item) for item in value)
+    ):
+        return None
+    return set(value)
+
+
 def _canonical_scope(value: Any) -> bool:
     return (
         isinstance(value, str)
@@ -147,8 +157,41 @@ def _scope_overlap(left: str, right: str) -> bool:
     return left == right or left.startswith(right + "/") or right.startswith(left + "/")
 
 
-def _contained_scope(child: str, parent: str) -> bool:
-    return child == parent or child.startswith(parent + "/")
+def _contained_scope(child: Any, parent: Any) -> bool:
+    return (
+        _canonical_scope(child)
+        and _canonical_scope(parent)
+        and (child == parent or child.startswith(parent + "/"))
+    )
+
+
+def _canonical_scope_list(value: Any) -> list[str] | None:
+    if (
+        not isinstance(value, list)
+        or not value
+        or any(not _canonical_scope(item) for item in value)
+    ):
+        return None
+    return value
+
+
+def _canonical_id_map(value: Any) -> dict[str, str] | None:
+    if (
+        not isinstance(value, dict)
+        or set(value) != REQUIRED_IDS
+        or any(not _contract_id(value.get(key)) for key in REQUIRED_IDS)
+    ):
+        return None
+    return value
+
+
+def _sha256_text(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    try:
+        return hashlib.sha256(value.encode("utf-8")).hexdigest()
+    except UnicodeError:
+        return None
 
 
 def _versioned_local_path(value: Any, version: Any) -> bool:
@@ -203,7 +246,7 @@ def canonical_digest(value: Any) -> str | None:
             ensure_ascii=False,
             allow_nan=False,
         ).encode("utf-8")
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, UnicodeError, OverflowError):
         return None
     return hashlib.sha256(encoded).hexdigest()
 
@@ -400,42 +443,79 @@ def _validate_parent_narrowing(
     child: dict[str, Any], parent: dict[str, Any]
 ) -> list[str]:
     errors: list[str] = []
-    child_ids = child.get("ids") if isinstance(child.get("ids"), dict) else {}
-    parent_ids = parent.get("ids") if isinstance(parent.get("ids"), dict) else {}
+    child_ids = _canonical_id_map(child.get("ids"))
+    parent_ids = _canonical_id_map(parent.get("ids"))
     parent_task_id = child.get("parent_manager_task_id")
-    if child_ids.get("parent_task_id") != parent_ids.get("task_id"):
-        errors.append("worker mission parent lineage does not match accepted charter")
+    if child_ids is None or parent_ids is None:
+        errors.append("worker and parent identifiers cannot be safely compared")
+    else:
+        if child_ids["parent_task_id"] != parent_ids["task_id"]:
+            errors.append("worker mission parent lineage does not match accepted charter")
+        for key in ("project_id", "program_id", "cycle_id"):
+            if child_ids[key] != parent_ids[key]:
+                errors.append(f"worker {key} crosses its accepted parent manager")
     if not _contract_id(parent_task_id):
         errors.append("worker parent manager native task identity is required")
-    for key in ("project_id", "program_id", "cycle_id"):
-        if child_ids.get(key) != parent_ids.get(key):
-            errors.append(f"worker {key} crosses its accepted parent manager")
     if child.get("program_version") != parent.get("program_version"):
         errors.append("worker program version is stale relative to parent manager")
 
-    child_scope = child.get("scope", {}).get("owned_paths") if isinstance(child.get("scope"), dict) else None
-    parent_scope = parent.get("scope", {}).get("owned_paths") if isinstance(parent.get("scope"), dict) else None
-    if not isinstance(child_scope, list) or not isinstance(parent_scope, list) or any(
+    child_scope_value = child.get("scope")
+    parent_scope_value = parent.get("scope")
+    child_scope = _canonical_scope_list(
+        child_scope_value.get("owned_paths")
+        if isinstance(child_scope_value, dict)
+        and set(child_scope_value) == {"owned_paths"}
+        else None
+    )
+    parent_scope = _canonical_scope_list(
+        parent_scope_value.get("owned_paths")
+        if isinstance(parent_scope_value, dict)
+        and set(parent_scope_value) == {"owned_paths"}
+        else None
+    )
+    if child_scope is None or parent_scope is None or any(
         not any(_contained_scope(path, envelope) for envelope in parent_scope)
         for path in child_scope
-        if isinstance(path, str)
     ):
         errors.append("worker scope escapes the accepted parent envelope")
 
-    child_permissions = child.get("permissions") if isinstance(child.get("permissions"), dict) else {}
-    parent_permissions = parent.get("permissions") if isinstance(parent.get("permissions"), dict) else {}
+    child_permissions_value = child.get("permissions")
+    parent_permissions_value = parent.get("permissions")
+    permission_keys = {"allowed_actions", "allowed_tools", "prohibited_actions"}
+    child_permissions = (
+        child_permissions_value
+        if isinstance(child_permissions_value, dict)
+        and set(child_permissions_value) == permission_keys
+        else {}
+    )
+    parent_permissions = (
+        parent_permissions_value
+        if isinstance(parent_permissions_value, dict)
+        and set(parent_permissions_value) == permission_keys
+        else {}
+    )
     for key in ("allowed_actions", "allowed_tools"):
-        child_values = _string_set(child_permissions.get(key))
-        parent_values = _string_set(parent_permissions.get(key))
+        child_values = _nonempty_string_set(child_permissions.get(key))
+        parent_values = _nonempty_string_set(parent_permissions.get(key))
         if child_values is None or parent_values is None or not child_values.issubset(parent_values):
             errors.append(f"worker {key} widens parent authority")
-    child_prohibited = _string_set(child_permissions.get("prohibited_actions"))
-    parent_prohibited = _string_set(parent_permissions.get("prohibited_actions"))
+    child_prohibited = _nonempty_string_set(child_permissions.get("prohibited_actions"))
+    parent_prohibited = _nonempty_string_set(parent_permissions.get("prohibited_actions"))
     if child_prohibited is None or parent_prohibited is None or not parent_prohibited.issubset(child_prohibited):
         errors.append("worker prohibited_actions weakens parent restrictions")
 
-    child_budget = child.get("budget") if isinstance(child.get("budget"), dict) else {}
-    parent_budget = parent.get("budget") if isinstance(parent.get("budget"), dict) else {}
+    child_budget_value = child.get("budget")
+    parent_budget_value = parent.get("budget")
+    child_budget = (
+        child_budget_value
+        if isinstance(child_budget_value, dict) and set(child_budget_value) == BUDGET_KEYS
+        else {}
+    )
+    parent_budget = (
+        parent_budget_value
+        if isinstance(parent_budget_value, dict) and set(parent_budget_value) == BUDGET_KEYS
+        else {}
+    )
     available = child.get("parent_budget_available")
     if not isinstance(available, dict) or set(available) != BUDGET_KEYS:
         errors.append("parent available budget shape is invalid")
@@ -533,7 +613,7 @@ def validate_agent_metadata(text: str, skill_name: str) -> list[str]:
     return errors
 
 
-def validate_contract_payload(
+def _validate_contract_payload(
     payload: Any,
     role_name: str,
     *,
@@ -577,7 +657,7 @@ def validate_contract_payload(
         pass
     elif not _nonempty(outcome) or not isinstance(outcome_digest, str) or not DIGEST_RE.fullmatch(outcome_digest):
         errors.append("outcome and sha256 digest are required")
-    elif hashlib.sha256(outcome.encode("utf-8")).hexdigest() != outcome_digest:
+    elif _sha256_text(outcome) != outcome_digest:
         errors.append("outcome digest does not match outcome")
     if payload.get("requested_model") != spec["requested_model"]:
         errors.append("requested_model does not match role")
@@ -732,11 +812,14 @@ def validate_contract_payload(
                 errors.append("independent review barriers must be strings")
             elif role_name == "manage-company-program" and not {"design", "verification"}.issubset(review_barriers):
                 errors.append("manager independent review must cover design and verification")
-        if not isinstance(acceptance.get("checks"), list):
+        checks = acceptance.get("checks")
+        if not isinstance(checks, list):
             errors.append("acceptance checks must be a list")
-        if not template and (not _nonempty(acceptance.get("oracle")) or not acceptance.get("checks")):
+        if not template and (not _nonempty(acceptance.get("oracle")) or not checks):
             errors.append("acceptance oracle and checks are required")
-        elif not template and any(not _nonempty(item) for item in acceptance.get("checks", [])):
+        elif not template and isinstance(checks, list) and any(
+            not _nonempty(item) for item in checks
+        ):
             errors.append("acceptance checks must be nonempty strings")
         if (
             not template
@@ -826,6 +909,33 @@ def validate_contract_payload(
     if forbidden:
         errors.append(f"forbidden giant-prompt fields: {sorted(forbidden)}")
     return errors
+
+
+def validate_contract_payload(
+    payload: Any,
+    role_name: str,
+    *,
+    template: bool,
+    artifact_root: Path | None = None,
+) -> list[str]:
+    """Fail closed without raising for malformed JSON-shaped contract data."""
+    try:
+        return _validate_contract_payload(
+            payload,
+            role_name,
+            template=template,
+            artifact_root=artifact_root,
+        )
+    except (
+        AttributeError,
+        KeyError,
+        OverflowError,
+        RecursionError,
+        TypeError,
+        UnicodeError,
+        ValueError,
+    ):
+        return ["malformed JSON-shaped contract failed closed"]
 
 
 def validate() -> list[str]:

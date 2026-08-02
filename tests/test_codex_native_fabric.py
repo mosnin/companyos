@@ -32,9 +32,16 @@ class CodexNativeFabricRepositoryTests(unittest.TestCase):
 
     def test_native_lane_keeps_active_lifecycle_separate_from_rework(self) -> None:
         scenario = self.payload["scenarios"][2]
+        rejected_worker = scenario["tasks"][2]
         self.assertEqual("native_observation", scenario["evidence_kind"])
         self.assertEqual("active", scenario["tasks"][0]["current_status"])
         self.assertIsNone(scenario["tasks"][0]["terminal_status"])
+        self.assertEqual("failed", rejected_worker["current_status"])
+        self.assertEqual("failed", rejected_worker["terminal_status"])
+        self.assertEqual(
+            "failed_policy_exception",
+            rejected_worker["artifact"]["content"]["status"],
+        )
         self.assertEqual("rework_required", scenario["simulation_disposition"])
         self.assertEqual("rework", FABRIC.validate_scenario(scenario)["decision"])
 

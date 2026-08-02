@@ -98,12 +98,12 @@ operation or installed skill behavior.
 | Dimension | Score | Evidence and residual defect |
 | --- | ---: | --- |
 | Phase authority integrity | 9.1 | Authenticated true barriers, bounded silence escalation, routine execution-only auto-continuation, and no worker-owned master wait are validated across every authoritative source |
-| Authorization and authority integrity | 9.1 | Accepted local decision records bind exact program/definition/outcome/phase/decider/task/parent data and byte-verified evidence under a deterministic fixture signature; live identity remains unproven |
+| Authorization and authority integrity | 9.2 | Accepted local decision records bind exact program/definition/outcome/phase/decider/task/parent data and byte-verified evidence under a deterministic fixture signature; signed task, mission-parent, and whole-record substitutions reject; live identity remains unproven |
 | Compact contract integrity | 9.1 | Strict v2 charter/packet keys carry versions, real local reference bytes, requested model, permissions, six budgets, parent allocation, review, barrier policy, and exact authorization records |
 | Lifecycle/concurrency integrity | 9.0 | Current versus terminal state, native identity, ordered events, and open active intervals are adversarially tested |
 | Cancellation integrity | 9.2 | Contract refuses to invent hard cancellation and treats stop as cooperative; operational hard interrupt remains unavailable and blocks broader runtime |
 | Evidence integrity | 9.2 | Task IDs/durations, requested/observed split, allowlisted native model sources, failed receipt preservation, digests, and objective oracles |
-| Parent/project/scope isolation | 9.1 | Foreign bindings, stale/cross-manager parents, child scope escape, permission/tool widening, case/Unicode/path ambiguity, and manager-manager or worker-worker ancestor overlap reject; live multi-project tasks remain untested |
+| Parent/project/scope isolation | 9.2 | Foreign bindings, stale/cross-manager parents, child scope escape, permission/tool widening, case/Unicode/path ambiguity, and manager-manager or worker-worker ancestor overlap reject; malformed parent fields also fail closed under a bounded JSON-shape matrix; live multi-project tasks remain untested |
 | Iteration mapping integrity | 8.8 | Rerun mappings must be nonempty, unique, and reference existing scenario IDs |
 | Agent policy integrity | 9.0 | Both source roles disable implicit invocation through a bounded structural parser |
 | Dependency safety | 9.3 | Malformed upstream artifact blocks both downstream starts deterministically |
@@ -111,7 +111,7 @@ operation or installed skill behavior.
 | Artifact evidence integrity | 9.1 | Allowed-root, project namespace, version, regular-file, no-symlink, and exact-byte SHA-256 rules are adversarially tested without exposing file content |
 | Budget truth | 9.0 | Every numeric field is finite/type/boundary checked and worker allocations narrow the parent; native token/cost observation and enforcement remain full-runtime blockers |
 | Routing integrity | 9.2 | Worker lineage, parent charter/design evidence, manager task ID, and reporting destination must agree; master or cross-manager routing rejects |
-| Regression strength | 9.0 | 55 repository; 23 role-contract; 17 native-fabric; 126 controller; 37 store; 8 observation; 10 gateway; 14 lifecycle; 9 receipt; 29 Responses-fixture; 30 operator-brief; and 10 reference tests pass, plus strict role/fabric validators, manifest, syntax, diff, secret/scope, and zero-bytecode gates |
+| Regression strength | 9.1 | 59 root repository tests, including all 27 role-contract tests, plus 17 separate native-fabric, 126 controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt, 29 Responses-fixture, 30 operator-brief, and 10 reference tests pass, plus strict role/fabric validators, manifest, syntax, diff, secret/scope, and zero-bytecode gates |
 
 Every applicable local-correction score exceeds 8; authority, routing,
 cancellation integrity, and evidence integrity exceed 9. Operational hard cancellation is

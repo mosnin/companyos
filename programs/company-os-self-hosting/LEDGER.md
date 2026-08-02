@@ -250,11 +250,31 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 - Every numeric budget rejects booleans, strings, negatives, invalid zero
   boundaries, NaN, and infinities without raising. Manager-manager ancestor
   overlap joins worker-worker overlap in the executable simulation validator.
-- Final bytecode-disabled verification passed 55 repository, 23 role-contract,
-  17 native-fabric, 126 controller, 37 store, 8 observation, 10 gateway, 14
-  lifecycle, 9 receipt, 29 Responses-fixture, 30 operator-brief, and 10
-  reference tests, plus strict role/simulation/legacy-fabric validators and
-  distribution manifest verification.
+- Final bytecode-disabled verification at `e991230` passed 55 root repository
+  tests, including all 23 role-contract tests, plus 17 separate native-fabric,
+  126 controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt,
+  29 Responses-fixture, 30 operator-brief, and 10 reference tests, plus strict
+  role/simulation/legacy-fabric validators and distribution manifest
+  verification.
+
+### Phase 2E — final fail-closed evidence correction locally validated
+
+- Independent exact-commit review of `e991230` returned 8.3/10 with no P0 or
+  P1 and two P2 gaps. No worker tasks were authorized or created.
+- Parent charter scope, identifiers, permissions, tools, prohibitions, budgets,
+  references, and other nested inputs are type-checked before comparison.
+  Direct null, boolean, object, numeric-list, and mixed-list attacks plus a
+  bounded JSON-shape matrix return deterministic errors without raising.
+- Signed authorization regression cases now cover exact task ID, mission parent
+  and native parent-manager bindings, and substitution of an entire separately
+  valid signed record. The observed failed Worker B receipt remains rejected as
+  `failed_policy_exception`; it is not upgraded to successful integration.
+- Final bytecode-disabled verification passed 59 root repository tests,
+  including all 27 role-contract tests, plus 17 separate native-fabric, 126
+  controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt, 29
+  Responses-fixture, 30 operator-brief, and 10 reference tests, plus strict
+  role/simulation/legacy-fabric validators, manifest, syntax, diff,
+  secret/scope, fail-closed, and repository-wide zero-bytecode gates.
 
 ## Not yet implemented
 

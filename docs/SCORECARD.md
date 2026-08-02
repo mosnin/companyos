@@ -107,7 +107,8 @@ mapping 8.8, and agent policy 9.0. No dimension is above 8 without a matching
 strict or adversarial check. These remain source-level scores, not installed or
 operational runtime evidence.
 
-Regression integrity scores 9.0 after 55 repository, 23 role-contract, 17 focused native-fabric,
+Regression integrity scores 9.1 after 59 root repository tests (including all
+27 role-contract tests), plus 17 separate focused native-fabric tests,
 126 controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt,
 29 Responses-fixture, 30 operator-brief, and 10 reference tests, with manifest,
 syntax, and repository-wide zero-bytecode gates.
@@ -125,9 +126,14 @@ artifact resolution, and manager-manager overlap detection. Local scores are:
 authorization/authority 9.1, parent-child isolation 9.1, artifact evidence 9.1,
 numeric budget integrity 9.0, routing 9.2, and regression strength 9.0. The
 repository-fixture HMAC is deliberately not scored as live authentication.
-The final lane passed 55 repository, 23 role-contract, 17 native-fabric, 126
-controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt, 29
-Responses-fixture, 30 operator-brief, and 10 reference tests.
+Independent review of `e991230` then scored 8.3/10 with no P0/P1 and two P2
+gaps. The final bounded rework makes every JSON-shaped parent/child contract
+mutation fail closed without an exception and adds signed task, mission-parent,
+and whole-record authorization substitution cases. The final lane passed 59
+root repository tests, including all 27 role-contract tests, plus 17 separate
+native-fabric, 126 controller, 37 store, 8 observation, 10 gateway, 14
+lifecycle, 9 receipt, 29 Responses-fixture, 30 operator-brief, and 10 reference
+tests.
 Full-system readiness scores and NO-GO decision remain unchanged.
 
 Company OS must not be called operational until these dimensions become
