@@ -3,7 +3,10 @@
 ## Current checkpoint
 
 - Canonical repository: `/Users/preston/Documents/Codex/company-os-core`
-- Distribution version: `0.4.0` candidate; not released or installed yet
+- Distribution version: `0.4.2` candidate; 0.4.1 is installed exactly and the
+  0.4.2 semantic-evidence correction has independent implementation GO
+- Authoritative control revision: 102; paused in Learning, unscheduled,
+  uncertified, lease-free
 - Canonical controller: schema 9 / core 2.6
 - Client work: frozen; Chippy is not an implementation target
 - Recurring automation: disabled
@@ -42,19 +45,20 @@
   pair interrupted after one target replacement is completed under the next
   controller lock.
 
-Verification on 2026-08-01 at the Phase 1C candidate:
+Verification on 2026-08-01 at the 0.4.2 candidate:
 
 - Repository distribution/bootstrap tests: 4/4 pass.
-- Canonical controller regression: 112/112 pass.
-- Transactional control regression: 20/20 pass.
+- Canonical controller regression: 122/122 pass.
+- Transactional control regression: 23/23 pass.
 - Canonical observation integration: 8/8 pass.
 - Observation-gateway reference: 10/10 pass.
 - Luna Execution Fabric validator self-test: pass.
 - Python compilation: pass.
-- Independent Phase 1C Sol review: no P0/P1/P2 after two identified gaps
-  were fixed and re-reviewed.
-- Distribution manifest and exact installed copy: pending final candidate
-  publication after the self-host evidence repair.
+- Independent semantic-correction review: GO with no remaining P0/P1/P2 after
+  five adversarial repair rounds.
+- Distribution manifest: current for the 0.4.2 candidate; exact installed-copy
+  upgrade remains pending the refreshed independent surface signature and
+  release commit.
 
 ### Phase 1B — transactional control accepted locally
 
@@ -104,6 +108,22 @@ Verification on 2026-08-01 at the Phase 1C candidate:
   `OPERATOR_COMMAND_CENTER_DELIVERY_CONTRACT.md`. The accepted Experience
   candidate may not change during packaging without returning to Experience.
 
+### Phase 1E — semantic evidence integrity accepted locally
+
+- A structurally valid immutable JSON record with a false Git commit identity
+  now uses a separate `correct-evidence` command rather than weakening
+  structural supersession.
+- Only `/commit` may change; the new full SHA must resolve locally. Distinct
+  signed declarant and conflict-free adjudicator grants bind the complete old
+  and new records, artifacts, transition, governance context, and reason.
+- The predecessor remains append-only as an inactive semantic retraction;
+  current and later-program audits reconstruct immutable bytes, linear
+  lineage, actor authority, transition timestamps, and the locally verifiable
+  Git object.
+- The authoritative false 0.4.1 install record was corrected at SQLite
+  revision 102. Store audit is healthy; quality, certification, and scheduling
+  remain deliberately invalidated pending the honest Learning evaluation.
+
 ## Not yet implemented
 
 - Provider-driven lifecycle state beyond immutable observation retention.
@@ -116,10 +136,11 @@ Verification on 2026-08-01 at the Phase 1C candidate:
 
 ## Exact next action
 
-Finish the accepted 0.4.0 Delivery contract: implement and adversarially test
-the atomic two-bundle upgrade, freeze an explicit staged inventory, generate
-the manifest once for that freeze, run the complete regression and disposable
-install gates, obtain independent staged-diff review, commit, verify from a
-clean detached source, record post-commit evidence, and only then transactionally
-upgrade the canonical installed skills. Provider runtime, scheduling, Chippy,
-production, and customer systems remain frozen.
+Refresh the independent signed product-surface attestation for the accepted
+0.4.2 bytes, commit and verify the release from clean source, then
+transactionally upgrade the canonical installed skills from exact 0.4.1.
+Afterward, record the failed Learning scores and independently reviewed
+runtime-first adaptation. Integrate the separately reviewed Phase 2 lifecycle
+only after its final GO and prove one authenticated, budgeted, cancellable
+Sol-to-Luna job before any scheduler or Chippy work. Production and customer
+systems remain frozen.

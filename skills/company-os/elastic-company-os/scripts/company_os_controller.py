@@ -1170,6 +1170,97 @@ def supersede_evidence_review_payload(
     }
 
 
+def evidence_record_digest(record: dict[str, Any]) -> str:
+    return hashlib.sha256(canonical_json(record).encode("utf-8")).hexdigest()
+
+
+def corrected_evidence_record(
+    args: Any,
+    *,
+    predecessor: dict[str, Any],
+    replacement_id: str,
+    replacement_digest: str,
+    source_artifact_path: str,
+) -> dict[str, Any]:
+    getter = args.get if isinstance(args, dict) else lambda key, default=None: getattr(args, key, default)
+    snapshot_path = f"{EVIDENCE_SNAPSHOT_ROOT}/{replacement_digest}"
+    return {
+        **{
+            key: deepcopy(predecessor.get(key))
+            for key in ("outcome", "project_id", "program_version", "quality_dimensions", "outcome_id", "work_id", "cycle_id", "rubric_version")
+            if key in predecessor
+        },
+        "id": replacement_id,
+        "artifact_path": snapshot_path,
+        "source_artifact_path": source_artifact_path,
+        "artifact_sha256": replacement_digest,
+        "snapshot_path": snapshot_path,
+        "snapshot_sha256": replacement_digest,
+        "active": True,
+        "observed_at": getter("transition_at"),
+        "freshness_days": getter("freshness_days"),
+        "source": getter("source"),
+        "decision_impact": getter("decision_impact"),
+        "author": getter("declarant"),
+        "reviewer": getter("adjudicator"),
+        "supersedes_evidence_id": getter("evidence_id"),
+        "correction_type": "git_commit_identity",
+        "corrected_claim_path": "/commit",
+    }
+
+
+def correct_evidence_review_payload(
+    args: Any,
+    *,
+    predecessor: dict[str, Any],
+    replacement_id: str,
+    replacement_digest: str,
+    bucket: str,
+    source_artifact_path: str,
+) -> dict[str, Any]:
+    getter = args.get if isinstance(args, dict) else lambda key, default=None: getattr(args, key, default)
+    replacement = corrected_evidence_record(
+        args,
+        predecessor=predecessor,
+        replacement_id=replacement_id,
+        replacement_digest=replacement_digest,
+        source_artifact_path=source_artifact_path,
+    )
+    return {
+        "evidence_id": getter("evidence_id"),
+        "predecessor_record_digest": evidence_record_digest(predecessor),
+        "old_artifact_sha256": predecessor.get("artifact_sha256"),
+        "replacement_evidence_id": replacement_id,
+        "new_artifact_sha256": replacement_digest,
+        "replacement_record_digest": evidence_record_digest(replacement),
+        "project_id": predecessor.get("project_id"),
+        "program_version": predecessor.get("program_version"),
+        "outcome": bucket,
+        "source_artifact_path": source_artifact_path,
+        "source": getter("source"),
+        "decision_impact": getter("decision_impact"),
+        "reason": getter("reason"),
+        "transition_at": getter("transition_at"),
+        "correction_type": "git_commit_identity",
+        "claim_path": "/commit",
+        "old_value": getter("old_value"),
+        "new_value": getter("new_value"),
+        "verification": {
+            "method": "git_rev_parse_commit",
+            "resolved_commit": getter("new_value"),
+        },
+        "author": getter("declarant"),
+        "reviewer": getter("adjudicator"),
+        "freshness_days": getter("freshness_days"),
+        "quality_dimensions": predecessor.get("quality_dimensions"),
+        "outcome_id": predecessor.get("outcome_id"),
+        "work_id": predecessor.get("work_id"),
+        "cycle_id": predecessor.get("cycle_id"),
+        "rubric_version": predecessor.get("rubric_version"),
+        "id": replacement_id,
+    }
+
+
 def validate_fabric_report_payload(
     state: dict[str, Any],
     manager_id: str,
@@ -2161,6 +2252,8 @@ def validate_state(
                     errors.append(f"{label}.snapshot_sha256 does not match the snapshot")
                 if item.get("artifact_sha256") != digest:
                     errors.append(f"{label}.artifact_sha256 must match snapshot_sha256")
+                if item.get("artifact_path") != item.get("snapshot_path"):
+                    errors.append(f"{label}.artifact_path must equal snapshot_path for immutable evidence")
                 source_path = item.get("source_artifact_path")
                 if (
                     not isinstance(source_path, str)
@@ -2239,6 +2332,8 @@ def validate_state(
                     errors.append(f"{label}.old_snapshot_available does not truthfully describe the archived snapshot")
                 if not available:
                     errors.append(f"{label} references a missing or corrupt snapshot")
+                if old.get("artifact_path") != old.get("snapshot_path"):
+                    errors.append(f"{label}.record.artifact_path must equal snapshot_path")
             elif archive.get("old_snapshot_available") is not False:
                 errors.append(f"{label} incorrectly claims a legacy snapshot exists")
         program_archive_records: dict[str, dict[str, Any]] = {}
@@ -2276,12 +2371,150 @@ def validate_state(
             if not isinstance(old, dict):
                 continue
             old_id = old.get("id")
-            review_payload = archive.get("review_payload")
             replacement_entry = all_history.get(archive.get("superseded_by_evidence_id"))
             replacement = replacement_entry[1] if replacement_entry else None
-            if not isinstance(review_payload, dict) or not isinstance(replacement, dict):
-                errors.append(f"{label} lacks its retained review payload or replacement")
-            else:
+            transition_kind = archive.get("transition_kind", "structural_recovery")
+            if not isinstance(replacement, dict):
+                errors.append(f"{label} lacks its retained replacement")
+            elif transition_kind == "semantic_retraction":
+                correction_payload = archive.get("correction_payload")
+                replacement_digest = replacement.get("artifact_sha256")
+                replacement_snapshot = project_local_path(project_root, replacement.get("snapshot_path"))
+                expected_replacement_snapshot = (
+                    evidence_snapshot_path(project_root, replacement_digest)
+                    if isinstance(replacement_digest, str) and re.fullmatch(r"[0-9a-f]{64}", replacement_digest)
+                    else None
+                )
+                if (
+                    replacement.get("snapshot_sha256") != replacement_digest
+                    or expected_replacement_snapshot is None
+                    or replacement_snapshot != expected_replacement_snapshot
+                    or replacement.get("artifact_path") != replacement.get("snapshot_path")
+                    or replacement_snapshot is None
+                    or replacement_snapshot.is_symlink()
+                    or not replacement_snapshot.is_file()
+                    or sha256_file(replacement_snapshot) != replacement_digest
+                ):
+                    errors.append(f"{label} semantic successor snapshot is not the signed immutable content address")
+                predecessor_digest_record = {
+                    key: value for key, value in old.items()
+                    if key not in {"superseded_by_evidence_id", "superseded_at"}
+                }
+                predecessor_digest_record["active"] = True
+                expected_correction_payload = {
+                    "evidence_id": old_id,
+                    "predecessor_record_digest": evidence_record_digest(predecessor_digest_record),
+                    "old_artifact_sha256": old.get("artifact_sha256"),
+                    "replacement_evidence_id": replacement.get("id"),
+                    "new_artifact_sha256": replacement.get("artifact_sha256"),
+                    "replacement_record_digest": evidence_record_digest(replacement),
+                    "project_id": old.get("project_id"),
+                    "program_version": old.get("program_version"),
+                    "outcome": archive.get("bucket"),
+                    "source_artifact_path": replacement.get("source_artifact_path"),
+                    "source": replacement.get("source"),
+                    "decision_impact": replacement.get("decision_impact"),
+                    "reason": archive.get("reason"),
+                    "transition_at": archive.get("superseded_at"),
+                    "correction_type": "git_commit_identity",
+                    "claim_path": "/commit",
+                    "old_value": correction_payload.get("old_value") if isinstance(correction_payload, dict) else None,
+                    "new_value": correction_payload.get("new_value") if isinstance(correction_payload, dict) else None,
+                    "verification": {
+                        "method": "git_rev_parse_commit",
+                        "resolved_commit": correction_payload.get("new_value") if isinstance(correction_payload, dict) else None,
+                    },
+                    "author": replacement.get("author"),
+                    "reviewer": replacement.get("reviewer"),
+                    "freshness_days": replacement.get("freshness_days"),
+                    "quality_dimensions": replacement.get("quality_dimensions"),
+                    "outcome_id": replacement.get("outcome_id"),
+                    "work_id": replacement.get("work_id"),
+                    "cycle_id": replacement.get("cycle_id"),
+                    "rubric_version": replacement.get("rubric_version"),
+                    "id": replacement.get("id"),
+                }
+                if correction_payload != expected_correction_payload:
+                    errors.append(f"{label}.correction_payload does not match the retained semantic transition")
+                if old.get("active") is not False:
+                    errors.append(f"{label} semantic predecessor must remain inactive")
+                if (
+                    old.get("superseded_at") != archive.get("superseded_at")
+                    or replacement.get("observed_at") != archive.get("superseded_at")
+                ):
+                    errors.append(f"{label} semantic transition timestamps do not match")
+                if replacement.get("correction_type") != "git_commit_identity" or replacement.get("corrected_claim_path") != "/commit":
+                    errors.append(f"{label} replacement lacks its typed Git-commit correction marker")
+                if replacement.get("active") is not True:
+                    errors.append(f"{label} semantic successor must remain active in retained history")
+                if replacement.get("reviewer") in {
+                    old.get("author"), old.get("reviewer"), replacement.get("author")
+                }:
+                    errors.append(f"{label} semantic correction adjudicator is not independent")
+                try:
+                    old_path = project_local_path(project_root, old.get("snapshot_path"))
+                    new_path = project_local_path(project_root, replacement.get("snapshot_path"))
+                    old_document = json.loads(old_path.read_text(encoding="utf-8")) if old_path else None
+                    new_document = json.loads(new_path.read_text(encoding="utf-8")) if new_path else None
+                    expected_document = deepcopy(old_document)
+                    expected_document["commit"] = correction_payload.get("new_value")
+                    if (
+                        not isinstance(old_document, dict) or not isinstance(new_document, dict)
+                        or old_document.get("commit") != correction_payload.get("old_value")
+                        or new_document != expected_document
+                    ):
+                        raise ValueError
+                except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
+                    errors.append(f"{label} semantic correction bytes do not differ only at /commit")
+                new_value = correction_payload.get("new_value") if isinstance(correction_payload, dict) else None
+                resolved_commit = subprocess.run(
+                    ["git", "-C", str(project_root), "rev-parse", f"{new_value}^{{commit}}"],
+                    capture_output=True, text=True, check=False,
+                ) if isinstance(new_value, str) and re.fullmatch(r"[0-9a-f]{40}", new_value) else None
+                if resolved_commit is None or resolved_commit.returncode != 0 or resolved_commit.stdout.strip() != new_value:
+                    errors.append(f"{label} corrected Git commit is not locally verifiable")
+                correction_hash = command_payload_hash("correct-evidence", correction_payload) if isinstance(correction_payload, dict) else ""
+                declarant_status = audit_stored_grant(
+                    state,
+                    archive.get("declarant_grant"),
+                    errors,
+                    f"{label}.declarant_grant",
+                    {
+                        "actor": replacement.get("author"),
+                        "action": "correct-evidence-declare",
+                        "resource": f"evidence:{old_id}",
+                        "work_id": "",
+                        "cycle_id": "",
+                        "dimension": "evidence",
+                        "decision": "proposed",
+                        "payload_hash": correction_hash,
+                    },
+                    expected_program_version=old.get("program_version"),
+                )
+                adjudicator_status = audit_stored_grant(
+                    state,
+                    archive.get("adjudicator_grant"),
+                    errors,
+                    f"{label}.adjudicator_grant",
+                    {
+                        "actor": replacement.get("reviewer"),
+                        "action": "correct-evidence-adjudicate",
+                        "resource": f"evidence:{old_id}",
+                        "work_id": "",
+                        "cycle_id": "",
+                        "dimension": "evidence",
+                        "decision": "accepted",
+                        "payload_hash": correction_hash,
+                    },
+                    expected_program_version=old.get("program_version"),
+                )
+                if declarant_status == "retained_legacy" or adjudicator_status == "retained_legacy":
+                    errors.append(f"{label} semantic correction cannot rely on a legacy unverifiable grant")
+            elif transition_kind == "structural_recovery":
+                review_payload = archive.get("review_payload")
+                if not isinstance(review_payload, dict):
+                    errors.append(f"{label} lacks its retained review payload")
+                    continue
                 expected_review_payload = {
                     "evidence_id": old_id,
                     "old_artifact_sha256": old.get("artifact_sha256"),
@@ -2325,6 +2558,8 @@ def validate_state(
                     warning = "legacy evidence review is transactionally retained but lacks its historical public verification key"
                     if warning not in warnings:
                         warnings.append(warning)
+            else:
+                errors.append(f"{label}.transition_kind is invalid")
         successor_count: dict[str, int] = {}
         for evidence_id, (location, item) in all_history.items():
             successor = item.get("superseded_by_evidence_id")
@@ -3765,6 +4000,254 @@ def supersede_evidence(args: argparse.Namespace) -> int:
         print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
         return 2
     print(json.dumps({"ok": True, "evidence_id": replacement_id, "superseded_evidence_id": args.evidence_id, "outcome": bucket}))
+    return 0
+
+
+def correct_evidence(args: argparse.Namespace) -> int:
+    """Replace one structurally valid JSON record whose Git commit claim is false.
+
+    This is deliberately separate from structural evidence recovery. It supports
+    exactly one typed semantic correction and requires two independently signed
+    actor decisions before the old immutable bytes are retracted.
+    """
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            controller_state = state.get("controller", {})
+            if state.get("instance", {}).get("status") != "paused":
+                raise ValueError("semantic evidence correction requires a paused instance")
+            if controller_state.get("schedule_enabled"):
+                raise ValueError("semantic evidence correction requires scheduling to remain disabled")
+            if controller_state.get("lease") is not None:
+                raise ValueError("semantic evidence correction requires no active lease")
+            if controller_state.get("cancellation_requested"):
+                raise ValueError("semantic evidence correction is unavailable after cancellation")
+            if any(
+                isinstance(cycle, dict) and cycle.get("status") == "running"
+                for cycle in state.get("feedback", {}).get("cycles", [])
+            ):
+                raise ValueError("semantic evidence correction requires no running cycle")
+
+            matches = [
+                (bucket, index, item)
+                for bucket in EVIDENCE_BUCKETS
+                for index, item in enumerate(state.get("evidence", {}).get(bucket, []))
+                if isinstance(item, dict) and item.get("id") == args.evidence_id
+            ]
+            if len(matches) != 1:
+                raise ValueError("corrected evidence ID must identify exactly one current evidence record")
+            bucket, index, predecessor = matches[0]
+            if not evidence_is_active(predecessor) or predecessor.get("program_version") != state["strategy"]["program_version"]:
+                raise ValueError("only active current-program evidence may be corrected")
+            if predecessor.get("active") is not True:
+                raise ValueError("semantic correction requires predecessor active=true explicitly")
+            evidence_label = f"evidence.{bucket}[{index}]"
+            predecessor_errors = [
+                error
+                for error in validate_state(state, expected_project=project)["errors"]
+                if (
+                    error.startswith(evidence_label)
+                    # Lineage invariants are intentionally global rather than
+                    # indexed by bucket.  A semantic correction must never be
+                    # allowed to archive the offending record and thereby make
+                    # one of these pre-existing errors disappear.
+                    or error.startswith("evidence ")
+                    or error.startswith("evidence supersession ")
+                    or error.startswith("feedback.archived_evidence[")
+                )
+            ]
+            if predecessor_errors:
+                raise ValueError(
+                    "semantic correction requires a structurally valid predecessor: "
+                    + "; ".join(predecessor_errors)
+                )
+            if not evidence_snapshot_fields(predecessor):
+                raise ValueError("semantic correction requires an immutable snapshot-backed predecessor")
+            if any(
+                isinstance(cycle, dict)
+                and cycle.get("status") == "completed"
+                and args.evidence_id in cycle.get("evidence_ids", [])
+                for cycle in state.get("feedback", {}).get("cycles", [])
+            ):
+                raise ValueError("completed cycle evidence is terminal and cannot be corrected")
+            if any(
+                args.evidence_id in (work.get("completion") or {}).get("evidence_ids", [])
+                for work in state.get("portfolio", {}).get("completed_work", [])
+                if isinstance(work, dict) and isinstance(work.get("completion"), dict)
+            ):
+                raise ValueError("completed work evidence is terminal and cannot be corrected")
+            fabric = state.get("execution_fabric", {})
+            if fabric.get("status") == "accepted" and any(
+                args.evidence_id in entry.get("report", {}).get("evidence_ids", [])
+                for manager in fabric.get("managers", {}).values() if isinstance(manager, dict)
+                for entry in manager.get("reports", []) if isinstance(entry, dict)
+            ):
+                raise ValueError("accepted execution-fabric evidence is terminal and cannot be corrected")
+
+            replacement_id = args.id
+            historical_ids = {
+                item.get("id")
+                for records in state.get("evidence", {}).values()
+                for item in records if isinstance(item, dict)
+            }
+            historical_ids.update(
+                archive.get("record", {}).get("id")
+                for archive in state.get("feedback", {}).get("archived_evidence", [])
+                if isinstance(archive, dict) and isinstance(archive.get("record"), dict)
+            )
+            if not isinstance(replacement_id, str) or not replacement_id.strip() or replacement_id in historical_ids:
+                raise ValueError("replacement evidence ID must be new and non-empty")
+            if args.declarant == args.adjudicator:
+                raise ValueError("semantic correction requires distinct declarant and adjudicator")
+            conflicted = {predecessor.get("author"), predecessor.get("reviewer"), args.declarant}
+            conflicted.discard(None)
+            if args.adjudicator in conflicted:
+                raise ValueError("semantic correction adjudicator must be independent of predecessor and replacement actors")
+            if not isinstance(args.reason, str) or not args.reason.strip():
+                raise ValueError("semantic correction reason is required")
+            transition_errors: list[str] = []
+            transition_time = parse_time(args.transition_at, "semantic correction transition_at", transition_errors)
+            current_time = datetime.now(timezone.utc)
+            if (
+                transition_errors or transition_time is None
+                or transition_time > current_time + timedelta(seconds=5)
+                or current_time - transition_time > timedelta(minutes=5)
+            ):
+                raise ValueError("semantic correction transition_at must be a current signed timestamp")
+
+            artifact = project_local_path(project, args.artifact)
+            if artifact is None or not artifact.is_file() or artifact.is_symlink():
+                raise ValueError("replacement artifact must be an existing regular file inside the project")
+            old_snapshot = project_local_path(project, predecessor.get("snapshot_path"))
+            old_digest = predecessor.get("snapshot_sha256")
+            if (
+                old_snapshot is None or old_snapshot.is_symlink() or not old_snapshot.is_file()
+                or not isinstance(old_digest, str) or sha256_file(old_snapshot) != old_digest
+            ):
+                raise ValueError("semantic correction predecessor snapshot is unavailable or corrupt")
+            try:
+                old_document = json.loads(old_snapshot.read_text(encoding="utf-8"))
+                new_document = json.loads(artifact.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                raise ValueError("git_commit_identity correction requires valid JSON documents") from None
+            if not isinstance(old_document, dict) or not isinstance(new_document, dict):
+                raise ValueError("git_commit_identity correction requires JSON objects")
+            if not re.fullmatch(r"[0-9a-f]{40}", args.old_value or "") or not re.fullmatch(r"[0-9a-f]{40}", args.new_value or ""):
+                raise ValueError("git_commit_identity values must be full lowercase SHA-1 commit identifiers")
+            if args.old_value == args.new_value or old_document.get("commit") != args.old_value or new_document.get("commit") != args.new_value:
+                raise ValueError("git_commit_identity old and new values do not match the documents")
+            expected_document = deepcopy(old_document)
+            expected_document["commit"] = args.new_value
+            if new_document != expected_document:
+                raise ValueError("git_commit_identity replacement may differ only at /commit")
+            resolved = subprocess.run(
+                ["git", "-C", str(project), "rev-parse", f"{args.new_value}^{{commit}}"],
+                capture_output=True, text=True, check=False,
+            )
+            if resolved.returncode != 0 or resolved.stdout.strip() != args.new_value:
+                raise ValueError("corrected commit does not resolve to an exact local Git commit")
+
+            replacement_bytes = artifact.read_bytes()
+            replacement_digest = _bytes_sha256(replacement_bytes)
+            source_artifact_path = str(artifact.relative_to(project))
+            review_payload = correct_evidence_review_payload(
+                args,
+                predecessor=predecessor,
+                replacement_id=replacement_id,
+                replacement_digest=replacement_digest,
+                bucket=bucket,
+                source_artifact_path=source_artifact_path,
+            )
+            payload_hash = command_payload_hash("correct-evidence", review_payload)
+            declarant_grant = verify_actor_grant(
+                state, args.declarant_grant, args.declarant, "correct-evidence-declare",
+                resource=f"evidence:{args.evidence_id}", work_id="", cycle_id="",
+                dimension="evidence", decision="proposed", payload_hash=payload_hash,
+            )
+            adjudicator_grant = verify_actor_grant(
+                state, args.adjudicator_grant, args.adjudicator, "correct-evidence-adjudicate",
+                resource=f"evidence:{args.evidence_id}", work_id="", cycle_id="",
+                dimension="evidence", decision="accepted", payload_hash=payload_hash,
+            )
+
+            snapshot_path = publish_evidence_snapshot(project, replacement_bytes, replacement_digest)
+            now = args.transition_at
+            replacement = corrected_evidence_record(
+                args,
+                predecessor=predecessor,
+                replacement_id=replacement_id,
+                replacement_digest=replacement_digest,
+                source_artifact_path=source_artifact_path,
+            )
+            if snapshot_path != replacement["snapshot_path"]:
+                raise ValueError("semantic correction snapshot path is not deterministic")
+            archived_record = deepcopy(predecessor)
+            archived_record.update({
+                "active": False,
+                "superseded_by_evidence_id": replacement_id,
+                "superseded_at": now,
+            })
+            archive = {
+                "archive_kind": "evidence_supersession",
+                "transition_kind": "semantic_retraction",
+                "project_id": state["instance"]["project_id"],
+                "bucket": bucket,
+                "record": archived_record,
+                "old_snapshot_available": True,
+                "superseded_by_evidence_id": replacement_id,
+                "superseded_at": now,
+                "reason": args.reason,
+                "correction_payload": review_payload,
+                "declarant_grant": declarant_grant,
+                "adjudicator_grant": adjudicator_grant,
+            }
+            cited_quality_before = any(
+                args.evidence_id in item.get("evidence", [])
+                for item in state.get("quality", {}).get("dimensions", {}).values()
+                if isinstance(item, dict)
+            )
+            candidate = deepcopy(state)
+            candidate["evidence"][bucket][index] = replacement
+            candidate.setdefault("feedback", {}).setdefault("archived_evidence", []).append(archive)
+            clear_quality_scores_citing(candidate, args.evidence_id)
+            candidate["controller"]["validation"] = None
+            candidate["controller"]["validated"] = False
+            candidate["controller"]["schedule_enabled"] = False
+            baseline_errors = set(validate_state(state, expected_project=project)["errors"])
+            candidate_errors = set(validate_state(candidate, expected_project=project)["errors"])
+            intentional_readiness_errors = (
+                {f"phase {state.get('phase')} requires complete applicable quality evidence"}
+                if cited_quality_before else set()
+            )
+            introduced = (candidate_errors - baseline_errors) - intentional_readiness_errors
+            if introduced:
+                raise ValueError("semantic correction introduces validation errors: " + "; ".join(sorted(introduced)))
+
+            state["evidence"][bucket][index] = replacement
+            state.setdefault("feedback", {}).setdefault("archived_evidence", []).append(archive)
+            clear_quality_scores_citing(state, args.evidence_id)
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            state["controller"]["schedule_enabled"] = False
+            persist_state_event(
+                project, path, state, "evidence_semantically_corrected",
+                predecessor_evidence_id=args.evidence_id,
+                evidence_id=replacement_id,
+                correction_type="git_commit_identity",
+                old_value=args.old_value,
+                new_value=args.new_value,
+                reviewer=args.adjudicator,
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "evidence_id": replacement_id,
+        "corrected_evidence_id": args.evidence_id,
+        "correction_type": "git_commit_identity",
+        "outcome": bucket,
+    }))
     return 0
 
 
@@ -5293,6 +5776,26 @@ def build_parser() -> argparse.ArgumentParser:
     supersede_parser.add_argument("--rubric-version")
     supersede_parser.add_argument("--id", required=True)
     supersede_parser.set_defaults(handler=supersede_evidence)
+    correct_parser = subparsers.add_parser(
+        "correct-evidence",
+        help="dually authorize one typed semantic correction to immutable evidence",
+    )
+    correct_parser.add_argument("--project", required=True)
+    correct_parser.add_argument("--evidence-id", required=True)
+    correct_parser.add_argument("--artifact", required=True)
+    correct_parser.add_argument("--source", required=True)
+    correct_parser.add_argument("--decision-impact", required=True)
+    correct_parser.add_argument("--reason", required=True)
+    correct_parser.add_argument("--declarant", required=True)
+    correct_parser.add_argument("--adjudicator", required=True)
+    correct_parser.add_argument("--declarant-grant", required=True)
+    correct_parser.add_argument("--adjudicator-grant", required=True)
+    correct_parser.add_argument("--old-value", required=True)
+    correct_parser.add_argument("--new-value", required=True)
+    correct_parser.add_argument("--transition-at", required=True)
+    correct_parser.add_argument("--freshness-days", type=int, default=30)
+    correct_parser.add_argument("--id", required=True)
+    correct_parser.set_defaults(handler=correct_evidence)
     phase_parser = subparsers.add_parser("advance-phase", help="advance exactly one evidenced phase")
     phase_parser.add_argument("--project", required=True)
     phase_parser.add_argument("--phase", choices=PHASES, required=True)
@@ -5504,6 +6007,7 @@ def build_parser() -> argparse.ArgumentParser:
         cancel_parser,
         evidence_parser,
         supersede_parser,
+        correct_parser,
         phase_parser,
         outcome_parser,
         work_parser,

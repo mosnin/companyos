@@ -43,6 +43,13 @@ checked against their token digest, exact claims, consumed nonce, and
 transactional revision chain, but are explicitly warned as not
 cryptographically replay-verifiable.
 
+Evidence bytes are published to the immutable content-addressed store before
+an authoritative record may reference them. Transaction atomicity covers the
+SQLite state revision, event, projections, command records, and consumed grant
+nonces. A rejected or crashed command may leave an unreferenced immutable blob;
+that blob is non-authoritative, cannot become evidence without a later governed
+record, and may be removed only by future reference-aware garbage collection.
+
 The operator command center is a curated read-only projection of this
 authority. It may disclose direction, gate state, work, quality, aggregate
 usage, evidence counts, and safe runtime identity fields. It may not disclose
@@ -126,6 +133,20 @@ transition remain in a linear audited history. Evidence referenced by a
 completed cycle or accepted execution-fabric report is terminal and cannot be
 superseded. Dependent quality scores are invalidated rather than silently
 retargeted.
+
+A structurally valid immutable record whose JSON `/commit` claim is factually
+wrong is not structural drift and must not pass through `supersede-evidence`.
+`correct-evidence` supports only the typed `git_commit_identity` transition:
+the old value must match the archived snapshot, the new full SHA must resolve
+locally as a commit, and the replacement may differ at no other path. Separate
+signed declarant and independent adjudicator decisions bind the full
+predecessor-record digest, both artifact hashes and IDs, old/new claim values,
+the complete deterministic successor-record digest, transition timestamp,
+governance binding, and reason. The old bytes and record remain append-only as
+a semantic retraction; current and later-program audits recheck both immutable
+content addresses and reject unsigned metadata. Completed-cycle/work and
+accepted fabric evidence are terminal; certification and scheduling stay
+disabled.
 
 Changing the north star, current outcome, or success metric requires `replace-program`. That command increments the program version, revokes the active lease, cancels stale work, archives prior evidence, invalidates certification, disables scheduling, and returns the instance to a paused reality audit.
 

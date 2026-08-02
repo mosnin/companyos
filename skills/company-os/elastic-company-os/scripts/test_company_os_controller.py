@@ -1673,6 +1673,335 @@ class ControllerTests(unittest.TestCase):
             )
         return args
 
+    def commit_correction_fixture(self) -> tuple[dict, Path, object, str, str]:
+        subprocess.run(["git", "init", "-q"], cwd=self.project, check=True)
+        subprocess.run(["git", "config", "user.email", "company-os@example.invalid"], cwd=self.project, check=True)
+        subprocess.run(["git", "config", "user.name", "Company OS Test"], cwd=self.project, check=True)
+        anchor = self.project / "anchor.txt"
+        anchor.write_text("accepted release\n", encoding="utf-8")
+        subprocess.run(["git", "add", "anchor.txt"], cwd=self.project, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "accepted release"], cwd=self.project, check=True)
+        correct_commit = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=self.project, check=True,
+            text=True, capture_output=True,
+        ).stdout.strip()
+        wrong_commit = "f" * 40
+
+        state = self.valid_state()
+        state["instance"]["status"] = "paused"
+        self.write_state(state)
+        artifact = self.project / "install-provenance.json"
+        artifact.write_text(
+            json.dumps({"schema_version": 1, "commit": wrong_commit, "release": "test"}, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.record_evidence(namespace(
+                project=str(self.project), outcome="learning", artifact=artifact.name,
+                source="release installer", decision_impact="bind installed release",
+                author="release-author", reviewer="install-reviewer", freshness_days=30,
+                quality_dimensions=["evidence_integrity"], outcome_id=None, work_id=None,
+                cycle_id=None, rubric_version=None, id="commit-provenance",
+            )), 0)
+        artifact.write_text(
+            json.dumps({"schema_version": 1, "commit": correct_commit, "release": "test"}, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        predecessor = next(item for item in state["evidence"]["learning"] if item["id"] == "commit-provenance")
+        args = namespace(
+            project=str(self.project), evidence_id="commit-provenance", artifact=artifact.name,
+            source="independent Git verification", decision_impact="correct release provenance",
+            reason="recorded commit does not identify the installed release",
+            declarant="correction-declarant", adjudicator="correction-adjudicator",
+            declarant_grant="", adjudicator_grant="", old_value=wrong_commit,
+            new_value=correct_commit, transition_at=controller.utc_now(), freshness_days=30,
+            id="commit-provenance-corrected",
+        )
+        review_payload = controller.correct_evidence_review_payload(
+            args, predecessor=predecessor, replacement_id=args.id,
+            replacement_digest=controller.sha256_file(artifact), bucket="learning",
+            source_artifact_path=artifact.name,
+        )
+        payload_hash = controller.command_payload_hash("correct-evidence", review_payload)
+        args.declarant_grant = self.grant(
+            args.declarant, "correct-evidence-declare", resource="evidence:commit-provenance",
+            work_id="", cycle_id="", dimension="evidence", decision="proposed",
+            payload_hash=payload_hash,
+        )
+        args.adjudicator_grant = self.grant(
+            args.adjudicator, "correct-evidence-adjudicate", resource="evidence:commit-provenance",
+            work_id="", cycle_id="", dimension="evidence", decision="accepted",
+            payload_hash=payload_hash,
+        )
+        return state, artifact, args, wrong_commit, correct_commit
+
+    def test_typed_git_commit_correction_is_dually_authorized_and_append_only(self) -> None:
+        _, _, args, wrong_commit, correct_commit = self.commit_correction_fixture()
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.correct_evidence(args), 0)
+        corrected = controller.load_json(self.project / ".company-os" / "control.json")
+        current = next(item for item in corrected["evidence"]["learning"] if item["id"] == args.id)
+        self.assertEqual(current["supersedes_evidence_id"], "commit-provenance")
+        self.assertEqual(current["correction_type"], "git_commit_identity")
+        archived = next(
+            item for item in corrected["feedback"]["archived_evidence"]
+            if item.get("record", {}).get("id") == "commit-provenance"
+        )
+        self.assertEqual(archived["transition_kind"], "semantic_retraction")
+        self.assertEqual(archived["correction_payload"]["old_value"], wrong_commit)
+        self.assertEqual(archived["correction_payload"]["new_value"], correct_commit)
+        self.assertTrue(archived["old_snapshot_available"])
+        self.assertFalse(any("semantic" in error for error in self.report(corrected)["errors"]))
+
+    def test_typed_git_commit_correction_rejects_broader_edits_and_authority_conflicts(self) -> None:
+        initial, artifact, args, _, _ = self.commit_correction_fixture()
+        new_document = json.loads(artifact.read_text(encoding="utf-8"))
+        new_document["release"] = "silently changed"
+        artifact.write_text(json.dumps(new_document, sort_keys=True) + "\n", encoding="utf-8")
+        before = (self.project / ".company-os" / "control.db").read_bytes() if (self.project / ".company-os" / "control.db").exists() else b""
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.correct_evidence(args), 2)
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertTrue(any(item["id"] == "commit-provenance" for item in retained["evidence"]["learning"]))
+        if before:
+            self.assertEqual((self.project / ".company-os" / "control.db").read_bytes(), before)
+
+        artifact.write_text(
+            json.dumps({"schema_version": 1, "commit": args.new_value, "release": "test"}, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        args.adjudicator = "install-reviewer"
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.correct_evidence(args), 2)
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(
+            [item["id"] for item in retained["evidence"]["learning"] if item["id"].startswith("commit-provenance")],
+            ["commit-provenance"],
+        )
+
+    def test_typed_git_commit_correction_rejects_malformed_predecessor_before_grants(self) -> None:
+        baseline, _, args, _, _ = self.commit_correction_fixture()
+        malformed = {
+            "artifact digest mismatch": lambda item: item.update(artifact_sha256="0" * 64),
+            "invalid freshness": lambda item: item.update(freshness_days=0),
+            "unarchived predecessor linkage": lambda item: item.update(
+                supersedes_evidence_id="missing-predecessor"
+            ),
+        }
+        for label, mutate in malformed.items():
+            with self.subTest(label=label):
+                candidate = deepcopy(baseline)
+                target = next(
+                    item for item in candidate["evidence"]["learning"]
+                    if item["id"] == args.evidence_id
+                )
+                mutate(target)
+                self.write_state(candidate)
+                before = controller.load_json(self.project / ".company-os" / "control.json")
+                output = io.StringIO()
+                with redirect_stdout(output):
+                    self.assertEqual(controller.correct_evidence(args), 2)
+                self.assertIn("semantic correction requires a structurally valid predecessor", output.getvalue())
+                self.assertEqual(
+                    controller.load_json(self.project / ".company-os" / "control.json"),
+                    before,
+                )
+
+        implicit = deepcopy(baseline)
+        next(
+            item for item in implicit["evidence"]["learning"]
+            if item["id"] == args.evidence_id
+        ).pop("active")
+        self.write_state(implicit)
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(controller.correct_evidence(args), 2)
+        self.assertIn("requires predecessor active=true explicitly", output.getvalue())
+
+    def test_typed_git_commit_correction_archive_tampering_fails_audit(self) -> None:
+        _, _, args, _, _ = self.commit_correction_fixture()
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.correct_evidence(args), 0)
+        corrected = controller.load_json(self.project / ".company-os" / "control.json")
+        def archive(state: dict) -> dict:
+            return next(
+                item for item in state["feedback"]["archived_evidence"]
+                if item.get("transition_kind") == "semantic_retraction"
+            )
+        different_valid_time = (
+            datetime.fromisoformat(archive(corrected)["superseded_at"]) - timedelta(seconds=1)
+        ).isoformat()
+
+        tampering = {
+            "signed payload": lambda state: archive(state)["correction_payload"].update(new_value="0" * 40),
+            "archived active state": lambda state: archive(state)["record"].update(active=True),
+            "archived record timestamp": lambda state: archive(state)["record"].update(superseded_at=different_valid_time),
+            "archive timestamp": lambda state: archive(state).update(superseded_at=different_valid_time),
+            "successor observed_at": lambda state: next(
+                item for item in state["evidence"]["learning"] if item["id"] == args.id
+            ).update(observed_at=different_valid_time),
+            "successor artifact path": lambda state: next(
+                item for item in state["evidence"]["learning"] if item["id"] == args.id
+            ).update(artifact_path="nonexistent.json"),
+        }
+        for label, mutate in tampering.items():
+            with self.subTest(label=label):
+                candidate = deepcopy(corrected)
+                mutate(candidate)
+                self.assertTrue(self.report(candidate)["errors"])
+
+    def test_semantic_successor_remains_content_addressed_after_program_replacement(self) -> None:
+        _, _, args, _, _ = self.commit_correction_fixture()
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.correct_evidence(args), 0)
+            self.assertEqual(controller.replace_program(namespace(
+                project=str(self.project), north_star="Next verified program",
+                current_outcome="Prove retained correction history",
+                success_metric="Every semantic successor remains immutable",
+                reason="advance after the correction",
+            )), 0)
+        replaced = controller.load_json(self.project / ".company-os" / "control.json")
+        baseline_errors = self.report(replaced)["errors"]
+        self.assertEqual(baseline_errors, ["phase reality_audit requires valid evidence.reality"])
+
+        def successor(state: dict) -> dict:
+            return next(
+                record
+                for archive in state["feedback"]["archived_evidence"]
+                if isinstance(archive, dict) and isinstance(archive.get("evidence"), dict)
+                for records in archive["evidence"].values()
+                for record in records
+                if record.get("id") == args.id
+            )
+
+        tampering = {
+            "artifact path": lambda state: successor(state).update(artifact_path="arbitrary.json"),
+            "snapshot digest": lambda state: successor(state).update(snapshot_sha256="0" * 64),
+            "inactive successor": lambda state: successor(state).update(active=False),
+            "unsigned metadata": lambda state: successor(state).update(trusted=True),
+            "mutable source substitution": lambda state: successor(state).update(
+                snapshot_path=successor(state)["source_artifact_path"],
+                artifact_path=successor(state)["source_artifact_path"],
+            ),
+        }
+        for label, mutate in tampering.items():
+            with self.subTest(label=label):
+                candidate = deepcopy(replaced)
+                mutate(candidate)
+                self.assertTrue(any(
+                    "semantic" in error
+                    for error in set(self.report(candidate)["errors"]) - set(baseline_errors)
+                ))
+
+    def test_typed_git_commit_correction_refuses_terminal_references_and_payload_substitution(self) -> None:
+        baseline, _, args, _, _ = self.commit_correction_fixture()
+        mutated_args = deepcopy(args)
+        mutated_args.reason = "substituted after signing"
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.correct_evidence(mutated_args), 2)
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertTrue(any(item["id"] == "commit-provenance" for item in retained["evidence"]["learning"]))
+
+        gates = {
+            "completed cycle": lambda state: state["feedback"]["cycles"].append(
+                {"id": "terminal-cycle", "status": "completed", "evidence_ids": ["commit-provenance"]}
+            ),
+            "completed work": lambda state: state["portfolio"]["completed_work"].append(
+                {"id": "terminal-work", "completion": {"evidence_ids": ["commit-provenance"]}}
+            ),
+            "accepted fabric": lambda state: state["execution_fabric"].update(
+                status="accepted",
+                managers={"manager": {"reports": [{"report": {"evidence_ids": ["commit-provenance"]}}]}},
+            ),
+        }
+        for label, mutator in gates.items():
+            with self.subTest(label=label):
+                candidate = deepcopy(baseline)
+                mutator(candidate)
+                self.write_state(candidate)
+                with redirect_stdout(io.StringIO()):
+                    self.assertEqual(controller.correct_evidence(args), 2)
+                unchanged = controller.load_json(self.project / ".company-os" / "control.json")
+                self.assertTrue(any(item["id"] == "commit-provenance" for item in unchanged["evidence"]["learning"]))
+
+    def test_typed_git_commit_correction_clears_only_citing_quality_and_invalidates_readiness(self) -> None:
+        _, artifact, args, _, _ = self.commit_correction_fixture()
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        checkpoint = controller.current_quality_checkpoint(state)[2]
+        predecessor = next(item for item in state["evidence"]["learning"] if item["id"] == args.evidence_id)
+        predecessor.update({
+            "outcome_id": "cap-1", "work_id": "cap-1", "cycle_id": checkpoint,
+            "rubric_version": "quality-v1",
+        })
+        quality_values = {
+            "dimension": "evidence_integrity", "score": 9,
+            "evidence_ids": [args.evidence_id], "rubric_version": "quality-v1",
+            "scored_by": "commit-quality-scorer", "reviewed_by": "commit-quality-reviewer",
+            "outcome_id": "cap-1", "work_id": "cap-1", "cycle_id": checkpoint,
+            "artifact_digest": predecessor["artifact_sha256"],
+        }
+        payload_hash = controller.command_payload_hash(
+            "score-quality", controller.quality_command_payload(quality_values)
+        )
+        scorer = self.grant(
+            "commit-quality-scorer", "score-quality", resource="quality:evidence_integrity",
+            work_id="cap-1", cycle_id=checkpoint, dimension="evidence_integrity",
+            decision="score:9", payload_hash=payload_hash,
+        )
+        reviewer = self.grant(
+            "commit-quality-reviewer", "score-quality-review", resource="quality:evidence_integrity",
+            work_id="cap-1", cycle_id=checkpoint, dimension="evidence_integrity",
+            decision="review:9", payload_hash=payload_hash,
+        )
+        state["quality"]["dimensions"]["evidence_integrity"].update({
+            "score": 9, "evidence": [args.evidence_id], "rubric_version": "quality-v1",
+            "scored_by": "commit-quality-scorer", "reviewed_by": "commit-quality-reviewer",
+            "scorer_grant": self.grant_record(state, "commit-quality-scorer", scorer),
+            "reviewer_grant": self.grant_record(state, "commit-quality-reviewer", reviewer),
+            "binding": {
+                "outcome_id": "cap-1", "work_id": "cap-1", "cycle_id": checkpoint,
+                "artifact_digest": predecessor["artifact_sha256"], "rubric_version": "quality-v1",
+            },
+        })
+        state["controller"]["validation"] = None
+        state["controller"]["validated"] = False
+        state["controller"]["schedule_enabled"] = False
+        self.write_state(state)
+        self.assertEqual(self.report(state)["errors"], [])
+
+        review_payload = controller.correct_evidence_review_payload(
+            args, predecessor=predecessor, replacement_id=args.id,
+            replacement_digest=controller.sha256_file(artifact), bucket="learning",
+            source_artifact_path=artifact.name,
+        )
+        correction_hash = controller.command_payload_hash("correct-evidence", review_payload)
+        args.declarant_grant = self.grant(
+            args.declarant, "correct-evidence-declare", resource=f"evidence:{args.evidence_id}",
+            work_id="", cycle_id="", dimension="evidence", decision="proposed",
+            payload_hash=correction_hash,
+        )
+        args.adjudicator_grant = self.grant(
+            args.adjudicator, "correct-evidence-adjudicate", resource=f"evidence:{args.evidence_id}",
+            work_id="", cycle_id="", dimension="evidence", decision="accepted",
+            payload_hash=correction_hash,
+        )
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.correct_evidence(args), 0)
+        corrected = controller.load_json(self.project / ".company-os" / "control.json")
+        cited = corrected["quality"]["dimensions"]["evidence_integrity"]
+        unrelated = corrected["quality"]["dimensions"]["security"]
+        self.assertIsNone(cited["score"])
+        self.assertEqual(cited["evidence"], [])
+        self.assertEqual(unrelated["score"], 9)
+        self.assertFalse(corrected["controller"]["validated"])
+        self.assertIsNone(corrected["controller"]["validation"])
+        self.assertFalse(corrected["controller"]["schedule_enabled"])
+        self.assertIn(
+            "phase learning requires complete applicable quality evidence",
+            self.report(corrected)["errors"],
+        )
+
     def test_snapshot_evidence_remains_valid_when_descriptive_source_drifts(self) -> None:
         state = self.valid_state()
         state["instance"]["status"] = "paused"

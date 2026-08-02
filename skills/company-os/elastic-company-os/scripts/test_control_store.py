@@ -525,6 +525,95 @@ class ControlStoreTests(unittest.TestCase):
             self.assertEqual(controller.main(), 2)
         self.assertEqual(store.load(self.project)[0], 2)
 
+    def test_correct_evidence_cli_retry_is_exact_across_restart_and_conflicts_fail_closed(self) -> None:
+        _, _, args, _, _ = self.fixture.commit_correction_fixture()
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.migrate_control_store(
+                    type("Args", (), {"project": str(self.project)})()
+                ),
+                0,
+            )
+        command = [
+            "company-os", "correct-evidence", "--project", str(self.project),
+            "--evidence-id", args.evidence_id, "--artifact", args.artifact,
+            "--source", args.source, "--decision-impact", args.decision_impact,
+            "--reason", args.reason, "--declarant", args.declarant,
+            "--adjudicator", args.adjudicator, "--declarant-grant", args.declarant_grant,
+            "--adjudicator-grant", args.adjudicator_grant, "--old-value", args.old_value,
+            "--new-value", args.new_value, "--transition-at", args.transition_at,
+            "--freshness-days", "30", "--id", args.id,
+            "--command-key", "correct-once",
+        ]
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(first := io.StringIO()):
+            self.assertEqual(controller.main(), 0)
+        self.assertEqual(store.load(self.project)[0], 2)
+        with mock.patch.object(controller.sys, "argv", command), redirect_stdout(replay := io.StringIO()):
+            self.assertEqual(controller.main(), 0)
+        self.assertEqual(first.getvalue(), replay.getvalue())
+        self.assertEqual(store.load(self.project)[0], 2)
+
+        conflicting = list(command)
+        conflicting[conflicting.index(args.reason)] = "different semantic correction reason"
+        with mock.patch.object(controller.sys, "argv", conflicting), redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.main(), 2)
+        self.assertEqual(store.load(self.project)[0], 2)
+
+    def test_correct_evidence_post_publication_failure_preserves_authoritative_transaction(self) -> None:
+        _, artifact, args, _, _ = self.fixture.commit_correction_fixture()
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.migrate_control_store(
+                    type("Args", (), {"project": str(self.project)})()
+                ),
+                0,
+            )
+        revision, state = store.load(self.project)
+        predecessor = next(
+            item for item in state["evidence"]["learning"]
+            if item["id"] == args.evidence_id
+        )
+        args.freshness_days = 0
+        review_payload = controller.correct_evidence_review_payload(
+            args,
+            predecessor=predecessor,
+            replacement_id=args.id,
+            replacement_digest=controller.sha256_file(artifact),
+            bucket="learning",
+            source_artifact_path=artifact.name,
+        )
+        payload_hash = controller.command_payload_hash("correct-evidence", review_payload)
+        args.declarant_grant = self.fixture.grant(
+            args.declarant, "correct-evidence-declare",
+            resource=f"evidence:{args.evidence_id}", work_id="", cycle_id="",
+            dimension="evidence", decision="proposed", payload_hash=payload_hash,
+        )
+        args.adjudicator_grant = self.fixture.grant(
+            args.adjudicator, "correct-evidence-adjudicate",
+            resource=f"evidence:{args.evidence_id}", work_id="", cycle_id="",
+            dimension="evidence", decision="accepted", payload_hash=payload_hash,
+        )
+        directory = self.project / ".company-os"
+        control_before = (directory / "control.json").read_bytes()
+        events_before = (directory / "events.jsonl").read_bytes()
+        nonces_before = deepcopy(state["controller"]["consumed_grant_nonces"])
+        digest = controller.sha256_file(artifact)
+        orphan = controller.evidence_snapshot_path(self.project, digest)
+        self.assertFalse(orphan.exists())
+
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(controller.correct_evidence(args), 2)
+
+        retained_revision, retained = store.load(self.project)
+        self.assertEqual(retained_revision, revision)
+        self.assertEqual(retained, state)
+        self.assertEqual(retained["controller"]["consumed_grant_nonces"], nonces_before)
+        self.assertEqual((directory / "control.json").read_bytes(), control_before)
+        self.assertEqual((directory / "events.jsonl").read_bytes(), events_before)
+        self.assertTrue(orphan.is_file())
+        self.assertEqual(controller.sha256_file(orphan), digest)
+        self.assertTrue(store.audit(self.project)["ok"])
+
     def test_forged_replay_result_is_rejected_even_with_recomputed_hash(self) -> None:
         self.migrate_valid_state()
         command = [

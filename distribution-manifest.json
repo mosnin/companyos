@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.4.1",
+  "distribution_version": "0.4.2",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -47,8 +47,8 @@
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
-      "sha256": "c7e5ad6ae41c2c2523917155c10d691df45a78dcead76efff190667ed89eb953",
-      "size": 15960
+      "sha256": "4a7732f6248463360982123eb5a24e3dd1395a94948200f337146c6bc053e917",
+      "size": 16687
     },
     {
       "path": "company-os/elastic-company-os/agents/openai.yaml",
@@ -62,13 +62,13 @@
     },
     {
       "path": "company-os/elastic-company-os/references/control-contract.md",
-      "sha256": "583de925703587fb3fd3251c8580e00019322c2bb3d0524de4863fa76eeb858e",
-      "size": 14096
+      "sha256": "102d1b8c8e8a43b15c43cb9d83aebfd920059e8f912ec92e0baa96be7493a93a",
+      "size": 15495
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "5ea629843e2b716a0bef39f68bf0bc5580932ae1198d4b7eb98de0a8417066cb",
-      "size": 279061
+      "sha256": "4721cc74206f729cc62276bdce77ebe6d445925d6aaced5785b81acc6af9f39a",
+      "size": 307434
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
@@ -87,13 +87,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "ca6be0e58e27b621a7acc043c8c18ef5339f8ac3f7b145f626332d3398c3db31",
-      "size": 165955
+      "sha256": "1d6e7f67d142c846b73f2a98837f7426ed215b4ca000a7376b3cf05f4e0eff61",
+      "size": 184731
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "6863d2877356422f79eec255bf10c73a3b268a6a55eac9bb8662853e2bc947fc",
-      "size": 33733
+      "sha256": "dbf3d6d8b5bbb75710d2f72e22985acc200c3b2031dde0a5ae4f0309e36b0c29",
+      "size": 38420
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_operator_brief.py",

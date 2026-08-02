@@ -7,11 +7,13 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version 0.4.1 packages the independently accepted Operator Command Center and
-its first recursive-feedback correction: quality scores can bind a canonical
-set of independent artifacts instead of requiring one artifact hash to stand
-in for every proof source. Legacy single-artifact signed history remains
-verifiable, while new multi-artifact scores fail closed on duplicate IDs,
+Version 0.4.2 retains the independently accepted Operator Command Center and
+adds a separately governed semantic-evidence correction for one narrowly typed
+failure: a structurally valid immutable JSON record whose `/commit` identity is
+factually wrong. The transition is append-only, dual-authorized, content-
+addressed, lineage-audited, and unable to perform generic semantic edits. It
+also preserves the 0.4.1 recursive-feedback correction: quality scores bind a
+canonical set of independent artifacts and fail closed on duplicate IDs,
 digest substitution, or evidence-set drift.
 
 The Operator Command Center remains a
