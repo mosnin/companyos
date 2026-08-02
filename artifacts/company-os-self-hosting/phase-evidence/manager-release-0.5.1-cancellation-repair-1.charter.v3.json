@@ -1,0 +1,103 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "authorization_scope": "create and admit only cancellation-repair charter version 3 and definition version 3; no work-packet creation, worker dispatch, implementation, manifest refresh, report, signing, installation, or activation",
+  "budget": {
+    "max_concurrency": 2,
+    "max_cost_usd": 40.0,
+    "max_retries": 2,
+    "max_tasks": 2,
+    "max_time_minutes": 120,
+    "max_tokens": 80000
+  },
+  "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+  "decision": "continue",
+  "decision_id": "decision-release-0.5.1-cancellation-repair-charter-3",
+  "definition_digest": "cab01209e8dbb865a15264146ad36b260f9929f7ac50e716a1c549b86abd134c",
+  "definition_version": 3,
+  "issued_at": "2026-08-02T16:15:26Z",
+  "manager_id": "manager-release-0.5.1-cancellation-repair-1",
+  "master_directive": "AUTHENTICATED MASTER RECHARTER DIRECTIVE: create and commit ONLY charter/definition version 3, then stop for DESIGN. Do not alter runtime source/tests or dispatch any worker in this turn.\n\nReason: the runtime worker used the one retry authorized by charter v2. Manager review accepted the terminalization correction but found two missing illegal retained/replay cases: acknowledged/not_acknowledged and failed/acknowledged. The candidate remains unaccepted. No bypass is authorized.\n\nCreate:\n- programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v3.json\n- artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-3.v1.json\n- artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v3.json\n\nCharter v3 / definition v3 must preserve charter v2 byte-semantic outcome, matrix, scope, all permissions/prohibitions, max_tokens 80000, max_cost_usd 40, max_time_minutes 120, max_tasks 2, max_concurrency 2, uppercase documentation split, barriers, thresholds, and external review. Change ONLY max_retries from 1 to 2. Bind dependency to runtime candidate 7ee55e7e967ae471cff9fd297f9661371e0a6b99 / tree 9ae6bd575e861766ee5c3beecd57f0458082c0c0, coordination commit 2eaad0972e5db67af901b711d62a39102e0e684e, and rejected first receipt/reworked second receipt in task 019fc336-f196-7fd0-9127-c719c9cca36f.\n\nAdd exact lowercase owned paths for immutable versioned design coordination:\n- programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-runtime-worker-1.v2.json\n- programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-integration-worker-1.v2.json\n- artifacts/company-os-self-hosting/authorizations/cancellation-runtime-worker-1.design-2.v1.json\n- artifacts/company-os-self-hosting/authorizations/cancellation-integration-worker-1.design-2.v1.json\n- artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v2.json\nand the three v3 charter package paths above.\n\nUse unique charter decision decision-release-0.5.1-cancellation-repair-charter-3, decision_version 3, canonical repository-fixture authorization. Record this directive and digest. Reuse v1 architecture/roadmap/interfaces only if semantically exact; explicitly record the single retry-budget delta and immutable packet-version rationale. Validate exact v3 charter plus repository role package and confirm no README/LEDGER overlap or authority widening beyond the eight exact new paths and max_retries 2.\n\nCommit only the v3 charter package and any strictly necessary versioned design references; leave clean; report exact commit/tree/digests/signature/path count/budgets and request authenticated DESIGN CONTINUE or REWORK.\n\nNo packet creation yet, no worker dispatch, no source/test/manifest/report, no sign/install/runtime/scheduler/provider/network/credential/production/Chippy action.",
+  "master_directive_sha256": "10c112274368038abb0d8b23272bf5ace9acb3796c6171bf7f8553ea011649b6",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b",
+  "packet_version_rationale": {
+    "prior_v1_packets_remain_immutable_execution_evidence": true,
+    "v2_packet_paths_reserved_for_post_design_coordination": true,
+    "reason": "new definition and retry authority must not mutate fixture-signed v1 worker packets or their accepted design evidence"
+  },
+  "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "phase": "charter",
+  "prior_charter_lineage": {
+    "authorization_canonical_sha256": "60296b4755cbf337d6af96375873b9102e834d4f32e9f65f1bf3f6b6b89479a5",
+    "authorization_path": "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-2.v1.json",
+    "authorization_sha256": "c85b5e3d8ed47e7302f3af2de1d5855220005a291053127e50bb8ea1ac8c3d97",
+    "charter_path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v2.json",
+    "charter_sha256": "9a7028a170a7f27ecff1375225fa92d8b51723ba7569193cdcdeb9479e709bef",
+    "charter_version": 2,
+    "definition_digest": "5916b792f20667bad292953de09f327b4dddb6c768a7979ccc2d19a545209f84",
+    "definition_version": 2,
+    "package_commit": "09080620d89a1c9d70e00249b719c5c0f85289ff",
+    "package_tree": "a1aa01f0c081d7bdeeec92684649590ffb0c6ba6",
+    "phase_evidence_path": "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v2.json",
+    "phase_evidence_sha256": "42ba113287a0f76f60e1de1d66a4290b42bd862e5520ecdeff4387151a6f642d"
+  },
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "project_id": "company-os-self-hosting",
+  "reference_reuse": {
+    "architecture_sha256": "305697ad0d457cd5feb7937137b2a2bb63a7581a53e5de55a13965954cdb2738",
+    "interfaces_sha256": "5488b92d2a619681492de4b0e4f69a1edead2bf417a159a1d5f71fbff3715531",
+    "roadmap_sha256": "4ec30f53d023a85803b0ff6962afd588fee0305d37ec85c6618bcc4c778c3a98",
+    "semantically_exact_for_v3": true
+  },
+  "requested_model": "gpt-5.6-sol",
+  "retry_budget_delta": {
+    "all_other_budget_fields_unchanged": true,
+    "from_max_retries": 1,
+    "reason": "one additional bounded runtime rework is required for acknowledged/not_acknowledged and failed/acknowledged retained/replay regressions",
+    "to_max_retries": 2
+  },
+  "runtime_candidate": {
+    "commit": "7ee55e7e967ae471cff9fd297f9661371e0a6b99",
+    "coordination_commit": "2eaad0972e5db67af901b711d62a39102e0e684e",
+    "status": "unaccepted",
+    "tree": "9ae6bd575e861766ee5c3beecd57f0458082c0c0",
+    "worker_task_id": "019fc336-f196-7fd0-9127-c719c9cca36f"
+  },
+  "runtime_receipts": {
+    "first": {
+      "commit": "22c34d0a4dd87d14ed10122a1021d52858f0adc7",
+      "disposition": "rejected",
+      "reason": "acknowledged cancellation could not reach terminal cancelled",
+      "tree": "2f01a39c9b587e3284202fcfca755864cebb7c89"
+    },
+    "second": {
+      "commit": "7ee55e7e967ae471cff9fd297f9661371e0a6b99",
+      "disposition": "reworked_unaccepted",
+      "reason": "terminalization corrected but acknowledged/not_acknowledged and failed/acknowledged retained/replay cases are missing",
+      "tree": "9ae6bd575e861766ee5c3beecd57f0458082c0c0"
+    }
+  },
+  "schema": "company-os.charter-phase-evidence.v3",
+  "scope_delta": {
+    "added_exact_paths": [
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-runtime-worker-1.v2.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-integration-worker-1.v2.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-runtime-worker-1.design-2.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-integration-worker-1.design-2.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v2.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v3.json",
+      "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-3.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v3.json"
+    ],
+    "authority_widening_beyond_declared_delta": false,
+    "lowercase_aliases_used": false,
+    "new_owned_path_count": 29,
+    "parent_or_glob_authority_used": false,
+    "preserved_v2_owned_path_count": 21,
+    "readme_or_ledger_overlap": false,
+    "schema_weakened": false
+  },
+  "status": "accepted",
+  "task_id": "manager-release-0.5.1-cancellation-repair-1"
+}
