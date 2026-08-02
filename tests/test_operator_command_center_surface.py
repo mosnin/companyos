@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "verify_operator_command_center_surface.py"
 REVIEWER_ID = "company-os-0.5.1-external-independent-surface-reviewer"
 REVIEWER_PUBLIC_KEY_DER_SHA256 = (
-    "41826fdd1c0d78a414bba0876bdf840e01d6836430baab5f7d47a65719408aba"
+    "bcd8b035cf8aa2e5c5dd792e9e5ecf3226d962f5b6052e8b5f70eb96512bbc15"
 )
 CURRENT_RELEASE = json.loads(
     (ROOT / "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_ACCEPTANCE_ATTESTATION.json").read_text()
