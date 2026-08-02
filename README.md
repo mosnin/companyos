@@ -7,15 +7,13 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version 0.5.0 is the accepted and globally installed source release. Exact
-manifest parity is proven for its 83 distributed files. It adds concise global
-Sol-manager and Luna-worker role skills, strict v2 mission
-contracts, deterministic task-evidence validation, and a five-scenario
-simulation ladder. After three rejected candidates and bounded rework,
-independent exact-commit review of `0900cfe` found 0 P0, 0 P1, and 0 P2 defects
-and scored the source contract 9.1/10. In this development session the Sol
-manager manually used native Codex task tools; the Company OS controller still
-does not invoke, admit, cancel, or durably observe them.
+Version 0.5.1 is the signed, manifest-backed release candidate. Version 0.5.0
+remains the globally installed release until an independent exact-candidate
+review and transactional upgrade complete. The 0.5.1 source adds feature-off
+transactional admission, native-task create and cancellation outboxes,
+immutable returned host identity, replay-derived lifecycle state, restart
+reconciliation, terminal receipts, truthful unavailable telemetry, and an
+explicit downgrade boundary. It still performs no Codex app-tool call itself.
 
 A fresh installed-role forward test then ran the intended hierarchy using
 compact prompts only: master -> Sol manager `019fc20a…` -> two tasks requested
@@ -24,8 +22,9 @@ and integrated only accepted evidence, and an independent final audit returned
 0 P0, 0 P1, and 0 P2 findings. Executing-model identity, tokens, cost, and hard
 cancellation acknowledgement remained unavailable and were not inferred.
 
-Version 0.5.0 retains the independently accepted 0.4.3 Operator Command Center
-and its two locally verified, feature-off foundations. First, program replacement
+Version 0.5.1 carries a fresh independently signed regression acceptance for
+the exact 21-file Operator Command Center surface at 9.22/10 with every score
+at least 9.0. It also retains the prior feature-off foundations. First, program replacement
 now uses a positive, versioned archive schema and rejects credential-shaped or
 unknown runtime material transactionally. Second, a provider-neutral lifecycle
 contract and fixture-only OpenAI Responses gateway prove signed request/result
@@ -57,12 +56,13 @@ SQLite with full synchronous durability and WAL concurrency; existing valid
 schema-9 instances migrate explicitly. State revisions, ordered audit events,
 projections, trusted observation inboxes, effect outboxes, command
 idempotency, and fenced leases commit under one project lock. JSON and JSONL
-are deterministic compatibility exports, not authority. The controller can
-verify and retain signed provider observations without changing attempt
-lifecycle or launching work. It is **not yet an autonomous company**:
-controller-native admission, hard cancellation, provider-observed model
-identity, attributable token/cost telemetry, durable native reconciliation,
-recursive dogfood, and protected scheduling remain gated roadmap work.
+are deterministic compatibility exports, not authority. The controller now
+admits and reconciles compliant native-task lifecycle observations, but a
+trusted interactive host must still execute the actual create/read/wait/stop
+operations. It is **not yet an autonomous company**: live controller-governed
+native execution, hard-cancellation acknowledgement, provider-observed model
+identity, attributable token/cost telemetry, recursive dogfood, isolated
+multi-project proof, and protected scheduling remain gated roadmap work.
 
 Chippy is not part of this repository and is frozen as a Company OS client
 until the standalone self-hosting gates pass.

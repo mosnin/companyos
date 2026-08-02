@@ -1,5 +1,9 @@
 {
-  "aggregate_sha256": "ed20e7f9026fca0614276cd1df3c5bc3114f3304876334eb149de37533c5d3f6",
+  "aggregate_algorithm": "sha256(canonical-json(files,sort_keys=true,separators=comma-colon,utf8))",
+  "aggregate_sha256": "f7ff37866190efc09fb13c7be7bd8c270467558d8e35ce7cb7aea628f21539e3",
+  "carrier_commit": "17420a836ea11b0c42faef9c0f08eaba9ad53019",
+  "carrier_git_tree": "82f34027d446ed9bf2ba40bbc1f1c342ae38dcf9",
+  "company_os_release_version": "0.5.1",
   "files": [
     {
       "path": ".github/workflows/ci.yml",
@@ -58,8 +62,8 @@
     },
     {
       "path": "scripts/verify_operator_command_center_surface.py",
-      "sha256": "169e2347b123a2b5a803a041abe136b1cb5740ce2eb7b6190ffd026478199c1c",
-      "size": 10943
+      "sha256": "8ef3dc01877c71706a85a30ecb44db906edc8beee1e22b2530e3849cff95894c",
+      "size": 22079
     },
     {
       "path": "skills/company-os/elastic-company-os/SKILL.md",
@@ -73,13 +77,13 @@
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "fb15e8b4d3a5c7c8f0e694d5e5a7302ac699cb258380c2ac85ef0f78c1c13b7c",
-      "size": 383198
+      "sha256": "cc4f0ccb20942982d29eef39dc75f12f25b5224c08587d57d7870bbfb23ec7c4",
+      "size": 417605
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "8e42c3c0c24978cf6964c892c18d99aa40b51a5c2171251f354ddf0f3936554c",
-      "size": 57288
+      "sha256": "e4361ecb2eb07b5a7f6557e852065ca10a9fbacfff6386f157f68464a7179aac",
+      "size": 62438
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/operator_brief.py",
@@ -88,13 +92,13 @@
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "4a3b67a096dc1a6386b025174c5911c3c869efdf332904311c1fd341a4d5d05a",
-      "size": 197045
+      "sha256": "120b6f34ee9f0bc6af675112f3f491cadf1bfd796c492acac68222a5accece31",
+      "size": 219151
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "e8263ae8c70134be2260c560a8da67c2f48a35b3e92d052c866bafa6c9efe78a",
-      "size": 67433
+      "sha256": "fff4cec7effd48d1d623e924f586221952a7ac2bc566dd408703d6b0a9de4e90",
+      "size": 70971
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/test_operator_brief.py",
@@ -103,10 +107,18 @@
     },
     {
       "path": "tests/test_operator_command_center_surface.py",
-      "sha256": "b97be2ddd15606030c48bf18a06c703f48410be0977e49331b04b080aab9a4ac",
-      "size": 6014
+      "sha256": "9f50083cc4f9530e032bf8c8342e97a3b63f78ec5543e2ebec02e04afbeb6416",
+      "size": 16933
     }
   ],
+  "path_set_sha256": "5550e277e223925cd579a9da6da1880d7999746d05d7f3d4669668a3859184f8",
+  "prior_surface_lineage": {
+    "accepted_artifact_commit": "09eada016b2da84eb0b49a0a3c1f5873a6dcbcaf",
+    "accepted_artifact_git_tree": "6d1f73c486af4e8d7f8106f28db4f182863521fa",
+    "aggregate_sha256": "ed20e7f9026fca0614276cd1df3c5bc3114f3304876334eb149de37533c5d3f6",
+    "surface_id": "operator-command-center-v5-company-os-0.4.3-accepted-surface",
+    "surface_manifest_sha256": "84cddf4250ca509d899fdfef448466d32aa25ba33d945764765175f5aeab3016"
+  },
   "schema_version": 1,
-  "surface_id": "operator-command-center-v5-company-os-0.4.3-accepted-surface"
+  "surface_id": "operator-command-center-v5-company-os-0.5.1-accepted-surface"
 }

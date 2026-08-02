@@ -3,10 +3,12 @@
 ## Current checkpoint
 
 - Canonical repository: `/Users/preston/Documents/Codex/company-os-core`
-- Distribution version: accepted source release `0.5.0`; manifest-backed
-  `check-install` proves exact parity for the globally installed 83-file bundle
-- Canonical source acceptance: `0900cfe1d4661dffbbd612695aea57dfa4562448`;
-  release metadata is the current canonical `main` HEAD
+- Distribution version: signed release candidate `0.5.1`; globally installed
+  release remains manifest-backed `0.5.0` pending exact-candidate review and
+  transactional upgrade
+- Accepted logic source: runtime `315924018da7a7684787c79922dd3fd4887209c0`;
+  authority `60211bd6962b733344c0c789272e96dc5db18a28`; signed-surface carrier
+  `17420a836ea11b0c42faef9c0f08eaba9ad53019`
 - Authoritative control revision: 131; program 6 is paused in Reality Audit,
   unscheduled, uncertified, runtime-disabled, and lease-free
 - Canonical controller: schema 9 / core 2.6
@@ -15,9 +17,8 @@
 - Production or customer effects: none
 - Program 6 direction: Codex-native task fabric; external provider/API gateway
   implementation retired from the active roadmap
-- Release state: source distribution accepted and installed; one bounded fresh
-  manager/two-requested-Luna forward test accepted; scheduler-off; broader
-  runtime NO-GO
+- Release state: 0.5.1 manifest and signed surface integrate cleanly; global
+  installation, live native runtime, and scheduler remain NO-GO
 
 ## Accepted evidence
 
@@ -316,19 +317,55 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
   identity, tokens, cost, and hard-cancellation acknowledgement remained
   unavailable; runtime and scheduling remain NO-GO.
 
+### Phase 2H — native lifecycle source and 0.5.1 signed surface accepted
+
+- A Sol manager used the global manager skill and two compact requested-Luna
+  packets to implement a feature-off native-task lifecycle over the existing
+  transactional SQLite authority. The controller records admission and create
+  intent atomically, fences dispatch and cancellation claims, binds returned
+  task/thread/host identity, and reconciles restart state without relaunching an
+  ambiguous create.
+- The first candidate was independently rejected because retained lifecycle
+  evidence could be rewritten into impossible histories. Rework now derives
+  state by replaying the admission/event chain, requires complete ordered
+  authority coverage, binds authority hashes to exact transitions, and rejects
+  reordered, duplicated, deleted, and state-only histories.
+- A second review rejected a noncanonical scope amendment. The accepted
+  authority repair uses mission charter v2 / definition v2, a standard
+  `company-os.authorization-decision.v1` record, canonical fixture-HMAC
+  verification, and exact prior-charter lineage. The invalid custom amendment
+  records were removed.
+- Independent logic-source acceptance returned 0 P0/P1 findings. Scores were:
+  security 9.3, authority 9.4, durability 9.3, cancellation 9.1, evidence
+  integrity 9.3, reliability 9.0, maintainability 8.7, test strength 9.2,
+  observability 8.8, and rollback readiness 8.6.
+- A two-stage external signing protocol avoided verifier/signature
+  self-reference. The public RSA-3072 key and stable reviewer identity were
+  integrated first at carrier `17420a8`; the independent reviewer then signed
+  that exact 21-file surface and erased the one-time private key and cleanup
+  automation. The accepted surface scored 9.22 mean with all 13 dimensions at
+  least 9.0 and no P0/P1/P2 findings.
+- Integrated verification passes: signed surface, content-addressed 0.5.1
+  manifest, 64 root tests (one deliberate legacy-surface skip), 306 packaged
+  controller tests, and 10 reference tests. This is source/release-candidate
+  evidence only; no native host operation, installation, runtime activation,
+  provider call, scheduler action, production mutation, or Chippy change was
+  performed.
+
 ## Not yet implemented
 
 - A network-capable provider adapter and protected launcher.
 - Provider launch or provider-observed identity in a real account.
-- Controller integration that advances one real provider lifecycle through
-  heartbeats, terminal receipt, cancellation, telemetry, and reconciliation.
+- A trusted host gateway that executes one controller-admitted native task and
+  returns create/read/wait/stop observations into the durable lifecycle.
 - Self-hosted accepted capability or adaptation cycle.
 - Dedicated spend-limited provider credential, external issuer deployment, or
   recurring scheduling.
 
 ## Exact next action
 
-Add controller admission-before-create and prove a hard native cancellation
-acknowledgement with durable reconciliation before broader runtime acceptance.
-Then run a second self-hosting capability cycle through controller-governed
-state. Do not enable scheduling.
+Independently review the exact 0.5.1 release candidate, install it
+transactionally over the proven 0.5.0 global bundle, then execute one
+controller-admitted native Sol-manager/Luna-worker lifecycle through the
+interactive host gateway. Prove restart reconciliation and hard cancellation
+before a recursive self-hosting cycle. Do not enable scheduling.

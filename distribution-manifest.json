@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.5.0",
+  "distribution_version": "0.5.1",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -67,13 +67,18 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "fb15e8b4d3a5c7c8f0e694d5e5a7302ac699cb258380c2ac85ef0f78c1c13b7c",
-      "size": 383198
+      "sha256": "cc4f0ccb20942982d29eef39dc75f12f25b5224c08587d57d7870bbfb23ec7c4",
+      "size": 417605
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "8e42c3c0c24978cf6964c892c18d99aa40b51a5c2171251f354ddf0f3936554c",
-      "size": 57288
+      "sha256": "e4361ecb2eb07b5a7f6557e852065ca10a9fbacfff6386f157f68464a7179aac",
+      "size": 62438
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
+      "sha256": "2c50b4541b491f4fd64b04704d4d4652bb44dd0b094f9d0096ca88a5c2d48956",
+      "size": 37225
     },
     {
       "path": "company-os/elastic-company-os/scripts/openai_responses_gateway.py",
@@ -107,13 +112,18 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "4a3b67a096dc1a6386b025174c5911c3c869efdf332904311c1fd341a4d5d05a",
-      "size": 197045
+      "sha256": "120b6f34ee9f0bc6af675112f3f491cadf1bfd796c492acac68222a5accece31",
+      "size": 219151
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "e8263ae8c70134be2260c560a8da67c2f48a35b3e92d052c866bafa6c9efe78a",
-      "size": 67433
+      "sha256": "fff4cec7effd48d1d623e924f586221952a7ac2bc566dd408703d6b0a9de4e90",
+      "size": 70971
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",
+      "sha256": "1bfcd665b6c05846b0fe15eda34592723107845c7452c33fa7098b642fc5bab1",
+      "size": 16247
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_openai_responses_gateway_contract.py",
@@ -137,8 +147,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
-      "sha256": "87adeeb7ff6312b30ba51f7f403bd2289818a5b65bff0ff53de4055217ca4e11",
-      "size": 15552
+      "sha256": "c7ba5f91ae7df0ba0fc31f7ec00eb0c885e38b07981616160335d9943701f01e",
+      "size": 15657
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_runtime_receipts.py",
