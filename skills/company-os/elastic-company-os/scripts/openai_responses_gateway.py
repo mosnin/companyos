@@ -622,7 +622,6 @@ class FixtureResponsesGateway:
         artifact_snapshot: set[str],
     ) -> None:
         """Best-effort durable ambiguity boundary after a possible create effect."""
-        cleanup_complete = self._cleanup_attempt_artifacts(artifact_snapshot)
         for field in ("model", "raw_retained", "result"):
             entry.pop(field, None)
         entry.update({
@@ -636,8 +635,9 @@ class FixtureResponsesGateway:
         except ResponsesGatewayError:
             raise ResponsesGatewayError(
                 "launch_state_unpersisted: provider create may have taken effect; "
-                "the retained launching tombstone forbids automatic relaunch"
+                "the retained launch tombstone or raw identity forbids automatic relaunch"
             ) from None
+        cleanup_complete = self._cleanup_attempt_artifacts(artifact_snapshot)
         if not cleanup_complete:
             raise ResponsesGatewayError(
                 "provider create outcome is ambiguous and attempt artifact cleanup is incomplete"

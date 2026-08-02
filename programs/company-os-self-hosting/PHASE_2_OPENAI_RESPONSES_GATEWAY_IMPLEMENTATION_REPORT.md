@@ -33,9 +33,11 @@ The adapter:
 - persists an owner-only, fsynced launch tombstone before the fixture create
   effect and never retries an ambiguous create without a durable Response ID;
 - converts a one-shot post-effect identity-state write failure into a second
-  best-effort durable `launch_unknown` write, removes only attempt-owned new
-  artifacts, and reports persistent storage failure as
-  `launch_state_unpersisted`; replay still cannot call `create` again;
+  best-effort durable `launch_unknown` write and then removes only
+  attempt-owned new artifacts; on persistent storage failure it preserves
+  attempt evidence and reports `launch_state_unpersisted`, allowing replay from
+  either the prior launch tombstone or a late-committed raw identity without
+  calling `create` again;
 - persists cancellation intent before the fixture cancel effect and never
   repeats an ambiguous cancellation;
 - serializes duplicate commands with an owner-only file lock and rejects
@@ -79,7 +81,7 @@ other provider.
 
 | Lane | Result |
 | --- | --- |
-| Responses gateway adversarial contract | 28/28 passed |
+| Responses gateway adversarial contract | 29/29 passed |
 | Provider-neutral runtime gateway | 10/10 passed |
 | Runtime lifecycle | 14/14 passed |
 | Runtime receipts | 9/9 passed |
@@ -93,9 +95,9 @@ other provider.
 | Python compilation, including the new module and test | passed |
 | `git diff --check` | passed |
 
-Total test evidence: **279 passed and one known distribution-manifest error**
-across 280 executed unit tests. A separate full discovery of the elastic
-Company OS scripts suite passed **244/244** tests after the final crash-window
+Total test evidence: **280 passed and one known distribution-manifest error**
+across 281 executed unit tests. A separate full discovery of the elastic
+Company OS scripts suite passed **245/245** tests after the final crash-window
 repair. The direct command-center surface verification
 requires externally supplied reviewer identity and public-key digest variables;
 they were unavailable in this checkout, so no surface-attestation claim is

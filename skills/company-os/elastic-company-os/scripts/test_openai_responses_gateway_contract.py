@@ -886,10 +886,45 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         entry = retained["attempts"]["manager-attempt-1"]
         self.assertEqual(entry["status"], "launching")
         self.assertIsNone(entry["provider_task_id"])
-        self.assertFalse(any(self.artifacts.iterdir()))
+        self.assertTrue(any(self.artifacts.iterdir()))
 
         recovered = self.gateway().handle(command, transport=transport)
         self.assertEqual(recovered["claims"]["event_type"], "launch_unknown")
+        self.assertEqual(len(transport.create_calls), 1)
+
+    def test_late_commit_failure_preserves_raw_identity_for_exact_recovery(self) -> None:
+        gateway = self.gateway()
+        original_write = gateway._write_state
+        write_calls = 0
+
+        def commit_identity_then_fail_fallback(state: dict[str, Any]) -> None:
+            nonlocal write_calls
+            write_calls += 1
+            if write_calls == 2:
+                original_write(state)
+                raise responses_gateway.ResponsesGatewayError("late fixture state fault")
+            if write_calls >= 3:
+                raise responses_gateway.ResponsesGatewayError("persistent fallback fault")
+            original_write(state)
+
+        gateway._write_state = commit_identity_then_fail_fallback  # type: ignore[method-assign]
+        command = self.signed_command()
+        transport = RecordingTransport(create=self.response_bytes())
+        with self.assertRaisesRegex(
+            responses_gateway.ResponsesGatewayError,
+            "launch_state_unpersisted",
+        ):
+            gateway.handle(command, transport=transport)
+
+        retained = json.loads(self.state_path.read_text(encoding="utf-8"))
+        entry = retained["attempts"]["manager-attempt-1"]
+        self.assertEqual(entry["status"], "raw_retained")
+        self.assertEqual(entry["provider_task_id"], "resp_phase2_1")
+        self.assertTrue(any(self.artifacts.iterdir()))
+
+        recovered = self.gateway().handle(command, transport=transport)
+        self.assertEqual(recovered["claims"]["event_type"], "launch")
+        self.assertEqual(recovered["claims"]["provider_task_id"], "resp_phase2_1")
         self.assertEqual(len(transport.create_calls), 1)
 
     def test_restart_after_crash_boundaries_never_blind_relaunches(self) -> None:

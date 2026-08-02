@@ -135,12 +135,14 @@ A connection/error after `create` but before a valid `response.id` is atomically
 retained is not a retryable launch failure.  It is `launch_unknown`.  The
 adapter cannot infer, search for, or create another task ID.
 
-If the first post-effect identity/raw state write fails, the fixture removes
-only artifacts created after its serialized pre-effect snapshot and makes one
-best-effort durable `launch_unknown` write. If storage also rejects that
-fallback, the call fails with `launch_state_unpersisted`; the already durable
-`launching` tombstone remains a no-relaunch fence, and a later healthy exact
-replay converts it to `launch_unknown` without calling `create`.
+If the first post-effect identity/raw state write fails, the fixture first makes
+one best-effort durable `launch_unknown` write and only after that succeeds
+removes artifacts created after its serialized pre-effect snapshot. If storage
+also rejects the fallback, the call fails with `launch_state_unpersisted` and
+preserves the artifacts: the durable file may contain either the earlier
+`launching` tombstone or the later `raw_retained` identity. A healthy exact
+replay therefore either converts the tombstone to `launch_unknown` or completes
+the retained identity, without calling `create` again.
 
 ## Exact request and response bindings
 
