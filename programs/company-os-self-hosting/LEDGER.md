@@ -3,10 +3,11 @@
 ## Current checkpoint
 
 - Canonical repository: `/Users/preston/Documents/Codex/company-os-core`
-- Distribution version: `0.4.2` candidate; 0.4.1 is installed exactly and the
-  0.4.2 semantic-evidence correction has independent implementation GO
-- Authoritative control revision: 102; paused in Learning, unscheduled,
-  uncertified, lease-free
+- Distribution version: accepted `0.4.3`; the canonical 72-file distribution
+  is installed byte-exact under `/Users/preston/.codex/skills`
+- Canonical release: `a761efab3884555ac352c95cc7378017bbc9415a`
+- Authoritative control revision: 131; program 6 is paused in Reality Audit,
+  unscheduled, uncertified, runtime-disabled, and lease-free
 - Canonical controller: schema 9 / core 2.6
 - Client work: frozen; Chippy is not an implementation target
 - Recurring automation: disabled
@@ -45,20 +46,23 @@
   pair interrupted after one target replacement is completed under the next
   controller lock.
 
-Verification on 2026-08-01 at the 0.4.2 candidate:
+Verification on 2026-08-02 at the accepted 0.4.3 release:
 
-- Repository distribution/bootstrap tests: 4/4 pass.
-- Canonical controller regression: 122/122 pass.
-- Transactional control regression: 23/23 pass.
+- Independent detached release suite: 302/302 pass.
+- Repository release/distribution/surface tests: 29/29 pass.
+- Canonical controller regression: 126/126 pass.
+- Transactional control regression: 37/37 pass.
 - Canonical observation integration: 8/8 pass.
 - Observation-gateway reference: 10/10 pass.
+- Fixture-only Responses gateway: 29/29 pass.
+- Provider-neutral runtime gateway/lifecycle/receipts: 33/33 pass.
 - Luna Execution Fabric validator self-test: pass.
 - Python compilation: pass.
-- Independent semantic-correction review: GO with no remaining P0/P1/P2 after
-  five adversarial repair rounds.
-- Distribution manifest: current for the 0.4.2 candidate; exact installed-copy
-  upgrade remains pending the refreshed independent surface signature and
-  release commit.
+- Exact 21-file Operator Command Center surface: independently signed and
+  verified at 9.22/10 mean, 9.0 minimum, no P0/P1/P2.
+- Distribution manifest: 72/72 exact files, zero missing and zero extras;
+  disposable fresh install and 0.4.2-to-0.4.3 transactional upgrade pass.
+- Canonical installed-copy comparison after the real local upgrade: pass.
 
 ### Phase 1B — transactional control accepted locally
 
@@ -124,23 +128,52 @@ Verification on 2026-08-01 at the 0.4.2 candidate:
   revision 102. Store audit is healthy; quality, certification, and scheduling
   remain deliberately invalidated pending the honest Learning evaluation.
 
+### Phase 1F — stale program-transition authority repaired
+
+- Program 5-to-6 replacement state is mechanically reconstructed from exact
+  revisions 129 and 130 under a positive, versioned runtime archive schema.
+- Unknown or credential-shaped archive material fails before mutation; rejected
+  commands preserve revision, exports, and event history.
+- Independent source, release, and application reviews all returned GO with no
+  P0/P1/P2. One short-lived signed grant authorized only command key
+  `repair-program-transition-v5-v6-r129-r130`.
+- Revision 131 contains exactly one adaptation archive, quality archive,
+  runtime archive, repair record, repair event, and idempotency receipt. It has
+  zero live stale adaptations or scores. The store and readable exports match.
+
+### Phase 2A — provider-neutral lifecycle and fixture gateway accepted locally
+
+- The lifecycle contract defines signed admissions, leases, budgets,
+  cancellation dominance, terminal receipts, restart reconstruction, telemetry,
+  and reconciliation without binding authority to one provider.
+- The OpenAI Responses adapter is deliberately fixture-only. Request and result
+  signing authorities are cryptographically distinct; provider-shaped secrets,
+  unknown fields, invalid usage, duplicate task identity, and unverified
+  cancellation are rejected.
+- Launch identity is protected by a durable no-relaunch fence. Adversarial tests
+  cover pre-commit, post-replace/pre-fsync, one-shot fallback, persistent
+  fallback, and artifact-cleanup failures without a second provider create.
+- This is source and disposable-fixture proof only. It is not live OpenAI,
+  GPT-5.6 Luna, protected-launcher, provider-cost, or production evidence.
+
 ## Not yet implemented
 
-- Provider-driven lifecycle state beyond immutable observation retention.
-- Provider launch or provider-observed identity.
+- A network-capable provider adapter and protected launcher.
+- Provider launch or provider-observed identity in a real account.
 - Real Sol manager or GPT-5.6 Luna worker execution.
-- Heartbeats, terminal receipts, cancellation propagation, telemetry, or
-  reconciliation from a provider.
+- Controller integration that advances one real provider lifecycle through
+  heartbeats, terminal receipt, cancellation, telemetry, and reconciliation.
 - Self-hosted accepted capability or adaptation cycle.
-- Protected launcher, external issuer deployment, or recurring scheduling.
+- Dedicated spend-limited provider credential, external issuer deployment, or
+  recurring scheduling.
 
 ## Exact next action
 
-Refresh the independent signed product-surface attestation for the accepted
-0.4.2 bytes, commit and verify the release from clean source, then
-transactionally upgrade the canonical installed skills from exact 0.4.1.
-Afterward, record the failed Learning scores and independently reviewed
-runtime-first adaptation. Integrate the separately reviewed Phase 2 lifecycle
-only after its final GO and prove one authenticated, budgeted, cancellable
-Sol-to-Luna job before any scheduler or Chippy work. Production and customer
-systems remain frozen.
+Record one decision-grade, independently challenged Program 6 Reality Audit
+artifact, then advance only into Intelligence. Intelligence must resolve the
+current OpenAI Responses/provider identity, protected-launcher design, dedicated
+credential and spend boundary, controller integration seam, and one exact
+minimal live-job acceptance matrix. Only then implement and prove one
+authenticated, budgeted, cancellable Sol-to-Luna job. Recursive self-hosting,
+multi-project isolation, protected scheduling, and Chippy onboarding remain
+later gated phases. Production and customer systems remain frozen.
