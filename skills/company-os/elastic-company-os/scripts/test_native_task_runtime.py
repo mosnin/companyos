@@ -261,6 +261,113 @@ class NativeTaskRuntimeTests(unittest.TestCase):
             observed["cancellation"]["hard_cancellation_status"], "acknowledged"
         )
 
+    def test_cancellation_evidence_matrix_direct_transition_is_atomic(self):
+        pairs = (
+            ("acknowledged", "acknowledged", True, "cancel_acknowledged"),
+            ("acknowledged", "not_acknowledged", False, None),
+            ("refused", "acknowledged", False, None),
+            ("refused", "not_acknowledged", True, "cancel_requested"),
+            ("failed", "acknowledged", False, None),
+            ("failed", "not_acknowledged", True, "cancel_requested"),
+        )
+        for hard_status, acknowledgement_status, legal, expected_status in pairs:
+            with self.subTest(hard_status=hard_status, acknowledgement_status=acknowledgement_status):
+                state = runtime.request_cancellation(
+                    self.running(), reason="operator stop", requested_by="master"
+                )
+                before = deepcopy(state)
+                if not legal:
+                    with self.assertRaises(runtime.RuntimeStateError):
+                        runtime.apply_event(
+                            state,
+                            "hard_cancellation_observed",
+                            source="host_observation",
+                            tool="hard_cancel",
+                            task_id="task-1",
+                            thread_id="thread-1",
+                            hard_status=hard_status,
+                            acknowledgement_status=acknowledgement_status,
+                        )
+                    self.assertEqual(state, before)
+                    continue
+                observed = runtime.apply_event(
+                    state,
+                    "hard_cancellation_observed",
+                    source="host_observation",
+                    tool="hard_cancel",
+                    task_id="task-1",
+                    thread_id="thread-1",
+                    hard_status=hard_status,
+                    acknowledgement_status=acknowledgement_status,
+                )
+                self.assertEqual(observed["status"], expected_status)
+                self.assertEqual(
+                    (observed["cancellation"]["hard_cancellation_status"],
+                     observed["cancellation"]["acknowledgement_status"]),
+                    (hard_status, acknowledgement_status),
+                )
+                self.assertEqual(runtime.audit_state(observed), [])
+
+    def test_cancellation_evidence_matrix_replay_rejects_illegal_and_state_only_injection(self):
+        legal = runtime.apply_event(
+            runtime.request_cancellation(
+                self.running(), reason="operator stop", requested_by="master"
+            ),
+            "hard_cancellation_observed",
+            source="host_observation",
+            tool="hard_cancel",
+            task_id="task-1",
+            thread_id="thread-1",
+            hard_status="refused",
+            acknowledgement_status="not_acknowledged",
+        )
+        injected_event = deepcopy(legal)
+        injected_event["events"][-1]["payload"]["acknowledgement_status"] = "acknowledged"
+        self.reseal_events(injected_event)
+        self.assertTrue(runtime.audit_state(injected_event))
+        with self.assertRaises(runtime.RuntimeStateError):
+            runtime.record_event(
+                injected_event,
+                "hard_cancellation_observed",
+                payload=injected_event["events"][-1]["payload"],
+            )
+
+        injected_state = deepcopy(legal)
+        injected_state["cancellation"]["acknowledgement_status"] = "acknowledged"
+        self.assertTrue(runtime.audit_state(injected_state))
+
+    def test_acknowledged_cancellation_can_reach_terminal_cancelled(self):
+        observed = runtime.apply_event(
+            runtime.request_cancellation(
+                self.running(), reason="operator stop", requested_by="master"
+            ),
+            "hard_cancellation_observed",
+            source="host_observation",
+            tool="hard_cancel",
+            task_id="task-1",
+            thread_id="thread-1",
+            hard_status="acknowledged",
+            acknowledgement_status="acknowledged",
+        )
+        terminal = runtime.apply_event(
+            observed,
+            "terminal",
+            source="host_observation",
+            tool="read_task",
+            task_id="task-1",
+            thread_id="thread-1",
+            status="cancelled",
+        )
+        self.assertEqual(terminal["status"], "cancelled")
+        self.assertEqual(
+            terminal["cancellation"]["hard_cancellation_status"], "acknowledged"
+        )
+        self.assertEqual(
+            terminal["cancellation"]["acknowledgement_status"], "acknowledged"
+        )
+        self.assertIsNotNone(terminal["receipt"])
+        self.assertEqual(runtime.audit_state(terminal), [])
+
     def test_prelaunch_cancel_only_when_dispatch_not_claimed(self):
         requested = runtime.request_cancellation(
             self.admitted(), reason="operator stop", requested_by="master"

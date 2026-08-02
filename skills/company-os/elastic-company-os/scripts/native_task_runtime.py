@@ -34,10 +34,22 @@ ACTIVE_STATUSES = {
 }
 HARD_CANCELLATION_STATUSES = {"acknowledged", "refused", "failed"}
 ACKNOWLEDGEMENT_STATUSES = {"acknowledged", "not_acknowledged"}
+LEGAL_CANCELLATION_EVIDENCE = {
+    ("acknowledged", "acknowledged"),
+    ("refused", "not_acknowledged"),
+    ("failed", "not_acknowledged"),
+}
 
 
 class RuntimeStateError(ValueError):
     """Raised when a native lifecycle transition fails closed."""
+
+
+def _validate_cancellation_evidence(hard_status: Any, acknowledgement_status: Any) -> None:
+    if (hard_status, acknowledgement_status) not in LEGAL_CANCELLATION_EVIDENCE:
+        raise RuntimeStateError(
+            "hard cancellation and acknowledgement statuses form an illegal pair"
+        )
 
 
 def canonical_digest(value: Any) -> str:
@@ -148,6 +160,9 @@ def _event_payload(state: Mapping[str, Any], event: str, payload: Mapping[str, A
                 raise RuntimeStateError("hard cancellation status is invalid")
             if normalized.get("acknowledgement_status") not in ACKNOWLEDGEMENT_STATUSES:
                 raise RuntimeStateError("cancellation acknowledgement status is invalid")
+            _validate_cancellation_evidence(
+                normalized.get("hard_status"), normalized.get("acknowledgement_status")
+            )
         if event == "terminal":
             if normalized.get("status") not in TERMINAL_STATUSES - {"cancelled_before_launch"}:
                 raise RuntimeStateError("terminal status is invalid")
@@ -353,11 +368,16 @@ def _reduce_event(
     elif event == "hard_cancellation_observed":
         if out["cancellation"]["desired_intent"] != "cancel" or out.get("native_identity") is None:
             raise RuntimeStateError("hard cancellation observation is out of order")
-        out["cancellation"]["hard_cancellation_status"] = normalized["hard_status"]
-        out["cancellation"]["acknowledgement_status"] = normalized[
-            "acknowledgement_status"
-        ]
-        out["status"] = "cancel_acknowledged"
+        hard_status = normalized["hard_status"]
+        acknowledgement_status = normalized["acknowledgement_status"]
+        _validate_cancellation_evidence(hard_status, acknowledgement_status)
+        out["cancellation"]["hard_cancellation_status"] = hard_status
+        out["cancellation"]["acknowledgement_status"] = acknowledgement_status
+        out["status"] = (
+            "cancel_acknowledged"
+            if (hard_status, acknowledgement_status) == ("acknowledged", "acknowledged")
+            else "cancel_requested"
+        )
     elif event == "cancelled_before_launch":
         if (
             out["cancellation"]["desired_intent"] != "cancel"
@@ -756,6 +776,24 @@ def audit_state(state: Mapping[str, Any]) -> list[str]:
             or len(cancellation_dispatch.get("payload_sha256")) != 64
         ):
             errors.append("native runtime cancellation dispatch is invalid")
+        hard_status = cancellation.get("hard_cancellation_status")
+        acknowledgement_status = cancellation.get("acknowledgement_status")
+        if hard_status == "unavailable" or acknowledgement_status == "unavailable":
+            if hard_status != "unavailable" or acknowledgement_status != "unavailable":
+                errors.append("native runtime cancellation evidence is incomplete")
+        else:
+            try:
+                _validate_cancellation_evidence(hard_status, acknowledgement_status)
+            except RuntimeStateError:
+                errors.append("native runtime cancellation evidence pair is invalid")
+            if state.get("status") == "cancel_acknowledged" and (
+                hard_status, acknowledgement_status
+            ) != ("acknowledged", "acknowledged"):
+                errors.append("native runtime cancellation acknowledgement is contradictory")
+            if state.get("status") not in {"cancel_acknowledged", "cancelled"} and (
+                hard_status, acknowledgement_status
+            ) == ("acknowledged", "acknowledged"):
+                errors.append("native runtime cancellation acknowledgement is not projected")
     authority_history = state.get("authority_history")
     if not isinstance(authority_history, list) or any(
         not isinstance(item, Mapping)
