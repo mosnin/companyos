@@ -4,13 +4,14 @@
 
 - Contract: `company-os.manager-role.v2`
 - Disposition: `rework_complete_at_verification_barrier`
-- Program / definition: `company-os-self-hosting` v6 / definition v1
+- Program / definition: `company-os-self-hosting` v6 / definition v2
 - Cycle / manager: `native-runtime-control-cycle-1` / `manager-native-runtime-control-1`
 - Master task: `019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3`
 - Outcome digest: `73391b5cd8f8582f6108b0152986526a2c5360b89100d64359cd3a178675c1d8`
 - Rejected predecessor: `6a038b4fb2ff0166d6508494da749b5fe7ef52fe`
 - Independent REWORK review: task `019fc26b-1deb-7070-aa43-f2b893982fe8` (`0 P0`, `2 P1`, `3 P2`)
-- Exact source commit under test: `315924018da7a7684787c79922dd3fd4887209c0`
+- Accepted runtime-source commit: `315924018da7a7684787c79922dd3fd4887209c0`
+- Exact authority-repair commit under test: `60211bd6962b733344c0c789272e96dc5db18a28`
 - Branch: `codex/native-runtime-control`
 - Status: **stopped at verification; not independently accepted, integrated, installed, deployed, or enabled**
 
@@ -61,31 +62,42 @@ replay and authority bindings cannot be represented losslessly. The required
 action is to retain the v2 reader or use a later, separately authorized,
 lossless migration. No downgrade transformation is claimed or performed.
 
-### Prospective scope amendment
+### Canonical replacement charter authority
 
-The master-authorized integration-test correction is represented by:
+The independent re-review accepted the lifecycle/source logic but rejected the
+custom scope-amendment record because its signature preimage was not the
+standard authorization preimage and charter v1 never owned the integration
+test. That custom decision and evidence were deleted, so no project-local
+verifier can treat them as active.
 
-- evidence: `artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.scope-amendment.v1.json`, SHA-256 `9e8cd5af40d19e555633c65cf61761e7aead39dbfbd65b082423f079b82fc1b7`
-- decision: `artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.scope-amendment.v1.json`, SHA-256 `19786d87c49795d50f57438581f26b34d595e2b8d5f34fa2edfa20957dec7c8e`
+The replacement authority is:
 
-The record binds the exact master directive, charter bytes and definition,
-accepted design evidence, rejected commit, review task, program lineage, and
-the one added test path. It states an actual issuance time, is expressly
-prospective for the next candidate, and does not retroactively authorize the
-rejected commit. Its HMAC is labeled and tested only as offline repository
-fixture integrity, not live identity authentication. Every original
-prohibition remains present.
+- mission charter: `programs/company-os-self-hosting/native-runtime-control/mission-charter.v7.json`, charter v2 / definition v2, byte SHA-256 `8f48f12777b6a8e0ec04894f15ee01b488fbe34af6844f8ef53b326003f7b267`
+- definition digest: `62f5eaf0f428934b8be93e9f66ef85478477fe52bbeaa5989090e83319fe95c6`
+- phase evidence: `artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.charter.v2.json`, byte SHA-256 `24a835d8b76c56366fdb52c8993ab1ea723980739259fe314f68cbb5f7aba64e`
+- standard decision: `artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.charter-2.v1.json`, byte SHA-256 `11ed29eb85e18b26e9e4848ca7caa50fca516821a52fce1b97d4827714c6af7c`, canonical SHA-256 `f50866dcfdf6edaff44b18889f811cade604e4507032839f6575b1a3445e5410`
+- canonical fixture signature: `4fc0b0a4d3867b4cff08825b78e1c8bac476d23a7a5dc6eb89e5991b39eceb24`
+
+Charter v2 explicitly owns
+`skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py`.
+Its definition and byte-bound phase evidence retain charter v1 byte digest
+`b15d0cd4dbc64a08b6052d4fbffca85ebbf3ec0a3443ecb1d9745cbda2933f30`
+and definition digest
+`14036ed6823c8da9ebb3684aa3fc06f453290b8b9966ad928db7aee991530f9a`.
+The authorization is a standard `company-os.authorization-decision.v1`; its
+signature is recomputed by `scripts/validate_role_skills.py` over the canonical
+preimage with authentication reduced to only `scheme` and `key_id`. This is
+offline repository-fixture integrity, not live identity authentication.
 
 ## Exact verification evidence
 
-All passing checks below were rerun against exact source commit
-`315924018da7a7684787c79922dd3fd4887209c0` with bytecode writing disabled.
+All passing checks below were rerun against exact authority commit
+`60211bd6962b733344c0c789272e96dc5db18a28` with bytecode writing disabled.
 
 | Check | Exact result | Evidence boundary |
 |---|---:|---|
-| Native state-machine focused suite | 16 / 16 passed | Pure local replay, adversarial history, authority, cancellation, schema boundary |
-| Transactional store focused suite | 38 / 38 passed | Local SQLite crash, CAS, idempotency, outbox integrity |
-| Observation integration focused suite | 8 / 8 passed | Local transactional observation ingestion and retry |
+| Canonical role validator | passed, zero errors | Role assets and canonical authorization implementation |
+| Replacement-charter focused authority test | 1 / 1 passed | Exact charter, decision, evidence, scope and removed-custom-record checks |
 | Complete packaged script discovery | 306 / 306 passed | Full relevant packaged regression, including controller and all negative paths |
 | Reference contract discovery | 10 / 10 passed | Local reference contracts |
 | Diff integrity | passed | `git diff --check` clean before source commit |
@@ -113,7 +125,7 @@ after independent source acceptance. This manager did not modify those files.
 - `company_os_controller.py`: `cc4f0ccb20942982d29eef39dc75f12f25b5224c08587d57d7870bbfb23ec7c4`
 - `control_store.py`: `e4361ecb2eb07b5a7f6557e852065ca10a9fbacfff6386f157f68464a7179aac`
 - `native_task_runtime.py`: `2c50b4541b491f4fd64b04704d4d4652bb44dd0b094f9d0096ca88a5c2d48956`
-- `test_company_os_controller.py`: `cdd9d872887d83865acdc510dd0dcdcb368f68a870f50a9d624981e1a5142510`
+- `test_company_os_controller.py`: `120b6f34ee9f0bc6af675112f3f491cadf1bfd796c492acac68222a5accece31`
 - `test_control_store.py`: `fff4cec7effd48d1d623e924f586221952a7ac2bc566dd408703d6b0a9de4e90`
 - `test_native_task_runtime.py`: `1bfcd665b6c05846b0fe15eda34592723107845c7452c33fa7098b642fc5bab1`
 - `test_runtime_observation_integration.py`: `c7ba5f91ae7df0ba0fc31f7ec00eb0c885e38b07981616160335d9943701f01e`
@@ -130,8 +142,8 @@ after independent source acceptance. This manager did not modify those files.
 
 ## Unresolved gates and next action
 
-The next action is an independent Sol source review of commit
-`315924018da7a7684787c79922dd3fd4887209c0` and this report. Acceptance still
+The next action is an independent Sol authority/source review of commit
+`60211bd6962b733344c0c789272e96dc5db18a28` and this report. Acceptance still
 requires no P0/P1 findings and the charter score thresholds. Only after that
 source acceptance may the master authorize integration-owned version,
 manifest, signed-surface, installation/parity, or runtime work.
