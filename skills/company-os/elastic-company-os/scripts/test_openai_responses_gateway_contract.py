@@ -297,6 +297,13 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         claims.update(changes or {})
         return {"claims": claims, "signature": self.sign(claims, private or self.request_private)}
 
+    def rebound_request(self, request: dict[str, Any]) -> dict[str, Any]:
+        request = deepcopy(request)
+        request["request_digest"] = sha256_json({
+            key: value for key, value in request.items() if key != "request_digest"
+        })
+        return request
+
     def response_bytes(
         self,
         *,
@@ -355,6 +362,18 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         self.assertEqual(transport.create_calls, [])
         self.assertFalse(self.state_path.exists())
 
+    def test_signed_but_non_admitted_request_is_rejected_before_effect(self) -> None:
+        request = deepcopy(self.launch_request)
+        request["attempt"]["capabilities"] = ["emit_artifact", "read_project", "write_project"]
+        request = self.rebound_request(request)
+        transport = RecordingTransport(create=self.response_bytes())
+        self.assert_gateway_error(lambda: self.gateway().handle(
+            self.signed_command(request),
+            transport=transport,
+        ))
+        self.assertEqual(transport.create_calls, [])
+        self.assertFalse(self.state_path.exists())
+
     def test_socket_and_filesystem_boundary_is_owner_only_and_rejects_symlink_or_path_escape(self) -> None:
         command = self.signed_command()
         transport = RecordingTransport(create=self.response_bytes())
@@ -375,6 +394,9 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             now=self.now,
         )
         self.assert_gateway_error(lambda: invalid.handle(command, transport=transport))
+        os.chmod(self.gateway_private, 0o644)
+        self.assert_gateway_error(lambda: self.gateway().handle(command, transport=transport))
+        self.assertEqual(transport.create_calls, [])
 
     def test_launch_persists_tombstone_before_exact_no_tool_store_false_request(self) -> None:
         def assert_tombstone(body: bytes) -> None:
@@ -452,6 +474,54 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
                 )
                 self.assert_gateway_error(lambda: gateway.handle(self.signed_command(), transport=transport))
 
+    def test_terminal_create_retains_task_and_exact_usage_without_inventing_cost(self) -> None:
+        raw = self.response_bytes(status="completed")
+        transport = RecordingTransport(create=raw)
+        command = self.signed_command()
+        envelope = self.gateway().handle(command, transport=transport)
+        self.assertEqual(envelope["claims"]["event_type"], "launch")
+        self.assertEqual(envelope["claims"]["provider_task_id"], "resp_phase2_1")
+        verified = runtime_gateway.verify_result(
+            envelope,
+            request=self.launch_request,
+            keyring_path=self.gateway_keyring,
+            artifact_root=self.artifacts,
+            now=self.now,
+        )
+        payload = verified["raw"]["payload"]
+        self.assertEqual(payload["provider_status"], "completed")
+        self.assertEqual(payload["provider_usage"], json.loads(raw)["usage"])
+        self.assertEqual(payload["cost_status"], "unavailable")
+        self.assertIsNone(payload["usage"])
+        self.assertNotIn("cost_usd", payload)
+        self.assertEqual(self.gateway().handle(command, transport=transport), envelope)
+        self.assertEqual(len(transport.create_calls), 1)
+        attempted = deepcopy(self.attempt)
+        attempted["lifecycle"] = {
+            **runtime_lifecycle.empty_lifecycle(),
+            "status": "launched",
+            "provider_task_id": "resp_phase2_1",
+        }
+        observe = runtime_gateway.build_request(
+            attempted,
+            manifest=self.manifest,
+            operation="observe",
+            current_lease_fence={**attempted["lease_fence"], "lease_id": "lease-terminal-create", "generation": 2},
+            now=self.now,
+        )
+        observer = RecordingTransport(create=b"unused", retrieve=self.response_bytes(response_id="resp_forbidden_retrieve"))
+        terminal = self.gateway().handle(self.signed_command(observe), transport=observer)
+        self.assertEqual(observer.retrieve_calls, [])
+        self.assertEqual(terminal["claims"]["event_type"], "terminal")
+        terminal_record = runtime_gateway.verify_result(
+            terminal,
+            request=observe,
+            keyring_path=self.gateway_keyring,
+            artifact_root=self.artifacts,
+            now=self.now,
+        )
+        self.assertEqual(terminal_record["raw"]["payload"]["provider_status"], "completed")
+
     def test_model_mismatch_fails_closed_without_a_signed_success_or_provider_binding(self) -> None:
         transport = RecordingTransport(create=self.response_bytes(model="gpt-5.6-terra"))
         self.assert_gateway_error(lambda: self.gateway().handle(self.signed_command(), transport=transport))
@@ -524,6 +594,28 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         self.assertEqual(recovered["claims"]["provider_task_id"], "resp_phase2_1")
         self.assertEqual(recovery_transport.create_calls, [])
 
+        tamper_state = "tamper-retained-state.json"
+        tamper_artifacts = "tamper-retained-artifacts"
+        tamper_transport = RecordingTransport(
+            create=self.response_bytes(),
+            fixture_fault_after_raw_retain=SimulatedProcessCrash(),
+        )
+        with self.assertRaises(SimulatedProcessCrash):
+            self.gateway(state_name=tamper_state, artifact_name=tamper_artifacts).handle(
+                command,
+                transport=tamper_transport,
+            )
+        retained = json.loads((self.root / tamper_state).read_text(encoding="utf-8"))
+        entry = retained["attempts"][self.attempt["attempt_id"]]
+        normalized = self.root / tamper_artifacts / entry["raw_retained"]["raw_path"]
+        normalized.write_bytes(normalized.read_bytes() + b" ")
+        no_retry = RecordingTransport(create=self.response_bytes(response_id="resp_forbidden_retry"))
+        self.assert_gateway_error(lambda: self.gateway(
+            state_name=tamper_state,
+            artifact_name=tamper_artifacts,
+        ).handle(command, transport=no_retry))
+        self.assertEqual(no_retry.create_calls, [])
+
     def test_query_poll_and_cancel_are_idempotent_and_bind_the_single_retained_task(self) -> None:
         launch_transport = RecordingTransport(create=self.response_bytes())
         launch = self.gateway().handle(self.signed_command(), transport=launch_transport)
@@ -587,6 +679,128 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         self.assertEqual(late_record["raw"]["payload"]["provider_status"], "completed")
         self.assertEqual(late_record["raw"]["payload"]["status"], "succeeded")
         self.assertEqual(late_record["claims"]["event_type"], "terminal")
+        cancelled_attempt = deepcopy(attempted)
+        cancelled_attempt["lifecycle"] = {
+            **runtime_lifecycle.empty_lifecycle(),
+            "status": "cancelled",
+            "provider_task_id": "resp_phase2_1",
+            "terminal_status": "cancelled",
+            "cancellation": {"grant": {"claims": {"action": "cancel-runtime"}}},
+        }
+        attestation = self.gateway().attest_receipt(
+            attempt=cancelled_attempt,
+            provider_task_id="resp_phase2_1",
+            receipt_payload_hash="e" * 64,
+        )
+        verified_attestation = runtime_gateway.verify_receipt_attestation(
+            attestation,
+            attempt=cancelled_attempt,
+            keyring_path=self.gateway_keyring,
+            now=self.now,
+        )
+        self.assertEqual(verified_attestation["claims"]["gateway_key_id"], "responses-gateway-1")
+        provider_raw = self.artifacts / late_record["raw"]["payload"]["provider_raw_artifact_path"]
+        provider_raw.write_bytes(provider_raw.read_bytes() + b" ")
+        self.assert_gateway_error(lambda: self.gateway().attest_receipt(
+            attempt=cancelled_attempt,
+            provider_task_id="resp_phase2_1",
+            receipt_payload_hash="f" * 64,
+        ))
+
+        caller_lies = deepcopy(self.attempt)
+        caller_lies["lifecycle"] = {
+            **runtime_lifecycle.empty_lifecycle(),
+            "status": "succeeded",
+            "provider_task_id": "resp_phase2_1",
+            "terminal_status": "succeeded",
+        }
+        self.assert_gateway_error(lambda: self.gateway().attest_receipt(
+            attempt=caller_lies,
+            provider_task_id="resp_phase2_1",
+            receipt_payload_hash="d" * 64,
+        ))
+
+    def test_cancel_ambiguity_is_retained_and_never_blindly_repeated(self) -> None:
+        self.gateway().handle(
+            self.signed_command(),
+            transport=RecordingTransport(create=self.response_bytes()),
+        )
+        attempted = deepcopy(self.attempt)
+        attempted["lifecycle"] = {
+            **runtime_lifecycle.empty_lifecycle(),
+            "status": "cancel_requested",
+            "provider_task_id": "resp_phase2_1",
+        }
+        cancel = runtime_gateway.build_request(
+            attempted,
+            manifest=self.manifest,
+            operation="cancel",
+            current_lease_fence={**attempted["lease_fence"], "lease_id": "lease-cancel-unknown", "generation": 2},
+            now=self.now,
+        )
+        command = self.signed_command(cancel)
+        transport = RecordingTransport(create=b"unused", cancel=ConnectionError("ambiguous cancel"))
+        self.assert_gateway_error(lambda: self.gateway().handle(command, transport=transport))
+        self.assert_gateway_error(lambda: self.gateway().handle(command, transport=transport))
+        self.assertEqual(transport.cancel_calls, ["resp_phase2_1"])
+
+        malformed_state = "cancel-malformed-state.json"
+        malformed_artifacts = "cancel-malformed-artifacts"
+        malformed_gateway = self.gateway(
+            state_name=malformed_state,
+            artifact_name=malformed_artifacts,
+        )
+        malformed_gateway.handle(
+            self.signed_command(),
+            transport=RecordingTransport(create=self.response_bytes()),
+        )
+        malformed = RecordingTransport(create=b"unused", cancel=b"not-json")
+        self.assert_gateway_error(lambda: malformed_gateway.handle(command, transport=malformed))
+        self.assert_gateway_error(lambda: malformed_gateway.handle(command, transport=malformed))
+        self.assertEqual(malformed.cancel_calls, ["resp_phase2_1"])
+
+    def test_provider_timestamp_beyond_allowed_clock_skew_fails_before_signed_success(self) -> None:
+        payload = json.loads(self.response_bytes())
+        payload["created_at"] = 1785672061
+        transport = RecordingTransport(create=canonical_json(payload).encode("utf-8"))
+        self.assert_gateway_error(lambda: self.gateway().handle(
+            self.signed_command(),
+            transport=transport,
+        ))
+        self.assertEqual(len(transport.create_calls), 1)
+
+    def test_terminal_cancel_reply_is_terminal_not_a_contradictory_ack(self) -> None:
+        self.gateway().handle(
+            self.signed_command(),
+            transport=RecordingTransport(create=self.response_bytes()),
+        )
+        attempted = deepcopy(self.attempt)
+        attempted["lifecycle"] = {
+            **runtime_lifecycle.empty_lifecycle(),
+            "status": "cancel_requested",
+            "provider_task_id": "resp_phase2_1",
+        }
+        cancel = runtime_gateway.build_request(
+            attempted,
+            manifest=self.manifest,
+            operation="cancel",
+            current_lease_fence={**attempted["lease_fence"], "lease_id": "lease-terminal-cancel", "generation": 2},
+            now=self.now,
+        )
+        result = self.gateway().handle(
+            self.signed_command(cancel),
+            transport=RecordingTransport(create=b"unused", cancel=self.response_bytes(status="cancelled")),
+        )
+        self.assertEqual(result["claims"]["event_type"], "terminal")
+        verified = runtime_gateway.verify_result(
+            result,
+            request=cancel,
+            keyring_path=self.gateway_keyring,
+            artifact_root=self.artifacts,
+            now=self.now,
+        )
+        self.assertEqual(verified["raw"]["payload"]["provider_status"], "cancelled")
+        self.assertEqual(verified["raw"]["payload"]["status"], "cancelled")
 
     def test_gateway_signs_compatible_receipt_attestation_with_distinct_key(self) -> None:
         transport = RecordingTransport(create=self.response_bytes())
@@ -609,18 +823,27 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             self.signed_command(observe),
             transport=RecordingTransport(create=b"unused", retrieve=self.response_bytes(status="completed")),
         )
-        attestation = self.gateway().attest_receipt(
-            attempt=self.attempt,
+        completed = deepcopy(self.attempt)
+        completed["lifecycle"] = {
+            **runtime_lifecycle.empty_lifecycle(),
+            "status": "succeeded",
+            "provider_task_id": "resp_phase2_1",
+            "terminal_status": "succeeded",
+        }
+        # Exact provider token usage is retained, but dollar cost is not supplied
+        # by Responses. Successful completion attribution remains fail-closed.
+        self.assert_gateway_error(lambda: self.gateway().attest_receipt(
+            attempt=completed,
             provider_task_id="resp_phase2_1",
             receipt_payload_hash="c" * 64,
-        )
-        verified = runtime_gateway.verify_receipt_attestation(
-            attestation,
-            attempt={**self.attempt, "lifecycle": {"provider_task_id": "resp_phase2_1"}},
-            keyring_path=self.gateway_keyring,
-            now=self.now,
-        )
-        self.assertEqual(verified["claims"]["gateway_key_id"], "responses-gateway-1")
+        ))
+        wrong_identity = deepcopy(completed)
+        wrong_identity["project_id"] = "other-project"
+        self.assert_gateway_error(lambda: self.gateway().attest_receipt(
+            attempt=wrong_identity,
+            provider_task_id="resp_phase2_1",
+            receipt_payload_hash="c" * 64,
+        ))
         self.assertNotEqual(self.request_public.read_bytes(), self.gateway_public.read_bytes())
 
     def test_raw_artifact_tamper_is_rejected_by_existing_verifier(self) -> None:

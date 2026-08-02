@@ -189,6 +189,16 @@ receipt payload hash, key ID, nonce, issue time, and expiry required by
 gateway has retained exact terminal raw bytes with exact terminal usage for
 that task.
 
+The Responses object supplies token usage, not authoritative dollar cost. The
+adapter therefore retains the exact provider `usage` object as
+`provider_usage`, emits `cost_status: unavailable`, and emits no numeric
+`cost_usd`. It must never invent `$0`. A successful completion receipt remains
+NO-GO until a separate signed, versioned pricing attestation or provider
+billing record supplies conservative cost. This phase may attest a cancelled
+terminal receipt only when the caller presents the exact admitted identity and
+an authoritative cancelled lifecycle that agrees with the retained cancel
+intent. A caller-supplied success state can never override cancellation.
+
 ```python
 gateway.attest_receipt(
     *,
@@ -216,6 +226,8 @@ byte-equivalent unless their explicitly required tombstone is the transition:
   restart;
 - duplicate poll/cancel, late completion after cancellation, cancellation
   acknowledgement mismatch, and cancellation replay;
+- ambiguous cancel after a possible provider effect, retained as
+  `cancel_unknown` with no automatic repeated cancel;
 - gateway signing-key rotation, retired/unknown key, request-key substitution,
   signature tamper, expiry, nonce replay, and clock skew.
 
