@@ -77,8 +77,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
-      "sha256": "2c50b4541b491f4fd64b04704d4d4652bb44dd0b094f9d0096ca88a5c2d48956",
-      "size": 37225
+      "sha256": "c5b1cd8bd059462b98fd0901f895b45c84eaa88047cae527795f3cfc0dd70f80",
+      "size": 39295
     },
     {
       "path": "company-os/elastic-company-os/scripts/openai_responses_gateway.py",
@@ -112,18 +112,18 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "120b6f34ee9f0bc6af675112f3f491cadf1bfd796c492acac68222a5accece31",
-      "size": 219151
+      "sha256": "34b444d9131d02d7aa7840d3666805e2dfd061addd14642826b29c2ea2ea35b3",
+      "size": 225659
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "fff4cec7effd48d1d623e924f586221952a7ac2bc566dd408703d6b0a9de4e90",
-      "size": 70971
+      "sha256": "32b49e5cb396028b7eadb51de89926fed93b6038c4b27b7c719d388353c17712",
+      "size": 74611
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",
-      "sha256": "1bfcd665b6c05846b0fe15eda34592723107845c7452c33fa7098b642fc5bab1",
-      "size": 16247
+      "sha256": "f481d023263a56bcaef00a35eacf2a630e2d45c7b13e52115bce14e384fa7008",
+      "size": 21742
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_openai_responses_gateway_contract.py",
@@ -147,8 +147,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
-      "sha256": "c7ba5f91ae7df0ba0fc31f7ec00eb0c885e38b07981616160335d9943701f01e",
-      "size": 15657
+      "sha256": "329b4a9d44ead7b136ed7d5d0b991d3bbab242800f0987e6ca4e68b192f12fbc",
+      "size": 19344
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_runtime_receipts.py",
