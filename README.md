@@ -127,8 +127,8 @@ python3 scripts/distribution.py recover-install --target /absolute/skills/root
 ```bash
 python3 scripts/distribution.py install \
   --target /absolute/skills/root \
-  --prior-manifest /absolute/accepted-0.3.1/distribution-manifest.json \
-  --prior-version 0.3.1
+  --prior-manifest /absolute/accepted-0.5.0/distribution-manifest.json \
+  --prior-version 0.5.0
 ```
 
 ## Operator command center

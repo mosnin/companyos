@@ -3,10 +3,15 @@
 ## Current checkpoint
 
 - Canonical repository: `/Users/preston/Documents/Codex/company-os-core`
-- Distribution version: signed release candidate `0.5.1`; globally installed
-  release remains manifest-backed `0.5.0` pending exact-candidate review and
-  transactional upgrade
-- Accepted logic source: runtime `315924018da7a7684787c79922dd3fd4887209c0`;
+- Reviewed 0.5.1 release worktree: `/Users/preston/Documents/Codex/company-os-native-runtime-control`
+  on branch `codex/native-runtime-control`; manifest-exact implementation
+  `1e489780e6587a38c36e6e4bb38042dd8ed03835` and verification carrier
+  `a79fb8c37af674cbdd0609d5bc349145aebe5c8d` remain unintegrated and unsigned
+- Distribution source version: manifest-exact `0.5.1` candidate; its fresh
+  external signature remains pending. The globally installed release remains
+  manifest-backed `0.5.0` pending exact-candidate review and transactional
+  upgrade
+- Installed signed baseline logic source: runtime `315924018da7a7684787c79922dd3fd4887209c0`;
   authority `60211bd6962b733344c0c789272e96dc5db18a28`; signed-surface carrier
   `17420a836ea11b0c42faef9c0f08eaba9ad53019`
 - Authoritative control revision: 131; program 6 is paused in Reality Audit,
@@ -17,8 +22,10 @@
 - Production or customer effects: none
 - Program 6 direction: Codex-native task fabric; external provider/API gateway
   implementation retired from the active roadmap
-- Release state: 0.5.1 manifest and signed surface integrate cleanly; global
-  installation, live native runtime, and scheduler remain NO-GO
+- Release state: the manifest-exact 0.5.1 cancellation repair is locally
+  verified; the prior signed surface is stale for this candidate. Fresh
+  independent signing, source integration, global installation, live native
+  runtime, and scheduler remain NO-GO
 
 ## Accepted evidence
 
