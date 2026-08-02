@@ -6,11 +6,12 @@
 - Reviewed 0.5.1 release worktree: `/Users/preston/Documents/Codex/company-os-native-runtime-control`
   on branch `codex/native-runtime-control`; manifest-exact implementation
   `1e489780e6587a38c36e6e4bb38042dd8ed03835` and verification carrier
-  `a79fb8c37af674cbdd0609d5bc349145aebe5c8d` remain unintegrated and unsigned
-- Distribution source version: manifest-exact `0.5.1` candidate; its fresh
-  external signature remains pending. The globally installed release remains
-  manifest-backed `0.5.0` pending exact-candidate review and transactional
-  upgrade
+  `a79fb8c37af674cbdd0609d5bc349145aebe5c8d` remain unintegrated into canonical
+  `main`; the repaired exact 21-file surface is freshly signed at carrier
+  `166cbcc189074d70d0953e2897c85bc4791a39d2`
+- Distribution source version: freshly signed, manifest-exact `0.5.1` release
+  candidate. The globally installed release remains manifest-backed `0.5.0`
+  pending a separately authorized transactional upgrade
 - Installed signed baseline logic source: runtime `315924018da7a7684787c79922dd3fd4887209c0`;
   authority `60211bd6962b733344c0c789272e96dc5db18a28`; signed-surface carrier
   `17420a836ea11b0c42faef9c0f08eaba9ad53019`
@@ -23,9 +24,9 @@
 - Program 6 direction: Codex-native task fabric; external provider/API gateway
   implementation retired from the active roadmap
 - Release state: the manifest-exact 0.5.1 cancellation repair is locally
-  verified; the prior signed surface is stale for this candidate. Fresh
-  independent signing, source integration, global installation, live native
-  runtime, and scheduler remain NO-GO
+  verified and its repaired 21-file surface has a fresh external signature.
+  Canonical-main integration, global installation, live native runtime, and
+  scheduler remain NO-GO
 
 ## Accepted evidence
 
@@ -352,8 +353,13 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
   that exact 21-file surface and erased the one-time private key and cleanup
   automation. The accepted surface scored 9.22 mean with all 13 dimensions at
   least 9.0 and no P0/P1/P2 findings.
+- The later cancellation-evidence repair invalidated two files in that signed
+  surface. After a fresh independent pre-signing review passed, the reviewer
+  rotated the one-time RSA-3072 trust anchor at carrier `166cbcc`, recomputed
+  the repaired 21-file surface, and issued a new detached signature bound to
+  that exact carrier. The prior signature remains historical evidence only.
 - Integrated verification passes: signed surface, content-addressed 0.5.1
-  manifest, 64 root tests (one deliberate legacy-surface skip), 306 packaged
+  manifest, 64 root tests (one deliberate legacy-surface skip), 312 packaged
   controller tests, and 10 reference tests. This is source/release-candidate
   evidence only; no native host operation, installation, runtime activation,
   provider call, scheduler action, production mutation, or Chippy change was

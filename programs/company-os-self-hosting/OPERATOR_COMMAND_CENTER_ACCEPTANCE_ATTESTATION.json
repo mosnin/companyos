@@ -2,8 +2,8 @@
   "acceptance_kind": "company-os-0.5.1-operator-command-center-regression-acceptance",
   "attestation_id": "operator-command-center-v5-company-os-0.5.1-independent-regression-acceptance",
   "carrier_binding": {
-    "accepted_carrier_commit": "17420a836ea11b0c42faef9c0f08eaba9ad53019",
-    "accepted_carrier_git_tree": "82f34027d446ed9bf2ba40bbc1f1c342ae38dcf9",
+    "accepted_carrier_commit": "166cbcc189074d70d0953e2897c85bc4791a39d2",
+    "accepted_carrier_git_tree": "97a041630e877a4ae24d734b98bf45e7a4f2e850",
     "canonical_authority_commit": "60211bd6962b733344c0c789272e96dc5db18a28",
     "runtime_source_commit": "315924018da7a7684787c79922dd3fd4887209c0"
   },
@@ -12,7 +12,7 @@
   "critical_dimension_count": 13,
   "decision": "accepted",
   "evidence_boundary": "Accepts only the exact signed 21-file Operator Command Center product surface identified by carrier_binding as a Company OS 0.5.1 regression acceptance. It preserves the Operator Command Center v5 program and outcome semantics. It does not accept distribution integration, installation, provider execution, runtime or scheduler activation, deployment, production or customer mutation, or Chippy action.",
-  "issued_at": "2026-08-02T14:30:36Z",
+  "issued_at": "2026-08-02T17:37:14Z",
   "minimum_critical_score": 9.0,
   "outcome_id": "operator-command-center-v5",
   "prior_accepted_surface_lineage": {
@@ -118,13 +118,13 @@
     "source_thread_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3"
   },
   "reviewer_id": "company-os-0.5.1-external-independent-surface-reviewer",
-  "reviewer_public_key_der_sha256": "41826fdd1c0d78a414bba0876bdf840e01d6836430baab5f7d47a65719408aba",
+  "reviewer_public_key_der_sha256": "bcd8b035cf8aa2e5c5dd792e9e5ecf3226d962f5b6052e8b5f70eb96512bbc15",
   "rubric_version": "operator-command-center-v5-company-os-0.5.1-regression-review",
   "schema_version": 1,
   "signature_algorithm": "RSA-3072-SHA256-PKCS1-v1_5",
-  "surface_aggregate_sha256": "f7ff37866190efc09fb13c7be7bd8c270467558d8e35ce7cb7aea628f21539e3",
+  "surface_aggregate_sha256": "54c290f7c40bc8c0dd5d0829165e8b1bb3ba9d278c2cdac9a11373ebb9bee336",
   "surface_file_count": 21,
   "surface_manifest_path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_ACCEPTED_SURFACE.json",
-  "surface_manifest_sha256": "43f805ab40410f9e485fb135cbd67d17575a1833a62888139dffdf00d273f5b1",
+  "surface_manifest_sha256": "76b06279dec83ba54879c47069983cdd980821610651fdc8ce798d3587f0dc98",
   "work_id": "work-operator-command-center-v5"
 }

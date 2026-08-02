@@ -1,8 +1,8 @@
 {
   "aggregate_algorithm": "sha256(canonical-json(files,sort_keys=true,separators=comma-colon,utf8))",
-  "aggregate_sha256": "f7ff37866190efc09fb13c7be7bd8c270467558d8e35ce7cb7aea628f21539e3",
-  "carrier_commit": "17420a836ea11b0c42faef9c0f08eaba9ad53019",
-  "carrier_git_tree": "82f34027d446ed9bf2ba40bbc1f1c342ae38dcf9",
+  "aggregate_sha256": "54c290f7c40bc8c0dd5d0829165e8b1bb3ba9d278c2cdac9a11373ebb9bee336",
+  "carrier_commit": "166cbcc189074d70d0953e2897c85bc4791a39d2",
+  "carrier_git_tree": "97a041630e877a4ae24d734b98bf45e7a4f2e850",
   "company_os_release_version": "0.5.1",
   "files": [
     {
@@ -62,7 +62,7 @@
     },
     {
       "path": "scripts/verify_operator_command_center_surface.py",
-      "sha256": "8ef3dc01877c71706a85a30ecb44db906edc8beee1e22b2530e3849cff95894c",
+      "sha256": "12b85e6d95f6d38e6ee1b6e9fa49557f9de0dd194b1d4d22ef598bac97fce8bc",
       "size": 22079
     },
     {
@@ -92,13 +92,13 @@
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "120b6f34ee9f0bc6af675112f3f491cadf1bfd796c492acac68222a5accece31",
-      "size": 219151
+      "sha256": "34b444d9131d02d7aa7840d3666805e2dfd061addd14642826b29c2ea2ea35b3",
+      "size": 225659
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "fff4cec7effd48d1d623e924f586221952a7ac2bc566dd408703d6b0a9de4e90",
-      "size": 70971
+      "sha256": "32b49e5cb396028b7eadb51de89926fed93b6038c4b27b7c719d388353c17712",
+      "size": 74611
     },
     {
       "path": "skills/company-os/elastic-company-os/scripts/test_operator_brief.py",
@@ -107,7 +107,7 @@
     },
     {
       "path": "tests/test_operator_command_center_surface.py",
-      "sha256": "9f50083cc4f9530e032bf8c8342e97a3b63f78ec5543e2ebec02e04afbeb6416",
+      "sha256": "e1f67f6a737062d409e2d105d26dea67a76263d5cd6601a131a3c7d412791eb5",
       "size": 16933
     }
   ],
