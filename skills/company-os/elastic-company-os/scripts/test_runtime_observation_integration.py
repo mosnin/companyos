@@ -260,6 +260,64 @@ class RuntimeObservationIntegrationTests(unittest.TestCase):
             )
         )
 
+    def test_host_observation_integration_covers_all_cancellation_pairs_and_preserves_distinct_outcomes(self) -> None:
+        pairs = (
+            ("acknowledged", "acknowledged", True, "cancel_acknowledged"),
+            ("acknowledged", "not_acknowledged", False, "cancel_requested"),
+            ("refused", "acknowledged", False, "cancel_requested"),
+            ("refused", "not_acknowledged", True, "cancel_requested"),
+            ("failed", "acknowledged", False, "cancel_requested"),
+            ("failed", "not_acknowledged", True, "cancel_requested"),
+        )
+        for index, (hard_status, acknowledgement_status, legal, expected_status) in enumerate(pairs):
+            with self.subTest(hard_status=hard_status, acknowledgement_status=acknowledgement_status):
+                fixture = controller_test.ControllerTests(methodName="runTest")
+                fixture.setUp()
+                try:
+                    attempt_id = fixture.prepare_native_cancellation(attempt_id=f"observation-pair-{index}")
+                    before_state = controller.load_json(fixture.project / ".company-os" / "control.json")
+                    before_bytes = (
+                        (fixture.project / ".company-os" / "control.json").read_bytes(),
+                        (fixture.project / ".company-os" / "events.jsonl").read_bytes(),
+                    )
+                    observation = {
+                        "source": "host_observation",
+                        "tool": "observation-hard-cancel-return",
+                        "task_id": f"{attempt_id}-task",
+                        "thread_id": f"{attempt_id}-thread",
+                        "host_id": f"{attempt_id}-host",
+                        "hard_status": hard_status,
+                        "acknowledgement_status": acknowledgement_status,
+                    }
+                    result = controller.record_native_task_observation(
+                        fixture.native_observation_args(attempt_id, "hard_cancellation_observed", observation)
+                    )
+                    if not legal:
+                        self.assertEqual(result, 2)
+                        self.assertEqual(before_state, controller.load_json(fixture.project / ".company-os" / "control.json"))
+                        self.assertEqual(
+                            before_bytes,
+                            (
+                                (fixture.project / ".company-os" / "control.json").read_bytes(),
+                                (fixture.project / ".company-os" / "events.jsonl").read_bytes(),
+                            ),
+                        )
+                    else:
+                        self.assertEqual(result, 0)
+                        native = controller.load_json(fixture.project / ".company-os" / "control.json")["runtime_adapter"]["attempts"][0]["native_task_runtime"]
+                        self.assertEqual(native["status"], expected_status)
+                        self.assertEqual(
+                            (native["cancellation"]["hard_cancellation_status"], native["cancellation"]["acknowledgement_status"]),
+                            (hard_status, acknowledgement_status),
+                        )
+                        self.assertEqual(controller.native_task_runtime_module().audit_state(native), [])
+                        if (hard_status, acknowledgement_status) == ("acknowledged", "acknowledged"):
+                            self.assertEqual(native["status"], "cancel_acknowledged")
+                        else:
+                            self.assertNotEqual(native["status"], "cancel_acknowledged")
+                finally:
+                    fixture.tearDown()
+
     def test_nonce_event_sequence_and_provider_task_conflicts_survive_reload(self) -> None:
         first = self.envelope(sequence=2)
         first_value = json.loads(first.read_text(encoding="utf-8"))

@@ -1427,6 +1427,68 @@ class ControlStoreTests(unittest.TestCase):
         self.assertEqual(store.load(self.project)[0], 2)
         self.assertEqual(store.load(self.project)[1]["instance"]["status"], "cancelled")
 
+    def test_sqlite_store_cancellation_matrix_rejects_illegal_pairs_without_revision_event_or_authority_mutation(self) -> None:
+        pairs = (
+            ("acknowledged", "acknowledged", True),
+            ("acknowledged", "not_acknowledged", False),
+            ("refused", "acknowledged", False),
+            ("refused", "not_acknowledged", True),
+            ("failed", "acknowledged", False),
+            ("failed", "not_acknowledged", True),
+        )
+        for index, (hard_status, acknowledgement_status, legal) in enumerate(pairs):
+            with self.subTest(hard_status=hard_status, acknowledgement_status=acknowledgement_status):
+                fixture = controller_test.ControllerTests(methodName="runTest")
+                fixture.setUp()
+                try:
+                    attempt_id = fixture.prepare_native_cancellation(attempt_id=f"store-pair-{index}")
+                    before = controller.load_json(fixture.project / ".company-os" / "control.json")
+                    before_revision = store.audit(fixture.project)["revision"]
+                    before_events = store.connect(fixture.project)
+                    try:
+                        before_event_count = before_events.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+                    finally:
+                        before_events.close()
+                    observation = {
+                        "source": "host_observation",
+                        "tool": "store-hard-cancel-return",
+                        "task_id": f"{attempt_id}-task",
+                        "thread_id": f"{attempt_id}-thread",
+                        "host_id": f"{attempt_id}-host",
+                        "hard_status": hard_status,
+                        "acknowledgement_status": acknowledgement_status,
+                    }
+                    result = controller.record_native_task_observation(
+                        fixture.native_observation_args(attempt_id, "hard_cancellation_observed", observation)
+                    )
+                    after = controller.load_json(fixture.project / ".company-os" / "control.json")
+                    if not legal:
+                        self.assertEqual(result, 2)
+                        self.assertEqual(before, after)
+                        self.assertEqual(store.audit(fixture.project)["revision"], before_revision)
+                        connection = store.connect(fixture.project)
+                        try:
+                            self.assertEqual(
+                                connection.execute("SELECT COUNT(*) FROM events").fetchone()[0],
+                                before_event_count,
+                            )
+                        finally:
+                            connection.close()
+                    else:
+                        self.assertEqual(result, 0)
+                        self.assertEqual(store.audit(fixture.project)["revision"], before_revision + 1)
+                        native = after["runtime_adapter"]["attempts"][0]["native_task_runtime"]
+                        self.assertEqual(
+                            (native["cancellation"]["hard_cancellation_status"], native["cancellation"]["acknowledgement_status"]),
+                            (hard_status, acknowledgement_status),
+                        )
+                        self.assertEqual(
+                            native["status"],
+                            "cancel_acknowledged" if (hard_status, acknowledgement_status) == ("acknowledged", "acknowledged") else "cancel_requested",
+                        )
+                finally:
+                    fixture.tearDown()
+
     def test_outbox_and_idempotency_commit_with_state_and_enforce_lifecycle(self) -> None:
         state = self.migrate_valid_state()
         payload = {"attempt_id": "worker-1", "action": "launch"}

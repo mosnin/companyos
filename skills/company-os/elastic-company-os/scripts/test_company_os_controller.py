@@ -2643,6 +2643,69 @@ class ControllerTests(unittest.TestCase):
         args.event = event
         return args
 
+    def prepare_native_cancellation(self, *, attempt_id: str = "matrix-attempt") -> str:
+        cycle_id = self.admission_fixture()
+        admission = self.admission_args(
+            cycle_id,
+            attempt_id=attempt_id,
+            idempotency_key=f"{attempt_id}-key",
+        )
+        self.assertEqual(controller.admit_runtime_attempt(admission), 0)
+        self.assertEqual(controller.claim_native_task_dispatch(self.native_claim_args(attempt_id)), 0)
+        created = {
+            "source": "host_observation",
+            "tool": "matrix-create-return",
+            "task_id": f"{attempt_id}-task",
+            "thread_id": f"{attempt_id}-thread",
+            "host_id": f"{attempt_id}-host",
+        }
+        self.assertEqual(
+            controller.record_native_task_observation(
+                self.native_observation_args(attempt_id, "host_created", created)
+            ),
+            0,
+        )
+        reason = "matrix cancellation"
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        attempt = next(item for item in state["runtime_adapter"]["attempts"] if item["attempt_id"] == attempt_id)
+        native = attempt["native_task_runtime"]
+        cancellation_payload = {
+            "schema": "company-os.native-task-cancellation-intent.v1",
+            "attempt_id": attempt_id,
+            "native_identity": native["native_identity"],
+            "reason": reason,
+            "request_sha256": controller.native_task_runtime_module().canonical_digest(
+                {"reason": reason, "requested_by": "native-controller"}
+            ),
+        }
+        dispatch = {
+            "status": "pending",
+            "key": attempt_id,
+            "payload_sha256": controller.native_task_runtime_module().canonical_digest(cancellation_payload),
+        }
+        request = self.native_command_args(
+            attempt_id,
+            action="request-native-task-cancellation",
+            decision="cancel_requested",
+            event="cancel_requested",
+            details={"reason": reason, "requested_by": "native-controller", "dispatch": dispatch},
+            reason=reason,
+        )
+        self.assertEqual(controller.request_native_task_cancellation(request), 0)
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        dispatch = next(
+            item for item in retained["runtime_adapter"]["attempts"] if item["attempt_id"] == attempt_id
+        )["native_task_runtime"]["cancellation"]["dispatch"]
+        claim = self.native_command_args(
+            attempt_id,
+            action="claim-native-task-cancellation",
+            decision="claimed",
+            event="cancellation_dispatch_claimed",
+            details={"key": dispatch["key"], "payload_sha256": dispatch["payload_sha256"]},
+        )
+        self.assertEqual(controller.claim_native_task_cancellation(claim), 0)
+        return attempt_id
+
     def test_runtime_admission_is_feature_off_and_rejections_are_atomic(self) -> None:
         cycle_id = self.begin_fabric_fixture()
         args = self.admission_args(cycle_id)
@@ -2925,6 +2988,64 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(cancellation["cooperative_stop_delivery"], "delivered")
         self.assertEqual(cancellation["hard_cancellation_status"], "unavailable")
         self.assertEqual(cancellation["acknowledgement_status"], "unavailable")
+
+    def test_native_cancellation_controller_covers_all_pairs_and_rejects_illegal_atomically(self) -> None:
+        pairs = (
+            ("acknowledged", "acknowledged", True, "cancel_acknowledged"),
+            ("acknowledged", "not_acknowledged", False, "cancel_requested"),
+            ("refused", "acknowledged", False, "cancel_requested"),
+            ("refused", "not_acknowledged", True, "cancel_requested"),
+            ("failed", "acknowledged", False, "cancel_requested"),
+            ("failed", "not_acknowledged", True, "cancel_requested"),
+        )
+        for index, (hard_status, acknowledgement_status, legal, expected_status) in enumerate(pairs):
+            with self.subTest(hard_status=hard_status, acknowledgement_status=acknowledgement_status):
+                fixture = type(self)(methodName="runTest")
+                fixture.setUp()
+                try:
+                    attempt_id = fixture.prepare_native_cancellation(attempt_id=f"pair-{index}")
+                    before_state = controller.load_json(fixture.project / ".company-os" / "control.json")
+                    before_bytes = (
+                        (fixture.project / ".company-os" / "control.json").read_bytes(),
+                        (fixture.project / ".company-os" / "events.jsonl").read_bytes(),
+                    )
+                    observation = {
+                        "source": "host_observation",
+                        "tool": "matrix-hard-cancel-return",
+                        "task_id": f"{attempt_id}-task",
+                        "thread_id": f"{attempt_id}-thread",
+                        "host_id": f"{attempt_id}-host",
+                        "hard_status": hard_status,
+                        "acknowledgement_status": acknowledgement_status,
+                    }
+                    result = controller.record_native_task_observation(
+                        fixture.native_observation_args(attempt_id, "hard_cancellation_observed", observation)
+                    )
+                    if not legal:
+                        self.assertEqual(result, 2)
+                        self.assertEqual(before_state, controller.load_json(fixture.project / ".company-os" / "control.json"))
+                        self.assertEqual(
+                            before_bytes,
+                            (
+                                (fixture.project / ".company-os" / "control.json").read_bytes(),
+                                (fixture.project / ".company-os" / "events.jsonl").read_bytes(),
+                            ),
+                        )
+                    else:
+                        self.assertEqual(result, 0)
+                        native = controller.load_json(fixture.project / ".company-os" / "control.json")["runtime_adapter"]["attempts"][0]["native_task_runtime"]
+                        self.assertEqual(native["status"], expected_status)
+                        self.assertEqual(
+                            (native["cancellation"]["hard_cancellation_status"], native["cancellation"]["acknowledgement_status"]),
+                            (hard_status, acknowledgement_status),
+                        )
+                        self.assertEqual(
+                            native["status"] == "cancel_acknowledged",
+                            (hard_status, acknowledgement_status) == ("acknowledged", "acknowledged"),
+                        )
+                        self.assertEqual(controller.native_task_runtime_module().audit_state(native), [])
+                finally:
+                    fixture.tearDown()
 
     def test_native_task_restart_reconciliation_never_relaunches_ambiguous_claim(self) -> None:
         cycle_id = self.admission_fixture()
