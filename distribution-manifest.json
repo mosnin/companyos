@@ -3,7 +3,7 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.4.0",
+  "distribution_version": "0.4.1",
   "files": [
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -47,8 +47,8 @@
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
-      "sha256": "247cfe02cd394d04877b30160d7996385238b43d8980c8656760fb405403dbb3",
-      "size": 15718
+      "sha256": "c7e5ad6ae41c2c2523917155c10d691df45a78dcead76efff190667ed89eb953",
+      "size": 15960
     },
     {
       "path": "company-os/elastic-company-os/agents/openai.yaml",
@@ -62,13 +62,13 @@
     },
     {
       "path": "company-os/elastic-company-os/references/control-contract.md",
-      "sha256": "de8a139b4692b2284c85c575206527e73fccc367db858af7b2173e19ff3f6106",
-      "size": 13795
+      "sha256": "583de925703587fb3fd3251c8580e00019322c2bb3d0524de4863fa76eeb858e",
+      "size": 14096
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "faacb849a0ba75569d184d48d826c1fc576ff3e834d243b22ea61e4d89f12a57",
-      "size": 276283
+      "sha256": "5ea629843e2b716a0bef39f68bf0bc5580932ae1198d4b7eb98de0a8417066cb",
+      "size": 279061
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
@@ -87,8 +87,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "df0ed4d42704e47ceb657db9a774faf34a09bdb7d6217c6383ca610a49fa389a",
-      "size": 161556
+      "sha256": "ca6be0e58e27b621a7acc043c8c18ef5339f8ac3f7b145f626332d3398c3db31",
+      "size": 165955
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",

@@ -741,7 +741,7 @@ def command_payload_hash(command: str, payload: dict[str, Any]) -> str:
 
 def quality_command_payload(values: Any) -> dict[str, Any]:
     getter = values.get if isinstance(values, dict) else lambda key, default=None: getattr(values, key, default)
-    return {
+    payload = {
         "dimension": getter("dimension"),
         "score": getter("score"),
         "evidence_ids": sorted(getter("evidence_ids", []) or []),
@@ -751,8 +751,16 @@ def quality_command_payload(values: Any) -> dict[str, Any]:
         "outcome_id": getter("outcome_id"),
         "work_id": getter("work_id"),
         "cycle_id": getter("cycle_id"),
-        "artifact_digest": getter("artifact_digest"),
     }
+    evidence_digest = getter("evidence_digest")
+    if evidence_digest is not None:
+        payload["evidence_digest"] = evidence_digest
+    else:
+        # Retain the v1 payload shape so historical signed grants remain
+        # independently auditable. New scores use the complete evidence-set
+        # digest instead of pretending several artifacts share one hash.
+        payload["artifact_digest"] = getter("artifact_digest")
+    return payload
 
 
 def completion_evidence_digest(state: dict[str, Any], evidence_ids: list[str]) -> str:
@@ -2864,15 +2872,29 @@ def validate_state(
         if item.get("scored_by") and item.get("scored_by") == item.get("reviewed_by"):
             errors.append(f"quality dimension {name} lacks independent review")
             quality_ready = False
+        ids_for_dimension = item.get("evidence", [])
         binding = item.get("binding")
         if not isinstance(binding, dict):
             errors.append(f"quality dimension {name} lacks evidence binding")
             quality_ready = False
         else:
-            for field in ("outcome_id", "work_id", "cycle_id", "artifact_digest", "rubric_version"):
+            for field in ("outcome_id", "work_id", "cycle_id", "rubric_version"):
                 if not isinstance(binding.get(field), str) or not binding[field].strip():
                     errors.append(f"quality dimension {name} binding lacks {field}")
                     quality_ready = False
+            evidence_set_digest = binding.get("evidence_digest")
+            legacy_artifact_digest = binding.get("artifact_digest")
+            if bool(evidence_set_digest) == bool(legacy_artifact_digest):
+                errors.append(
+                    f"quality dimension {name} binding must contain exactly one evidence digest"
+                )
+                quality_ready = False
+            elif evidence_set_digest is not None and (
+                not isinstance(evidence_set_digest, str)
+                or evidence_set_digest != completion_evidence_digest(state, ids_for_dimension)
+            ):
+                errors.append(f"quality dimension {name} evidence digest does not match its evidence set")
+                quality_ready = False
             if binding.get("rubric_version") != item.get("rubric_version"):
                 errors.append(f"quality dimension {name} binding rubric does not match")
                 quality_ready = False
@@ -2883,7 +2905,6 @@ def validate_state(
             ):
                 errors.append(f"quality dimension {name} is stale for the current primary checkpoint")
                 quality_ready = False
-        ids_for_dimension = item.get("evidence", [])
         grant_claim_base = {
             "resource": f"quality:{name}",
             "work_id": expected_work_id,
@@ -2903,6 +2924,7 @@ def validate_state(
                         "work_id": (binding or {}).get("work_id"),
                         "cycle_id": (binding or {}).get("cycle_id"),
                         "artifact_digest": (binding or {}).get("artifact_digest"),
+                        "evidence_digest": (binding or {}).get("evidence_digest"),
                     }
                 ),
             ),
@@ -2934,7 +2956,10 @@ def validate_state(
                     source.get("outcome_id") != expected_outcome_id
                     or source.get("work_id") != expected_work_id
                     or source.get("cycle_id") != expected_checkpoint
-                    or source.get("artifact_sha256") != (binding or {}).get("artifact_digest")
+                    or (
+                        (binding or {}).get("artifact_digest") is not None
+                        and source.get("artifact_sha256") != (binding or {}).get("artifact_digest")
+                    )
                     or source.get("rubric_version") != item.get("rubric_version")
                 ):
                     errors.append(f"quality dimension {name} evidence is stale for the current primary checkpoint")
@@ -3945,6 +3970,13 @@ def score_quality(args: argparse.Namespace) -> int:
         with locked_state(project) as (path, state):
             if args.scored_by == args.reviewed_by:
                 raise ValueError("quality scoring requires an independent reviewer")
+            evidence_ids = sorted(args.evidence_ids)
+            if len(evidence_ids) != len(set(evidence_ids)):
+                raise ValueError("quality evidence ids must be unique")
+            supplied_evidence_digest = getattr(args, "evidence_digest", None)
+            supplied_artifact_digest = getattr(args, "artifact_digest", None)
+            if bool(supplied_evidence_digest) == bool(supplied_artifact_digest):
+                raise ValueError("quality scoring requires exactly one evidence digest")
             quality_payload_hash = command_payload_hash("score-quality", quality_command_payload(args))
             scorer_grant = verify_actor_grant(
                 state, getattr(args, "scored_by_grant", None), args.scored_by, "score-quality",
@@ -3967,20 +3999,31 @@ def score_quality(args: argparse.Namespace) -> int:
                 for item in bucket
                 if isinstance(item, dict) and evidence_is_active(item)
             }
-            for evidence_id in args.evidence_ids:
+            for evidence_id in evidence_ids:
                 item = known.get(evidence_id)
                 if not item or args.dimension not in item.get("quality_dimensions", []):
                     raise ValueError("quality evidence is missing or unrelated to the dimension")
                 if item.get("outcome_id") != args.outcome_id or item.get("work_id") != args.work_id or item.get("cycle_id") != args.cycle_id:
                     raise ValueError("quality evidence does not match the asserted outcome, work, and cycle binding")
-                if item.get("artifact_sha256") != args.artifact_digest:
+                if supplied_artifact_digest is not None and item.get("artifact_sha256") != supplied_artifact_digest:
                     raise ValueError("quality evidence does not match the asserted artifact digest")
                 if item.get("rubric_version") != args.rubric_version:
                     raise ValueError("quality evidence does not match the asserted rubric version")
+            expected_evidence_digest = completion_evidence_digest(state, evidence_ids)
+            if (
+                supplied_evidence_digest is not None
+                and supplied_evidence_digest != expected_evidence_digest
+            ):
+                raise ValueError("quality evidence digest does not match the asserted evidence set")
+            binding_digest = (
+                {"evidence_digest": supplied_evidence_digest}
+                if supplied_evidence_digest is not None
+                else {"artifact_digest": supplied_artifact_digest}
+            )
             state["quality"]["dimensions"][args.dimension].update(
                 {
                     "score": args.score,
-                    "evidence": args.evidence_ids,
+                    "evidence": evidence_ids,
                     "rubric_version": args.rubric_version,
                     "scored_by": args.scored_by,
                     "reviewed_by": args.reviewed_by,
@@ -3990,7 +4033,7 @@ def score_quality(args: argparse.Namespace) -> int:
                         "outcome_id": args.outcome_id,
                         "work_id": args.work_id,
                         "cycle_id": args.cycle_id,
-                        "artifact_digest": args.artifact_digest,
+                        **binding_digest,
                         "rubric_version": args.rubric_version,
                     },
                 }
@@ -5301,7 +5344,15 @@ def build_parser() -> argparse.ArgumentParser:
     quality_parser.add_argument("--outcome-id", required=True)
     quality_parser.add_argument("--work-id", required=True)
     quality_parser.add_argument("--cycle-id", required=True)
-    quality_parser.add_argument("--artifact-digest", required=True)
+    quality_digest_group = quality_parser.add_mutually_exclusive_group(required=True)
+    quality_digest_group.add_argument(
+        "--evidence-digest",
+        help="SHA-256 of the canonical complete evidence set (preferred)",
+    )
+    quality_digest_group.add_argument(
+        "--artifact-digest",
+        help="legacy single-artifact SHA-256 retained for signed-history compatibility",
+    )
     quality_parser.set_defaults(handler=score_quality)
     certify_parser = subparsers.add_parser("certify", help="independently certify current evidence")
     certify_parser.add_argument("--project", required=True)

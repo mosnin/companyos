@@ -7,7 +7,14 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version 0.4.0 packages the independently accepted Operator Command Center: a
+Version 0.4.1 packages the independently accepted Operator Command Center and
+its first recursive-feedback correction: quality scores can bind a canonical
+set of independent artifacts instead of requiring one artifact hash to stand
+in for every proof source. Legacy single-artifact signed history remains
+verifiable, while new multi-artifact scores fail closed on duplicate IDs,
+digest substitution, or evidence-set drift.
+
+The Operator Command Center remains a
 read-only decision surface on top of immutable, content-addressed evidence,
 signed evidence supersession, and enforced phase-exit quality gates. `brief`
 turns authoritative state into one safe Markdown, JSON, or self-contained HTML
@@ -111,7 +118,7 @@ blocked gate should return a nonzero exit status. Use `--format html` for the
 accessible, responsive Operator Command Center; it has no client script and
 remains a read-only projection of the same governed state.
 
-The accepted visual and adversarial evidence lives in
+The accepted visual, adversarial, and Learning evidence lives in
 `programs/company-os-self-hosting/`. It is release evidence for this capability,
 not a claim that provider execution, recursive self-hosting, protected
 scheduling, or Chippy onboarding is complete.

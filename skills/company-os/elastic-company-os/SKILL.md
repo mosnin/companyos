@@ -142,7 +142,12 @@ Use controller commands for every state transition:
 - `supersede-evidence` repairs an invalid current record only while paused, unscheduled, lease-free, uncancelled, and cycle-idle. An external independent grant binds the old and new digests, exact successor ID and metadata, source path, bindings, bucket, and reason. The command preserves the full predecessor and grant, rejects completed-cycle or accepted-fabric references, and clears every quality score that cited the predecessor.
 - `advance-phase` moves exactly one evidenced stage, refuses to leave active work before current applicable quality passes, and clears scores for the new phase.
 - `commit-outcome` and `queue-work` create the governed portfolio.
-- `score-quality` requires separate signed grants for scorer and reviewer; its canonical payload hash binds the score, evidence IDs, actors, outcome, work, cycle, artifact digest, and rubric.
+- `score-quality` requires separate signed grants for scorer and reviewer; its
+  canonical payload hash binds the score, canonical evidence IDs, actors,
+  outcome, work, cycle, complete evidence-set digest, and rubric. The set
+  digest covers every cited artifact and binding. Legacy single-artifact
+  signed history retains its original `artifact_digest` payload shape, but new
+  multi-source reviews should use `--evidence-digest`.
 - `certify` requires a command-specific signed certifier grant whose payload hash binds the exact canonical `governance_digest`, reviewer, and accepted decision. It rejects every actor already involved in the work, evidence, cycle review, or quality review.
 - `activate` and `set-schedule` open execution only after certification.
 - `configure-fabric` binds a validated project-local Sol-manager/Luna-worker

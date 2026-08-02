@@ -43,6 +43,13 @@ independent Experience audit accepted this phase at 9.22/10 with all 13
 critical dimensions at or above 9.0. Versioning, detached-commit verification,
 atomic installation, and exact installed parity remain the Delivery gate.
 
+The 0.4.1 Learning review rejected the development loop despite the accepted
+surface. Quality evidence now binds complete multi-artifact sets, and the
+recorded loop scores 8.06 mean with cost efficiency, feedback health,
+commercial leverage, operational readiness, and north-star alignment below
+the required gate. Those failures drive Phase 2; they are not normalized into
+a successful Learning certification.
+
 ## Phase 2 — Provider-authenticated execution
 
 Add a provider-neutral runtime gateway to the canonical observation boundary.

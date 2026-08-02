@@ -9,9 +9,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "verify_operator_command_center_surface.py"
-REVIEWER_ID = "phase2-sol-reviewer"
+REVIEWER_ID = "company-os-learning-sol-reviewer"
 REVIEWER_PUBLIC_KEY_DER_SHA256 = (
-    "d32aca0652d40c336b3f5b1b20fda4ffb9cf3ecea33d5b0acd377340f46b28ee"
+    "9e414890b4325d05b51f36fa6204986c41c24f8c65dc903c869d79e877b4ef82"
 )
 
 

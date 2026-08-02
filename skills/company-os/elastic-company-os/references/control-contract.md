@@ -183,6 +183,11 @@ The meta-loop audits itself through its decision latency, false-positive adaptat
 13. Release the exact lease generation.
 14. Re-audit before any continuation.
 
+Quality scoring binds distinct scorer and reviewer grants to the canonical set
+of evidence IDs and a digest covering every cited artifact plus its
+outcome/work/checkpoint/rubric binding. This allows genuinely independent
+multi-artifact proof without weakening retained legacy single-artifact grants.
+
 Certification hashes the canonical controller state and the signed certification payload binds that exact `governance_digest`. Only self-referential validation fields, consumed grant nonces, and live lease/fence, schedule, execution-timestamp, and activation-status fields are excluded because they change as a consequence of certification or execution rather than represent governable content. An expired lease may be reclaimed only to `resolve-cycle --action recover|abandon|fail`; a running cycle blocks ordinary release.
 
 Schema upgrades from versions 1 through 8 preserve monotonic program history: archive the old strategy/work/evidence/cycles/adaptations/fabric/runtime state under the true old program version in a unique history record, advance to `old + 1`, clear current evidence and work, revoke leases and certification, reset the fabric and runtime, and create a paused `reality_audit` restart checkpoint that requires new evidence. Schema-8 attempts remain byte-for-byte in archived history and are never carried into the new program.

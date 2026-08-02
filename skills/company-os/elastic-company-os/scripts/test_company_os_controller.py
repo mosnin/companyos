@@ -2911,6 +2911,96 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(controller.score_quality(signed_arguments), 0)
         self.assertEqual(controller.score_quality(signed_arguments), 2)
 
+    def test_quality_score_binds_complete_multi_artifact_evidence_set(self) -> None:
+        state = self.valid_state()
+        checkpoint = controller.current_quality_checkpoint(state)[2]
+        second_artifact = self.project / "verification-second.md"
+        second_artifact.write_text("# independent runtime evidence\nverified second source\n", encoding="utf-8")
+        second = deepcopy(state["evidence"]["verification"][0])
+        second.update(
+            {
+                "id": "verification-2",
+                "artifact_path": second_artifact.name,
+                "artifact_sha256": controller.sha256_file(second_artifact),
+                "author": "second-evidence-author",
+                "reviewer": "second-evidence-reviewer",
+            }
+        )
+        state["evidence"]["verification"].append(second)
+        state["controller"]["validation"] = None
+        state["controller"]["validated"] = False
+        evidence_ids = ["verification-2", "verification-1"]
+        evidence_digest = controller.completion_evidence_digest(state, evidence_ids)
+        self.write_state(state)
+        arguments = dict(
+            project=str(self.project), dimension="user_value", score=9.0,
+            evidence_ids=evidence_ids, rubric_version="quality-v1",
+            scored_by="set-scorer", reviewed_by="set-reviewer",
+            outcome_id="cap-1", work_id="cap-1", cycle_id=checkpoint,
+            evidence_digest=evidence_digest, artifact_digest=None,
+        )
+        payload_hash = controller.command_payload_hash(
+            "score-quality", controller.quality_command_payload(arguments)
+        )
+        signed = namespace(
+            **arguments,
+            scored_by_grant=self.grant(
+                "set-scorer", "score-quality", resource="quality:user_value",
+                work_id="cap-1", cycle_id=checkpoint, dimension="user_value",
+                decision="score:9.0", payload_hash=payload_hash,
+            ),
+            reviewed_by_grant=self.grant(
+                "set-reviewer", "score-quality-review", resource="quality:user_value",
+                work_id="cap-1", cycle_id=checkpoint, dimension="user_value",
+                decision="review:9.0", payload_hash=payload_hash,
+            ),
+        )
+        self.assertEqual(controller.score_quality(signed), 0)
+        recorded = controller.load_json(self.project / ".company-os" / "control.json")
+        binding = recorded["quality"]["dimensions"]["user_value"]["binding"]
+        self.assertEqual(
+            recorded["quality"]["dimensions"]["user_value"]["evidence"],
+            ["verification-1", "verification-2"],
+        )
+        self.assertEqual(binding["evidence_digest"], evidence_digest)
+        self.assertNotIn("artifact_digest", binding)
+        self.assertFalse(any(
+            "quality dimension user_value" in error
+            for error in self.report(recorded)["errors"]
+        ))
+
+        tampered = deepcopy(recorded)
+        tampered["quality"]["dimensions"]["user_value"]["binding"]["evidence_digest"] = "0" * 64
+        self.assertIn(
+            "quality dimension user_value evidence digest does not match its evidence set",
+            self.report(tampered)["errors"],
+        )
+
+        duplicate_args = dict(arguments)
+        duplicate_args["evidence_ids"] = ["verification-1", "verification-1"]
+        duplicate_args["evidence_digest"] = controller.completion_evidence_digest(
+            recorded, duplicate_args["evidence_ids"]
+        )
+        duplicate_hash = controller.command_payload_hash(
+            "score-quality", controller.quality_command_payload(duplicate_args)
+        )
+        self.assertEqual(
+            controller.score_quality(namespace(
+                **duplicate_args,
+                scored_by_grant=self.grant(
+                    "duplicate-scorer", "score-quality", resource="quality:user_value",
+                    work_id="cap-1", cycle_id=checkpoint, dimension="user_value",
+                    decision="score:9.0", payload_hash=duplicate_hash,
+                ),
+                reviewed_by_grant=self.grant(
+                    "duplicate-reviewer", "score-quality-review", resource="quality:user_value",
+                    work_id="cap-1", cycle_id=checkpoint, dimension="user_value",
+                    decision="review:9.0", payload_hash=duplicate_hash,
+                ),
+            )),
+            2,
+        )
+
     def test_certification_grant_cannot_be_substituted_across_governance_digests(self) -> None:
         state = self.valid_state()
         state["controller"]["validation"] = None
