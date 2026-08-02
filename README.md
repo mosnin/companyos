@@ -7,7 +7,8 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version 0.5.0 is the accepted globally distributed source release. It adds
+Version 0.5.0 is the accepted source release approved for governed global
+distribution. It adds
 concise global Sol-manager and Luna-worker role skills, strict v2 mission
 contracts, deterministic task-evidence validation, and a five-scenario
 simulation ladder. After two rejected candidates and bounded rework,

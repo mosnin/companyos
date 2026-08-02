@@ -3,8 +3,8 @@
 ## Current checkpoint
 
 - Canonical repository: `/Users/preston/Documents/Codex/company-os-core`
-- Distribution version: accepted `0.5.0`; the canonical 83-file distribution
-  is installed byte-exact under `/Users/preston/.codex/skills`
+- Distribution version: accepted source release `0.5.0`; current installation
+  status is established only by manifest-backed `check-install` evidence
 - Canonical source acceptance: `0900cfe1d4661dffbbd612695aea57dfa4562448`;
   release metadata is the current canonical `main` HEAD
 - Authoritative control revision: 131; program 6 is paused in Reality Audit,
@@ -15,8 +15,9 @@
 - Production or customer effects: none
 - Program 6 direction: Codex-native task fabric; external provider/API gateway
   implementation retired from the active roadmap
-- Release state: source distribution accepted and installed; scheduler-off;
-  broader runtime NO-GO
+- Release state: source distribution accepted; global installation is permitted
+  only through the governed manifest-backed path; scheduler-off; broader
+  runtime NO-GO
 
 ## Accepted evidence
 
@@ -302,8 +303,9 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 
 ## Exact next action
 
-Forward-test a fresh Sol manager and two fresh tasks requested as GPT-5.6 Luna
-using only the global skill invocation plus compact charter/packet. Do not
-enable scheduling. The
+If `check-install` does not prove exact 0.5.0 parity, transactionally install
+from the preserved 0.4.3 manifest first. Once parity is proven, forward-test a
+fresh Sol manager and two fresh tasks requested as GPT-5.6 Luna using only the
+global skill invocation plus compact charter/packet. Do not enable scheduling. The
 following gate must add controller admission-before-create and prove a hard
 native cancellation acknowledgement before broader runtime acceptance.
