@@ -9,9 +9,10 @@ distribution tooling, and self-hosting program.
 
 The accepted distribution remains 0.4.3. The uninstalled `0.5.0-dev.1`
 candidate contains a locally validated Codex-native task-fabric correction:
-concise Sol-manager and Luna-
-worker role skills, compact mission packets, deterministic task-evidence
-validation, and a five-scenario simulation ladder. In this development session
+concise Sol-manager and Luna-worker role skills, strict v2 mission contracts,
+deterministic task-evidence validation, and a five-scenario simulation ladder.
+Independent review rejected the first candidate commit at 5.8; the bounded v2
+rework closes those seven source findings locally. In this development session
 the Sol manager manually used native Codex task tools; the Company OS controller
 does not yet invoke, admit, cancel, or durably observe them.
 

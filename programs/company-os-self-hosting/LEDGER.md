@@ -160,7 +160,12 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 - This is source and disposable-fixture proof only. It is not live OpenAI,
   GPT-5.6 Luna, protected-launcher, provider-cost, or production evidence.
 
-### Phase 2B — Codex-native task-fabric correction accepted locally
+### Phase 2B — initial Codex-native task-fabric correction rejected on independent review
+
+- Commit `16592d4c95671638c6d538e0d2932488020ace91` was initially accepted by
+  the implementing manager, then independently reviewed NO-GO at 5.8 with
+  0 P0, 4 P1, and 3 P2 findings. Its local scorecard is superseded; the commit
+  remains immutable history.
 
 - Exactly two projectless tasks were requested as `gpt-5.6-luna`. Native task
   IDs, host observations, status, and elapsed durations were exposed; observed
@@ -181,15 +186,45 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 - Five concrete scenarios deterministically accept the known-answer fixture,
   block a malformed dependency chain, preserve real manager rework, reject
   stale/scope/failure/budget pressure, and reject cross-project artifacts.
-- Verification passed: 32 repository tests, 7 focused native-fabric tests, 126
+- Verification at that commit passed: 32 repository tests, 7 focused native-fabric tests, 126
   controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt, 29
   Responses-fixture, and 10 reference tests, plus both fabric validators,
   strict role validation, distribution manifest verification, and 26-file AST
   parsing. Standard `quick_validate.py` lacked its real PyYAML dependency; a
   compatibility-shim result is not acceptance evidence.
-- Local contract scores pass, but full-system hard cancellation, controller
-  admission, installed behavior, successful two-Luna integration, telemetry,
-  durable reconciliation, and scheduling remain far below gate.
+- Passing tests did not close the independent review's phase-authority, compact
+  schema, evidence-provenance, lifecycle/concurrency, iteration, scope, and
+  agent-policy defects.
+
+### Phase 2C — bounded v2 source-contract rework locally validated
+
+- Phase authority now requires authenticated master decisions at charter,
+  design, verification, and final integration. Silence escalates at a bounded
+  timeout. Only visible routine execution subphases inside the unchanged
+  accepted charter may auto-continue.
+- The v2 charter and packet carry explicit contract/program/definition
+  versions, outcome and artifact digests, requested model, permissions, all six
+  budgets, review requirements, barriers, and attributable authorization. A
+  worker inherits accepted-design evidence, never awaits the master, and
+  returns to its manager.
+- Fixture model observations are forbidden; native model evidence requires a
+  recognized host-observation source class. The two historical tasks remain
+  described only as requested `gpt-5.6-luna`; observed model is unavailable.
+- Lifecycle records separate current and optional terminal status, enforce
+  ordered create/start/terminal evidence, validate native identity, and include
+  open active intervals in concurrency pressure.
+- Iteration mappings, lowercase ASCII project-relative scope, ancestor overlap,
+  and explicit no-implicit-invocation agent policy fail closed under
+  adversarial tests. Malformed contract and metadata types return errors rather
+  than raising.
+- Verification passed: 41 repository tests, 16 focused native-fabric tests,
+  126 controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt,
+  29 Responses-fixture, 30 operator-brief, and 10 reference tests, plus strict
+  role/fabric validators, distribution manifest, 28-file syntax parsing, and a
+  repository-wide zero-bytecode/cache before/after gate.
+- Full-system hard cancellation, controller admission, installed behavior,
+  successful two-requested-Luna integration, telemetry, durable reconciliation,
+  and scheduling remain far below gate.
 
 ## Not yet implemented
 

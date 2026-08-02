@@ -45,11 +45,24 @@ disjoint outcomes, and at most three GPT-5.6 Luna workers per manager perform
 bounded labor. Every child receives a narrower outcome, authority envelope,
 budget, scope, and stop condition. Evidence and exceptions reconcile upward.
 
-The interactive Codex host is the target execution surface. It creates native
-Sol manager and Luna worker tasks, while Company OS provides mission lineage,
-scope, budgets, phase rules, evidence, and reconciliation. App task tools are
+The interactive Codex host is the target execution surface. It can host tasks
+requested for Sol-manager and Luna-worker roles, while Company OS provides
+mission lineage, scope, budgets, phase rules, evidence, and reconciliation. App task tools are
 not repository-callable APIs. The controller does not yet admit or durably
 observe native task creation, so the full runtime remains disabled.
+
+Native source contracts use strict v2 compact assets. A manager charter carries
+an authenticated charter authorization and content-addressed architecture,
+roadmap, and interface references. A worker packet carries inherited accepted
+design authorization but never waits on the master; its receipt returns to the
+manager for verification. Authenticated master decisions fence charter,
+design, verification, and final integration. Only visible routine execution
+subphases inside the unchanged accepted charter may auto-continue.
+
+Task evidence separates current from optional terminal state and orders create,
+start, and terminal events. An open active interval consumes concurrency until
+terminal evidence arrives. Writer scopes are lowercase ASCII relative POSIX
+paths; case, Unicode, path aliases, and ancestor overlap reject.
 
 Requested and observed model identity remain separate. Task/thread IDs and host
 IDs are coordination metadata; host identity is not lineage. Status and elapsed

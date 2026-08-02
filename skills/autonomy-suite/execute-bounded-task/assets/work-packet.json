@@ -1,5 +1,8 @@
 {
-  "schema": "company-os.work-packet.v1",
+  "schema": "company-os.work-packet.v2",
+  "packet_version": 1,
+  "program_version": 1,
+  "definition_version": 1,
   "ids": {
     "project_id": "",
     "program_id": "",
@@ -8,27 +11,54 @@
     "parent_task_id": ""
   },
   "outcome": "",
-  "task_local_context": {
-    "artifact_paths": []
+  "outcome_digest": null,
+  "requested_model": "gpt-5.6-luna",
+  "authorization": {
+    "phase": "design",
+    "decision": "continue",
+    "decision_id": "",
+    "decider_id": "",
+    "decision_version": 1,
+    "definition_digest": null,
+    "evidence_digest": null,
+    "authentication_digest": null
   },
-  "scope": {
-    "owned_paths": [],
+  "artifact_references": [
+    {"kind": "architecture", "path": "", "version": 1, "sha256": null},
+    {"kind": "roadmap", "path": "", "version": 1, "sha256": null},
+    {"kind": "interfaces", "path": "", "version": 1, "sha256": null}
+  ],
+  "task_local_context": {"artifact_paths": []},
+  "scope": {"owned_paths": []},
+  "permissions": {
+    "allowed_actions": [],
+    "allowed_tools": [],
     "prohibited_actions": []
   },
   "dependencies": [],
   "deliverables": [],
   "acceptance": {
     "oracle": "",
-    "checks": []
+    "checks": [],
+    "independent_review": {
+      "required": false,
+      "barriers": ["verification"],
+      "evidence_requirements": []
+    }
+  },
+  "decision_barriers": {
+    "inherited_design_authorization_required": true,
+    "manager_verification_required": true,
+    "worker_waits_for_master": false
   },
   "budget": {
-    "time_minutes": 0,
+    "max_tokens": null,
+    "max_cost_usd": null,
+    "max_time_minutes": null,
+    "max_tasks": 1,
     "max_concurrency": 1,
-    "max_retries": 0
+    "max_retries": null
   },
-  "stop_escalation": {
-    "stop_conditions": [],
-    "escalate_on": []
-  },
+  "stop_escalation": {"stop_conditions": [], "escalate_on": []},
   "reporting_destination": ""
 }

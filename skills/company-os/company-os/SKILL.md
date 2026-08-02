@@ -52,9 +52,14 @@ When the project uses an Elastic Company OS instance, this hierarchy is
 controller-governed state. Queue the primary work with
 `--execution-mode luna_fabric`, configure the validated project-local manifest,
 record each manager phase report, and require a separately authenticated master
-decision before the next barrier. The controller rejects phase skips, stale
-programs, self-approval, write collisions, unreviewed verification, and
-completion before every manager integration is accepted.
+decision at the charter, design, verification, and final-integration barriers.
+Silence never grants a barrier decision; a bounded wait escalates instead of
+deadlocking. Routine execution subphases inside an unchanged, already accepted
+charter may auto-continue only after design acceptance and before verification
+when every check, budget, concurrency, and authority condition passes. Every
+subphase remains visible. The controller rejects phase skips, stale programs,
+self-approval, write collisions, unreviewed verification, and completion before
+every manager integration is accepted.
 
 Do not enable recurring project work until the instance controller validates product/project reality, direction, measurable outcome, evidence gates, one active controller, and cancellation. A recurring wake runs one bounded cycle inside the same project controller; it does not create a new operating thread as its durable state.
 

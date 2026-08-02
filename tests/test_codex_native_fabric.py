@@ -33,9 +33,16 @@ class CodexNativeFabricRepositoryTests(unittest.TestCase):
     def test_native_lane_keeps_active_lifecycle_separate_from_rework(self) -> None:
         scenario = self.payload["scenarios"][2]
         self.assertEqual("native_observation", scenario["evidence_kind"])
-        self.assertEqual("active", scenario["tasks"][0]["terminal_status"])
+        self.assertEqual("active", scenario["tasks"][0]["current_status"])
+        self.assertIsNone(scenario["tasks"][0]["terminal_status"])
         self.assertEqual("rework_required", scenario["simulation_disposition"])
         self.assertEqual("rework", FABRIC.validate_scenario(scenario)["decision"])
+
+    def test_open_active_manager_counts_against_concurrency(self) -> None:
+        scenario = json.loads(json.dumps(self.payload["scenarios"][2]))
+        scenario["budget"]["max_concurrency"] = 2
+        result = FABRIC.validate_scenario(scenario)
+        self.assertIn("budget_concurrency_pressure", result["error_codes"])
 
 
 if __name__ == "__main__":

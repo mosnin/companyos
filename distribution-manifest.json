@@ -27,8 +27,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "6be017746189828926452f86c3a230cf07e11505abc9299c61289c0e078ee0cf",
-      "size": 5452
+      "sha256": "d3cd328bb84942adc12436e1886fa485a34d2ff6eb930e414891e5c953f750b9",
+      "size": 5835
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -207,23 +207,23 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "cd6fa0006f1a70a7f2c072a5b035b324c9f88460430a482380aee07453bcbeba",
-      "size": 2743
+      "sha256": "4c7e65fea7187d61981642c0f2b1913382a7ea3dae2f0ff86aa3fc06d76d0089",
+      "size": 3292
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
-      "sha256": "afde124b194f19ede2b91c31915de4858e759e287e06fb2cc1ef92a94cbfce0a",
-      "size": 235
+      "sha256": "4c2417a4abdd2b8a77bd2ac08b9f2dad7dd8f12bf7f8ac75b0d5ff442b7820c8",
+      "size": 278
     },
     {
       "path": "company-os/manage-company-program/assets/mission-charter.json",
-      "sha256": "8474d41c41e85c744f71b4636d91d798233da7300aff7c3da518559239f2957b",
-      "size": 614
+      "sha256": "c10a2b41e24faed4353c272bd2882ecd8c2a84d99def571ab5edcced46a7a709",
+      "size": 1824
     },
     {
       "path": "company-os/manage-company-program/references/manager-contract.md",
-      "sha256": "88e65b33af5930e7bdc4ceec80b973817925ffa27c8330a0683622621f79f0b2",
-      "size": 2515
+      "sha256": "435e78bc4255dcf9673be388349f68f0bec5cd2574e626d30443715553d05d99",
+      "size": 3935
     },
     {
       "path": "company-os/operational-control/SKILL.md",
@@ -272,23 +272,23 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/SKILL.md",
-      "sha256": "d36e5f443d0733eba183ae660e462da29dc7767106d0bc487ec74c29913c470c",
-      "size": 1956
+      "sha256": "6d0e0edc1f4670e701e0ad5d17b2925f45772e594871c103f08602db65269c74",
+      "size": 2238
     },
     {
       "path": "autonomy-suite/execute-bounded-task/agents/openai.yaml",
-      "sha256": "bed9f45fcfb37b7bca1ef917d7dd0a31c69de8b0dd6e378c54921021f34e78d9",
-      "size": 217
+      "sha256": "738af2fdcb12a2680c9184a06a8f502f66ccd3ce2fe8e6b4104991ea02cd76b4",
+      "size": 260
     },
     {
       "path": "autonomy-suite/execute-bounded-task/assets/work-packet.json",
-      "sha256": "01fa699fd82d9323d368e3ce603f86401eb89965580f382d6dd17b3414d1540b",
-      "size": 610
+      "sha256": "2093e6707e3f6eb84d722bf34cf6ff498a688373b04fb6e49c384a868c698354",
+      "size": 1650
     },
     {
       "path": "autonomy-suite/execute-bounded-task/references/worker-contract.md",
-      "sha256": "e393f19c6ea7ddd401c0431a052ccf00301f0862af29189508105c15e02ebfd4",
-      "size": 1468
+      "sha256": "951bad617e15ffaa4a7a15fcf00fd5f5cb7290eeed87d1b178c195928801defb",
+      "size": 2552
     },
     {
       "path": "autonomy-suite/loops/bounded-autonomy-loop/SKILL.md",
@@ -297,8 +297,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
-      "sha256": "5ea79700f060a54d824b2804183c396e73487b8ccb625e002f58d4eeacc9e2be",
-      "size": 10221
+      "sha256": "6af8377d5052fab974475b2eb1dd6ad95287f35d2478e4eaa1bae7ffbaf4a46a",
+      "size": 10883
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",
@@ -307,23 +307,23 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/references/codex-native-task-fabric.md",
-      "sha256": "13387d7f8e440bf90836f3f4994e2edf3e2ceb41b81a9794e2b53df18feea153",
-      "size": 2910
+      "sha256": "589de8eb0bce2ddcfe71567bba88ea3dfe013fd0c21cfdf650652a3477c2f435",
+      "size": 4091
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/references/fabric-contract.md",
-      "sha256": "1ae7d6f92bf7e7a8926f0887f1da31792f5c09816b35e6ac514337f8be8eb12c",
-      "size": 9133
+      "sha256": "8367203dac526c8fef5749f2fa4df943da98f180db656b03532aaea39ccaabc7",
+      "size": 10975
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/scripts/test_validate_codex_native_fabric.py",
-      "sha256": "cddab8aeec932626f0b50f015f273ad2a8ba3268ead9d30ac378cdfaa99a3ff7",
-      "size": 3365
+      "sha256": "b67ccc7f4f2c929293f2d58a9a73585fb70915116232fa9dc6fdfe214c888ec9",
+      "size": 8070
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_codex_native_fabric.py",
-      "sha256": "3635e089802ef70af63359634a40236b06ff9af0addf53f5588ee40275b12739",
-      "size": 18121
+      "sha256": "10dbea0d919bb53486c152ae1887aa6f4051b66c403bb4095c0807977b20b864",
+      "size": 23423
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py",

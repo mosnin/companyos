@@ -99,11 +99,18 @@ manifest, detached-source parity, and transactional installed upgrade.
 
 ## Program 6 Codex-native correction
 
-The source-level contract and simulation slice passes locally: authority 9.3,
-cancellation truth/integrity 9.2, evidence integrity 9.4, project isolation 9.2,
-dependency safety 9.3, failure/rework 9.3, budget/concurrency 8.8, and role/prompt
-architecture 9.1. These scores mean the contract fails closed and reports gaps
-honestly; they do not score missing runtime capabilities as implemented.
+Independent review of commit `16592d4` scored the prior slice 5.8 and rejected
+it. The bounded v2 rework closes its seven source-contract findings locally:
+phase authority 9.1, compact contracts 9.0, lifecycle/concurrency 9.0,
+cancellation truth 9.2, evidence 9.2, project/scope isolation 9.0, iteration
+mapping 8.8, and agent policy 9.0. No dimension is above 8 without a matching
+strict or adversarial check. These remain source-level scores, not installed or
+operational runtime evidence.
+
+Regression integrity scores 9.0 after 41 repository, 16 focused native-fabric,
+126 controller, 37 store, 8 observation, 10 gateway, 14 lifecycle, 9 receipt,
+29 Responses-fixture, 30 operator-brief, and 10 reference tests, with manifest,
+syntax, and repository-wide zero-bytecode gates.
 
 Full-system readiness remains NO-GO: hard cancellation 2.0, controller-native
 admission 1.0, installed fresh-thread role behavior 2.0, clean two-Luna

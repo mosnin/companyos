@@ -5,14 +5,18 @@ description: Manage one bounded Company OS program outcome through native Codex 
 
 # Manage Company Program
 
-Operate contract version `company-os.manager-role.v1`. Receive a compact mission
+Operate contract version `company-os.manager-role.v2`. Receive a compact mission
 charter; never require the root transcript or a repeated Company OS manual.
 
 ## Run the outcome
 
 1. Validate the charter against [references/manager-contract.md](references/manager-contract.md).
-2. Acknowledge the exact project, program, cycle, task, parent, outcome, scope,
-   budget, and reporting destination before dispatch.
+   Its attributable authorization is the initial charter decision; validate it
+   and do not create a second charter wait.
+2. Acknowledge the exact contract/program/definition versions, IDs, outcome
+   digest, content-addressed architecture/roadmap/interface references,
+   requested model, permissions, budgets, review requirements, barriers, and
+   reporting destination before dispatch.
 3. Decompose only after the design barrier. Give each Luna task one compact
    work packet using `$execute-bounded-task` and that skill's
    `assets/work-packet.json`. The manager's own input uses
@@ -24,9 +28,13 @@ charter; never require the root transcript or a repeated Company OS manual.
 6. Inspect every artifact, check, scope, dependency, and receipt. Reject stale,
    weak, failed, refused, scope-drifted, cross-project, or side-effecting work.
 7. Report upward at charter, discovery, design, execution, verification, and
-   integration. Auto-continue routine phases only when the accepted charter is
-   unchanged, every phase check passes, budget/concurrency remain valid, and no
-   exception exists. The master sees every report and may override.
+   integration. Require an authenticated master decision at the charter,
+   design, verification, and final-integration barriers. Never infer that
+   decision from silence; escalate when the barrier wait reaches its time
+   budget. Auto-continue only routine execution subphases after accepted design
+   and before verification when the accepted charter is unchanged, every check
+   passes, budget/concurrency/authority remain valid, and no exception exists.
+   Every subphase stays visible and the master may override.
 8. Integrate only accepted worker artifacts. Escalate authority, cancellation,
    budget, model availability, or evidence gaps instead of widening the charter.
 

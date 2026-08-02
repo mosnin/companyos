@@ -13,19 +13,25 @@ import json
 import math
 import re
 import sys
+import unicodedata
 from pathlib import Path
 from typing import Any
 
 
-SCHEMA = "company-os.codex-native-task-fabric-simulation.v1"
+SCHEMA = "company-os.codex-native-task-fabric-simulation.v2"
 REQUESTED_MODELS = {
     "master": "gpt-5.6-sol",
     "manager": "gpt-5.6-sol",
     "worker": "gpt-5.6-luna",
 }
-LIFECYCLE = {"active", "accepted", "blocked", "failed", "refused", "cancelled"}
+CURRENT_STATUSES = {"planned", "created", "active", "accepted", "blocked", "failed", "refused", "cancelled"}
+TERMINAL_STATUSES = {"accepted", "blocked", "failed", "refused", "cancelled"}
 UNAVAILABLE_FIELDS = {"tokens", "cost_usd", "cancellation_acknowledgement"}
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._:-]{2,127}$")
+SCOPE_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*(?:/[a-z0-9][a-z0-9._-]*)*$")
+HOST_MODEL_SOURCE_PATTERN = re.compile(
+    r"^host_observation:(?:create_thread|list_threads|read_thread|wait_threads):model$"
+)
 
 
 def canonical_json(value: Any) -> str:
@@ -51,6 +57,24 @@ def _finite_nonnegative(value: Any) -> bool:
         and math.isfinite(value)
         and value >= 0
     )
+
+
+def _positive_order(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 1
+
+
+def _canonical_scope(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and value.isascii()
+        and value == unicodedata.normalize("NFKC", value)
+        and value == value.casefold()
+        and bool(SCOPE_PATTERN.fullmatch(value))
+    )
+
+
+def _scopes_overlap(left: str, right: str) -> bool:
+    return left == right or left.startswith(right + "/") or right.startswith(left + "/")
 
 
 def _error(errors: list[dict[str, str]], code: str, detail: str) -> None:
@@ -87,8 +111,11 @@ def _validate_metric(
     _error(errors, "telemetry_invalid", f"{task_id}.{field} has an unsupported observation")
 
 
-def validate_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
+def validate_scenario(scenario: Any) -> dict[str, Any]:
     errors: list[dict[str, str]] = []
+    if not isinstance(scenario, dict):
+        _error(errors, "scenario_shape", "scenario must be an object")
+        return {"decision": "rework", "errors": errors, "error_codes": ["scenario_shape"]}
     project_id = scenario.get("project_id")
     program_id = scenario.get("program_id")
     program_version = scenario.get("program_version")
@@ -138,8 +165,9 @@ def validate_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
             _error(errors, "duplicate_task", f"duplicate task_id {task_id}")
         by_id[task_id] = task
 
-    active_windows: list[tuple[int, int, str]] = []
-    worker_scopes: dict[str, str] = {}
+    active_windows: list[tuple[int, int | None, str]] = []
+    worker_scopes: list[tuple[str, str]] = []
+    native_thread_ids: dict[str, str] = {}
     for task_id, task in by_id.items():
         if task.get("project_id") != project_id or task.get("program_id") != program_id or task.get("program_version") != program_version:
             _error(errors, "project_isolation", f"{task_id} does not match its exact project/program binding")
@@ -156,22 +184,68 @@ def validate_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
         elif observed_model.get("status") == "unavailable":
             if observed_model.get("value") is not None or observed_model.get("source") is not None:
                 _error(errors, "observed_model_fabricated", f"{task_id} unavailable model must have null value/source")
+        elif evidence_kind == "deterministic_fixture":
+            _error(errors, "fixture_model_mislabeled_observed", f"{task_id} fixture cannot claim an observed model")
         elif not (
-            observed_model.get("status") == "observed"
+            evidence_kind == "native_observation"
+            and observed_model.get("status") == "observed"
             and _nonempty(observed_model.get("value"))
-            and _nonempty(observed_model.get("source"))
+            and isinstance(observed_model.get("source"), str)
+            and HOST_MODEL_SOURCE_PATTERN.fullmatch(observed_model["source"])
         ):
-            _error(errors, "observed_model_invalid", f"{task_id} observed model lacks attributable source")
+            _error(errors, "observed_model_source_untrusted", f"{task_id} model source is not a recognized host observation")
 
         native = task.get("native_metadata")
         if not isinstance(native, dict) or set(native) != {"thread_id", "host_id"}:
             _error(errors, "native_metadata_shape", f"{task_id} native metadata is malformed")
             native = {}
-        if task.get("start_status") == "created":
+        current_status = task.get("current_status")
+        created_order = task.get("created_order")
+        started_order = task.get("started_order")
+        terminal_status = task.get("terminal_status")
+        terminal_order = task.get("terminal_order")
+        if current_status not in CURRENT_STATUSES:
+            _error(errors, "current_status", f"{task_id} current_status is invalid")
+        if current_status == "planned":
+            if any(value is not None for value in (created_order, started_order, terminal_status, terminal_order)):
+                _error(errors, "planned_task_order", f"{task_id} planned task cannot claim lifecycle orders")
+            if native.get("thread_id") is not None or native.get("host_id") is not None:
+                _error(errors, "native_identity_before_create", f"{task_id} has native identity before creation")
+        else:
+            if not _positive_order(created_order):
+                _error(errors, "created_order", f"{task_id} non-planned task lacks created_order")
             if not _nonempty(native.get("thread_id")) or not _nonempty(native.get("host_id")):
                 _error(errors, "native_identity_missing", f"{task_id} created task lacks thread_id/host_id")
-        elif native.get("thread_id") is not None or native.get("host_id") is not None:
-            _error(errors, "native_identity_before_create", f"{task_id} has native identity before creation")
+            else:
+                thread_id = native["thread_id"]
+                if thread_id in native_thread_ids:
+                    _error(errors, "native_identity_duplicate", f"{task_id} reuses native thread identity from {native_thread_ids[thread_id]}")
+                native_thread_ids[thread_id] = task_id
+                if evidence_kind == "native_observation" and thread_id != task_id:
+                    _error(errors, "native_identity_mismatch", f"{task_id} native observation thread_id differs")
+
+        if current_status == "created":
+            if started_order is not None or terminal_status is not None or terminal_order is not None:
+                _error(errors, "created_task_order", f"{task_id} created task cannot claim start or terminal state")
+        elif current_status == "active":
+            if not _positive_order(created_order) or not _positive_order(started_order) or started_order <= created_order:
+                _error(errors, "started_order", f"{task_id} active task lacks ordered create/start events")
+            if terminal_status is not None or terminal_order is not None:
+                _error(errors, "active_marked_terminal", f"{task_id} active task cannot be terminal")
+            if _positive_order(started_order):
+                active_windows.append((started_order, None, task_id))
+        elif current_status in TERMINAL_STATUSES:
+            if terminal_status != current_status:
+                _error(errors, "terminal_status_mismatch", f"{task_id} terminal_status must match current_status")
+            if (
+                not _positive_order(created_order)
+                or not _positive_order(started_order)
+                or not _positive_order(terminal_order)
+                or not created_order < started_order < terminal_order
+            ):
+                _error(errors, "terminal_order", f"{task_id} terminal task requires ordered create/start/terminal events")
+            else:
+                active_windows.append((started_order, terminal_order, task_id))
 
         parent_id = task.get("parent_task_id")
         if role == "manager":
@@ -195,15 +269,15 @@ def validate_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
                 continue
             if dependency.get("project_id") != project_id:
                 _error(errors, "project_isolation", f"{task_id} dependency crosses project boundary")
-            start_order = task.get("start_order")
+            task_started_order = task.get("started_order")
             dependency_accepted = (
                 dependency.get("terminal_status") == "accepted"
                 and isinstance(dependency.get("terminal_order"), int)
             )
-            if start_order is None and not dependency_accepted:
+            if task_started_order is None and not dependency_accepted:
                 _error(errors, "dependency_blocked", f"{task_id} correctly remained blocked on {dependency_id}")
-            elif start_order is not None and (
-                not dependency_accepted or dependency["terminal_order"] >= start_order
+            elif task_started_order is not None and (
+                not dependency_accepted or dependency["terminal_order"] >= task_started_order
             ):
                 _error(errors, "dependency_not_accepted", f"{task_id} started before {dependency_id} was accepted")
 
@@ -211,14 +285,17 @@ def validate_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(scope, list) or any(not _nonempty(item) for item in scope):
             _error(errors, "scope_shape", f"{task_id} scope is invalid")
             scope = []
+        elif any(not _canonical_scope(item) for item in scope):
+            _error(errors, "scope_noncanonical", f"{task_id} scope must be lowercase ASCII project-relative POSIX paths")
         expected_scope_digest = digest(sorted(scope))
         if task.get("scope_digest") != expected_scope_digest:
             _error(errors, "scope_changed", f"{task_id} scope digest does not match its current scope")
         if role == "worker":
             for item in scope:
-                if item in worker_scopes:
-                    _error(errors, "scope_collision", f"{task_id} scope overlaps {worker_scopes[item]}")
-                worker_scopes[item] = task_id
+                for existing, owner in worker_scopes:
+                    if _scopes_overlap(item, existing):
+                        _error(errors, "scope_collision", f"{task_id} scope {item} overlaps {owner} scope {existing}")
+                worker_scopes.append((item, task_id))
 
         report = task.get("report")
         if not isinstance(report, dict):
@@ -229,9 +306,6 @@ def validate_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
         if report.get("scope_digest") != expected_scope_digest:
             _error(errors, "report_scope_changed", f"{task_id} report uses a different scope")
 
-        terminal_status = task.get("terminal_status")
-        if terminal_status not in LIFECYCLE:
-            _error(errors, "terminal_status", f"{task_id} lifecycle status is invalid")
         if terminal_status in {"failed", "refused", "cancelled"}:
             _error(errors, "task_terminal_failure", f"{task_id} ended {terminal_status}")
 
@@ -260,19 +334,12 @@ def validate_scenario(scenario: dict[str, Any]) -> dict[str, Any]:
         for field in ("tokens", "cost_usd", "elapsed_ms", "cancellation_acknowledgement"):
             _validate_metric(telemetry, field, errors, task_id, evidence_kind)
 
-        start_order = task.get("start_order")
-        terminal_order = task.get("terminal_order")
-        if start_order is not None:
-            if terminal_status == "active" and isinstance(start_order, int) and terminal_order is None:
-                pass
-            elif not isinstance(start_order, int) or not isinstance(terminal_order, int) or terminal_order <= start_order:
-                _error(errors, "task_order", f"{task_id} start/terminal order is invalid")
-            else:
-                active_windows.append((start_order, terminal_order, task_id))
-
     if active_windows:
-        for tick in range(min(item[0] for item in active_windows), max(item[1] for item in active_windows) + 1):
-            active = [task_id for start, end, task_id in active_windows if start <= tick < end]
+        for tick in sorted({item[0] for item in active_windows}):
+            active = [
+                task_id for start, end, task_id in active_windows
+                if start <= tick and (end is None or tick < end)
+            ]
             if len(active) > max_concurrency:
                 _error(errors, "budget_concurrency_pressure", f"concurrency {len(active)} exceeds {max_concurrency} at order {tick}")
                 break
@@ -299,15 +366,33 @@ def validate_simulation(payload: dict[str, Any]) -> dict[str, Any]:
     runtime_scorecard = payload.get("runtime_readiness_scorecard")
     if not isinstance(iterations, list) or not iterations:
         errors.append("before/after iterations are required")
-    elif any(
-        not isinstance(item, dict)
-        or not _nonempty(item.get("iteration_id"))
-        or not _nonempty(item.get("defect"))
-        or not _nonempty(item.get("correction"))
-        or not isinstance(item.get("rerun_scenarios"), list)
-        for item in iterations
-    ):
-        errors.append("iteration defect-to-correction mapping is invalid")
+    scenario_ids = {
+        item.get("scenario_id") for item in scenarios or []
+        if isinstance(item, dict) and _valid_id(item.get("scenario_id"))
+    } if isinstance(scenarios, list) else set()
+    if isinstance(iterations, list):
+        seen_iterations: set[str] = set()
+        for item in iterations:
+            if not isinstance(item, dict):
+                errors.append("iteration defect-to-correction mapping is invalid")
+                continue
+            iteration_id = item.get("iteration_id")
+            reruns = item.get("rerun_scenarios")
+            if not _nonempty(iteration_id) or iteration_id in seen_iterations:
+                errors.append(f"invalid or duplicate iteration_id: {iteration_id}")
+            else:
+                seen_iterations.add(iteration_id)
+            if not _nonempty(item.get("defect")) or not _nonempty(item.get("correction")):
+                errors.append(f"{iteration_id}: defect and correction are required")
+            if (
+                not isinstance(reruns, list)
+                or not reruns
+                or any(not _valid_id(value) for value in reruns)
+                or len(reruns) != len(set(reruns))
+            ):
+                errors.append(f"{iteration_id}: rerun_scenarios must be nonempty and unique")
+            elif any(value not in scenario_ids for value in reruns):
+                errors.append(f"{iteration_id}: rerun_scenarios references an unknown scenario")
     if not isinstance(scorecard, list) or not scorecard:
         errors.append("simulation scorecard is required")
     elif any(
@@ -337,14 +422,22 @@ def validate_simulation(payload: dict[str, Any]) -> dict[str, Any]:
     results = []
     seen: set[str] = set()
     for scenario in scenarios:
-        scenario_id = scenario.get("scenario_id") if isinstance(scenario, dict) else None
+        if not isinstance(scenario, dict):
+            errors.append("scenario must be an object")
+            continue
+        scenario_id = scenario.get("scenario_id")
         if not _valid_id(scenario_id) or scenario_id in seen:
             errors.append(f"invalid or duplicate scenario_id: {scenario_id}")
             continue
         seen.add(scenario_id)
         result = validate_scenario(scenario)
         expected = scenario.get("expected_after")
-        expected_codes = sorted(scenario.get("expected_error_codes", []))
+        raw_expected_codes = scenario.get("expected_error_codes")
+        if not isinstance(raw_expected_codes, list) or any(not isinstance(item, str) for item in raw_expected_codes):
+            errors.append(f"{scenario_id} expected_error_codes is invalid")
+            expected_codes: list[str] = []
+        else:
+            expected_codes = sorted(raw_expected_codes)
         matched = result["decision"] == expected and result["error_codes"] == expected_codes
         if not matched:
             errors.append(f"{scenario_id} did not match its deterministic oracle")

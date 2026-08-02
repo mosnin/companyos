@@ -1,12 +1,27 @@
 # Sol manager contract
 
-Contract: `company-os.manager-role.v1`.
+Contract: `company-os.manager-role.v2`.
 
 ## Input
 
-Accept only the keys in `assets/mission-charter.json`. Identifiers bind exact
-project, program, cycle, task, and parent lineage. A changed outcome, scope,
-budget, or dependency set requires a new versioned charter from the master.
+Accept only the keys in `assets/mission-charter.json`. Require exact charter,
+program, and definition versions; an outcome digest; versioned SHA-256-bound
+architecture, roadmap, and interface references; requested model; allowed
+actions/tools; prohibitions; all six budgets; independent-review requirements;
+and decision-barrier data. Identifiers bind exact project, program, cycle,
+task, and parent lineage. A changed outcome, scope, budget, reference, or
+dependency set requires a new authenticated versioned charter from the master.
+The charter's `authorization` must identify the authenticated master charter
+decision, decider, definition digest, evidence digest, and authentication
+digest; a policy list alone is never admission evidence. The definition digest
+is SHA-256 over canonical sorted compact JSON for every top-level field except
+`authorization`, so any post-decision mutation invalidates admission.
+That validated reference satisfies the initial charter barrier; the manager
+does not request or await a duplicate charter decision.
+
+Owned scopes are lowercase ASCII project-relative POSIX paths. Reject case,
+Unicode, absolute/backslash/dot-segment ambiguity, and equal or
+ancestor/descendant writer overlap rather than normalizing aliases.
 
 ## Native coordination
 
@@ -22,13 +37,17 @@ budget, or dependency set requires a new versioned charter from the master.
 
 ## Gates
 
-Every phase emits a report to the master. Auto-continue when the accepted
-charter is unchanged, all phase checks pass, budget and concurrency remain
-valid, and there is no exception. Master silence is not a new grant; it simply
-leaves the existing charter in force. The master may override any routine
-continuation. Pause or escalate only for a failed gate, scope/authority change,
-collision, budget pressure, cancellation or model gap, evidence defect, or an
-explicit master stop.
+Every phase emits a report to the master. Charter, design, verification, and
+final integration require an authenticated master decision bound to the exact
+program version, definition version, outcome digest, and phase evidence.
+Silence is not a grant; stop waiting and escalate at the charter's time limit.
+Only routine execution subphases after accepted design and before verification
+may auto-continue, and only while the accepted charter is unchanged, all checks
+pass, every budget and concurrency limit remains valid, authority is unchanged,
+and no exception exists. Every subphase remains visible to the master, who may
+override it. Pause
+or escalate on a failed gate, scope/authority change, collision, budget
+pressure, cancellation or model gap, evidence defect, or explicit master stop.
 
 | Condition | Decision |
 | --- | --- |
@@ -45,7 +64,8 @@ explicit master stop.
 Return: contract version; IDs; phase; `ready_for_decision | blocked | failed`;
 artifacts and evidence references; accepted/rejected/reworked worker task IDs;
 variance; risks; observable elapsed duration; unavailable telemetry fields;
-requested decision; and one next action.
+requested decision or routine-continuation basis; authenticated decision
+reference at a true barrier; and one next action.
 
 ## Manager receipt
 

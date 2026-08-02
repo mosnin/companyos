@@ -1,13 +1,30 @@
 # Luna worker contract
 
-Contract: `company-os.worker-role.v1`.
+Contract: `company-os.worker-role.v2`.
 
 ## Input boundary
 
-Accept only the keys in `assets/work-packet.json`. Reject missing identifiers,
-foreign project/program/cycle bindings, an unaccepted dependency, a scope that
-exceeds the packet, a non-Luna requested model, or a budget above concurrency
-one and retry one.
+Accept only the keys in `assets/work-packet.json`. Require exact packet,
+program, and definition versions; an outcome digest; versioned SHA-256-bound
+architecture, roadmap, and interface references; requested model; allowed
+actions/tools; prohibitions; all six budgets; independent-review requirements;
+and the accepted design-decision data. Reject missing identifiers, foreign
+project/program/cycle bindings, an unaccepted dependency, a scope that exceeds
+the packet, a non-Luna requested model, or a budget above one task,
+concurrency one, and retry one.
+
+The packet's `authorization` is attributable evidence of the manager's already
+accepted master design decision. Its decision, decider, definition, evidence,
+and authentication digests must be populated before dispatch. The definition
+digest is SHA-256 over canonical sorted compact JSON for every top-level field
+except `authorization`, so post-decision mutation fails. It is inherited
+authority, not a worker-owned wait condition. The worker never contacts or
+awaits the master; it returns its receipt to the manager, and the manager owns
+the later verification barrier.
+
+Owned scopes are lowercase ASCII project-relative POSIX paths. Reject case,
+Unicode, absolute/backslash/dot-segment ambiguity, and equal or
+ancestor/descendant writer overlap rather than normalizing aliases.
 
 ## Side-effect rule
 

@@ -1,10 +1,16 @@
 # Codex-native task fabric simulation report
 
-Status: `SAFE_CORRECTION_ACCEPTABLE / BROADER_RUNTIME_NO_GO`.
+Status: `V2_REWORK_LOCALLY_VALIDATED / BROADER_RUNTIME_NO_GO`.
+
+Independent review of commit `16592d4c95671638c6d538e0d2932488020ace91`
+was NO-GO: overall 5.8, with 0 P0, 4 P1, and 3 P2 findings. The v2
+rework below closes those seven source-contract findings; it does not upgrade
+the full runtime.
 
 ## Native task evidence
 
-Exactly two projectless Luna tasks were created from this Sol manager task.
+Exactly two projectless tasks were requested as `gpt-5.6-luna` from this Sol
+manager task. Observed model identity was unavailable for both.
 
 | Worker | Native task/thread ID | Requested model | Observed model | Host observations | Duration | Disposition |
 | --- | --- | --- | --- | --- | ---: | --- |
@@ -26,6 +32,10 @@ started with 0 cache artifacts, ran with `PYTHONDONTWRITEBYTECODE=1`, and ended
 with 0; its fail-closed post-test scan returned
 `acceptance-rerun-passed pyc_before=0 pyc_after=0`.
 
+The v2 rework reran the complete relevant lane with bytecode disabled. Its
+repository-wide before/after receipt was
+`full-v2-acceptance-passed pyc_before=0 pyc_after=0 cache_dirs_before=0 cache_dirs_after=0 shim=absent`.
+
 Task/thread ID is native identity. The more specific host value is current
 coordination metadata; the earlier `local` value is retained as a raw normalized
 observation. Neither host representation establishes lineage. The manager task
@@ -45,8 +55,8 @@ The concrete input and before-state defects are retained in
 | Scenario | Objective oracle | After result |
 | --- | --- | --- |
 | Known-answer synthetic project | Worker and manager JSON answer must equal 42 with valid digests | accepted |
-| Three-step malformed dependency | Bad upstream digest; both downstream start orders must remain null | blocked; neither downstream task starts |
-| One manager plus two Luna workers | Disjoint scopes, exact IDs, real durations, manager integration review | rework; Worker A accepted and Worker B failure preserved |
+| Three-step malformed dependency | Bad upstream digest; both downstream create/start orders must remain null | blocked; neither downstream task is created or starts |
+| One manager plus two tasks requested as `gpt-5.6-luna` | Disjoint scopes, exact IDs, real durations, manager integration review; observed model unavailable | rework; Worker A accepted and Worker B failure preserved |
 | Fault and pressure injection | Stale report, scope drift, fail/refuse, task and concurrency caps | blocked with every injected defect named |
 | Similar project isolation | `project-native-01-copy` artifact inserted into `project-native-01` | rejected for task and artifact isolation |
 
@@ -59,6 +69,13 @@ The concrete input and before-state defects are retained in
 | 2 | First manager skill routed Luna packets to the manager charter asset | Routed Luna tasks to `$execute-bounded-task` and its work-packet asset | deterministic role validator passes |
 | 2 | First manager phase rule risked approval deadlock | Added exception-based auto-continuation with report visibility and master override | deterministic role validator rejects the old wording |
 | 3 | Dependency, stale report, scope, budget, and project isolation were narrative only | Added executable five-scenario schema validator | all five after-state oracles match |
+| 4 | Barrier policy alternated between wait-everywhere and auto-continue-everywhere | Authenticated charter/design/verification/integration barriers; visible routine execution-only continuation | every authoritative phase source is structurally checked |
+| 5 | Compact assets omitted contract authority and budget data | Added strict v2 schemas with versions, digests, authorization, references, permissions, six budgets, review, and barriers | strict dispatched-payload tests pass; workers inherit design evidence and never await master |
+| 6 | Fixture/request text could masquerade as observed model | Fixtures cannot claim observed model; native observations require an allowlisted host source class | requested/charter source attacks reject |
+| 7 | Active was terminal and open intervals escaped concurrency | Added current/optional-terminal state and ordered create/start/terminal events | accepted-without-start and active-overlap pressure reject |
+| 8 | Rerun mappings were unchecked | Require unique iteration IDs and nonempty unique existing scenario references | empty, duplicate, and foreign mappings reject |
+| 9 | Scope equality missed path aliases and ancestors | Require lowercase ASCII relative POSIX paths and reject ancestor overlap | case, Unicode, ambiguous path, and descendant attacks reject |
+| 10 | Agent metadata could invoke roles implicitly | Added structurally parsed `allow_implicit_invocation: false` | missing, true, and malformed metadata reject without PyYAML |
 
 ## Brutal manager scorecard
 
@@ -67,16 +84,18 @@ operation or installed skill behavior.
 
 | Dimension | Score | Evidence and residual defect |
 | --- | ---: | --- |
-| Authority integrity | 9.3 | Exact roles, charter narrowing, no worker delegation, master-only final acceptance; controller admission is still not wired to native create |
+| Phase authority integrity | 9.1 | Authenticated true barriers, bounded silence escalation, routine execution-only auto-continuation, and no worker-owned master wait are validated across every authoritative source |
+| Compact contract integrity | 9.0 | Strict v2 charter/packet keys carry versions, outcome/reference digests, requested model, permissions, six budgets, review, barrier policy, and authorization bound to exact definition/evidence/authentication digests |
+| Lifecycle/concurrency integrity | 9.0 | Current versus terminal state, native identity, ordered events, and open active intervals are adversarially tested |
 | Cancellation integrity | 9.2 | Contract refuses to invent hard cancellation and treats stop as cooperative; operational hard interrupt remains unavailable and blocks broader runtime |
-| Evidence integrity | 9.4 | Actual task IDs/durations, requested/observed split, failed receipt preservation, content digests, objective oracles |
-| Project isolation | 9.2 | Exact binding and foreign-artifact simulation pass; multi-project live tasks are not yet forward-tested |
+| Evidence integrity | 9.2 | Task IDs/durations, requested/observed split, allowlisted native model sources, failed receipt preservation, digests, and objective oracles |
+| Project/scope isolation | 9.0 | Foreign bindings, case/Unicode/path ambiguity, and equal/ancestor writer overlap reject; multi-project live tasks remain untested |
+| Iteration mapping integrity | 8.8 | Rerun mappings must be nonempty, unique, and reference existing scenario IDs |
+| Agent policy integrity | 9.0 | Both source roles disable implicit invocation through a bounded structural parser |
 | Dependency safety | 9.3 | Malformed upstream artifact blocks both downstream starts deterministically |
 | Failure and rework | 9.3 | Real Worker B failure is rejected and never upgraded; synthetic fail/refuse paths block |
-| Budget and concurrency | 8.8 | Deterministic pressure gate passes; native host does not expose enforceable token/cost budgets |
-| Role/prompt architecture | 9.1 | Concise versioned global skills and compact assets; installed fresh-thread discovery remains unproven |
-| Observability truth | 9.3 | Elapsed is independent; model/tokens/cost/cancellation stay unavailable |
-| Regression strength | 9.0 | 32 repository tests; 7 focused native-fabric tests; 126 controller; 37 store; 8 observation; 10 gateway; 14 lifecycle; 9 receipt; 29 Responses fixture; 10 reference tests; validators and AST parse pass |
+| Budget truth | 8.8 | All six caps are explicit; unavailable native token/cost enforcement remains a full-runtime blocker |
+| Regression strength | 9.0 | 41 repository; 16 native-fabric; 126 controller; 37 store; 8 observation; 10 gateway; 14 lifecycle; 9 receipt; 29 Responses-fixture; 30 operator-brief; and 10 reference tests pass, plus strict role/fabric validators, manifest, 28-file syntax, diff, secret/scope, and zero-bytecode gates |
 
 Every applicable local-correction score exceeds 8; authority, cancellation
 integrity, and evidence integrity exceed 9. Operational hard cancellation is

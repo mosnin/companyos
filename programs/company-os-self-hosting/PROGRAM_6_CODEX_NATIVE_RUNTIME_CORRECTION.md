@@ -22,7 +22,8 @@ Optimize the native task contract around what the host truthfully exposes:
 - native task/thread IDs and status;
 - host-ID observations used only for coordination;
 - requested model selection, separate from unavailable observed model identity;
-- start/completion timestamps and elapsed duration when returned;
+- current status, ordered create/start events, optional terminal evidence, and
+  elapsed duration when returned;
 - terminal messages and inspectable artifacts.
 
 Keep tokens, cost, cancellation acknowledgement, and observed model unavailable
@@ -36,7 +37,8 @@ asking a task to stop is cooperative intent, not a proven hard interrupt.
 2. Route Company OS and the Luna fabric through those skills.
 3. Add a host-only task-fabric playbook and deterministic exported-evidence
    validator; never claim repository code invokes app tools.
-4. Run two actual Luna tasks plus five deterministic simulation scenarios.
+4. Record two tasks requested as `gpt-5.6-luna`, with observed model unavailable,
+   plus five deterministic simulation scenarios.
 5. Preserve scheduling, controller-native admission, installation, and external
    effects as blocked future gates.
 

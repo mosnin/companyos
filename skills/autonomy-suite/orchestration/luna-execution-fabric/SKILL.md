@@ -52,8 +52,10 @@ with worktrees, sandboxes, file ownership, permission envelopes, and leases.
 
 7. When an Elastic Company OS instance exists, queue the governed primary work
    with `--execution-mode luna_fabric`, then bind the validated manifest through
-   `configure-fabric`. Use `record-fabric-phase` and
-   `decide-fabric-phase` for every manager barrier.
+   `configure-fabric`. Record every visible phase; use `decide-fabric-phase`
+   only for the authenticated charter, design, verification, and final
+   integration barriers. The current controller has not implemented native v2
+   routine-subphase admission, so the broader runtime remains blocked.
 8. Dispatch only unblocked tasks. Prefer parallel reads; allow one active writer
    for a resource or file-ownership scope.
 9. Require managers to inspect evidence and the integrated result, not merely
@@ -151,10 +153,17 @@ Use these mandatory phase states:
 5. `verification`: report manager and independent-review evidence and risks.
 6. `integration`: report the integrated artifact for master acceptance.
 
-Every manager sends one compact report at every barrier. The master replies
-with `continue`, `rework`, `pause`, or `terminate`. Workers cannot start before
-the manager's design report is accepted. A manager cannot integrate before its
-verification report is accepted.
+Every manager sends one compact report at every phase. Charter, design,
+verification, and final integration are true decision barriers: the master
+returns an authenticated master decision of `continue`, `rework`, `pause`, or
+`terminate`
+bound to the current program, definition, outcome digest, and phase report.
+Silence is never a grant; a time-budgeted wait escalates rather than waiting
+forever. Workers cannot start before design is accepted, and integration cannot
+start before verification is accepted. Routine execution subphases between
+those barriers may auto-continue only under the unchanged accepted charter when
+all checks, budgets, concurrency, and authority conditions pass. Every
+subphase remains visible and overridable.
 
 Use five typed messages:
 

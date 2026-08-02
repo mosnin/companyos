@@ -5,14 +5,18 @@ description: Execute one exact bounded work packet and return an attributable ev
 
 # Execute Bounded Task
 
-Operate contract version `company-os.worker-role.v1`. Read the compact work
+Operate contract version `company-os.worker-role.v2`. Read the compact work
 packet; do not request the root transcript or repeat the Company OS manual.
 
 ## Execute one packet
 
 1. Validate the packet against [references/worker-contract.md](references/worker-contract.md)
-   and acknowledge every ID, dependency, scope, prohibition, deliverable,
-   acceptance check, budget, stop rule, and reporting destination.
+   and acknowledge its contract/program/definition versions, IDs, outcome
+   digest, content-addressed references, requested model, permissions,
+   dependencies, deliverables, acceptance/review checks, budgets, barrier
+   decisions, stop rules, and reporting destination.
+   Treat the design authorization as inherited evidence. Never wait on or
+   contact the master; report only to the manager destination in the packet.
 2. Stop before work when a dependency is absent, malformed, stale, foreign, or
    unaccepted. Do not start downstream work speculatively.
 3. Perform only the named task inside the exact scope. Do not spawn children,

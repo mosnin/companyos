@@ -29,7 +29,12 @@ request proves only the request. Record actual task/thread and host metadata
 only when the host exposes them, and never use host identity as lineage. Pause
 when Luna cannot be requested; do not silently reroute and mislabel work.
 
-## Required program manifest
+## Legacy Phase 1 program manifest
+
+The JSON below is the frozen controller/`validate_fabric.py` manifest, not a
+native v2 prompt payload. Do not copy its embedded descriptive fields into a
+manager or worker prompt. Native dispatch uses only the exact compact v2 assets
+described after this legacy example.
 
 ```json
 {
@@ -107,6 +112,19 @@ when Luna cannot be requested; do not silently reroute and mislabel work.
 }
 ```
 
+## Native v2 compact contracts
+
+`company-os.mission-charter.v2` and `company-os.work-packet.v2` are the only
+native role inputs. Their exact source assets carry role-contract,
+program/definition versions; IDs; outcome and SHA-256; requested model;
+attributable charter or inherited-design authorization with definition,
+evidence, and authentication digests; versioned
+SHA-256-bound architecture, roadmap, and interface artifact references;
+task-local paths; canonical scope; allowed actions/tools and prohibitions;
+dependencies and deliverables; oracle/checks and review requirements; barrier
+policy; token/cost/time/task/concurrency/retry caps; stop/escalation; and one
+reporting destination. They never carry a transcript or global context.
+
 ## Authority
 
 - The master owns program version, manager admission, cross-manager conflicts,
@@ -126,10 +144,13 @@ Every executable manifest repeats the six-part Company OS contract: outcome,
 envelope, budget, execution, evidence, and reconciliation. The program owns a
 budget object (`time_minutes`, `token_limit`, `cost_usd`, `max_concurrency`,
 `max_retries`); each manager budget may only narrow it; each worker budget may
-only narrow its manager. Scope follows the same rule: manager scopes are
-canonical Unicode-normalized, case-folded, lexical project-relative paths and
-mutually disjoint; worker scopes are canonical descendants of their manager
-envelope and mutually disjoint.
+only narrow its manager. Scope follows the same rule. Canonical scopes are
+lowercase ASCII, project-relative POSIX paths: no absolute paths, backslashes,
+empty, `.` or `..` segments, control characters, Unicode, or leading/trailing
+separators. Reject rather than normalize case or Unicode so two spellings
+cannot alias. Writer scopes overlap when equal or when either is an ancestor of
+the other. Manager scopes are mutually disjoint; worker scopes are canonical
+descendants of their manager envelope and mutually disjoint.
 No child may widen authority, retries, concurrency, cost, time, tokens, or
 write scope. Evidence and exceptions move upward. The executable depth remains
 master → manager → worker. Each worker has concurrency one, and sibling time,
@@ -140,7 +161,9 @@ allocations must fit within the program envelope.
 
 The master sends every manager:
 
-- program ID, version, and immutable outcome digest;
+- charter, program, and definition versions plus immutable outcome digest;
+- attributable authenticated charter authorization bound to definition and
+  evidence digests;
 - north star, user/customer value, rationale, and complete outcome;
 - accepted architecture and full roadmap;
 - the manager's outcome, phases, dependencies, interfaces, and ownership;
@@ -161,7 +184,7 @@ master change increments the version and invalidates stale worker contracts.
   "program_version": 1,
   "manager_id": "manager-a",
   "phase": "design",
-  "status": "phase_checks_passed",
+  "status": "ready_for_authenticated_decision",
   "outcome_state": "on_track",
   "artifacts": ["immutable reference"],
   "evidence": ["check and result"],
@@ -181,17 +204,25 @@ master change increments the version and invalidates stale worker contracts.
     "failed": 0,
     "collisions": 0
   },
-  "continuation": "auto_continue_if_clear",
+  "continuation": "await_authenticated_master_decision",
+  "decision_binding": {
+    "definition_version": 1,
+    "outcome_digest": "sha256",
+    "phase_report_digest": "sha256"
+  },
   "next_plan": ["bounded next action"]
 }
 ```
 
-Every report is visible to the master, who may override. The manager
-auto-continues only when the accepted charter is unchanged, every phase check
-passes, time and concurrency budgets remain valid, and no authority,
-cancellation, model, evidence, collision, or scope exception exists. It pauses
-and escalates any exception; it never treats silence as approval for a changed
-charter or failed gate.
+Every phase and routine execution subphase is visible to the master. Charter,
+design, verification, and final integration require an authenticated master
+decision bound to the current program/definition versions, outcome digest, and
+phase report. Silence never grants a barrier; the manager escalates when its
+time-budgeted wait expires. Only routine execution subphases after accepted
+design and before verification may auto-continue, and only when the accepted
+charter is unchanged, every check passes, budgets/concurrency/authority remain
+valid, and no cancellation, model, evidence, collision, scope, or other
+exception exists. The master may override every routine continuation.
 
 ## Isolation
 

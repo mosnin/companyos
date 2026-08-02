@@ -59,6 +59,13 @@ evidence receipts, bounded concurrency, project isolation, and deterministic
 simulation. Repository code validates exported evidence; it does not call app
 task tools. Existing provider gateways remain historical feature-off fixtures.
 
+The v2 contract gate requires attributable charter/design authorization,
+content-addressed architecture/roadmap/interface references, explicit
+permissions and six budgets, authenticated charter/design/verification/final
+decisions, visible routine execution-only continuation, ordered lifecycle
+evidence, open-interval concurrency, canonical scopes, observed-model source
+classes, iteration integrity, and explicit no-implicit-invocation role policy.
+
 The safe contract correction may exit locally with all applicable scores above
 gate. The broader runtime remains NO-GO until controller admission occurs before
 native create, a hard cancellation/acknowledgement surface is proven, installed
