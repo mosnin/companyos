@@ -10,6 +10,42 @@ This decision accepts the read-only Operator Command Center candidate. It does
 not accept distribution, installation, provider execution, recurring
 scheduling, production operation, or any Chippy integration.
 
+## Company OS 0.4.3 exact-surface re-attestation
+
+**GO for the exact 21-file Company OS 0.4.3 product surface.** An independent
+review began from frozen implementation commit `bf1a8a3`. Before acceptance
+machinery was refreshed, drift from the prior accepted surface was confined to
+the controller, transactional store, and their two focused test files. The
+presenter, rendered HTML, visual captures, product contract, design system, and
+remaining accepted product files retained byte-exact parity with the preceding
+signature. Review of the changed transition-archive and repair paths found no
+P0, P1, or P2 product-surface regression.
+
+The original 13 Experience scores below remain applicable: every dimension is
+at least 9.0 and the mean remains 9.22. Current focused evidence is 126 / 126
+controller tests, 37 / 37 transactional-store tests, and 30 / 30 operator-brief
+tests. The final nine-case surface suite additionally verifies the exact
+globally sorted manifest, its external reviewer trust anchors, exact
+attestation bytes, and
+adversarial manifest, attestation, detached-signature, reviewer-identity, and
+public-key drift.
+
+- Reviewer: `company-os-0.4.3-independent-surface-reviewer`
+- Delegation evidence: `operator-command-center-exact-surface-delegation-company-os-0.4.3`
+- Delegation boundary: exact 21-file Operator Command Center product-surface
+  acceptance only
+- Reviewer public DER SHA-256:
+  `d4148cf6bad103207e18a93b3d04f02a31e92c954b18250b0d63f565be7e5b8b`
+- Reviewed implementation base: `bf1a8a3918d37d248371528e4360c8f2ef0abc14`
+- Commit boundary: the post-attestation commit is intentionally not recorded
+  inside its own signed surface; the manifest and detached signature bind the
+  exact final bytes instead.
+
+The separately added OpenAI Responses adapter remains fixture-only,
+feature-off, and outside this 21-file acceptance. This re-attestation does not
+claim a live provider call, runtime readiness, distribution readiness, package
+release, production operation, customer mutation, or Chippy onboarding.
+
 ## Governed binding
 
 - Program: Company OS Core v5

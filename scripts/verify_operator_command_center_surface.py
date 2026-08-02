@@ -25,16 +25,17 @@ SIGNATURE = PROGRAM / "OPERATOR_COMMAND_CENTER_ACCEPTANCE_SIGNATURE.bin"
 PUBLIC_KEY = PROGRAM / "OPERATOR_COMMAND_CENTER_ACCEPTANCE_REVIEWER_PUBLIC.der"
 EXPECTED = {
     "schema_version": 1,
-    "attestation_id": "operator-command-center-v5-independent-acceptance",
+    "attestation_id": "operator-command-center-v5-company-os-0.4.3-independent-acceptance",
     "checkpoint": "checkpoint:experience:5:2a556ed20ab06f5192066424d7fdfe07148f9fba98a78d10284d51c3a8637032",
+    "company_os_release_version": "0.4.3",
     "decision": "accepted",
-    "reviewer_delegation_evidence_id": "operator-command-center-exact-surface-delegation-v5",
-    "reviewer_delegation_boundary": "product-surface acceptance only",
+    "reviewer_delegation_evidence_id": "operator-command-center-exact-surface-delegation-company-os-0.4.3",
+    "reviewer_delegation_boundary": "exact 21-file Operator Command Center product-surface acceptance only",
     "reviewer_delegation_expires_at": "2026-09-01T23:59:59Z",
     "program_version": 5,
     "outcome_id": "operator-command-center-v5",
     "work_id": "work-operator-command-center-v5",
-    "rubric_version": "operator-command-center-v5-cycle-4",
+    "rubric_version": "operator-command-center-v5-cycle-4-company-os-0.4.3-regression-review",
     "critical_dimension_count": 13,
     "minimum_critical_score": 9.0,
     "review_mean_score": 9.22,
@@ -159,7 +160,7 @@ def verify_surface(
 
     if surface.get("schema_version") != 1:
         raise SurfaceVerificationError("surface schema is unsupported")
-    if surface.get("surface_id") != "operator-command-center-v5-accepted-surface":
+    if surface.get("surface_id") != "operator-command-center-v5-company-os-0.4.3-accepted-surface":
         raise SurfaceVerificationError("surface identity is invalid")
     entries = surface.get("files")
     if not isinstance(entries, list) or len(entries) != 21:

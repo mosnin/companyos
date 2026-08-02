@@ -9,9 +9,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "verify_operator_command_center_surface.py"
-REVIEWER_ID = "company-os-0.4.2-independent-sol-reviewer"
+REVIEWER_ID = "company-os-0.4.3-independent-surface-reviewer"
 REVIEWER_PUBLIC_KEY_DER_SHA256 = (
-    "0704f603904625394a04a0f02722f286297843b4cf478e643f895357f66901e1"
+    "d4148cf6bad103207e18a93b3d04f02a31e92c954b18250b0d63f565be7e5b8b"
 )
 
 
@@ -57,6 +57,25 @@ class OperatorCommandCenterSurfaceTests(unittest.TestCase):
                 expected_reviewer_public_key_der_sha256="0" * 64,
             )
 
+    def test_repository_public_key_drift_fails_closed(self) -> None:
+        verifier = load_verifier()
+        source = ROOT / verifier.PUBLIC_KEY
+        with tempfile.TemporaryDirectory() as temp_dir:
+            changed = Path(temp_dir) / "reviewer-public.der"
+            payload = bytearray(source.read_bytes())
+            self.assertTrue(payload)
+            payload[len(payload) // 2] ^= 1
+            changed.write_bytes(payload)
+            with self.assertRaisesRegex(
+                verifier.SurfaceVerificationError,
+                "attestation does not bind the reviewer public key",
+            ):
+                verifier.verify_surface(
+                    ROOT,
+                    public_key_path=changed,
+                    **self.verifier_kwargs(),
+                )
+
     def test_signer_identity_must_match_external_reviewer_delegation(self) -> None:
         verifier = load_verifier()
         with self.assertRaisesRegex(
@@ -83,7 +102,7 @@ class OperatorCommandCenterSurfaceTests(unittest.TestCase):
             ):
                 verifier.verify_surface(ROOT, surface_path=changed, **self.verifier_kwargs())
 
-    def test_attestation_or_signature_drift_fails_closed(self) -> None:
+    def test_attestation_claim_drift_fails_closed(self) -> None:
         verifier = load_verifier()
         source = ROOT / verifier.ATTESTATION
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -94,6 +113,33 @@ class OperatorCommandCenterSurfaceTests(unittest.TestCase):
                 "attestation claim mismatch",
             ):
                 verifier.verify_surface(ROOT, attestation_path=changed, **self.verifier_kwargs())
+
+    def test_signed_attestation_nonclaim_drift_fails_closed(self) -> None:
+        verifier = load_verifier()
+        source = ROOT / verifier.ATTESTATION
+        with tempfile.TemporaryDirectory() as temp_dir:
+            changed = Path(temp_dir) / "attestation.json"
+            changed.write_bytes(source.read_bytes().replace(b"recorded", b"retained", 1))
+            with self.assertRaisesRegex(
+                verifier.SurfaceVerificationError,
+                "independent acceptance signature is invalid",
+            ):
+                verifier.verify_surface(ROOT, attestation_path=changed, **self.verifier_kwargs())
+
+    def test_detached_signature_drift_fails_closed(self) -> None:
+        verifier = load_verifier()
+        source = ROOT / verifier.SIGNATURE
+        with tempfile.TemporaryDirectory() as temp_dir:
+            changed = Path(temp_dir) / "signature.bin"
+            payload = bytearray(source.read_bytes())
+            self.assertTrue(payload)
+            payload[len(payload) // 2] ^= 1
+            changed.write_bytes(payload)
+            with self.assertRaisesRegex(
+                verifier.SurfaceVerificationError,
+                "independent acceptance signature is invalid",
+            ):
+                verifier.verify_surface(ROOT, signature_path=changed, **self.verifier_kwargs())
 
 
 if __name__ == "__main__":
