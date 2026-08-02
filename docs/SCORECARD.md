@@ -89,8 +89,8 @@ manifest, detached-source parity, and transactional installed upgrade.
 | --- | --- |
 | Durable distributed control | Single-host transactional authority accepted; distributed or multi-region control is not implemented |
 | Runtime execution | Not implemented |
-| Sol manager orchestration | Not observed |
-| GPT-5.6 Luna labor | Not observed |
+| Sol manager orchestration | One installed-role bounded forward test accepted; controller-native orchestration is not implemented |
+| GPT-5.6 Luna labor | Two tasks were requested/configured as Luna and accepted; provider-observed executing model remains unavailable |
 | Provider identity and telemetry | Signed observation ingestion is locally verified; no real provider observation or telemetry |
 | Cancellation and recovery | Contract only; no real runtime evidence |
 | Recursive adaptation | Not exercised |
@@ -114,9 +114,9 @@ Regression integrity scores 9.1 after 59 root repository tests (including all
 syntax, and repository-wide zero-bytecode gates.
 
 Full-system readiness remains NO-GO: hard cancellation 2.0, controller-native
-admission 1.0, installed fresh-thread role behavior 2.0, clean two-Luna
-integration 3.0, observed model identity 2.0, tokens/cost 1.0, durable native
-lifecycle 2.0, and protected scheduling 0.0.
+admission 1.0, installed fresh-thread role behavior 9.1, clean bounded
+two-worker integration 9.1, observed model identity 2.0, tokens/cost 1.0,
+durable native lifecycle 2.0, and protected scheduling 0.0.
 
 Independent review of `d6f6a03` then scored 6.8/10 with three P1 and two P2
 enforcement gaps despite closing the previous seven findings. The bounded
@@ -137,6 +137,12 @@ tests.
 Independent exact-commit review of `0900cfe` then found 0 P0, 0 P1, and 0 P2
 findings, scored source readiness 9.1/10, and approved a governed global source
 installation only. Runtime and scheduler activation remain NO-GO.
+The governed installation then reached exact 0.5.0 parity. A fresh compact-
+prompt Sol-manager/two-requested-Luna forward test passed every phase barrier,
+and independent verification plus final integration audits each returned
+0 P0/P1/P2. Installed-role behavior and bounded integration now score 9.1 for
+this test only; controller/runtime, observed model, telemetry, cancellation,
+reconciliation, and scheduling scores remain unchanged.
 Full-system readiness scores and NO-GO decision remain unchanged.
 
 Company OS must not be called operational until these dimensions become

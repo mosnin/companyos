@@ -3,8 +3,8 @@
 ## Current checkpoint
 
 - Canonical repository: `/Users/preston/Documents/Codex/company-os-core`
-- Distribution version: accepted source release `0.5.0`; current installation
-  status is established only by manifest-backed `check-install` evidence
+- Distribution version: accepted source release `0.5.0`; manifest-backed
+  `check-install` proves exact parity for the globally installed 83-file bundle
 - Canonical source acceptance: `0900cfe1d4661dffbbd612695aea57dfa4562448`;
   release metadata is the current canonical `main` HEAD
 - Authoritative control revision: 131; program 6 is paused in Reality Audit,
@@ -15,8 +15,8 @@
 - Production or customer effects: none
 - Program 6 direction: Codex-native task fabric; external provider/API gateway
   implementation retired from the active roadmap
-- Release state: source distribution accepted; global installation is permitted
-  only through the governed manifest-backed path; scheduler-off; broader
+- Release state: source distribution accepted and installed; one bounded fresh
+  manager/two-requested-Luna forward test accepted; scheduler-off; broader
   runtime NO-GO
 
 ## Accepted evidence
@@ -290,11 +290,36 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 - The governed installation preserves the exact accepted 0.4.3 manifest for
   rollback and replaces both bundles transactionally.
 
+### Phase 2G — installed global-role forward test accepted
+
+- The governed 0.4.3-to-0.5.0 installation completed transactionally. A
+  manifest-backed read-only comparison proves exact 0.5.0 parity and no install
+  journal or transaction residue remained.
+- Fresh Sol manager task `019fc20a-4b45-71c2-a686-6eaca74efb2f` received only
+  `$manage-company-program`, the artifact root, and the compact accepted charter.
+  It stopped at charter, design, verification, and integration barriers.
+- The manager created exactly two projectless tasks requested as GPT-5.6 Luna,
+  each with only `$execute-bounded-task`, the artifact root, and one validated
+  compact packet:
+  - reference audit `019fc212-8179-7c02-b62b-545b61f57ccf`;
+  - model-evidence audit `019fc212-8a5c-7031-bcb9-358a82c56558`.
+- Both workers wrote one disjoint owned artifact. The manager independently
+  inspected the tasks, revalidated packets, recomputed byte digests, accepted
+  both receipts, integrated only accepted evidence, and did not self-accept.
+- Independent verification and final integration audits each returned 0 P0,
+  0 P1, and 0 P2. The master accepted only the bounded forward-test package.
+- Accepted artifact digests:
+  - reference audit `45b296f3ccfb2b717d5056d662380b5bb13bf044bcf1af87941e5eb8a0c67ae5`;
+  - model-evidence audit `468c40705eb7e661c403094f1407d40c0f45490bce5973e222e9f6d669cb250b`;
+  - integration summary `42399c72fdcce018098ce2c9ba4c4e29a05f58fcedf62b83766c5d426c0790a4`.
+- Requested models are host configuration evidence only. Provider-observed model
+  identity, tokens, cost, and hard-cancellation acknowledgement remained
+  unavailable; runtime and scheduling remain NO-GO.
+
 ## Not yet implemented
 
 - A network-capable provider adapter and protected launcher.
 - Provider launch or provider-observed identity in a real account.
-- Successful fresh installed-role Sol-manager/two-requested-Luna forward test.
 - Controller integration that advances one real provider lifecycle through
   heartbeats, terminal receipt, cancellation, telemetry, and reconciliation.
 - Self-hosted accepted capability or adaptation cycle.
@@ -303,9 +328,7 @@ Verification on 2026-08-02 at the accepted 0.4.3 release:
 
 ## Exact next action
 
-If `check-install` does not prove exact 0.5.0 parity, transactionally install
-from the preserved 0.4.3 manifest first. Once parity is proven, forward-test a
-fresh Sol manager and two fresh tasks requested as GPT-5.6 Luna using only the
-global skill invocation plus compact charter/packet. Do not enable scheduling. The
-following gate must add controller admission-before-create and prove a hard
-native cancellation acknowledgement before broader runtime acceptance.
+Add controller admission-before-create and prove a hard native cancellation
+acknowledgement with durable reconciliation before broader runtime acceptance.
+Then run a second self-hosting capability cycle through controller-governed
+state. Do not enable scheduling.
