@@ -79,12 +79,15 @@ creation, require all of the following:
 - a successfully persisted `admit-runtime-attempt` record with its unique
   attempt ID and idempotency key.
 
-Schema 8 implements only that feature-off, pre-launch admission record. It has
-no provider launcher, provider observation, receipt, telemetry, or
-reconciliation command. Therefore do not spawn a governed manager or worker
+The canonical schema-9 controller implements only feature-off admission and a
+signed-observation inbox. Provider-neutral lifecycle, gateway request/result,
+receipt-root, telemetry, cancellation, and reconciliation modules exist as a
+separate local contract, but they are not yet wired into controller commands or
+any provider connector. Therefore do not spawn a governed manager or worker
 from this skill yet. Record the slice as `feature_off_code_complete` and
-`runtime_unverified`; provider execution remains blocked until a later accepted
-runtime slice consumes the admission before launch.
+`runtime_unverified`; provider execution remains blocked until an accepted
+controller integration consumes admission before launch and a real connector
+proves the exact provider model and terminal evidence.
 
 Outside an Elastic Company OS instance, prefer a native Luna subagent only when
 the active collaboration surface explicitly lists `gpt-5.6-luna`; otherwise use
