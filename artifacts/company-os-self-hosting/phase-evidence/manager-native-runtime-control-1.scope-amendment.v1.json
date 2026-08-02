@@ -1,0 +1,47 @@
+{
+  "amendment_id": "native-runtime-control-integration-test-correction-1",
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "bindings": {
+    "accepted_design_evidence": {
+      "path": "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.design.v1.json",
+      "sha256": "48b464344a52df67f7d7086805522f32d94a04e3c34c08a8750416c3cb702ae3"
+    },
+    "accepted_manager_charter": {
+      "definition_digest": "14036ed6823c8da9ebb3684aa3fc06f453290b8b9966ad928db7aee991530f9a",
+      "definition_version": 1,
+      "path": "programs/company-os-self-hosting/native-runtime-control/mission-charter.v6.json",
+      "sha256": "b15d0cd4dbc64a08b6052d4fbffca85ebbf3ec0a3443ecb1d9745cbda2933f30"
+    },
+    "cycle_id": "native-runtime-control-cycle-1",
+    "manager_id": "manager-native-runtime-control-1",
+    "master_decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "outcome_digest": "73391b5cd8f8582f6108b0152986526a2c5360b89100d64359cd3a178675c1d8",
+    "program_id": "company-os-self-hosting",
+    "program_version": 6,
+    "rejected_candidate_commit": "6a038b4fb2ff0166d6508494da749b5fe7ef52fe",
+    "review_thread_id": "019fc26b-1deb-7070-aa43-f2b893982fe8"
+  },
+  "decision": "amend_scope",
+  "effect": {
+    "added_owned_path": "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
+    "authorized_change": "replace absolute SQLite revision assertions with relative revision assertions around transactional observation ingestion",
+    "effective_for": "the next rework candidate after rejected commit 6a038b4fb2ff0166d6508494da749b5fe7ef52fe",
+    "retroactive": false
+  },
+  "issued_at": "2026-08-02T12:49:20Z",
+  "master_directive": "Use $manage-company-program and perform one bounded rework cycle in the authoritative worktree /Users/preston/Documents/Codex/company-os-native-runtime-control. Exact rejected candidate: 6a038b4. Independent review thread 019fc26b-1deb-7070-aa43-f2b893982fe8 returned 0 P0, 2 P1, 3 P2 and REWORK. Mandatory source rework: (1) make audit_state replay the retained lifecycle from admission so reordered, duplicated, deleted, or state-only running/terminal histories fail; bind every authority_history payload_hash to the exact retained event/transition it authorizes; add adversarial regressions. (2) add a truthful tested schema/downgrade boundary for persisted native_task_runtime state. (3) create a project-local, content-bound master scope amendment authorizing the integration-test correction; do not backdate or overclaim. (4) regenerate the verification report against the next exact commit and disclose root manifest/signed-surface gates. Do not update VERSION, distribution manifest, Operator Command Center signed artifacts, install, deploy, activate runtime/scheduler, or touch Chippy yet; those remain master integration after independent source acceptance. Inspect all changes and tests, commit the reworked source on codex/native-runtime-control, and return exact commit plus focused/full evidence and unresolved gates. Do not spawn more workers unless the existing charter and controller authority explicitly allow it; direct manager repair is acceptable.",
+  "master_directive_sha256": "fcfcdd3ebd5090765a8395db93e3e5d63699b26f638bc9f5bd457716224e66d5",
+  "prohibitions_preserved": [
+    "VERSION changes",
+    "distribution manifest changes",
+    "Operator Command Center signed artifact changes",
+    "installation",
+    "deployment",
+    "runtime or scheduler activation",
+    "provider or production action",
+    "Chippy action"
+  ],
+  "record_version": 1,
+  "schema": "company-os.scope-amendment-evidence.v1",
+  "status": "accepted"
+}

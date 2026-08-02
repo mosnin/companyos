@@ -13,7 +13,9 @@ import json
 from typing import Any, Mapping
 
 
-SCHEMA = "company-os.native-task-runtime.v1"
+SCHEMA = "company-os.native-task-runtime.v2"
+LEGACY_SCHEMA = "company-os.native-task-runtime.v1"
+DOWNGRADE_ASSESSMENT_SCHEMA = "company-os.native-task-runtime-downgrade-assessment.v1"
 DISPATCH_RECEIPT_SCHEMA = "company-os.native-task-dispatch-admission.v1"
 TERMINAL_STATUSES = {
     "succeeded",
@@ -79,13 +81,31 @@ def _event_payload(state: Mapping[str, Any], event: str, payload: Mapping[str, A
         _text(normalized.get("dispatch_key"), "dispatch_key")
         _text(normalized.get("payload_sha256"), "payload_sha256")
     elif event == "cancel_requested":
-        allowed = {"reason", "requested_by"}
-        if set(normalized) != allowed:
+        allowed = {"reason", "requested_by", "dispatch"}
+        if not {"reason", "requested_by"}.issubset(normalized) or set(normalized) - allowed:
             raise RuntimeStateError("cancellation intent payload shape is invalid")
         _text(normalized.get("reason"), "reason")
         _text(normalized.get("requested_by"), "requested_by")
+        dispatch = normalized.get("dispatch")
+        if dispatch is not None and (
+            not isinstance(dispatch, Mapping)
+            or set(dispatch) != {"status", "key", "payload_sha256"}
+            or dispatch.get("status") != "pending"
+            or dispatch.get("key") != state.get("attempt_id")
+            or not isinstance(dispatch.get("payload_sha256"), str)
+            or len(dispatch.get("payload_sha256")) != 64
+        ):
+            raise RuntimeStateError("cancellation dispatch payload is invalid")
+    elif event == "cancellation_dispatch_claimed":
+        if set(normalized) != {"key", "payload_sha256"}:
+            raise RuntimeStateError("cancellation dispatch claim payload shape is invalid")
+        _text(normalized.get("key"), "key")
+        _text(normalized.get("payload_sha256"), "payload_sha256")
     elif event == "cancelled_before_launch":
-        if normalized != {"source": "controller_reconciliation"}:
+        if normalized != {
+            "source": "controller_reconciliation",
+            "next_action": "finalize_cancelled_before_launch",
+        }:
             raise RuntimeStateError("pre-launch cancellation requires controller reconciliation")
     elif event in {
         "host_created",
@@ -262,20 +282,10 @@ def admit(
     return state
 
 
-def record_event(
-    state: Mapping[str, Any],
-    event: str,
-    *,
-    payload: Mapping[str, Any] | None = None,
+def _reduce_event(
+    state: Mapping[str, Any], event: str, normalized: dict[str, Any]
 ) -> dict[str, Any]:
-    """Apply one monotonic event; an exact repeated observation is a no-op."""
-    _validate_state_header(state)
-    normalized = _event_payload(state, event, payload or {})
-    if _has_event(state, event, normalized):
-        return deepcopy(dict(state))
-    if state.get("status") in TERMINAL_STATUSES:
-        raise RuntimeStateError("terminal native runtime state is immutable")
-
+    """Reduce one already-normalized event without auditing retained history."""
     out = deepcopy(dict(state))
     status = out["status"]
     if event == "dispatch_claimed":
@@ -317,10 +327,27 @@ def record_event(
                 ),
             }
         )
+        if normalized.get("dispatch") is not None:
+            out["cancellation"]["dispatch"] = deepcopy(normalized["dispatch"])
         out["status"] = "cancel_requested"
+    elif event == "cancellation_dispatch_claimed":
+        dispatch = out["cancellation"].get("dispatch")
+        if (
+            not isinstance(dispatch, Mapping)
+            or dispatch.get("status") != "pending"
+            or normalized["key"] != dispatch.get("key")
+            or normalized["payload_sha256"] != dispatch.get("payload_sha256")
+        ):
+            raise RuntimeStateError("cancellation dispatch claim is out of order")
+        out["cancellation"]["dispatch"]["status"] = "claimed"
     elif event == "cooperative_stop_delivered":
         if out["cancellation"]["desired_intent"] != "cancel" or out.get("native_identity") is None:
             raise RuntimeStateError("cooperative stop delivery is out of order")
+        cancellation_dispatch = out["cancellation"].get("dispatch")
+        if isinstance(cancellation_dispatch, Mapping):
+            if cancellation_dispatch.get("status") != "claimed":
+                raise RuntimeStateError("cooperative stop requires a claimed cancellation dispatch")
+            out["cancellation"]["dispatch"]["status"] = "delivered"
         out["cancellation"]["cooperative_stop_delivery"] = "delivered"
         out["status"] = "cancel_requested"
     elif event == "hard_cancellation_observed":
@@ -368,6 +395,25 @@ def record_event(
         out["reconciliation"] = {"status": "terminal", "next_action": "none"}
     else:
         out = reconcile_restart(out)
+    return out
+
+
+def record_event(
+    state: Mapping[str, Any],
+    event: str,
+    *,
+    payload: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Apply one monotonic event; an exact repeated observation is a no-op."""
+    retained_errors = audit_state(state)
+    if retained_errors:
+        raise RuntimeStateError("native runtime retained state failed audit: " + "; ".join(retained_errors))
+    normalized = _event_payload(state, event, payload or {})
+    if _has_event(state, event, normalized):
+        return deepcopy(dict(state))
+    if state.get("status") in TERMINAL_STATUSES:
+        raise RuntimeStateError("terminal native runtime state is immutable")
+    out = _reduce_event(state, event, normalized)
     errors = audit_state(out)
     if errors:
         raise RuntimeStateError("native runtime transition failed audit: " + "; ".join(errors))
@@ -406,13 +452,45 @@ def bind_host_identity(
 
 
 def request_cancellation(
-    state: Mapping[str, Any], *, reason: str, requested_by: str
+    state: Mapping[str, Any], *, reason: str, requested_by: str,
+    dispatch: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
+    payload = {"reason": reason, "requested_by": requested_by}
+    if dispatch is not None:
+        payload["dispatch"] = deepcopy(dict(dispatch))
     return record_event(
         state,
         "cancel_requested",
-        payload={"reason": reason, "requested_by": requested_by},
+        payload=payload,
     )
+
+
+def claim_cancellation_dispatch(state: Mapping[str, Any]) -> dict[str, Any]:
+    dispatch = state.get("cancellation", {}).get("dispatch", {})
+    return record_event(
+        state,
+        "cancellation_dispatch_claimed",
+        payload={"key": dispatch.get("key"), "payload_sha256": dispatch.get("payload_sha256")},
+    )
+
+
+def attach_authority(
+    state: Mapping[str, Any], authority: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Atomically bind one controller authority record to an already-retained event."""
+    retained_errors = audit_state(state)
+    if retained_errors:
+        raise RuntimeStateError(
+            "native runtime retained state failed audit: " + "; ".join(retained_errors)
+        )
+    out = deepcopy(dict(state))
+    out["authority_history"].append(deepcopy(dict(authority)))
+    if out["status"] in TERMINAL_STATUSES:
+        out["receipt"]["payload_sha256"] = canonical_digest(_receipt_payload(out))
+    errors = audit_state(out)
+    if errors:
+        raise RuntimeStateError("native runtime authority binding failed audit: " + "; ".join(errors))
+    return out
 
 
 def reconcile_restart(state: Mapping[str, Any]) -> dict[str, Any]:
@@ -450,6 +528,89 @@ def reconcile_restart(state: Mapping[str, Any]) -> dict[str, Any]:
         "next_action": next_action,
     }
     return out
+
+
+def _replay_lifecycle(state: Mapping[str, Any]) -> dict[str, Any]:
+    """Derive all lifecycle-controlled fields from admission and retained events."""
+    dispatch_receipt = deepcopy(state["dispatch_receipt"])
+    replay = {
+        "schema": SCHEMA,
+        "status": "dispatch_intent_recorded",
+        "attempt_id": state["attempt_id"],
+        "requested_model": state["requested_model"],
+        "admission": deepcopy(state["admission"]),
+        "admission_digest": state["admission_digest"],
+        "dispatch_receipt": dispatch_receipt,
+        "dispatch": {
+            "status": "intent_recorded",
+            "key": dispatch_receipt["dispatch_key"],
+            "payload_sha256": canonical_digest(dispatch_receipt),
+        },
+        "native_identity": None,
+        "host_observations": [],
+        "observed_model": deepcopy(state["observed_model"]),
+        "provider_usage": deepcopy(state["provider_usage"]),
+        "cost": deepcopy(state["cost"]),
+        "authority_history": deepcopy(state["authority_history"]),
+        "cancellation": {
+            "desired_intent": "run",
+            "intent_status": "not_requested",
+            "intent": None,
+            "cooperative_stop_delivery": "not_requested",
+            "hard_cancellation_status": "unavailable",
+            "acknowledgement_status": "unavailable",
+        },
+        "sequence": 1,
+        "events": [deepcopy(state["events"][0])],
+        "terminal": None,
+        "receipt": None,
+        "reconciliation": {"status": "pending", "next_action": "claim_dispatch"},
+    }
+    for retained in state["events"][1:]:
+        normalized = _event_payload(replay, retained["event"], retained["payload"])
+        replay = _reduce_event(replay, retained["event"], normalized)
+    return replay
+
+
+def downgrade_assessment(
+    state: Mapping[str, Any], target_schema: str = LEGACY_SCHEMA
+) -> dict[str, Any]:
+    """Truthfully report whether persisted v2 state can be represented by a target."""
+    current_errors = audit_state(state)
+    if current_errors:
+        return {
+            "schema": DOWNGRADE_ASSESSMENT_SCHEMA,
+            "source_schema": state.get("schema") if isinstance(state, Mapping) else None,
+            "target_schema": target_schema,
+            "status": "blocked",
+            "compatible": False,
+            "reason": "source_state_failed_audit",
+            "errors": current_errors,
+        }
+    if target_schema == SCHEMA:
+        return {
+            "schema": DOWNGRADE_ASSESSMENT_SCHEMA,
+            "source_schema": SCHEMA,
+            "target_schema": target_schema,
+            "status": "safe",
+            "compatible": True,
+            "reason": "target_preserves_exact_v2_state",
+            "errors": [],
+        }
+    reason = (
+        "v2_lifecycle_replay_and_authority_bindings_are_not_representable"
+        if target_schema in {LEGACY_SCHEMA, "controller-schema-9-pre-native-task-runtime"}
+        else "unsupported_target_schema"
+    )
+    return {
+        "schema": DOWNGRADE_ASSESSMENT_SCHEMA,
+        "source_schema": SCHEMA,
+        "target_schema": target_schema,
+        "status": "blocked",
+        "compatible": False,
+        "reason": reason,
+        "errors": [],
+    }
 
 
 def audit_state(state: Mapping[str, Any]) -> list[str]:
@@ -598,10 +759,65 @@ def audit_state(state: Mapping[str, Any]) -> list[str]:
     authority_history = state.get("authority_history")
     if not isinstance(authority_history, list) or any(
         not isinstance(item, Mapping)
-        or set(item) != {"action", "actor", "decision", "event", "payload_hash", "grant"}
+        or set(item) != {
+            "action", "actor", "decision", "event", "details", "payload_hash",
+            "lifecycle_sequence", "grant",
+        }
+        or not isinstance(item.get("details"), Mapping)
+        or not isinstance(item.get("lifecycle_sequence"), int)
+        or item.get("lifecycle_sequence", 0) < 2
         for item in authority_history
     ):
         errors.append("native runtime authority history is invalid")
+    elif isinstance(events, list):
+        events_by_sequence = {
+            item.get("sequence"): item
+            for item in events
+            if isinstance(item, Mapping) and isinstance(item.get("sequence"), int)
+        }
+        authority_sequences: list[int] = []
+        for authority in authority_history:
+            sequence = authority["lifecycle_sequence"]
+            authority_sequences.append(sequence)
+            retained = events_by_sequence.get(sequence)
+            details = authority["details"]
+            payload = {
+                "attempt_id": state.get("attempt_id"),
+                "work_id": admission.get("work_id") if isinstance(admission, Mapping) else None,
+                "cycle_id": admission.get("cycle_id") if isinstance(admission, Mapping) else None,
+                "parent_runtime_id": (
+                    admission.get("parent_runtime_id") if isinstance(admission, Mapping) else None
+                ),
+                "action": authority["action"],
+                "details": details,
+            }
+            expected_hash = canonical_digest({
+                "command": authority["action"],
+                "payload": payload,
+            })
+            exact_details = (
+                {
+                    "event": retained.get("event"),
+                    "observation": retained.get("payload"),
+                }
+                if isinstance(retained, Mapping)
+                and authority["action"] == "record-native-task-observation"
+                else retained.get("payload") if isinstance(retained, Mapping) else None
+            )
+            if (
+                not isinstance(retained, Mapping)
+                or retained.get("event") != authority["event"]
+                or details != exact_details
+                or authority["payload_hash"] != expected_hash
+            ):
+                errors.append(
+                    "native runtime authority payload hash does not bind exact retained transition"
+                )
+        if (
+            authority_sequences != sorted(authority_sequences)
+            or len(authority_sequences) != len(set(authority_sequences))
+        ):
+            errors.append("native runtime authority history order is invalid")
     if state.get("status") in TERMINAL_STATUSES:
         terminal = state.get("terminal")
         if not isinstance(terminal, Mapping) or terminal.get("status") != state.get("status"):
@@ -621,6 +837,18 @@ def audit_state(state: Mapping[str, Any]) -> list[str]:
             errors.append("native runtime reconciliation state is invalid")
     except RuntimeStateError:
         errors.append("native runtime reconciliation state is invalid")
+    if isinstance(events, list) and events:
+        try:
+            replay = _replay_lifecycle(state)
+            lifecycle_fields = {
+                "status", "dispatch", "native_identity", "host_observations",
+                "cancellation", "sequence", "events", "terminal", "receipt",
+                "reconciliation",
+            }
+            if any(state.get(field) != replay.get(field) for field in lifecycle_fields):
+                errors.append("native runtime lifecycle does not replay from admission")
+        except (KeyError, TypeError, RuntimeStateError):
+            errors.append("native runtime lifecycle does not replay from admission")
     return errors
 
 

@@ -3591,12 +3591,51 @@ def validate_state(
                         if isinstance(native_state, dict)
                         else []
                     )
+                    retained_events = {
+                        event.get("sequence"): event
+                        for event in native_state.get("events", [])
+                        if isinstance(event, dict) and isinstance(event.get("sequence"), int)
+                    } if isinstance(native_state, dict) else {}
+                    authority_sequences: list[int] = []
                     for authority in authority_history:
                         if not isinstance(authority, dict) or set(authority) != {
-                            "action", "actor", "decision", "event", "payload_hash", "grant"
+                            "action", "actor", "decision", "event", "details",
+                            "payload_hash", "lifecycle_sequence", "grant",
                         }:
                             errors.append("native task authority history entry is invalid")
                             continue
+                        details = authority.get("details")
+                        lifecycle_sequence = authority.get("lifecycle_sequence")
+                        if not isinstance(details, dict) or not isinstance(lifecycle_sequence, int):
+                            errors.append("native task authority history entry is invalid")
+                            continue
+                        authority_sequences.append(lifecycle_sequence)
+                        expected_payload_hash = command_payload_hash(
+                            authority.get("action"),
+                            native_runtime_command_payload(
+                                attempt, authority.get("action"), details
+                            ),
+                        )
+                        retained_event = retained_events.get(lifecycle_sequence)
+                        if (
+                            authority.get("payload_hash") != expected_payload_hash
+                            or not isinstance(retained_event, dict)
+                            or retained_event.get("event") != authority.get("event")
+                            or (
+                                authority.get("action") == "record-native-task-observation"
+                                and details != {
+                                    "event": retained_event.get("event"),
+                                    "observation": retained_event.get("payload"),
+                                }
+                            )
+                            or (
+                                authority.get("action") != "record-native-task-observation"
+                                and details != retained_event.get("payload")
+                            )
+                        ):
+                            errors.append(
+                                "native task authority payload hash does not bind exact retained transition"
+                            )
                         audit_stored_grant(
                             state,
                             authority.get("grant"),
@@ -3612,6 +3651,16 @@ def validate_state(
                                 "decision": authority.get("decision"),
                                 "payload_hash": authority.get("payload_hash"),
                             },
+                        )
+                    expected_authority_sequences = sorted(
+                        sequence for sequence in retained_events if sequence >= 2
+                    )
+                    if (
+                        authority_sequences != expected_authority_sequences
+                        or len(authority_sequences) != len(set(authority_sequences))
+                    ):
+                        errors.append(
+                            "native task authority history does not cover each ordered retained transition"
                         )
             inboxes = runtime.get("observation_inboxes")
             if not isinstance(inboxes, dict):
@@ -7133,7 +7182,9 @@ def authorize_native_runtime_command(
         "actor": actor,
         "decision": decision,
         "event": event,
+        "details": deepcopy(details),
         "payload_hash": payload_hash,
+        "lifecycle_sequence": attempt["native_task_runtime"]["sequence"] + 1,
         "grant": grant,
     }
     return authority, payload_hash
@@ -7175,12 +7226,46 @@ def require_native_command_attempt(
 def native_state_with_authority(
     native_state: dict[str, Any], authority: dict[str, Any]
 ) -> dict[str, Any]:
-    candidate = deepcopy(native_state)
-    history = candidate.get("authority_history")
-    if not isinstance(history, list):
-        raise ValueError("native task authority history is invalid")
-    history.append(authority)
-    return candidate
+    return native_task_runtime_module().attach_authority(native_state, authority)
+
+
+def native_runtime_downgrade_assessment(
+    state: dict[str, Any],
+    target_schema: str = "controller-schema-9-pre-native-task-runtime",
+) -> dict[str, Any]:
+    """Report the persisted native-state rollback boundary without transforming it."""
+    native_module = native_task_runtime_module()
+    retained: list[dict[str, Any]] = []
+    runtime_sources: list[tuple[str, Any]] = [("runtime_adapter", state.get("runtime_adapter"))]
+    feedback = state.get("feedback", {})
+    archives = feedback.get("archived_runtime_adapters", []) if isinstance(feedback, dict) else []
+    for index, archive in enumerate(archives if isinstance(archives, list) else []):
+        runtime_sources.append((
+            f"feedback.archived_runtime_adapters[{index}].runtime_adapter",
+            archive.get("runtime_adapter") if isinstance(archive, dict) else None,
+        ))
+    for source, runtime in runtime_sources:
+        for attempt in runtime.get("attempts", []) if isinstance(runtime, dict) else []:
+            native_state = attempt.get("native_task_runtime") if isinstance(attempt, dict) else None
+            if isinstance(native_state, dict):
+                retained.append({
+                    "source": source,
+                    "attempt_id": attempt.get("attempt_id"),
+                    "assessment": native_module.downgrade_assessment(native_state, target_schema),
+                })
+    compatible = all(item["assessment"]["compatible"] for item in retained)
+    return {
+        "schema": "company-os.persisted-native-runtime-downgrade-boundary.v1",
+        "target_schema": target_schema,
+        "status": "safe" if compatible else "blocked",
+        "compatible": compatible,
+        "retained_native_attempts": retained,
+        "required_action": (
+            "none"
+            if compatible
+            else "retain_v2_reader_or_use_a_separately_authorized_lossless_migration"
+        ),
+    }
 
 
 def admit_runtime_attempt(args: argparse.Namespace) -> int:
@@ -7406,8 +7491,7 @@ def claim_native_task_dispatch(args: argparse.Namespace) -> int:
                 event="dispatch_claimed",
                 details=details,
             )
-            authorized = native_state_with_authority(current, authority)
-            candidate = native_module.claim_dispatch(authorized)
+            candidate = native_state_with_authority(candidate, authority)
             attempt["native_task_runtime"] = candidate
             persist_state_event(
                 project,
@@ -7490,13 +7574,8 @@ def record_native_task_observation(args: argparse.Namespace) -> int:
                 event=args.event,
                 details=details,
             )
-            authorized = native_state_with_authority(current, authority)
-            candidate = native_module.record_event(
-                authorized, args.event, payload=observation
-            )
+            candidate = native_state_with_authority(candidate, authority)
             cancellation_dispatch = candidate.get("cancellation", {}).get("dispatch")
-            if args.event == "cooperative_stop_delivered" and isinstance(cancellation_dispatch, dict):
-                cancellation_dispatch["status"] = "delivered"
             attempt["native_task_runtime"] = candidate
             persist_state_event(
                 project,
@@ -7546,8 +7625,26 @@ def request_native_task_cancellation(args: argparse.Namespace) -> int:
             )
             native_module = native_task_runtime_module()
             current = attempt["native_task_runtime"]
+            details = {"reason": args.reason, "requested_by": args.authorized_by}
+            cancellation_payload = None
+            cancellation_dispatch = None
+            if current.get("native_identity") is not None:
+                cancellation_payload = {
+                    "schema": "company-os.native-task-cancellation-intent.v1",
+                    "attempt_id": args.attempt_id,
+                    "native_identity": current["native_identity"],
+                    "reason": args.reason,
+                    "request_sha256": native_module.canonical_digest(details),
+                }
+                cancellation_dispatch = {
+                    "status": "pending",
+                    "key": args.attempt_id,
+                    "payload_sha256": native_module.canonical_digest(cancellation_payload),
+                }
+                details["dispatch"] = cancellation_dispatch
             candidate = native_module.request_cancellation(
-                current, reason=args.reason, requested_by=args.authorized_by
+                current, reason=args.reason, requested_by=args.authorized_by,
+                dispatch=cancellation_dispatch,
             )
             if candidate == current:
                 print(json.dumps({
@@ -7557,7 +7654,6 @@ def request_native_task_cancellation(args: argparse.Namespace) -> int:
                     "idempotent": True,
                 }))
                 return 0
-            details = {"reason": args.reason, "requested_by": args.authorized_by}
             authority, _ = authorize_native_runtime_command(
                 state,
                 attempt,
@@ -7567,24 +7663,7 @@ def request_native_task_cancellation(args: argparse.Namespace) -> int:
                 event="cancel_requested",
                 details=details,
             )
-            authorized = native_state_with_authority(current, authority)
-            candidate = native_module.request_cancellation(
-                authorized, reason=args.reason, requested_by=args.authorized_by
-            )
-            cancellation_payload = None
-            if candidate.get("native_identity") is not None:
-                cancellation_payload = {
-                    "schema": "company-os.native-task-cancellation-intent.v1",
-                    "attempt_id": args.attempt_id,
-                    "native_identity": candidate["native_identity"],
-                    "reason": args.reason,
-                    "request_sha256": native_module.canonical_digest(details),
-                }
-                candidate["cancellation"]["dispatch"] = {
-                    "status": "pending",
-                    "key": args.attempt_id,
-                    "payload_sha256": native_module.canonical_digest(cancellation_payload),
-                }
+            candidate = native_state_with_authority(candidate, authority)
             attempt["native_task_runtime"] = candidate
             persist_state_event(
                 project,
@@ -7634,6 +7713,8 @@ def claim_native_task_cancellation(args: argparse.Namespace) -> int:
                 return 0
             if dispatch.get("status") != "pending":
                 raise ValueError("native cancellation action is not pending")
+            native_module = native_task_runtime_module()
+            candidate = native_module.claim_cancellation_dispatch(current)
             details = {
                 "key": dispatch.get("key"),
                 "payload_sha256": dispatch.get("payload_sha256"),
@@ -7647,8 +7728,7 @@ def claim_native_task_cancellation(args: argparse.Namespace) -> int:
                 event="cancellation_dispatch_claimed",
                 details=details,
             )
-            candidate = native_state_with_authority(current, authority)
-            candidate["cancellation"]["dispatch"]["status"] = "claimed"
+            candidate = native_state_with_authority(candidate, authority)
             attempt["native_task_runtime"] = candidate
             persist_state_event(
                 project,
@@ -7688,7 +7768,10 @@ def reconcile_native_task(args: argparse.Namespace) -> int:
             current = attempt["native_task_runtime"]
             derived = native_module.reconcile_restart(current)
             next_action = derived["reconciliation"]["next_action"]
-            details = {"next_action": next_action}
+            details = {
+                "source": "controller_reconciliation",
+                "next_action": next_action,
+            }
             if derived == current and next_action != "finalize_cancelled_before_launch":
                 print(json.dumps({
                     "ok": True,
@@ -7704,17 +7787,22 @@ def reconcile_native_task(args: argparse.Namespace) -> int:
                 args,
                 action="reconcile-native-task",
                 decision=f"reconciled:{next_action}",
-                event="reconciled",
+                event=(
+                    "cancelled_before_launch"
+                    if next_action == "finalize_cancelled_before_launch"
+                    else "reconciled"
+                ),
                 details=details,
             )
-            authorized = native_state_with_authority(current, authority)
-            candidate = native_module.reconcile_restart(authorized)
             if next_action == "finalize_cancelled_before_launch":
                 candidate = native_module.record_event(
-                    candidate,
+                    derived,
                     "cancelled_before_launch",
-                    payload={"source": "controller_reconciliation"},
+                    payload=details,
                 )
+            else:
+                candidate = derived
+            candidate = native_state_with_authority(candidate, authority)
             attempt["native_task_runtime"] = candidate
             persist_state_event(
                 project,

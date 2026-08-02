@@ -51,6 +51,32 @@ class NativeTaskRuntimeTests(unittest.TestCase):
             current_status="running",
         )
 
+    def completed(self):
+        return runtime.apply_event(
+            self.running(),
+            "terminal",
+            source="host_observation",
+            tool="read_task",
+            task_id="task-1",
+            thread_id="thread-1",
+            status="succeeded",
+        )
+
+    def reseal_events(self, state):
+        for sequence, event in enumerate(state["events"], start=1):
+            event["sequence"] = sequence
+            event["payload_sha256"] = runtime.canonical_digest(event["payload"])
+        state["sequence"] = len(state["events"])
+        state["host_observations"] = [
+            deepcopy(event)
+            for event in state["events"]
+            if event["payload"].get("source") == "host_observation"
+        ]
+        if state["receipt"] is not None:
+            state["receipt"]["payload_sha256"] = runtime.canonical_digest(
+                runtime._receipt_payload(state)
+            )
+
     def test_admission_receipt_precedes_claim_and_host_binding(self):
         admitted = self.admitted()
         self.assertEqual(admitted["status"], "dispatch_intent_recorded")
@@ -247,6 +273,7 @@ class NativeTaskRuntimeTests(unittest.TestCase):
             requested,
             "cancelled_before_launch",
             source="controller_reconciliation",
+            next_action="finalize_cancelled_before_launch",
         )
         self.assertEqual(terminal["status"], "cancelled_before_launch")
         ambiguous = runtime.request_cancellation(
@@ -257,7 +284,119 @@ class NativeTaskRuntimeTests(unittest.TestCase):
                 ambiguous,
                 "cancelled_before_launch",
                 source="controller_reconciliation",
+                next_action="finalize_cancelled_before_launch",
             )
+
+    def test_lifecycle_replay_rejects_reordered_and_duplicate_running_events(self):
+        completed = self.completed()
+        reordered = deepcopy(completed)
+        reordered["events"][2], reordered["events"][3] = (
+            reordered["events"][3], reordered["events"][2]
+        )
+        self.reseal_events(reordered)
+        self.assertIn(
+            "native runtime lifecycle does not replay from admission",
+            runtime.audit_state(reordered),
+        )
+
+        duplicated = deepcopy(completed)
+        duplicated["events"].insert(4, deepcopy(duplicated["events"][3]))
+        self.reseal_events(duplicated)
+        self.assertIn(
+            "native runtime lifecycle does not replay from admission",
+            runtime.audit_state(duplicated),
+        )
+
+    def test_lifecycle_replay_rejects_deleted_and_state_only_history(self):
+        deleted = deepcopy(self.completed())
+        deleted["events"] = deleted["events"][:3]
+        self.reseal_events(deleted)
+        self.assertIn(
+            "native runtime lifecycle does not replay from admission",
+            runtime.audit_state(deleted),
+        )
+
+        state_only = deepcopy(self.created())
+        state_only["status"] = "running"
+        state_only["reconciliation"] = {
+            "status": "pending",
+            "next_action": "await_terminal_observation",
+        }
+        self.assertIn(
+            "native runtime lifecycle does not replay from admission",
+            runtime.audit_state(state_only),
+        )
+
+    def test_cancellation_dispatch_is_retained_and_replayed(self):
+        cancellation_dispatch = {
+            "status": "pending",
+            "key": "attempt-1",
+            "payload_sha256": "a" * 64,
+        }
+        requested = runtime.request_cancellation(
+            self.running(),
+            reason="operator stop",
+            requested_by="master",
+            dispatch=cancellation_dispatch,
+        )
+        claimed = runtime.claim_cancellation_dispatch(requested)
+        self.assertEqual(claimed["cancellation"]["dispatch"]["status"], "claimed")
+        delivered = runtime.apply_event(
+            claimed,
+            "cooperative_stop_delivered",
+            source="host_observation",
+            tool="send_message",
+            task_id="task-1",
+            thread_id="thread-1",
+        )
+        self.assertEqual(delivered["cancellation"]["dispatch"]["status"], "delivered")
+        self.assertEqual(runtime.audit_state(delivered), [])
+
+    def test_persisted_schema_downgrade_boundary_is_explicit(self):
+        state = self.completed()
+        self.assertEqual(state["schema"], "company-os.native-task-runtime.v2")
+        current = runtime.downgrade_assessment(state, runtime.SCHEMA)
+        self.assertTrue(current["compatible"])
+        legacy = runtime.downgrade_assessment(state, runtime.LEGACY_SCHEMA)
+        self.assertFalse(legacy["compatible"])
+        self.assertEqual(legacy["status"], "blocked")
+        self.assertEqual(
+            legacy["reason"],
+            "v2_lifecycle_replay_and_authority_bindings_are_not_representable",
+        )
+
+    def test_authority_hash_must_bind_its_exact_retained_transition(self):
+        state = self.claimed()
+        details = deepcopy(state["events"][1]["payload"])
+        command_payload = {
+            "attempt_id": "attempt-1",
+            "work_id": "work-1",
+            "cycle_id": "cycle-1",
+            "parent_runtime_id": "manager-1",
+            "action": "claim-native-task-dispatch",
+            "details": details,
+        }
+        authority = {
+            "action": "claim-native-task-dispatch",
+            "actor": "controller",
+            "decision": "claimed",
+            "event": "dispatch_claimed",
+            "details": details,
+            "payload_hash": runtime.canonical_digest({
+                "command": "claim-native-task-dispatch",
+                "payload": command_payload,
+            }),
+            "lifecycle_sequence": 2,
+            "grant": {"fixture": "opaque-to-pure-state-machine"},
+        }
+        bound = runtime.attach_authority(state, authority)
+        self.assertEqual(runtime.audit_state(bound), [])
+        tampered = deepcopy(bound)
+        tampered["authority_history"][0]["payload_hash"] = "0" * 64
+        self.assertIn(
+            "native runtime authority payload hash does not bind exact retained transition",
+            runtime.audit_state(tampered),
+        )
 
     def test_requested_model_usage_and_cost_remain_unavailable(self):
         state = self.running()

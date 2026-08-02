@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import importlib.util
 import base64
+import hashlib
+import hmac
 import io
 import json
 import os
@@ -51,6 +53,47 @@ class ControllerTests(unittest.TestCase):
         else:
             os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = self.previous_actor_public_key
         self.temporary.cleanup()
+
+    def test_native_runtime_scope_amendment_is_content_bound_and_prospective(self) -> None:
+        root = Path(__file__).resolve().parents[4]
+        evidence_path = root / "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.scope-amendment.v1.json"
+        decision_path = root / "artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.scope-amendment.v1.json"
+        evidence_bytes = evidence_path.read_bytes()
+        evidence = json.loads(evidence_bytes)
+        decision = json.loads(decision_path.read_bytes())
+        self.assertEqual(
+            decision["evidence_reference"]["sha256"],
+            hashlib.sha256(evidence_bytes).hexdigest(),
+        )
+        charter_path = root / evidence["bindings"]["accepted_manager_charter"]["path"]
+        self.assertEqual(
+            evidence["bindings"]["accepted_manager_charter"]["sha256"],
+            hashlib.sha256(charter_path.read_bytes()).hexdigest(),
+        )
+        self.assertFalse(evidence["effect"]["retroactive"])
+        self.assertEqual(
+            evidence["master_directive_sha256"],
+            hashlib.sha256(evidence["master_directive"].encode("utf-8")).hexdigest(),
+        )
+        self.assertEqual(
+            evidence["effect"]["added_owned_path"],
+            "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
+        )
+        signature = decision["authentication"].pop("signature")
+        digest = hashlib.sha256(
+            json.dumps(
+                decision, sort_keys=True, separators=(",", ":"),
+                ensure_ascii=False, allow_nan=False,
+            ).encode("utf-8")
+        ).hexdigest()
+        self.assertEqual(
+            signature,
+            hmac.new(
+                b"company-os-public-test-fixture-key-v1",
+                digest.encode("ascii"),
+                hashlib.sha256,
+            ).hexdigest(),
+        )
 
     def grant(
         self,
@@ -2742,6 +2785,54 @@ class ControllerTests(unittest.TestCase):
         tampered_errors = controller.validate_state(tampered, expected_project=self.project)["errors"]
         self.assertTrue(any("native task authority grant" in error for error in tampered_errors), tampered_errors)
 
+        unbound_hash = deepcopy(retained)
+        authority = unbound_hash["runtime_adapter"]["attempts"][0]["native_task_runtime"]["authority_history"][1]
+        authority["payload_hash"] = "0" * 64
+        unbound_errors = controller.validate_state(
+            unbound_hash, expected_project=self.project
+        )["errors"]
+        self.assertIn(
+            "native task authority payload hash does not bind exact retained transition",
+            unbound_errors,
+        )
+
+        missing_authority = deepcopy(retained)
+        del missing_authority["runtime_adapter"]["attempts"][0]["native_task_runtime"]["authority_history"][2]
+        missing_errors = controller.validate_state(
+            missing_authority, expected_project=self.project
+        )["errors"]
+        self.assertIn(
+            "native task authority history does not cover each ordered retained transition",
+            missing_errors,
+        )
+
+    def test_persisted_native_runtime_downgrade_boundary_blocks_lossy_reader(self) -> None:
+        cycle_id = self.admission_fixture()
+        self.assertEqual(controller.admit_runtime_attempt(self.admission_args(cycle_id)), 0)
+        state = controller.load_json(self.project / ".company-os" / "control.json")
+        blocked = controller.native_runtime_downgrade_assessment(state)
+        self.assertFalse(blocked["compatible"])
+        self.assertEqual(blocked["status"], "blocked")
+        self.assertEqual(
+            blocked["retained_native_attempts"][0]["assessment"]["reason"],
+            "v2_lifecycle_replay_and_authority_bindings_are_not_representable",
+        )
+        archived = deepcopy(state)
+        archived["feedback"]["archived_runtime_adapters"] = [{
+            "runtime_adapter": deepcopy(archived["runtime_adapter"]),
+        }]
+        archived["runtime_adapter"]["attempts"] = []
+        archived_blocked = controller.native_runtime_downgrade_assessment(archived)
+        self.assertFalse(archived_blocked["compatible"])
+        self.assertEqual(
+            archived_blocked["retained_native_attempts"][0]["source"],
+            "feedback.archived_runtime_adapters[0].runtime_adapter",
+        )
+        current = controller.native_runtime_downgrade_assessment(
+            state, controller.native_task_runtime_module().SCHEMA
+        )
+        self.assertTrue(current["compatible"])
+
     def test_native_task_cancellation_rejects_duplicate_binding_and_post_cancel_success(self) -> None:
         cycle_id = self.admission_fixture()
         self.assertEqual(controller.admit_runtime_attempt(self.admission_args(cycle_id)), 0)
@@ -2778,12 +2869,31 @@ class ControllerTests(unittest.TestCase):
         ), 0)
 
         reason = "authenticated operator cancellation"
+        current = controller.load_json(self.project / ".company-os" / "control.json")
+        native_before_cancel = current["runtime_adapter"]["attempts"][1]["native_task_runtime"]
+        base_cancel_details = {"reason": reason, "requested_by": "native-controller"}
+        cancellation_payload = {
+            "schema": "company-os.native-task-cancellation-intent.v1",
+            "attempt_id": "worker-attempt-1",
+            "native_identity": native_before_cancel["native_identity"],
+            "reason": reason,
+            "request_sha256": controller.native_task_runtime_module().canonical_digest(
+                base_cancel_details
+            ),
+        }
+        cancellation_dispatch = {
+            "status": "pending",
+            "key": "worker-attempt-1",
+            "payload_sha256": controller.native_task_runtime_module().canonical_digest(
+                cancellation_payload
+            ),
+        }
         cancel = self.native_command_args(
             "worker-attempt-1",
             action="request-native-task-cancellation",
             decision="cancel_requested",
             event="cancel_requested",
-            details={"reason": reason, "requested_by": "native-controller"},
+            details={**base_cancel_details, "dispatch": cancellation_dispatch},
             reason=reason,
         )
         self.assertEqual(controller.request_native_task_cancellation(cancel), 0)
@@ -2873,8 +2983,11 @@ class ControllerTests(unittest.TestCase):
             "manager-attempt-1",
             action="reconcile-native-task",
             decision=f"reconciled:{next_action}",
-            event="reconciled",
-            details={"next_action": next_action},
+            event="cancelled_before_launch",
+            details={
+                "source": "controller_reconciliation",
+                "next_action": next_action,
+            },
         )
         self.assertEqual(controller.reconcile_native_task(reconcile), 0)
         final = controller.load_json(self.project / ".company-os" / "control.json")
