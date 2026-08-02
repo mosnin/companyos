@@ -160,6 +160,10 @@ Raw Responses JSON must be retained byte-for-byte and decoded strictly (UTF-8,
 duplicate keys and non-finite constants rejected). A valid provider record has
 all of:
 
+The `responses-fixture-no-tools-v1` shape below is an explicit minimal fixture
+schema for this canary. It is not represented as the complete live Responses
+API object, and live provider compatibility remains a separate runtime gate.
+
 - exact `responses-fixture-no-tools-v1` top-level fields only: `id`, `object`,
   `created_at`, `status`, and `model`, plus `completed_at` and `usage` only for
   a terminal status; `object` is exactly `response` and unknown fields reject;
@@ -173,7 +177,10 @@ all of:
   sent/received/signed timestamps;
 - a required terminal `usage` object with exactly the versioned input/output/
   total token fields and their exact cached/cache-write/reasoning detail fields,
-  all non-negative integers;
+  all non-negative integers. Every admitted number is validated through one
+  schema-wide rule: booleans and numeric strings reject, total tokens equal
+  input plus output, cached plus cache-write tokens cannot exceed input, and
+  reasoning tokens cannot exceed output;
 - a SHA-256 digest and size calculated directly from the captured provider
   bytes, plus a separate normalized `RAW_FIELDS` projection whose signed
   payload binds that provider-byte digest.

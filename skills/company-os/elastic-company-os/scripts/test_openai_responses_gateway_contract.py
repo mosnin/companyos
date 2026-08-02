@@ -545,6 +545,128 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
                 )
                 self.assert_gateway_error(lambda: gateway.handle(self.signed_command(), transport=transport))
 
+    def test_every_admitted_usage_number_is_a_non_negative_integer_and_invalid_launch_never_retries(self) -> None:
+        numeric_paths = (
+            ("input_tokens",),
+            ("input_tokens_details", "cached_tokens"),
+            ("input_tokens_details", "cache_write_tokens"),
+            ("output_tokens",),
+            ("output_tokens_details", "reasoning_tokens"),
+            ("total_tokens",),
+        )
+        invalid_values = (-1, True, "1")
+        case_index = 0
+        for path in numeric_paths:
+            for invalid_value in invalid_values:
+                current_case = case_index
+                case_index += 1
+                with self.subTest(path=".".join(path), invalid_value=invalid_value):
+                    usage = {
+                        "input_tokens": 7,
+                        "input_tokens_details": {
+                            "cached_tokens": 2,
+                            "cache_write_tokens": 0,
+                        },
+                        "output_tokens": 11,
+                        "output_tokens_details": {"reasoning_tokens": 1},
+                        "total_tokens": 18,
+                    }
+                    target: dict[str, Any] = usage
+                    for component in path[:-1]:
+                        target = target[component]
+                    target[path[-1]] = invalid_value
+                    state_name = f"invalid-usage-number-{current_case}.json"
+                    artifact_name = f"invalid-usage-number-artifacts-{current_case}"
+                    gateway = self.gateway(
+                        state_name=state_name,
+                        artifact_name=artifact_name,
+                    )
+                    command = self.signed_command()
+                    transport = RecordingTransport(
+                        create=self.response_bytes(status="completed", usage=usage)
+                    )
+
+                    self.assert_gateway_error(
+                        lambda: gateway.handle(command, transport=transport)
+                    )
+                    retained = json.loads(
+                        (self.root / state_name).read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(
+                        retained["attempts"]["manager-attempt-1"]["status"],
+                        "launch_unknown",
+                    )
+                    self.assertFalse(any((self.root / artifact_name).iterdir()))
+                    replay = gateway.handle(command, transport=transport)
+                    self.assertEqual(replay["claims"]["event_type"], "launch_unknown")
+                    self.assertEqual(len(transport.create_calls), 1)
+
+    def test_usage_arithmetic_and_detail_provenance_are_fail_closed(self) -> None:
+        invalid_usage = {
+            "total-mismatch": {
+                "input_tokens": 7,
+                "input_tokens_details": {"cached_tokens": 2, "cache_write_tokens": 0},
+                "output_tokens": 11,
+                "output_tokens_details": {"reasoning_tokens": 1},
+                "total_tokens": 19,
+            },
+            "cached-exceeds-input": {
+                "input_tokens": 7,
+                "input_tokens_details": {"cached_tokens": 8, "cache_write_tokens": 0},
+                "output_tokens": 11,
+                "output_tokens_details": {"reasoning_tokens": 1},
+                "total_tokens": 18,
+            },
+            "cache-write-exceeds-input": {
+                "input_tokens": 7,
+                "input_tokens_details": {"cached_tokens": 0, "cache_write_tokens": 8},
+                "output_tokens": 11,
+                "output_tokens_details": {"reasoning_tokens": 1},
+                "total_tokens": 18,
+            },
+            "input-details-double-count-parent": {
+                "input_tokens": 7,
+                "input_tokens_details": {"cached_tokens": 4, "cache_write_tokens": 4},
+                "output_tokens": 11,
+                "output_tokens_details": {"reasoning_tokens": 1},
+                "total_tokens": 18,
+            },
+            "reasoning-exceeds-output": {
+                "input_tokens": 7,
+                "input_tokens_details": {"cached_tokens": 2, "cache_write_tokens": 0},
+                "output_tokens": 11,
+                "output_tokens_details": {"reasoning_tokens": 12},
+                "total_tokens": 18,
+            },
+        }
+        for index, (name, usage) in enumerate(invalid_usage.items()):
+            with self.subTest(name=name):
+                state_name = f"invalid-usage-arithmetic-{index}.json"
+                artifact_name = f"invalid-usage-arithmetic-artifacts-{index}"
+                gateway = self.gateway(
+                    state_name=state_name,
+                    artifact_name=artifact_name,
+                )
+                command = self.signed_command()
+                transport = RecordingTransport(
+                    create=self.response_bytes(status="completed", usage=usage)
+                )
+
+                self.assert_gateway_error(
+                    lambda: gateway.handle(command, transport=transport)
+                )
+                retained = json.loads(
+                    (self.root / state_name).read_text(encoding="utf-8")
+                )
+                self.assertEqual(
+                    retained["attempts"]["manager-attempt-1"]["status"],
+                    "launch_unknown",
+                )
+                self.assertFalse(any((self.root / artifact_name).iterdir()))
+                replay = gateway.handle(command, transport=transport)
+                self.assertEqual(replay["claims"]["event_type"], "launch_unknown")
+                self.assertEqual(len(transport.create_calls), 1)
+
     def test_terminal_create_retains_task_and_exact_usage_without_inventing_cost(self) -> None:
         raw = self.response_bytes(status="completed")
         transport = RecordingTransport(create=raw)

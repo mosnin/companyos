@@ -38,6 +38,14 @@ PROVIDER_USAGE_FIELDS = {
 }
 PROVIDER_INPUT_DETAIL_FIELDS = {"cached_tokens", "cache_write_tokens"}
 PROVIDER_OUTPUT_DETAIL_FIELDS = {"reasoning_tokens"}
+PROVIDER_USAGE_NUMERIC_PATHS = (
+    ("input_tokens",),
+    ("input_tokens_details", "cached_tokens"),
+    ("input_tokens_details", "cache_write_tokens"),
+    ("output_tokens",),
+    ("output_tokens_details", "reasoning_tokens"),
+    ("total_tokens",),
+)
 COMMAND_FIELDS = {
     "schema", "request_key_id", "gateway_request", "gateway_request_digest",
     "nonce", "issued_at", "expires_at",
@@ -253,6 +261,44 @@ def _provider_contains_credential(
             or re.fullmatch(r"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", sample)
         )
     return False
+
+
+def _validated_provider_usage(source: Any) -> dict[str, Any]:
+    """Validate the complete versioned usage schema and all count provenance."""
+    if (
+        not isinstance(source, dict)
+        or set(source) != PROVIDER_USAGE_FIELDS
+        or not isinstance(source.get("input_tokens_details"), dict)
+        or set(source["input_tokens_details"]) != PROVIDER_INPUT_DETAIL_FIELDS
+        or not isinstance(source.get("output_tokens_details"), dict)
+        or set(source["output_tokens_details"]) != PROVIDER_OUTPUT_DETAIL_FIELDS
+    ):
+        raise ResponsesGatewayError("provider terminal usage is invalid")
+
+    numbers: dict[tuple[str, ...], int] = {}
+    for path in PROVIDER_USAGE_NUMERIC_PATHS:
+        value: Any = source
+        for component in path:
+            if not isinstance(value, dict):
+                raise ResponsesGatewayError("provider terminal usage is invalid")
+            value = value.get(component)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise ResponsesGatewayError("provider terminal usage is invalid")
+        numbers[path] = value
+
+    input_tokens = numbers[("input_tokens",)]
+    cached_tokens = numbers[("input_tokens_details", "cached_tokens")]
+    cache_write_tokens = numbers[("input_tokens_details", "cache_write_tokens")]
+    output_tokens = numbers[("output_tokens",)]
+    reasoning_tokens = numbers[("output_tokens_details", "reasoning_tokens")]
+    total_tokens = numbers[("total_tokens",)]
+    if (
+        total_tokens != input_tokens + output_tokens
+        or cached_tokens + cache_write_tokens > input_tokens
+        or reasoning_tokens > output_tokens
+    ):
+        raise ResponsesGatewayError("provider terminal usage is invalid")
+    return source
 
 
 class FixtureResponsesGateway:
@@ -584,22 +630,7 @@ class FixtureResponsesGateway:
             raise ResponsesGatewayError("provider response timestamp exceeds allowed clock skew")
         provider_usage: dict[str, Any] | None = None
         if terminal:
-            source = provider.get("usage")
-            if (
-                not isinstance(source, dict)
-                or set(source) != PROVIDER_USAGE_FIELDS
-                or not isinstance(source.get("input_tokens_details"), dict)
-                or set(source["input_tokens_details"]) != PROVIDER_INPUT_DETAIL_FIELDS
-                or not isinstance(source.get("output_tokens_details"), dict)
-                or set(source["output_tokens_details"]) != PROVIDER_OUTPUT_DETAIL_FIELDS
-            ):
-                raise ResponsesGatewayError("provider terminal usage is invalid")
-            required = ("input_tokens", "output_tokens", "total_tokens")
-            if any(not isinstance(source.get(name), int) or isinstance(source.get(name), bool) or source[name] < 0 for name in required):
-                raise ResponsesGatewayError("provider terminal usage is invalid")
-            cached = source.get("input_tokens_details", {}).get("cached_tokens", 0) if isinstance(source.get("input_tokens_details", {}), dict) else 0
-            if not isinstance(cached, int) or isinstance(cached, bool) or cached < 0 or cached > source["input_tokens"] or source["total_tokens"] != source["input_tokens"] + source["output_tokens"]:
-                raise ResponsesGatewayError("provider terminal usage is invalid")
+            source = _validated_provider_usage(provider.get("usage"))
             # Preserve the exact provider object.  Responses usage does not
             # establish a dollar cost, so it is intentionally not projected as
             # lifecycle telemetry until separately priced evidence exists.

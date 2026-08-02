@@ -41,9 +41,13 @@ The adapter:
   alongside the normalized observation consumed by the existing signed gateway
   verifier;
 - admits only the signed `responses-fixture-no-tools-v1` positive provider
-  schema, including exact top-level and nested usage fields; unknown fields are
-  rejected before retention, as are bodies that conflict with an already-bound
-  provider task;
+  schema, an explicit minimal canary fixture rather than the complete live
+  Responses object, including exact top-level and nested usage fields; unknown
+  fields are rejected before retention, as are bodies that conflict with an
+  already-bound provider task;
+- validates every admitted usage count through one schema-wide non-negative
+  integer rule, rejects booleans and numeric strings, and enforces total-token
+  arithmetic plus cached/cache-write/reasoning parent-count provenance;
 - rejects duplicate JSON keys, non-finite values, malformed identity, future
   timestamps, model substitution, task substitution, invalid usage, secret-
   shaped fixture data (including provider/access/client/bearer tokens and
@@ -71,7 +75,7 @@ other provider.
 
 | Lane | Result |
 | --- | --- |
-| Responses gateway adversarial contract | 24/24 passed |
+| Responses gateway adversarial contract | 26/26 passed |
 | Provider-neutral runtime gateway | 10/10 passed |
 | Runtime lifecycle | 14/14 passed |
 | Runtime receipts | 9/9 passed |
@@ -85,8 +89,8 @@ other provider.
 | Python compilation, including the new module and test | passed |
 | `git diff --check` | passed |
 
-Total test evidence: **275 passed and one known distribution-manifest error**
-across 276 executed unit tests. The direct command-center surface verification
+Total test evidence: **277 passed and one known distribution-manifest error**
+across 278 executed unit tests. The direct command-center surface verification
 requires externally supplied reviewer identity and public-key digest variables;
 they were unavailable in this checkout, so no surface-attestation claim is
 made.
