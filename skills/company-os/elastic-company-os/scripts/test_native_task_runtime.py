@@ -309,32 +309,44 @@ class NativeTaskRuntimeTests(unittest.TestCase):
                 self.assertEqual(runtime.audit_state(observed), [])
 
     def test_cancellation_evidence_matrix_replay_rejects_illegal_and_state_only_injection(self):
-        legal = runtime.apply_event(
-            runtime.request_cancellation(
-                self.running(), reason="operator stop", requested_by="master"
-            ),
-            "hard_cancellation_observed",
-            source="host_observation",
-            tool="hard_cancel",
-            task_id="task-1",
-            thread_id="thread-1",
-            hard_status="refused",
-            acknowledgement_status="not_acknowledged",
-        )
-        injected_event = deepcopy(legal)
-        injected_event["events"][-1]["payload"]["acknowledgement_status"] = "acknowledged"
-        self.reseal_events(injected_event)
-        self.assertTrue(runtime.audit_state(injected_event))
-        with self.assertRaises(runtime.RuntimeStateError):
-            runtime.record_event(
-                injected_event,
-                "hard_cancellation_observed",
-                payload=injected_event["events"][-1]["payload"],
-            )
+        for hard_status, legal_acknowledgement_status in (
+            ("refused", "not_acknowledged"),
+            ("acknowledged", "acknowledged"),
+            ("failed", "not_acknowledged"),
+        ):
+            with self.subTest(hard_status=hard_status):
+                legal = runtime.apply_event(
+                    runtime.request_cancellation(
+                        self.running(), reason="operator stop", requested_by="master"
+                    ),
+                    "hard_cancellation_observed",
+                    source="host_observation",
+                    tool="hard_cancel",
+                    task_id="task-1",
+                    thread_id="thread-1",
+                    hard_status=hard_status,
+                    acknowledgement_status=legal_acknowledgement_status,
+                )
+                injected_event = deepcopy(legal)
+                injected_event["events"][-1]["payload"]["acknowledgement_status"] = (
+                    "acknowledged"
+                    if legal_acknowledgement_status == "not_acknowledged"
+                    else "not_acknowledged"
+                )
+                self.reseal_events(injected_event)
+                self.assertTrue(runtime.audit_state(injected_event))
+                with self.assertRaises(runtime.RuntimeStateError):
+                    runtime.record_event(
+                        injected_event,
+                        "hard_cancellation_observed",
+                        payload=injected_event["events"][-1]["payload"],
+                    )
 
-        injected_state = deepcopy(legal)
-        injected_state["cancellation"]["acknowledgement_status"] = "acknowledged"
-        self.assertTrue(runtime.audit_state(injected_state))
+                injected_state = deepcopy(legal)
+                injected_state["cancellation"]["acknowledgement_status"] = (
+                    injected_event["events"][-1]["payload"]["acknowledgement_status"]
+                )
+                self.assertTrue(runtime.audit_state(injected_state))
 
     def test_acknowledged_cancellation_can_reach_terminal_cancelled(self):
         observed = runtime.apply_event(
