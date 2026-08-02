@@ -7,9 +7,10 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version 0.5.1 is the signed, manifest-backed release candidate. Version 0.5.0
-remains the globally installed release until an independent exact-candidate
-review and transactional upgrade complete. The 0.5.1 source adds feature-off
+Version 0.5.1 is a manifest-backed, locally verified, **unsigned** pre-signing
+candidate. Version 0.5.0 remains the globally installed release until an
+independent exact-candidate review, fresh signature, and transactional upgrade
+complete. The 0.5.1 source adds feature-off
 transactional admission, native-task create and cancellation outboxes,
 immutable returned host identity, replay-derived lifecycle state, restart
 reconciliation, terminal receipts, truthful unavailable telemetry, and an
@@ -22,9 +23,12 @@ and integrated only accepted evidence, and an independent final audit returned
 0 P0, 0 P1, and 0 P2 findings. Executing-model identity, tokens, cost, and hard
 cancellation acknowledgement remained unavailable and were not inferred.
 
-Version 0.5.1 carries a fresh independently signed regression acceptance for
-the exact 21-file Operator Command Center surface at 9.22/10 with every score
-at least 9.0. It also retains the prior feature-off foundations. First, program replacement
+An earlier 0.5.1 carrier received independently signed regression acceptance
+for its exact 21-file Operator Command Center surface at 9.22/10 with every
+score at least 9.0. The cancellation repair changed two files in that surface,
+so the prior signature is stale and is not release evidence for this candidate;
+a fresh exact-candidate review and signature remain required. The current
+candidate retains the prior feature-off foundations. First, program replacement
 now uses a positive, versioned archive schema and rejects credential-shaped or
 unknown runtime material transactionally. Second, a provider-neutral lifecycle
 contract and fixture-only OpenAI Responses gateway prove signed request/result
