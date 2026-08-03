@@ -51,6 +51,15 @@ match the exact bytes. Never read or include file contents in an error.
 
 ## Gates
 
+After accepted design and before worker launch, instantiate
+`$force-first-execution` without adding another approval barrier. Keep its
+event log manager-owned and bind the force contract through the existing worker
+task-local artifact references. A soft delivery SLO miss records variance and
+permits only fresh observable in-flight grace or one precise intervention; it
+never overrides a hard stop. When verification and direct inspection are
+complete, materialize the receipt next. When that receipt verifies, decide
+next. Reopened planning at either completed edge is a control failure.
+
 Every phase emits a report to the master. Charter, design, verification, and
 final integration require an authenticated master decision bound to the exact
 program version, definition version, outcome digest, and phase evidence.

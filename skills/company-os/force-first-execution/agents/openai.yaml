@@ -1,0 +1,3 @@
+interface:
+  display_name: "Force-First Execution"
+  short_description: "Turn accepted plans into measurable output"

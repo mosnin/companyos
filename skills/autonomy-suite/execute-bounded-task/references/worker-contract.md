@@ -57,6 +57,12 @@ not call the task clean because tracked Git status is clean.
 
 ## Receipt
 
+When the packet includes a force contract in its task-local artifact paths,
+validate and follow it through `$force-first-execution`. The manager owns the
+event log. Report exact materialization, candidate, check, and receipt evidence
+to the manager; do not share-write the control record. Soft SLO misses remain
+performance variance and do not authorize a scope, safety, or budget breach.
+
 Return:
 
 - contract version and all input IDs;

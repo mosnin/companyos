@@ -1,0 +1,26 @@
+{
+  "schema": "company-os.force-contract.v1",
+  "task_id": "example-worker-1",
+  "outcome": "Produce one accepted customer-facing deliverable.",
+  "started_at_epoch": 0,
+  "soft_slos": {
+    "first_artifact_seconds": 300,
+    "runnable_candidate_seconds": 900,
+    "verification_seconds": 1200,
+    "acceptance_to_receipt_seconds": 120,
+    "receipt_to_decision_seconds": 120
+  },
+  "control": {
+    "inflight_observation_fresh_seconds": 120,
+    "max_rework_cycles": 1,
+    "event_log_owner": "manager"
+  },
+  "hard_stop_codes": [
+    "authority_loss",
+    "budget_exhausted",
+    "collision",
+    "explicit_cancel",
+    "prohibited_side_effect",
+    "scope_violation"
+  ]
+}

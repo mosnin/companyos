@@ -18,7 +18,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
-| Execution | Deliver approved work through Sol manager tasks and bounded Luna labor with durable state and verification | `$manage-company-program`, `$execute-bounded-task`, `$autonomy-suite`, `$luna-execution-fabric` |
+| Execution | Deliver approved work through Sol manager tasks and bounded Luna labor with measurable materialization, verification, and decisions | `$manage-company-program`, `$execute-bounded-task`, `$force-first-execution`, `$autonomy-suite`, `$luna-execution-fabric` |
 | Elastic control | Create an isolated project operating model and improve it through independently reviewed feedback | `$elastic-company-os` |
 
 ## Project isolation
@@ -47,6 +47,12 @@ or work packet instead of repeating the operating system in every prompt.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.
+
+Use `$force-first-execution` inside every delivery lane. Planning, commentary,
+thread count, tests without an artifact, and receipts without an accepted
+deliverable are not progress. The manager tracks first materialization,
+runnable candidate, verification, direct inspection, receipt, and decision;
+soft speed misses remain visible while hard safety stops remain authoritative.
 
 When the project uses an Elastic Company OS instance, this hierarchy is
 controller-governed state. Queue the primary work with

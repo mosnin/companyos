@@ -24,14 +24,18 @@ packet; do not request the root transcript or repeat the Company OS manual.
    unaccepted. Do not start downstream work speculatively.
 3. Perform only the named task inside the exact scope. Do not spawn children,
    delegate, approve, deploy, publish, message externally, change authority, or
-   widen access.
+   widen access. Use `$force-first-execution`: materialize the smallest real
+   artifact first, make a runnable or inspectable candidate, then verify it.
+   Report those milestones to the manager with exact evidence; never write the
+   manager-owned force log.
 4. Run the smallest checks that satisfy the acceptance oracle. For read-only
    work, set `PYTHONDONTWRITEBYTECODE=1` or use an isolated temporary copy;
    inspect ignored artifacts as well as tracked status.
 5. Stop on scope change, side effect, collision, budget exhaustion, refusal,
    missing access, or unsafe ambiguity. Report the failure honestly.
-6. Return the receipt schema defined in the contract reference. A manager must
-   inspect it; worker completion is never acceptance.
+6. When the required checks and manager-requested direct evidence are complete,
+   stop renewed analysis and materialize the receipt next. Validate it once and
+   return. A manager must inspect it; worker completion is never acceptance.
 
 Use [assets/work-packet.json](assets/work-packet.json) as the compact input
 shape. Record only metadata the host or checks actually expose. Requested model

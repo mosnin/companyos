@@ -27,8 +27,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "d3cd328bb84942adc12436e1886fa485a34d2ff6eb930e414891e5c953f750b9",
-      "size": 5835
+      "sha256": "c58baeddf95dc4460fe59a5cc1a0d231fa0e4c896f7561684a3dee89a63825e0",
+      "size": 6267
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -156,6 +156,41 @@
       "size": 25873
     },
     {
+      "path": "company-os/force-first-execution/SKILL.md",
+      "sha256": "614fee10916daba8c663c5d9d6435075bb58725705cb4f051a24c5cb50d4bf6c",
+      "size": 3951
+    },
+    {
+      "path": "company-os/force-first-execution/agents/openai.yaml",
+      "sha256": "d90e922142248728aa6fc60fb8c308be2e192a4bf0a29aad3fee65898d16e6fd",
+      "size": 117
+    },
+    {
+      "path": "company-os/force-first-execution/assets/force-contract.v1.json",
+      "sha256": "86d20001dff59d0c4129483f1e709b226de4ce3e8d8a671c5482757a2f3cf980",
+      "size": 676
+    },
+    {
+      "path": "company-os/force-first-execution/assets/force-events.example.jsonl",
+      "sha256": "52c73de590b9b26437e8908b07bbd581fe83a9d0606aa9b24072635e9b8b87c1",
+      "size": 131
+    },
+    {
+      "path": "company-os/force-first-execution/references/force-contract.md",
+      "sha256": "e7103e8e4432efc02639d58be4cbe0fc62d3a2dd60c1a89c50ca51653671caf8",
+      "size": 3647
+    },
+    {
+      "path": "company-os/force-first-execution/schemas/force-contract.schema.json",
+      "sha256": "b224fe51931387b9de570dd5eaa86a9ef335f62b6fed515504076aa9999ca757",
+      "size": 2144
+    },
+    {
+      "path": "company-os/force-first-execution/scripts/force_loop_controller.py",
+      "sha256": "5fa017f77f3efabbc55f1aa475066226f8f8efd2a7e7ffeb47ffe8560e9562d3",
+      "size": 36105
+    },
+    {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",
       "sha256": "90e0beda303934a8804e4ef51900024fc91283f026d72ca5ff7fe53aa03a5795",
       "size": 2427
@@ -217,8 +252,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "32165e366337a158d17e6194487df3516fbb67a4cd54632b971cfa0896c47816",
-      "size": 5344
+      "sha256": "eb12aff16744d4e8105fc54959dc69a3c61b236ebb774aa996444dbee9b8fe52",
+      "size": 4802
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
@@ -262,8 +297,8 @@
     },
     {
       "path": "company-os/manage-company-program/references/manager-contract.md",
-      "sha256": "c6e49a1d2481f2a0c4fb8f258203c02fd6ea03aa31944e8295f20971d9224fb2",
-      "size": 4829
+      "sha256": "e11edd4a9d5ea1d06bbf86f0effc1dba04c5d1529fb4aa5c86d8186e4bad3473",
+      "size": 5420
     },
     {
       "path": "company-os/manage-company-program/schemas/compiled-preflight.schema.json",
@@ -337,8 +372,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/SKILL.md",
-      "sha256": "4c0fd0f21a02ed5dacebb907aec43e1b5ab3be86be5470cd8bf04fb79d09efd2",
-      "size": 2470
+      "sha256": "894cebac8820b71d18f9586ba08e2f766b51e90bd7d5d23e37c96ec70142a420",
+      "size": 2818
     },
     {
       "path": "autonomy-suite/execute-bounded-task/agents/openai.yaml",
@@ -352,8 +387,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/references/worker-contract.md",
-      "sha256": "6f924c0451772d2358a4abe549698051ce3ce9bb4836746f6131b0dd697e49ff",
-      "size": 4054
+      "sha256": "8bd0cfefc234b13458cf58e8c32f9a4ce53c5587118272a95bc2de2edf5dccb0",
+      "size": 4444
     },
     {
       "path": "autonomy-suite/loops/bounded-autonomy-loop/SKILL.md",
