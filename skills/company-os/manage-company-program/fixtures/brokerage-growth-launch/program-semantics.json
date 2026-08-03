@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.program-semantics.v1",
+  "schema_version": 1,
+  "program_id": "brokerage-growth-launch",
+  "program_label": "Brokerage Growth Launch",
+  "canonical_terms": [
+    {
+      "term_id": "signed_representation_agreement",
+      "label": "Signed representation agreement",
+      "aliases": ["signed representation agreements", "representation agreement"],
+      "prohibited_aliases": ["closing", "closings"]
+    },
+    {
+      "term_id": "listing_launch",
+      "label": "Listing launch",
+      "aliases": ["launch listing"],
+      "prohibited_aliases": []
+    },
+    {
+      "term_id": "lead_response_time",
+      "label": "Lead response time",
+      "aliases": ["lead response target"],
+      "prohibited_aliases": []
+    },
+    {
+      "term_id": "commission_rate",
+      "label": "Commission rate",
+      "aliases": ["commission percentage"],
+      "prohibited_aliases": []
+    },
+    {
+      "term_id": "budget_ceiling",
+      "label": "Budget ceiling",
+      "aliases": ["annual budget ceiling"],
+      "prohibited_aliases": []
+    }
+  ],
+  "constants": [
+    {
+      "constant_id": "annual_budget_ceiling_usd",
+      "label": "Annual program budget ceiling",
+      "type": "integer",
+      "value": 180000,
+      "unit": "usd",
+      "row_map": "budget.annual_ceiling"
+    },
+    {
+      "constant_id": "listing_launch_rate_bps",
+      "label": "Listing launch rate",
+      "type": "integer",
+      "value": 250,
+      "unit": "basis_points",
+      "row_map": "pricing.listing_launch_rate"
+    },
+    {
+      "constant_id": "lead_response_minutes",
+      "label": "Lead response target",
+      "type": "integer",
+      "value": 15,
+      "unit": "minutes",
+      "row_map": "service.lead_response_minutes"
+    },
+    {
+      "constant_id": "broker_enablement_seats",
+      "label": "Broker enablement seats",
+      "type": "integer",
+      "value": 50,
+      "unit": "seats",
+      "row_map": "enablement.broker_seats"
+    }
+  ],
+  "authority_states": [
+    {
+      "state_id": "manager_review",
+      "label": "Manager review and approval",
+      "kind": "manager",
+      "delegable": false,
+      "delegated_states": ["worker_execute"],
+      "allowed_actions": ["decompose", "review", "approve", "reject"]
+    },
+    {
+      "state_id": "worker_execute",
+      "label": "Bounded worker execution",
+      "kind": "worker",
+      "delegable": true,
+      "delegated_states": [],
+      "allowed_actions": ["author", "inspect", "report"]
+    }
+  ],
+  "prohibitions": [
+    {"prohibition_id": "no_customer_send", "label": "No customer-facing sends", "applies_to": ["both"]},
+    {"prohibition_id": "no_provider_mutation", "label": "No provider or production mutation", "applies_to": ["both"]},
+    {"prohibition_id": "no_spend", "label": "No spend or financial commitment", "applies_to": ["both"]},
+    {"prohibition_id": "no_privilege_escalation", "label": "No privilege or authority escalation", "applies_to": ["both"]}
+  ],
+  "evidence_requirements": [
+    {"evidence_id": "market_signal", "claim": "Brokerage demand signal is documented", "required": true, "citation_required": true, "minimum_citations": 1},
+    {"evidence_id": "broker_workflow", "claim": "Broker workflow constraints are documented", "required": true, "citation_required": true, "minimum_citations": 1},
+    {"evidence_id": "response_benchmark", "claim": "Lead response benchmark is documented", "required": true, "citation_required": true, "minimum_citations": 1},
+    {"evidence_id": "budget_policy", "claim": "Budget policy and row map are documented", "required": true, "citation_required": true, "minimum_citations": 1},
+    {"evidence_id": "enablement_signal", "claim": "Broker enablement signal is documented", "required": true, "citation_required": true, "minimum_citations": 1}
+  ],
+  "artifact_oracles": [
+    {
+      "oracle_id": "normalized_nonempty_markdown",
+      "label": "Normalized non-empty Markdown bytes",
+      "kind": "text",
+      "normalization": "unicode-nfc-strip",
+      "rule": "normalized-nonempty",
+      "required": true
+    }
+  ],
+  "required_capabilities": [
+    {"capability_id": "spreadsheet", "required": true},
+    {"capability_id": "document_renderer", "required": true}
+  ]
+}

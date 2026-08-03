@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.host-capabilities.v1",
+  "title": "Company OS Host Capability Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "$id", "schema_version", "program_id", "host_profile_id", "runtimes", "capabilities"],
+  "properties": {
+    "$schema": {"type": "string", "const": "https://json-schema.org/draft/2020-12/schema"},
+    "$id": {"type": "string", "const": "company-os.host-capabilities.v1"},
+    "schema_version": {"type": "integer", "const": 1},
+    "program_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+    "host_profile_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+    "runtimes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["runtime_id", "runtime_type", "available", "locator"],
+        "properties": {
+          "runtime_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "runtime_type": {"type": "string", "minLength": 1},
+          "available": {"type": "boolean"},
+          "locator": {"type": "string", "pattern": "^(?:runtime|tool|module|workspace)://[a-z0-9][a-z0-9._/-]*$"}
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capability_id", "available", "runtime_id", "tool_locator", "runtime_locator"],
+        "properties": {
+          "capability_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "available": {"type": "boolean"},
+          "runtime_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "tool_locator": {"type": "string", "pattern": "^(?:runtime|tool|module|workspace)://[a-z0-9][a-z0-9._/-]*$"},
+          "runtime_locator": {"type": "string", "pattern": "^(?:runtime|tool|module|workspace)://[a-z0-9][a-z0-9._/-]*$"}
+        }
+      }
+    }
+  }
+}
