@@ -15,6 +15,7 @@ import hashlib
 import json
 import re
 import sys
+import tempfile
 import unicodedata
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -627,6 +628,43 @@ def _build_term_indexes(
     return aliases, prohibited
 
 
+def _reject_prohibited_text(
+    value: str,
+    prohibited: Mapping[str, str],
+    owner: str,
+) -> None:
+    """Reject canonical terminology drift in authored decision text.
+
+    Citation excerpts and prohibition definitions are deliberately excluded:
+    they may need to quote the external or forbidden wording verbatim.  Labels,
+    claims, and oracle probes are authored dispatch instructions and therefore
+    must preserve the program's canonical vocabulary.
+    """
+
+    normalized = unicodedata.normalize("NFKC", value).casefold()
+    for alias, term_id in prohibited.items():
+        if re.search(rf"(?<!\w){re.escape(alias)}(?!\w)", normalized):
+            raise PreflightError(
+                "E_TERMINOLOGY_DRIFT",
+                f"{owner} uses prohibited terminology {alias!r}; canonical term is {term_id!r}",
+            )
+
+
+def _validate_prohibition_applicability(
+    prohibition_ids: Sequence[str],
+    prohibitions: Mapping[str, Mapping[str, Any]],
+    role: str,
+    owner: str,
+) -> None:
+    for prohibition_id in prohibition_ids:
+        applies_to = prohibitions[prohibition_id]["applies_to"]
+        if "both" not in applies_to and role not in applies_to:
+            raise PreflightError(
+                "E_AUTHORITY",
+                f"{owner} uses prohibition {prohibition_id!r} that does not apply to {role}",
+            )
+
+
 def _resolve_refs(values: Sequence[str], indexed: Mapping[str, Mapping[str, Any]], owner: str) -> list[str]:
     result: list[str] = []
     for value in values:
@@ -662,6 +700,19 @@ def _validate_definitions(
     _check_duplicate_labels(terms, "term")
     _check_duplicate_labels(constants, "constant")
     _validate_cross_bindings(semantics, definitions, terms, constants)
+    _reject_prohibited_text(semantics["program_label"], prohibited_aliases, "program label")
+    for constant_id, constant in constants.items():
+        _reject_prohibited_text(constant["label"], prohibited_aliases, f"constant {constant_id} label")
+    for state_id, state in states.items():
+        _reject_prohibited_text(state["label"], prohibited_aliases, f"authority state {state_id} label")
+    for evidence_id, requirement in evidence_requirements.items():
+        _reject_prohibited_text(
+            requirement["claim"], prohibited_aliases, f"evidence requirement {evidence_id} claim"
+        )
+    for evidence_id, unit in evidence_units.items():
+        _reject_prohibited_text(unit["claim"], prohibited_aliases, f"evidence unit {evidence_id} claim")
+    for oracle_id, oracle in oracles.items():
+        _reject_prohibited_text(oracle["label"], prohibited_aliases, f"oracle {oracle_id} label")
 
     all_scopes: list[tuple[str, str]] = []
     all_deliverable_ids: set[str] = set()
@@ -683,10 +734,14 @@ def _validate_definitions(
         if state["kind"] != "manager":
             raise PreflightError("E_AUTHORITY", f"manager {manager_id!r} must use a manager authority state")
         prohibition_ids = _resolve_refs(manager["prohibition_ids"], prohibitions, f"manager {manager_id}")
+        _validate_prohibition_applicability(
+            prohibition_ids, prohibitions, "manager", f"manager {manager_id}"
+        )
         cap_ids = _resolve_refs(manager["required_capabilities"], capabilities, f"manager {manager_id}")
         term_ids = _resolve_terms(
             manager["required_terms"], terms, aliases, prohibited_aliases, f"manager {manager_id}"
         )
+        _reject_prohibited_text(manager["label"], prohibited_aliases, f"manager {manager_id} label")
         deliverables = _validate_deliverables(
             manager["deliverables"],
             f"manager {manager_id}",
@@ -719,6 +774,8 @@ def _validate_definitions(
             }
         )
 
+    manager_packet_by_id = {item["manager_id"]: item for item in manager_packets}
+
     work_packets: list[dict[str, Any]] = []
     for work_id, work in sorted(works.items()):
         manager_id = work["manager_id"]
@@ -740,10 +797,31 @@ def _validate_definitions(
                 f"work {work_id!r} uses a worker authority state not delegated by manager {manager_id!r}",
             )
         prohibition_ids = _resolve_refs(work["prohibition_ids"], prohibitions, f"work {work_id}")
+        _validate_prohibition_applicability(
+            prohibition_ids, prohibitions, "worker", f"work {work_id}"
+        )
         cap_ids = _resolve_refs(work["required_capabilities"], capabilities, f"work {work_id}")
+        parent_packet = manager_packet_by_id[manager_id]
+        missing_parent_prohibitions = sorted(
+            set(parent_packet["prohibition_ids"]) - set(prohibition_ids)
+        )
+        if missing_parent_prohibitions:
+            raise PreflightError(
+                "E_AUTHORITY",
+                f"work {work_id!r} drops parent prohibitions {missing_parent_prohibitions!r}",
+            )
+        widened_capabilities = sorted(
+            set(cap_ids) - set(parent_packet["required_capability_ids"])
+        )
+        if widened_capabilities:
+            raise PreflightError(
+                "E_AUTHORITY",
+                f"work {work_id!r} widens parent capabilities {widened_capabilities!r}",
+            )
         term_ids = _resolve_terms(
             work["required_terms"], terms, aliases, prohibited_aliases, f"work {work_id}"
         )
+        _reject_prohibited_text(work["label"], prohibited_aliases, f"work {work_id} label")
         deliverables = _validate_deliverables(
             work["deliverables"],
             f"work {work_id}",
@@ -837,6 +915,12 @@ def _validate_deliverables(
     normalized: list[dict[str, Any]] = []
     for item in sorted(deliverables, key=lambda value: value["deliverable_id"]):
         deliverable_id = item["deliverable_id"]
+        _reject_prohibited_text(
+            item["label"], prohibited_aliases, f"{owner}.{deliverable_id}.label"
+        )
+        _reject_prohibited_text(
+            item["oracle_probe"], prohibited_aliases, f"{owner}.{deliverable_id}.oracle_probe"
+        )
         if deliverable_id in all_deliverable_ids:
             raise PreflightError("E_DUPLICATE_DELIVERABLE", f"duplicate deliverable id {deliverable_id!r}")
         all_deliverable_ids.add(deliverable_id)
@@ -1090,6 +1174,9 @@ def compile_program(
         semantics["evidence_requirements"], "evidence_id", "evidence requirement"
     )
     oracles = _index_unique(semantics["artifact_oracles"], "oracle_id", "artifact oracle")
+    _index_unique(
+        semantics["required_capabilities"], "capability_id", "required capability"
+    )
     required_caps = _required_capabilities(semantics, definitions)
     host_capabilities, runtimes = _validate_host(capabilities_doc, required_caps)
     evidence_units = _index_unique(definitions["evidence_units"], "evidence_id", "evidence unit")
@@ -1109,6 +1196,15 @@ def compile_program(
         for delegated in state["delegated_states"]:
             if delegated not in states:
                 raise PreflightError("E_AUTHORITY", f"authority state {state_id!r} delegates unknown state {delegated!r}")
+    for prohibition_id, prohibition in prohibitions.items():
+        applies_to = prohibition["applies_to"]
+        if len(applies_to) != len(set(applies_to)) or (
+            "both" in applies_to and len(applies_to) != 1
+        ):
+            raise PreflightError(
+                "E_AUTHORITY",
+                f"prohibition {prohibition_id!r} has ambiguous role applicability",
+            )
     for evidence_id, requirement in evidence_requirements.items():
         if requirement["required"] and evidence_id not in evidence_units:
             raise PreflightError("E_EVIDENCE_CLOSURE", f"required evidence unit {evidence_id!r} is absent")
@@ -1329,7 +1425,7 @@ def verify_output(
     capabilities_path: str | Path | None = None,
     definitions_path: str | Path | None = None,
 ) -> dict[str, Any]:
-    """Verify canonical manifest, packet hashes, parent links, and file closure."""
+    """Verify the output tree and recompile it from all three bound sources."""
 
     root = Path(output_dir)
     if root.is_file():
@@ -1367,17 +1463,19 @@ def verify_output(
     }:
         raise PreflightError("E_UNBOUND_OUTPUT", "manifest packet counts do not close over packet references")
 
-    if semantics_path is not None or capabilities_path is not None or definitions_path is not None:
-        if not all((semantics_path, capabilities_path, definitions_path)):
-            raise PreflightError("E_INPUT_BINDING", "verify source binding requires all three input paths")
-        sources = {
-            "program_semantics": _read_json(Path(semantics_path), "program semantics"),
-            "host_capabilities": _read_json(Path(capabilities_path), "host capabilities"),
-            "work_definitions": _read_json(Path(definitions_path), "work definitions"),
-        }
-        expected_bindings = _source_bindings(sources)
-        if expected_bindings != manifest["input_bindings"]:
-            raise PreflightError("E_INPUT_BINDING", "compiled manifest input bindings do not match supplied sources")
+    if not all((semantics_path, capabilities_path, definitions_path)):
+        raise PreflightError(
+            "E_INPUT_BINDING",
+            "source-bound verification requires program semantics, host capabilities, and work definitions",
+        )
+    sources = {
+        "program_semantics": _read_json(Path(semantics_path), "program semantics"),
+        "host_capabilities": _read_json(Path(capabilities_path), "host capabilities"),
+        "work_definitions": _read_json(Path(definitions_path), "work definitions"),
+    }
+    expected_bindings = _source_bindings(sources)
+    if expected_bindings != manifest["input_bindings"]:
+        raise PreflightError("E_INPUT_BINDING", "compiled manifest input bindings do not match supplied sources")
 
     expected_paths: set[str] = {"compiled-preflight.json"}
     manager_by_id: dict[str, Mapping[str, Any]] = {}
@@ -1441,6 +1539,36 @@ def verify_output(
     for path in root.iterdir():
         if path.name not in {"compiled-preflight.json", "manager-packets", "work-packets"}:
             raise PreflightError("E_PACKET_EXTRA", f"extra output at root: {path.name}")
+
+    with tempfile.TemporaryDirectory(prefix="company-os-preflight-verify-") as temp_dir:
+        expected_root = Path(temp_dir) / "expected"
+        compile_program(
+            Path(semantics_path),
+            Path(capabilities_path),
+            Path(definitions_path),
+            expected_root,
+        )
+        actual_files = {
+            str(path.relative_to(root)): path.read_bytes()
+            for path in root.rglob("*")
+            if path.is_file()
+        }
+        expected_files = {
+            str(path.relative_to(expected_root)): path.read_bytes()
+            for path in expected_root.rglob("*")
+            if path.is_file()
+        }
+        if set(actual_files) != set(expected_files):
+            raise PreflightError(
+                "E_UNBOUND_OUTPUT",
+                "compiled output path set differs from deterministic source recompilation",
+            )
+        for relative in sorted(expected_files):
+            if actual_files[relative] != expected_files[relative]:
+                raise PreflightError(
+                    "E_PACKET_MUTATED",
+                    f"compiled output differs from deterministic source recompilation: {relative}",
+                )
     return {
         "manifest_sha256": manifest_digest,
         "manager_count": len(manager_by_id),
@@ -1459,9 +1587,9 @@ def _build_parser() -> argparse.ArgumentParser:
     compile_parser.add_argument("--output-dir", "--output", dest="output_dir", required=True)
     verify_parser = subparsers.add_parser("verify", help="verify a compiled output tree")
     verify_parser.add_argument("--output-dir", "--output", "--manifest", dest="output_dir", required=True)
-    verify_parser.add_argument("--semantics", "--program-semantics", dest="semantics")
-    verify_parser.add_argument("--capabilities", "--host-capabilities", dest="capabilities")
-    verify_parser.add_argument("--definitions", "--work-definitions", dest="definitions")
+    verify_parser.add_argument("--semantics", "--program-semantics", dest="semantics", required=True)
+    verify_parser.add_argument("--capabilities", "--host-capabilities", dest="capabilities", required=True)
+    verify_parser.add_argument("--definitions", "--work-definitions", dest="definitions", required=True)
     return parser
 
 

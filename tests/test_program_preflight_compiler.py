@@ -42,6 +42,10 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         semantics, capabilities, definitions = self.fixture_paths(fixture)
         return MODULE.compile_program(semantics, capabilities, definitions, output)
 
+    def verify_fixture(self, fixture: str, output: Path) -> dict:
+        semantics, capabilities, definitions = self.fixture_paths(fixture)
+        return MODULE.verify_output(output, semantics, capabilities, definitions)
+
     def assert_compile_code(self, fixture: str, mutate, expected_code: str) -> None:
         documents = self.load_fixture(fixture)
         mutate(documents)
@@ -56,7 +60,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
     def test_brokerage_compiles_five_compact_packets_and_verifies(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             result = self.compile_fixture("brokerage-growth-launch", Path(temp) / "compiled")
-            verified = MODULE.verify_output(result["output_dir"])
+            verified = self.verify_fixture("brokerage-growth-launch", Path(result["output_dir"]))
             self.assertEqual(5, verified["manager_count"])
             self.assertEqual(5, verified["work_count"])
             for reference in result["manager_packets"] + result["work_packets"]:
@@ -79,7 +83,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             self.assertNotEqual(brokerage["manifest_sha256"], saas["manifest_sha256"])
             self.assertEqual(5, len(saas["manager_packets"]))
             self.assertEqual(5, len(saas["work_packets"]))
-            MODULE.verify_output(saas["output_dir"])
+            self.verify_fixture("saas-onboarding-launch", Path(saas["output_dir"]))
 
     def test_identical_inputs_produce_byte_identical_trees(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -113,7 +117,30 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
                     ]
                 ),
             )
-            self.assertEqual(0, MODULE.main(["verify", "--output-dir", str(output)]))
+            self.assertEqual(
+                0,
+                MODULE.main(
+                    [
+                        "verify",
+                        "--output-dir",
+                        str(output),
+                        "--program-semantics",
+                        str(semantics),
+                        "--host-capabilities",
+                        str(capabilities),
+                        "--work-definitions",
+                        str(definitions),
+                    ]
+                ),
+            )
+
+    def test_verify_requires_all_three_bound_sources(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "compiled"
+            self.compile_fixture("brokerage-growth-launch", output)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.verify_output(output)
+            self.assertEqual("E_INPUT_BINDING", caught.exception.code)
 
     def test_constant_ceiling_drift_is_rejected(self) -> None:
         def mutate(documents):
@@ -148,6 +175,46 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             next(item for item in documents[1]["capabilities"] if item["capability_id"] == "spreadsheet")["available"] = False
 
         self.assert_compile_code("brokerage-growth-launch", mutate, "E_CAPABILITY_UNAVAILABLE")
+
+    def test_child_must_retain_every_parent_prohibition(self) -> None:
+        def mutate(documents):
+            documents[2]["work_definitions"][0]["prohibition_ids"] = ["no_customer_send"]
+
+        self.assert_compile_code("brokerage-growth-launch", mutate, "E_AUTHORITY")
+
+    def test_child_capabilities_must_narrow_parent_slice(self) -> None:
+        def mutate(documents):
+            documents[2]["work_definitions"][0]["required_capabilities"] = ["spreadsheet"]
+
+        self.assert_compile_code("brokerage-growth-launch", mutate, "E_AUTHORITY")
+
+    def test_prohibition_role_applicability_is_enforced(self) -> None:
+        def mutate(documents):
+            documents[0]["prohibitions"].append(
+                {"prohibition_id": "worker_only", "label": "Worker-only control", "applies_to": ["worker"]}
+            )
+            documents[2]["manager_definitions"][0]["prohibition_ids"] = ["worker_only"]
+
+        self.assert_compile_code("brokerage-growth-launch", mutate, "E_AUTHORITY")
+
+    def test_duplicate_required_capability_is_rejected(self) -> None:
+        def mutate(documents):
+            documents[0]["required_capabilities"].append(
+                {"capability_id": "spreadsheet", "required": False}
+            )
+
+        self.assert_compile_code("brokerage-growth-launch", mutate, "E_DUPLICATE_CONCEPT")
+
+    def test_prohibited_terms_are_rejected_in_labels_and_oracle_probes(self) -> None:
+        def label_mutation(documents):
+            documents[2]["work_definitions"][0]["deliverables"][0]["label"] = "Closings report"
+
+        self.assert_compile_code("brokerage-growth-launch", label_mutation, "E_TERMINOLOGY_DRIFT")
+
+        def probe_mutation(documents):
+            documents[2]["work_definitions"][0]["deliverables"][0]["oracle_probe"] = "Summarize closings"
+
+        self.assert_compile_code("brokerage-growth-launch", probe_mutation, "E_TERMINOLOGY_DRIFT")
 
     def test_missing_or_malformed_locator_is_rejected(self) -> None:
         def mutate(documents):
@@ -206,8 +273,44 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             packet["deliverables"][0]["label"] = "mutated output"
             packet_path.write_bytes(MODULE.canonical_bytes(packet))
             with self.assertRaises(MODULE.PreflightError) as caught:
-                MODULE.verify_output(output)
+                self.verify_fixture("brokerage-growth-launch", output)
             self.assertEqual("E_PACKET_MUTATED", caught.exception.code)
+
+    def test_rehashed_packet_and_manifest_are_rejected_against_sources(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "compiled"
+            result = self.compile_fixture("brokerage-growth-launch", output)
+            reference = result["work_packets"][0]
+            old_path = output / reference["path"]
+            packet = json.loads(old_path.read_text(encoding="utf-8"))
+            packet["deliverables"][0]["label"] = "attacker-rebound"
+            packet["binding"]["canonical_sha256"] = None
+            packet_digest = MODULE.canonical_digest(packet)
+            packet["binding"]["canonical_sha256"] = packet_digest
+            new_relative = (
+                f"work-packets/work-{packet['packet_id']}-{packet_digest[:16]}.json"
+            )
+            new_path = output / new_relative
+            new_path.write_bytes(MODULE.canonical_bytes(packet))
+            old_path.unlink()
+
+            manifest_path = output / "compiled-preflight.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            bound_reference = next(
+                item for item in manifest["work_packets"] if item["packet_id"] == packet["packet_id"]
+            )
+            bound_reference.update(
+                path=new_relative,
+                sha256=packet_digest,
+                size=new_path.stat().st_size,
+            )
+            manifest["binding"]["canonical_sha256"] = None
+            manifest["binding"]["canonical_sha256"] = MODULE.canonical_digest(manifest)
+            manifest_path.write_bytes(MODULE.canonical_bytes(manifest))
+
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                self.verify_fixture("brokerage-growth-launch", output)
+            self.assertEqual("E_UNBOUND_OUTPUT", caught.exception.code)
 
     def test_unbound_packet_field_and_extra_packet_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -218,7 +321,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             packet["unbound_field"] = "not allowed"
             packet_path.write_bytes(MODULE.canonical_bytes(packet))
             with self.assertRaises(MODULE.PreflightError) as caught:
-                MODULE.verify_output(output)
+                self.verify_fixture("brokerage-growth-launch", output)
             self.assertEqual("E_UNBOUND_OUTPUT", caught.exception.code)
 
             packet_path.unlink()
@@ -228,7 +331,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             self.compile_fixture("brokerage-growth-launch", output)
             (output / "work-packets" / "extra.json").write_bytes(b"{}")
             with self.assertRaises(MODULE.PreflightError) as caught:
-                MODULE.verify_output(output)
+                self.verify_fixture("brokerage-growth-launch", output)
             self.assertEqual("E_PACKET_EXTRA", caught.exception.code)
 
 

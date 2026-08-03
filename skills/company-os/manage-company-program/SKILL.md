@@ -20,6 +20,9 @@ charter; never require the root transcript or a repeated Company OS manual.
    against one program-semantics contract, one host-capability manifest, and
    one bounded work-definition set. Compile and then pass `verify` before
    authoring a manager charter, worker task, or provider/tool invocation.
+   `verify` must receive those same three source paths so it can deterministically
+   recompile and compare every output byte; a self-consistent packet hash alone
+   is not source-bound evidence.
    Keep input and manifest digests in the receipt; dispatch by packet reference.
 3. Acknowledge the exact contract/program/definition versions, IDs, outcome
    digest, content-addressed architecture/roadmap/interface references,

@@ -217,8 +217,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "b847a86a0d790223a09c4901a384ff479159489a0d3a3907208839e6628be846",
-      "size": 3692
+      "sha256": "32165e366337a158d17e6194487df3516fbb67a4cd54632b971cfa0896c47816",
+      "size": 5344
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
@@ -231,9 +231,64 @@
       "size": 1842
     },
     {
+      "path": "company-os/manage-company-program/fixtures/brokerage-growth-launch/host-capabilities.json",
+      "sha256": "45d84a2adcc67b33956faf1752d639e3d5244a07e7a0e4e2e42a178e402986e8",
+      "size": 953
+    },
+    {
+      "path": "company-os/manage-company-program/fixtures/brokerage-growth-launch/program-semantics.json",
+      "sha256": "4317e595d06283a79f11d01658da8f797282745663655b111d75bc81d668d00a",
+      "size": 4271
+    },
+    {
+      "path": "company-os/manage-company-program/fixtures/brokerage-growth-launch/work-definitions.json",
+      "sha256": "aa9b79646575998100f0530c4af0fe1f0b436da917f424c8ce4eaa66509bc758",
+      "size": 12580
+    },
+    {
+      "path": "company-os/manage-company-program/fixtures/saas-onboarding-launch/host-capabilities.json",
+      "sha256": "ce379cd36a643998505514b2455593866d75d48d2fcd260a7af061c69c9c9a06",
+      "size": 1304
+    },
+    {
+      "path": "company-os/manage-company-program/fixtures/saas-onboarding-launch/program-semantics.json",
+      "sha256": "8ebeed74c91ba6287aa931c93e40f9ae8c7fd433ab46d50a4b6dd1120cc29223",
+      "size": 4286
+    },
+    {
+      "path": "company-os/manage-company-program/fixtures/saas-onboarding-launch/work-definitions.json",
+      "sha256": "076cd643d7502d45601c7da57b95f0715c7760ddd1a7f6ac225b46ce2eed8f4a",
+      "size": 12186
+    },
+    {
       "path": "company-os/manage-company-program/references/manager-contract.md",
       "sha256": "c6e49a1d2481f2a0c4fb8f258203c02fd6ea03aa31944e8295f20971d9224fb2",
       "size": 4829
+    },
+    {
+      "path": "company-os/manage-company-program/schemas/compiled-preflight.schema.json",
+      "sha256": "99042951a7bc9f526c6c9981d9972ad45e698cc8400acfbdba235a80b95e4d0a",
+      "size": 6106
+    },
+    {
+      "path": "company-os/manage-company-program/schemas/host-capabilities.schema.json",
+      "sha256": "5fc9188c33db9e1f22bfdf0f3e37ed98ba5626ea2d4a49f7980802afaaf1a8b2",
+      "size": 2105
+    },
+    {
+      "path": "company-os/manage-company-program/schemas/program-semantics.schema.json",
+      "sha256": "babb2843447f35f8b31184040811d713373be5774e627367b3d8e41752fce316",
+      "size": 5241
+    },
+    {
+      "path": "company-os/manage-company-program/schemas/work-definitions.schema.json",
+      "sha256": "73f1072b9e6f059fd54757e68a9ce42bfb2b3926184235672913554c35edd23b",
+      "size": 6966
+    },
+    {
+      "path": "company-os/manage-company-program/scripts/compile_program_preflight.py",
+      "sha256": "8e4b421b5451b4fd37164d131ef5d5a90125ca90f71ec060c6ce27c4107433e8",
+      "size": 73589
     },
     {
       "path": "company-os/operational-control/SKILL.md",
