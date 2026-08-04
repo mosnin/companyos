@@ -50,6 +50,13 @@ digests that do not match exact bytes. Never expose file contents in errors.
 
 ## Side-effect rule
 
+When a compiled packet declares `work_domains: ["ui_design"]`, it must retain
+the parent manager's `ui_design` domain and `ui_design_quality` capability.
+Load `$ui-design-quality` before UI work and return the exact runnable,
+responsive, accessibility, interaction, motion, and visual evidence its
+acceptance barrier requires. Missing classification or capability is not
+permission to proceed.
+
 Read-only means no creation, deletion, cleanup, formatting, cache generation,
 lock update, or ignored artifact. Use bytecode-disabled commands or a disposable
 copy. If an unintended side effect occurs, stop; name every observed path; do

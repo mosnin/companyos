@@ -28,6 +28,11 @@ packet; do not request the root transcript or repeat the Company OS manual.
    artifact first, make a runnable or inspectable candidate, then verify it.
    Report those milestones to the manager with exact evidence; never write the
    manager-owned force log.
+   When the compiled packet declares `work_domains: ["ui_design"]`, load
+   `$ui-design-quality` before editing, use the vendored design suite it routes,
+   and return every required UI state and visual/interaction evidence. A UI
+   source path without the domain or capability is a preflight defect; stop
+   rather than silently bypassing the gate.
 4. Run the smallest checks that satisfy the acceptance oracle. For read-only
    work, set `PYTHONDONTWRITEBYTECODE=1` or use an isolated temporary copy;
    inspect ignored artifacts as well as tracked status.

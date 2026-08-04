@@ -79,6 +79,11 @@
           "manager_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
           "label": {"type": "string", "minLength": 1},
           "department_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "work_domains": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "enum": ["ui_design"]}
+          },
           "scope": {"$ref": "#/$defs/scope"},
           "authority_state": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
           "prohibition_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
@@ -100,6 +105,11 @@
           "work_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
           "manager_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
           "label": {"type": "string", "minLength": 1},
+          "work_domains": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "enum": ["ui_design"]}
+          },
           "scope": {"$ref": "#/$defs/scope"},
           "authority_state": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
           "prohibition_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},

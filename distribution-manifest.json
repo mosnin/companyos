@@ -27,8 +27,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "c58baeddf95dc4460fe59a5cc1a0d231fa0e4c896f7561684a3dee89a63825e0",
-      "size": 6267
+      "sha256": "7e96a0954224689416b261528df896c5d77862b9ee8fdd633679c52b2c91824a",
+      "size": 7014
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -332,8 +332,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "c6f420e8746f5fc1d381129527be49b7415b214306b6c9188546cda0d22ea5e0",
-      "size": 5299
+      "sha256": "af79cd0d704a83025f6984eb8018e47ee8f13771df34659f12dc1c463397fe8c",
+      "size": 5449
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
@@ -377,8 +377,8 @@
     },
     {
       "path": "company-os/manage-company-program/references/manager-contract.md",
-      "sha256": "e11edd4a9d5ea1d06bbf86f0effc1dba04c5d1529fb4aa5c86d8186e4bad3473",
-      "size": 5420
+      "sha256": "1977db793664157c9f8c4923d58f8b7f486035ade7989c85897d8b4881af6988",
+      "size": 5891
     },
     {
       "path": "company-os/manage-company-program/schemas/compiled-preflight.schema.json",
@@ -397,13 +397,13 @@
     },
     {
       "path": "company-os/manage-company-program/schemas/work-definitions.schema.json",
-      "sha256": "73f1072b9e6f059fd54757e68a9ce42bfb2b3926184235672913554c35edd23b",
-      "size": 6966
+      "sha256": "0f4b4f5e9df1727ef292942d79479741ea70718ecf77fd96e43ea1fe07428a39",
+      "size": 7298
     },
     {
       "path": "company-os/manage-company-program/scripts/compile_program_preflight.py",
-      "sha256": "8e4b421b5451b4fd37164d131ef5d5a90125ca90f71ec060c6ce27c4107433e8",
-      "size": 73589
+      "sha256": "525b5ccf874cfb32ed8d6ef965038e26d72642564f4fa838d0665745ef86a093",
+      "size": 77501
     },
     {
       "path": "company-os/operational-control/SKILL.md",
@@ -431,6 +431,81 @@
       "size": 2925
     },
     {
+      "path": "company-os/ui-design-quality/LICENSE.upstream",
+      "sha256": "4ff5bdb7887ec1435c9cab0e8d1a7caee704d894d65c2a008ccc68b1cc2f260b",
+      "size": 1070
+    },
+    {
+      "path": "company-os/ui-design-quality/SKILL.md",
+      "sha256": "389e69fb9236bd02f2dbd146a78ac6b0d32f111ecb4417b8b0cb8071baeb5b8e",
+      "size": 5381
+    },
+    {
+      "path": "company-os/ui-design-quality/UPSTREAM.json",
+      "sha256": "1ec61ecd71cf307f3e51ddf0440474b0810cdc4bd0fb071a714c5309f57311f5",
+      "size": 1880
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/animation-vocabulary/SKILL.md",
+      "sha256": "d718b48fe3c7898804d588f050a2e266d82c9f5ef51da256c8cb8b5951527757",
+      "size": 13128
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/apple-design/SKILL.md",
+      "sha256": "11840b24a11d7f94f39c6aaab074750ae4e4de4ef54ee4b1dd97e16ebd485e61",
+      "size": 22715
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/emil-design-eng/SKILL.md",
+      "sha256": "e71de849347050c2c573c1cf24d742d5a13459557ecffa6e562f08006f46b5b7",
+      "size": 27226
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/find-animation-opportunities/SKILL.md",
+      "sha256": "91c1243164057fbf824088d12faea937878a757a7ac653e8288b775e8b27b882",
+      "size": 9491
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/improve-animations/AUDIT.md",
+      "sha256": "551c8473e20e5f4774680bc24d45e1c68e50992582720905c6b077756b7b5a55",
+      "size": 7387
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/improve-animations/PLAN-TEMPLATE.md",
+      "sha256": "0a08ac8e23fd2082d7ffb86aeed7b789de77328c3cf874b16f1a755f2ef0a6ad",
+      "size": 3100
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/improve-animations/SKILL.md",
+      "sha256": "68f17bbc4671593d2f43dba26a679243e2153ba5f26965fb7d59df52842534ff",
+      "size": 7915
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/pick-ui-library/SKILL.md",
+      "sha256": "4b889bd6c08358499ac4a7202b8af71ffbd3485d2468f7b09d0613bbe7b24bf4",
+      "size": 4514
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/prototype/PICKER.md",
+      "sha256": "31a55eec94715cc79942e91e172e539e3031dcd5e2e5ee7c1446cf2caee960a6",
+      "size": 7548
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/prototype/SKILL.md",
+      "sha256": "2ad8401c4deaddb54947fb65247f790e7b3d8784e35312bcbedbfb1d59cd89ce",
+      "size": 7488
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/review-animations/SKILL.md",
+      "sha256": "61cf8ac0c4c8e1f63385298c546b16c65ca9aec34abddcd04e821c16712d671d",
+      "size": 8108
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/review-animations/STANDARDS.md",
+      "sha256": "e7d3605034acda54ca13e43aec9e64d65b53de20f75b11b8d694e373012fbe07",
+      "size": 9801
+    },
+    {
       "path": "autonomy-suite/SKILL.md",
       "sha256": "d70285887a2357c367b774c771cedbd7694b8ecd35fd753c55706934b67b2e16",
       "size": 6489
@@ -452,8 +527,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/SKILL.md",
-      "sha256": "894cebac8820b71d18f9586ba08e2f766b51e90bd7d5d23e37c96ec70142a420",
-      "size": 2818
+      "sha256": "5aad4001113bd8a225a5361d111ed3287423a5f54d83efe21f3ce2ea9c97c731",
+      "size": 3168
     },
     {
       "path": "autonomy-suite/execute-bounded-task/agents/openai.yaml",
@@ -467,8 +542,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/references/worker-contract.md",
-      "sha256": "8bd0cfefc234b13458cf58e8c32f9a4ce53c5587118272a95bc2de2edf5dccb0",
-      "size": 4444
+      "sha256": "aa9b2abea4b863bdc592d1cf185b5f09308b786d5f54aa2127005c12257c50f1",
+      "size": 4839
     },
     {
       "path": "autonomy-suite/loops/bounded-autonomy-loop/SKILL.md",

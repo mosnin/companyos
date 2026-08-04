@@ -57,6 +57,20 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             self.assertEqual(expected_code, caught.exception.code)
             self.assertIn(expected_code, str(caught.exception))
 
+    def add_ui_design_capability(self, documents: tuple[dict, dict, dict]) -> None:
+        documents[0]["required_capabilities"].append(
+            {"capability_id": "ui_design_quality", "required": True}
+        )
+        documents[1]["capabilities"].append(
+            {
+                "capability_id": "ui_design_quality",
+                "available": True,
+                "runtime_id": "python3",
+                "tool_locator": "workspace://skills/company-os/ui-design-quality",
+                "runtime_locator": "runtime://fixture/python3",
+            }
+        )
+
     def test_brokerage_compiles_five_compact_packets_and_verifies(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             result = self.compile_fixture("brokerage-growth-launch", Path(temp) / "compiled")
@@ -262,6 +276,103 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             documents[0]["constants"][0]["type"] = "float"
 
         self.assert_compile_code("brokerage-growth-launch", unsupported_type, "E_UNSUPPORTED_TYPE")
+
+    def test_ui_signal_without_explicit_domain_fails_closed(self) -> None:
+        def mutate(documents):
+            documents[2]["work_definitions"][0]["label"] = "Frontend UI component"
+
+        self.assert_compile_code(
+            "saas-onboarding-launch", mutate, "E_UI_DESIGN_CLASSIFICATION"
+        )
+
+    def test_ui_source_extension_without_explicit_domain_fails_closed(self) -> None:
+        def mutate(documents):
+            work = documents[2]["work_definitions"][0]
+            path = "programs/saas-onboarding-launch/work/activation-path/output.tsx"
+            work["scope"]["owned_paths"] = [path]
+            work["deliverables"][0]["path"] = path
+
+        self.assert_compile_code(
+            "saas-onboarding-launch", mutate, "E_UI_DESIGN_CLASSIFICATION"
+        )
+
+    def test_ui_domain_without_quality_capability_fails_closed(self) -> None:
+        def mutate(documents):
+            manager = documents[2]["manager_definitions"][0]
+            manager["label"] = "UI design manager"
+            manager["work_domains"] = ["ui_design"]
+
+        self.assert_compile_code(
+            "saas-onboarding-launch", mutate, "E_UI_DESIGN_CAPABILITY"
+        )
+
+    def test_ui_worker_requires_ui_classified_parent_manager(self) -> None:
+        def mutate(documents):
+            self.add_ui_design_capability(documents)
+            manager = documents[2]["manager_definitions"][0]
+            manager["required_capabilities"].append("ui_design_quality")
+            work = documents[2]["work_definitions"][0]
+            work["label"] = "Frontend UI component"
+            work["work_domains"] = ["ui_design"]
+            work["required_capabilities"].append("ui_design_quality")
+
+        self.assert_compile_code(
+            "saas-onboarding-launch", mutate, "E_UI_DESIGN_CAPABILITY"
+        )
+
+    def test_valid_ui_lane_binds_domain_and_quality_capability_into_packets(self) -> None:
+        documents = self.load_fixture("saas-onboarding-launch")
+        self.add_ui_design_capability(documents)
+        manager = documents[2]["manager_definitions"][0]
+        manager["label"] = "UI design manager"
+        manager["work_domains"] = ["ui_design"]
+        manager["required_capabilities"].append("ui_design_quality")
+        work = documents[2]["work_definitions"][0]
+        work["label"] = "Frontend UI component"
+        work["work_domains"] = ["ui_design"]
+        work["required_capabilities"].append("ui_design_quality")
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            result = MODULE.compile_program(*paths, root / "output")
+            manager_ref = next(
+                item for item in result["manager_packets"]
+                if item["packet_id"] == "onboarding_manager"
+            )
+            work_ref = next(
+                item for item in result["work_packets"]
+                if item["packet_id"] == "activation_path_work"
+            )
+            manager_packet = json.loads(
+                (Path(result["output_dir"]) / manager_ref["path"]).read_text()
+            )
+            work_packet = json.loads(
+                (Path(result["output_dir"]) / work_ref["path"]).read_text()
+            )
+            for packet in (manager_packet, work_packet):
+                self.assertEqual(["ui_design"], packet["work_domains"])
+                self.assertIn(
+                    "ui_design_quality", packet["required_capability_ids"]
+                )
+                self.assertEqual(
+                    "workspace://skills/company-os/ui-design-quality",
+                    next(
+                        item["tool_locator"]
+                        for item in packet["semantic_slice"]["capabilities"]
+                        if item["capability_id"] == "ui_design_quality"
+                    ),
+                )
+            MODULE.verify_output(root / "output", *paths)
+
+    def test_duplicate_ui_domain_is_rejected(self) -> None:
+        def mutate(documents):
+            manager = documents[2]["manager_definitions"][0]
+            manager["work_domains"] = ["ui_design", "ui_design"]
+
+        self.assert_compile_code(
+            "saas-onboarding-launch", mutate, "E_DUPLICATE_CONCEPT"
+        )
 
     def test_mutated_packet_is_rejected_by_verify(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

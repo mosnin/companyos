@@ -19,6 +19,7 @@ charter; never require the root transcript or a repeated Company OS manual.
    against program semantics, host capabilities, and bounded work definitions.
    Compile, then `verify` with the same three sources before dispatch or tool
    use. Keep their digests in the receipt; dispatch by packet reference.
+   `ui_design` work must pass `$ui-design-quality` classification and capability checks.
 3. Before dispatch, acknowledge versions, IDs, outcome digest, references,
    requested model, permissions, budgets, reviews, barriers, and destination.
 4. Decompose only after design acceptance and verified preflight. Give each Luna
@@ -45,6 +46,7 @@ charter; never require the root transcript or a repeated Company OS manual.
    weak, failed, refused, scope-drifted, cross-project, or side-effecting work.
    Resolve references only from versioned project-local repository paths and
    verify exact bytes; never read an absolute, escaped, or symlinked target.
+   Independently inspect UI work under `$ui-design-quality`.
 9. Report upward at charter, discovery, design, execution, verification, and
    integration. Require authenticated master decisions at charter, design,
    verification, and final integration. Never infer consent from silence.

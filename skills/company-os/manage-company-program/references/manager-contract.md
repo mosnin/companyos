@@ -51,6 +51,13 @@ match the exact bytes. Never read or include file contents in an error.
 
 ## Gates
 
+Before accepting a UI-bearing definition, require `work_domains: ["ui_design"]`
+and capability `ui_design_quality` on the manager and every UI worker packet.
+Load `$ui-design-quality`, bind its exact vendored revision, evidence states,
+and critical score thresholds into the design report, and fail closed on an
+unclassified UI label, path, source extension, or deliverable. The manager who
+authors a UI artifact may not perform its final interaction and motion review.
+
 After accepted design and before worker launch, instantiate
 `$force-first-execution` without adding another approval barrier. Keep its
 event log manager-owned and bind the force contract through the existing worker

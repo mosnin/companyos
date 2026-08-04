@@ -42,6 +42,25 @@ LOCATOR_RE = re.compile(
 )
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 SUPPORTED_CONSTANT_TYPES = {"integer", "string", "boolean"}
+UI_DESIGN_DOMAIN = "ui_design"
+UI_DESIGN_CAPABILITY = "ui_design_quality"
+UI_SOURCE_SUFFIXES = {
+    ".css",
+    ".htm",
+    ".html",
+    ".jsx",
+    ".less",
+    ".sass",
+    ".scss",
+    ".svelte",
+    ".tsx",
+    ".vue",
+}
+UI_PATH_SEGMENTS = {"components", "frontend", "prototypes", "styles", "ui"}
+UI_LABEL_RE = re.compile(
+    r"\b(?:animation|design system|front[- ]?end|interface|landing page|motion|prototype|ui|user interface|website)\b",
+    re.IGNORECASE,
+)
 LIST_SORT_KEYS = (
     "term_id",
     "constant_id",
@@ -462,6 +481,60 @@ def _path_in_scope(path: str, scope: Sequence[str]) -> bool:
     return any(path == root or path.startswith(root + "/") for root in scope)
 
 
+def _work_domains(value: Mapping[str, Any]) -> list[str]:
+    """Return explicitly declared domains without changing legacy packet bytes."""
+
+    domains = value.get("work_domains", [])
+    if not isinstance(domains, list):
+        raise PreflightError("E_SCHEMA_TYPE", "work_domains must be an array")
+    if len(domains) != len(set(domains)):
+        raise PreflightError("E_DUPLICATE_CONCEPT", "work_domains contains duplicates")
+    return sorted(domains)
+
+
+def _ui_design_signals(
+    label: str,
+    scope: Sequence[str],
+    deliverables: Sequence[Mapping[str, Any]],
+) -> list[str]:
+    signals: set[str] = set()
+    if UI_LABEL_RE.search(label):
+        signals.add(f"label:{label}")
+    for path in [*scope, *(str(item.get("path", "")) for item in deliverables)]:
+        lowered = path.lower()
+        if Path(lowered).suffix in UI_SOURCE_SUFFIXES:
+            signals.add(f"source:{path}")
+        if UI_PATH_SEGMENTS.intersection(part for part in lowered.split("/") if part):
+            signals.add(f"path:{path}")
+    for deliverable in deliverables:
+        deliverable_label = str(deliverable.get("label", ""))
+        if UI_LABEL_RE.search(deliverable_label):
+            signals.add(f"deliverable:{deliverable_label}")
+    return sorted(signals)
+
+
+def _enforce_ui_design_gate(
+    owner: str,
+    value: Mapping[str, Any],
+    scope: Sequence[str],
+    deliverables: Sequence[Mapping[str, Any]],
+    capability_ids: Sequence[str],
+) -> list[str]:
+    domains = _work_domains(value)
+    signals = _ui_design_signals(str(value.get("label", "")), scope, deliverables)
+    if signals and UI_DESIGN_DOMAIN not in domains:
+        raise PreflightError(
+            "E_UI_DESIGN_CLASSIFICATION",
+            f"{owner} contains UI-design signals but omits work_domains=['ui_design']; signals={signals!r}",
+        )
+    if UI_DESIGN_DOMAIN in domains and UI_DESIGN_CAPABILITY not in capability_ids:
+        raise PreflightError(
+            "E_UI_DESIGN_CAPABILITY",
+            f"{owner} is UI-design work but omits required capability 'ui_design_quality'",
+        )
+    return domains
+
+
 def _validate_host(
     host: Mapping[str, Any], required_capability_ids: Sequence[str]
 ) -> tuple[dict[str, Mapping[str, Any]], dict[str, Mapping[str, Any]]]:
@@ -759,8 +832,10 @@ def _validate_definitions(
             referenced_evidence,
             referenced_oracles,
         )
-        manager_packets.append(
-            {
+        work_domains = _enforce_ui_design_gate(
+            f"manager {manager_id}", manager, scope, deliverables, cap_ids
+        )
+        manager_packet = {
                 "manager_id": manager_id,
                 "label": manager["label"],
                 "department_id": manager["department_id"],
@@ -772,7 +847,9 @@ def _validate_definitions(
                 "deliverables": deliverables,
                 "worker_ids": sorted(manager["worker_ids"]),
             }
-        )
+        if "work_domains" in manager:
+            manager_packet["work_domains"] = work_domains
+        manager_packets.append(manager_packet)
 
     manager_packet_by_id = {item["manager_id"]: item for item in manager_packets}
 
@@ -839,8 +916,20 @@ def _validate_definitions(
             referenced_evidence,
             referenced_oracles,
         )
-        work_packets.append(
-            {
+        work_domains = _enforce_ui_design_gate(
+            f"work {work_id}", work, scope, deliverables, cap_ids
+        )
+        if UI_DESIGN_DOMAIN in work_domains:
+            parent_domains = _work_domains(managers[manager_id])
+            if (
+                UI_DESIGN_DOMAIN not in parent_domains
+                or UI_DESIGN_CAPABILITY not in parent_packet["required_capability_ids"]
+            ):
+                raise PreflightError(
+                    "E_UI_DESIGN_CAPABILITY",
+                    f"work {work_id!r} requires a parent manager classified for ui_design with ui_design_quality",
+                )
+        work_packet = {
                 "work_id": work_id,
                 "manager_id": manager_id,
                 "label": work["label"],
@@ -851,7 +940,9 @@ def _validate_definitions(
                 "required_term_ids": term_ids,
                 "deliverables": deliverables,
             }
-        )
+        if "work_domains" in work:
+            work_packet["work_domains"] = work_domains
+        work_packets.append(work_packet)
 
     for index, (left_owner, left_path) in enumerate(all_scopes):
         for right_owner, right_path in all_scopes[index + 1 :]:
@@ -1126,6 +1217,8 @@ def _build_packet(
     }
     if kind == "manager":
         packet["worker_ids"] = copy.deepcopy(normalized["worker_ids"])
+    if "work_domains" in normalized:
+        packet["work_domains"] = copy.deepcopy(normalized["work_domains"])
     digest = _unsigned_bound(packet)[1]
     packet["binding"]["canonical_sha256"] = digest
     return packet, digest
@@ -1364,10 +1457,13 @@ def _verify_packet_structure(packet: Mapping[str, Any], expected_kind: str, expe
     }
     if expected_kind == "manager":
         required.add("worker_ids")
-    if set(packet) != required:
-        extra = sorted(set(packet) - required)
+    allowed = required | {"work_domains"}
+    if not required.issubset(packet) or not set(packet).issubset(allowed):
+        extra = sorted(set(packet) - allowed)
         missing = sorted(required - set(packet))
         raise PreflightError("E_UNBOUND_OUTPUT", f"packet keys differ; extra={extra!r}, missing={missing!r}")
+    if "work_domains" in packet and packet["work_domains"] != [UI_DESIGN_DOMAIN]:
+        raise PreflightError("E_PACKET_MUTATED", "packet work_domains is not canonical")
     if packet["packet_kind"] != expected_kind or packet["packet_id"] != expected_id:
         raise PreflightError("E_PACKET_MUTATED", f"packet identity mismatch for {expected_kind}:{expected_id}")
     if packet["schema_version"] != SCHEMA_VERSION or packet["$schema"] != "company-os.compiled-preflight.packet.v1":
