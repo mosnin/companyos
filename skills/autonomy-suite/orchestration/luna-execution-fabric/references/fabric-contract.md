@@ -262,6 +262,39 @@ exception exists. The master may override every routine continuation.
 
 Parallelism succeeds only when accepted lead time or cost improves.
 
+## Execution-efficiency evidence
+
+Every real program integration includes one canonical
+`company-os.execution-efficiency-receipt.v1`. The receipt is operating evidence,
+not authority. It must bind:
+
+- program and comparison-class identity;
+- mandatory requirements, their source, and independent satisfaction results;
+- requested lanes and actual manager-to-lane ownership;
+- actual worker tasks, requested and observed model/effort, and manager binding;
+- maximum observed concurrency, configured limit, and every consolidation or
+  host-cap variance;
+- program start, first manager dispatch, first worker dispatch, first usable
+  result, first artifact, and final acceptance, with unavailable and
+  not-applicable fields explicit;
+- role-level total, Luna, and Sol tokens, cost, single-thread Sol-token and
+  lead-time baselines when exposed;
+- required/accepted artifact counts, first-pass decision, rework, collisions,
+  duplicates, and independent-review truth;
+- one semantic artifact plan and readback per result: kind, title, external ID,
+  owner lane, requirement IDs, required and applied capability IDs, readback,
+  and acceptance;
+- actual and required acceptance-authority levels.
+
+The Company Scorecard verifier returns separate gates. `delivery_accepted`
+means every mandatory requirement and required capability passed under the
+required acceptance authority. `hierarchy_materialized` means every requested
+lane has exactly one actual owner. `luna_execution_proven` requires an observed
+Luna/max worker, not a requested model. `efficiency_proven` additionally
+requires complete timing/usage and baseline comparison. A single receipt can
+never prove scale. Three comparable accepted receipts must satisfy the scaling
+policy as a group.
+
 ## Acceptance sampling
 
 - Critical/high risk: manager, independent Sol reviewer, and master verify 100%.

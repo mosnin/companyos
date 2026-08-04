@@ -50,12 +50,64 @@ Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.
 
-Before Program Preflight, use `$assign-capability-skills` when specialized
-expertise could materially improve an outcome. Search metadata, select an exact
-small bundle, and bind its assignment digest into the task evidence. Never paste
-the whole catalog or external skill collection into a prompt. Selecting no
-external skill is valid; a skill must earn its context cost and may not grant
-tools, permissions, budget, or side effects.
+Before dispatch, the master must publish a compact execution baseline: required
+lanes, intended manager ownership, intended Luna labor, concurrency limit,
+single-thread comparison when available, required artifacts, and the timestamps,
+model observations, token fields, cost fields, and quality fields it expects the
+host to expose. After dispatch, read the actual task tree rather than trusting a
+launch message. A host-cap consolidation is a named variance and must preserve
+complete lane ownership; it is not another independent manager.
+
+The Program Contract separates **mandatory user requirements** from manager
+recommendations. A manager may challenge a technology or propose a narrower
+phase, but may not silently delete, invert, or replace a mandatory requirement.
+If the user asks for an agent, recurring runners, a named technology, or a
+specific client offer, the final artifacts must cover it or the master must stop
+for an explicit change decision. Calling the manager's preferred alternative an
+"MVP" does not change the accepted outcome.
+
+Resolve capabilities before manager dispatch and bind the selected capability
+IDs to each artifact plan. Use the host's current available-skill registry for
+first-party, installed, and plugin skills; use `$assign-capability-skills` for
+the governed external catalog. A proposal, PRD, technical architecture,
+spreadsheet, UI, or other specialized artifact must receive its required domain
+and artifact-production skills. At acceptance, verify applied capability
+receipts against the plan. Reading a general Company OS skill is not evidence
+that the proposal, offer-design, product-requirements, research, or document-
+production capability was used.
+
+Every accepted multi-manager program must produce a
+`company-os.execution-efficiency-receipt.v1` and validate it with the Company
+Scorecard verifier. The receipt binds semantic artifact identity—kind, title,
+external ID, and owner lane—to independent readback. This prevents a correct
+artifact from being credited to the wrong page, file, or manager. A deliverable
+may be accepted while efficiency or scaling remains unproven; never average
+missing runtime evidence into a green score.
+
+The receipt also binds mandatory requirements and required capability IDs to
+each artifact. Unsatisfied requirements, missing required skills, incomplete
+artifacts, or an acceptance decision below the contract's required authority
+make delivery unaccepted. Fast materialization of rejected artifacts is zero
+accepted throughput.
+
+Managers should route bounded research, drafting, implementation, formatting,
+and verification labor to Luna. Manager-authored labor is a disclosed execution
+variance unless the task is inherently managerial or dispatch would duplicate
+already completed work. Never redo accepted work merely to manufacture Luna
+utilization. Zero observed Luna workers means the run cannot prove the Luna
+fabric, even when its deliverables are excellent.
+
+Before Program Preflight, resolve every specialized artifact against both skill
+planes. Select the smallest exact set of current host skills, then use
+`$assign-capability-skills` only for external additions. Search metadata by
+separate domain, artifact-production, named-tech, and review needs; bind exact
+host skill names plus external assignment digests into task evidence. Never
+paste the whole registry, catalog, or external skill collection into a prompt.
+Selecting no skill is valid only when the artifact has no required specialized
+capability. If the only matches are unavailable, reference-only, quarantined,
+or unapproved, stop with a named capability gap rather than pretending generic
+reasoning satisfied it. A skill may not grant tools, permissions, budget, or
+side effects.
 
 Use `$force-first-execution` inside every delivery lane. Planning, commentary,
 thread count, tests without an artifact, and receipts without an accepted

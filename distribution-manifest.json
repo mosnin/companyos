@@ -7,8 +7,8 @@
   "files": [
     {
       "path": "company-os/assign-capability-skills/SKILL.md",
-      "sha256": "7ec0c8c4429b60bacd31fc7d0bae3697b90cd8e1ff972fb6334f4d1046443c09",
-      "size": 4825
+      "sha256": "c4dd263604102b3a2619ffcb6df7dd765228a1afa5f356220f67df9602971197",
+      "size": 5932
     },
     {
       "path": "company-os/assign-capability-skills/agents/openai.yaml",
@@ -147,8 +147,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "5724dc82e61a2246567693132ea2550cb734eaa080533126006519b53b0cb4d4",
-      "size": 7606
+      "sha256": "9216c43c34df328f741999efb9c69ed37869404960a036c34e6f25b7d589a3e2",
+      "size": 10925
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -392,13 +392,43 @@
     },
     {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",
-      "sha256": "90e0beda303934a8804e4ef51900024fc91283f026d72ca5ff7fe53aa03a5795",
-      "size": 2427
+      "sha256": "a88f429bfaffd2639edc5ddafa09c549a06c4a0dfb5699a517daa0cb921de52e",
+      "size": 5459
     },
     {
       "path": "company-os/intelligence/company-scorecard/agents/openai.yaml",
       "sha256": "06d7cbda0698baffdeb7da5ea64a5344d1c83e4bc2d464e9bcdfecc0be0e4d81",
       "size": 239
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/assets/execution-efficiency-receipt.v1.json",
+      "sha256": "f6b7be7d8b7a72375915d8a929fa9e98dd7ad07565f9df1f5c2326743dfd5f47",
+      "size": 1325
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/references/company-os-observatory.md",
+      "sha256": "0ec93e6332a53e483f086eff376c8aa1ea46e6010090277964cb2c0c3c2c008c",
+      "size": 5054
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/scripts/render_execution_efficiency_ingest.py",
+      "sha256": "42dc3769f07c81e8e7d214d6da94ae73474350cbcf8df07709138989096e7a7d",
+      "size": 4333
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/scripts/validate_execution_efficiency.py",
+      "sha256": "833178660b271240ddff5967c4e3140335ab7231d62b414bb1d15ceed73e4ebf",
+      "size": 47744
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/sql/001_company_os_observatory.sql",
+      "sha256": "79610d47721dd05a6486b762d16f41d9f3f916623caa6afea02236c7f580a210",
+      "size": 15233
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/sql/002_ingest_execution_efficiency_receipt.sql",
+      "sha256": "82f98385eaaf1d76bb53a587492e1473a091483853e5340eba0c8ed037d76399",
+      "size": 13369
     },
     {
       "path": "company-os/intelligence/evidence-research-campaign/SKILL.md",
@@ -452,8 +482,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "25edb9ca6d8f3ba3e436231cf3ca3ac33475b308bfc146a428a9ce218bb176e2",
-      "size": 5498
+      "sha256": "92b1dccfd5b88117e48abeee3c2570fdf5febcc3ef319c7c0585805ff07a34b6",
+      "size": 5094
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
@@ -527,8 +557,8 @@
     },
     {
       "path": "company-os/operational-control/SKILL.md",
-      "sha256": "10a78d351e5eaa95d3f22dd9e7ce0df36ec19cd511484e863db2381653b64443",
-      "size": 1767
+      "sha256": "496e34d3b47621a88ad63a1d94ff0fe7383f0d849f1835a6a26f0a31ac3b4d9e",
+      "size": 2048
     },
     {
       "path": "company-os/operational-control/agents/openai.yaml",
@@ -672,8 +702,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
-      "sha256": "6af8377d5052fab974475b2eb1dd6ad95287f35d2478e4eaa1bae7ffbaf4a46a",
-      "size": 10883
+      "sha256": "e825b6d461efa8f433630427a3521affaf547ec529844828a50d220524bb9e15",
+      "size": 12582
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",
@@ -687,8 +717,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/references/fabric-contract.md",
-      "sha256": "04a33d1c6cef8235f388954a95eca9f7a0b1bc6a1c8915505137f176f892be80",
-      "size": 11998
+      "sha256": "9a5b4262f80cc33b3f7fc069734e5d5ad121b336d7f7630fe16a68939bce4be6",
+      "size": 13750
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/scripts/test_validate_codex_native_fabric.py",

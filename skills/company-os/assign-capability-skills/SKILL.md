@@ -10,13 +10,23 @@ capability router, not a new orchestrator and not authority to install software.
 
 ## Route a task
 
+Start from the accepted mandatory-requirement list and semantic artifact plan.
+For each artifact, derive the smallest capability classes needed to produce and
+verify it: domain expertise, artifact production, named technology, and
+independent review. Search each class separately. Do not send one long natural-
+language query and treat an empty result as proof that no skill is needed.
+
 1. Search [references/capability-catalog.json](references/capability-catalog.json)
    with `scripts/capability_catalog.py search --dispatchable-only`. Search
    returns metadata only; it never loads instructions. Omit the flag only for a
    research decision about unavailable source material.
 2. The manager chooses the smallest exact set of capability IDs and records why
-   each is necessary. Zero skills is a valid choice. Do not select a skill just
-   because a keyword matched.
+   each is necessary. Zero skills is valid only when the accepted artifact
+   contract has no required specialized capability. Do not select a skill just
+   because a keyword matched. If a required capability has no approved exact or
+   explicitly accepted equivalent, emit `E_REQUIRED_CAPABILITY_UNAVAILABLE`,
+   name the affected requirement and artifact, and stop before dispatch.
+   `reference_only`, `quarantine`, and `rejected` entries never satisfy the gap.
 3. Create a canonical request using
    [references/request.example.json](references/request.example.json). Bind the
    role, work domains, already-authorized permissions, exact capabilities, and
@@ -38,7 +48,9 @@ capability router, not a new orchestrator and not authority to install software.
 6. Compile and verify Program Preflight against the augmented host and work
    definitions. It reproduces the assignment from the installed approved
    catalog, rejects domain or permission self-assertion, and binds
-   `assigned_skill_ids` plus one receipt into only the matching packet.
+   `assigned_skill_ids` plus one receipt into only the matching packet. The
+   compiled assignments must close over every artifact's required capability
+   set; an unbound capability is a dispatch failure, not optional context.
 7. The receiving agent verifies the compiled packet and exact entrypoint bytes,
    then reads only the listed entrypoints in `execution_order`. Packet-bound
    companions may work together, but no wrapper may discover an unassigned
@@ -78,5 +90,8 @@ Company OS control instructions.
 
 Retain the catalog digest, request digest, assignment digest, source commits,
 entrypoint hashes, selected capability IDs, selection rationale, resolver
-result, and the manager's independent artifact inspection. Skill selection is
-not evidence that the deliverable works.
+result, requirement-to-artifact-to-capability coverage matrix, and the manager's
+independent artifact inspection. Skill selection is not evidence that the
+deliverable works. A completed artifact must also return the applied capability
+IDs and their task-local assignment receipt; a skill mentioned only in prose
+does not count.

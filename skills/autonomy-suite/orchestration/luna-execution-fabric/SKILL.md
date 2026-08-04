@@ -88,6 +88,31 @@ host metadata only when exposed. Treat tokens, cost, and cancellation
 acknowledgement as unavailable when absent; elapsed duration may be observed
 independently. Never substitute Terra or Sol while labeling labor Luna.
 
+## Live topology and efficiency gate
+
+Do not report that the hierarchy exists merely because dispatch was requested.
+Read the actual task surface and bind every observed manager and worker ID to one
+declared lane. Record requested lanes, unique managers, workers, maximum observed
+concurrency, consolidated lanes, and host-cap variance. When the task surface
+cannot be read after one bounded retry, mark topology and scale unproven; do not
+create a replacement hierarchy while the original may still be running.
+
+Before accepting external pages or other mutable artifacts, refetch them and
+bind semantic kind, title, external ID, and owner lane. Never update or accept by
+call order alone. A title/ID/owner mismatch is rework even when the content is
+otherwise correct.
+
+Reconcile every mandatory requirement and every artifact's required capability
+assignment before acceptance. Managers may recommend an alternative, but a
+mandatory requirement changes only through an explicit user/master change
+decision at the required authority. Missing domain skills or artifact-production
+skills are not a stylistic issue; they are an execution-contract failure.
+
+Write and validate one `company-os.execution-efficiency-receipt.v1` at final
+integration. A manager may choose not to dispatch a worker when doing so would
+duplicate completed work, but must record zero workers and cannot claim Luna,
+efficiency, or scaling proof. Requested Luna/max is intent until observed.
+
 ## Default limits
 
 - Two concurrent Sol managers.
@@ -138,6 +163,10 @@ Each manager independently verifies the work and returns:
 - Luna, Terra, manager Sol, and reviewer Sol usage;
 - collisions, policy events, and residual risks;
 - next exact action.
+
+The master additionally returns the validated execution-efficiency receipt and
+its separate delivery, hierarchy, Luna, efficiency, and scaling gate decisions.
+Business acceptance does not imply that any execution-fabric gate passed.
 
 The master consumes manager receipts, not worker transcripts. It verifies every
 high-risk result and samples at least one low-risk result per manager.

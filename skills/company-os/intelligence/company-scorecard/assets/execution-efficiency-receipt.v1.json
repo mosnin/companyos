@@ -1,0 +1,53 @@
+{
+  "schema": "company-os.execution-efficiency-receipt.v1",
+  "program_id": "replace-me",
+  "comparison_class": "replace-me",
+  "status": "accepted",
+  "timing": {
+    "program_start": null,
+    "first_manager_dispatch": null,
+    "first_worker_dispatch": null,
+    "first_usable_result": null,
+    "first_artifact_materialization": null,
+    "final_acceptance": null,
+    "unavailable": [],
+    "not_applicable": []
+  },
+  "topology": {
+    "requested_lanes": [],
+    "manager_assignments": [],
+    "workers": [],
+    "max_observed_concurrency": null,
+    "concurrency_limit": 1,
+    "variances": []
+  },
+  "usage": {
+    "total_tokens": null,
+    "luna_tokens": null,
+    "sol_tokens": null,
+    "cost_usd": null,
+    "single_thread_baseline_sol_tokens": null,
+    "single_thread_baseline_lead_time_seconds": null,
+    "unavailable": []
+  },
+  "quality": {
+    "required_artifacts": 0,
+    "accepted_artifacts": 0,
+    "first_pass_accepted": false,
+    "rework_cycles": 0,
+    "write_collisions": 0,
+    "duplicate_artifacts": 0,
+    "independent_reviewed": false
+  },
+  "requirements": [],
+  "requirement_results": [],
+  "artifact_plan": [],
+  "artifacts": [],
+  "decision": {
+    "status": "accepted",
+    "reviewer": "replace-me",
+    "authority": "manager",
+    "required_authority": "master",
+    "evidence": []
+  }
+}
