@@ -157,8 +157,8 @@
     },
     {
       "path": "company-os/force-first-execution/SKILL.md",
-      "sha256": "fcd53790348a3fe2c91ad35b431b2d83299f2eb683da5a2e5fa42185cd2f8be5",
-      "size": 6590
+      "sha256": "cdc45a1e8ba084e56aee9011b98cae84acce5b607bc399af8cc485cac949a8fe",
+      "size": 7428
     },
     {
       "path": "company-os/force-first-execution/agents/openai.yaml",
@@ -177,18 +177,28 @@
     },
     {
       "path": "company-os/force-first-execution/assets/release-deliverable-receipt.v1.json",
-      "sha256": "7a9f0e706f5263c2b9adc652f17cde187772f441ad4638b12672a0f5533ec482",
-      "size": 1225
+      "sha256": "2b28774016be2294ce128a7dd1bc6bb6c038810f6c86b06d08d6245e860f0d93",
+      "size": 2166
+    },
+    {
+      "path": "company-os/force-first-execution/assets/release-scope-admission-verification.v1.json",
+      "sha256": "2c34d69c380893f2ce35d722a973de2bf4d99c039d48e915d4f27ebbd68c20da",
+      "size": 1058
+    },
+    {
+      "path": "company-os/force-first-execution/assets/release-scope-admission.v1.json",
+      "sha256": "e00b67935f4bedd5a8c677c9fde2f5a6c5b3ca6d1cb5bbebf2dc0e6bcc053984",
+      "size": 1717
     },
     {
       "path": "company-os/force-first-execution/assets/release-scope-design-decision.v1.json",
-      "sha256": "e548e11eb7105333eec2567be37f5a85711014af6f984bee7fb92087bd2397eb",
-      "size": 764
+      "sha256": "982e71497f12aca332863a68ccc00098f2f9e5efd4e3d1cc1df5fc3b604d9404",
+      "size": 1407
     },
     {
       "path": "company-os/force-first-execution/assets/release-scope.v1.json",
-      "sha256": "f3c42ca92498ed3a18dc303023db39bed77da71abbfeda4769cbb0d5dba5f58a",
-      "size": 1158
+      "sha256": "e8faf6c7dfd72174d619ea5f304abe7c7f0dd1a8c566a4a35ad26620dabf2e87",
+      "size": 2394
     },
     {
       "path": "company-os/force-first-execution/assets/release-status.v1.json",
@@ -197,8 +207,8 @@
     },
     {
       "path": "company-os/force-first-execution/references/force-contract.md",
-      "sha256": "10977a541c44e65e10c332b5558f5d262d984d8c5f1c9e6bb05f105be11c86f7",
-      "size": 5403
+      "sha256": "6acca08ee9c3bb0c724d9cf4115e780c5c474134232ba1261e31a165f1654175",
+      "size": 6054
     },
     {
       "path": "company-os/force-first-execution/schemas/force-contract.schema.json",
@@ -207,18 +217,33 @@
     },
     {
       "path": "company-os/force-first-execution/schemas/release-deliverable-receipt.schema.json",
-      "sha256": "4a9e556a789cb1e6a39597b35738d7204c021c776a50a59ad9538308128269ab",
-      "size": 2319
+      "sha256": "7f2a200dd5c79aa9763b1a6a7e6e7bf1792db6c8c601eaa035f1ef43657c6707",
+      "size": 2607
+    },
+    {
+      "path": "company-os/force-first-execution/schemas/release-scope-admission-registry.schema.json",
+      "sha256": "96dac647d5f3766bfb8e985590b70e8848c03988716ab3c39abbc0062a4c00b3",
+      "size": 1209
+    },
+    {
+      "path": "company-os/force-first-execution/schemas/release-scope-admission-verification.schema.json",
+      "sha256": "911eb90650d8ecf70f0fd44e44fee0846c636c7a999f01a605c7b22d71b48416",
+      "size": 1776
+    },
+    {
+      "path": "company-os/force-first-execution/schemas/release-scope-admission.schema.json",
+      "sha256": "abd5828a37c5b058181ee238656816d7f7612f4f3c2ca781cccbeeafe4e31478",
+      "size": 2466
     },
     {
       "path": "company-os/force-first-execution/schemas/release-scope-design-decision.schema.json",
-      "sha256": "c30f2800d6ebfcc2f9105f6722712375808b02d2e3e3d341514568e8166e4e56",
-      "size": 1690
+      "sha256": "b638bca2a59896c575a9a249fffa4c87771ab201c2ed62afc5d4ff0d76c2d5f9",
+      "size": 1937
     },
     {
       "path": "company-os/force-first-execution/schemas/release-scope.schema.json",
-      "sha256": "6c2c858efad79ceb89a402edb4021e7f018e71b8734e401160b1b1c9a3828986",
-      "size": 2248
+      "sha256": "d99043896a261da7513035c4a70e99a660a73ec27c6b02f0c30e96980fcc1ceb",
+      "size": 2819
     },
     {
       "path": "company-os/force-first-execution/schemas/release-status.schema.json",
@@ -232,13 +257,18 @@
     },
     {
       "path": "company-os/force-first-execution/scripts/release_scope_controller.py",
-      "sha256": "1405d218a83b22cf87b1652d1f5f0afe1975bfdc33ccade266fbad542509cdbb",
-      "size": 30195
+      "sha256": "8019226a7ef0b5cd0148aeb6d2af21e3a518660f91584a1a7d2578599e48484e",
+      "size": 55257
+    },
+    {
+      "path": "company-os/force-first-execution/scripts/rsa_trust.py",
+      "sha256": "8dc12cbdc5da187b7b0ed4c718d6f9faa64a14d2d60e8849702e86aa29fc7714",
+      "size": 7184
     },
     {
       "path": "company-os/force-first-execution/scripts/seal_force_snapshot.py",
-      "sha256": "795f94a9ff08d59813e5c10b1a138f89778f1de55500c36ead48b4bb2f278b40",
-      "size": 15035
+      "sha256": "25948c873673ebc189f0d4c28d7aa1a30586965dd93e71def5dc20aa1e432146",
+      "size": 16630
     },
     {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",

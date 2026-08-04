@@ -7,16 +7,35 @@
   "cycle_id": "example-cycle-1",
   "master_task_id": "example-master-1",
   "outcome_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "predecessor_admission_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "predecessor_scope_admission": null,
+  "admission_verification_path": "evidence/release-scope-admission-verification.v1.json",
   "deliverables": [
     {
       "deliverable_id": "core-release",
       "manager_task_id": "core-release-manager-1",
+      "manager_public_key": {
+        "path": "evidence/keys/core-release-manager-1.public.pem",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "manager_charter": {
+        "path": "programs/example-project/example-program/charters/core-release-manager-1.v1.json",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
       "criticality": "required",
       "outcome_contribution": "The minimum decision-useful company outcome."
     },
     {
       "deliverable_id": "optional-enhancement",
       "manager_task_id": "optional-enhancement-manager-1",
+      "manager_public_key": {
+        "path": "evidence/keys/optional-enhancement-manager-1.public.pem",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "manager_charter": {
+        "path": "programs/example-project/example-program/charters/optional-enhancement-manager-1.v1.json",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
       "criticality": "optional",
       "outcome_contribution": "An enhancement that may be omitted without changing the core promise."
     }
@@ -28,6 +47,10 @@
   },
   "accepted_design_decision": {
     "path": "evidence/release-scope-design-decision.v1.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "scope_admission": {
+    "path": "evidence/release-scope-admission.v1.json",
     "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
   }
 }

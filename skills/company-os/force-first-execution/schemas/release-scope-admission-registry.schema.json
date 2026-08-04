@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.release-scope-admission-registry.v1",
+  "title": "Company OS Release Scope Admission Registry Record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project_id", "program_id", "program_version", "definition_version", "cycle_id", "scope_admission_sha256", "scope_definition_sha256", "predecessor_admission_sha256", "trusted_master_public_key_sha256"],
+  "properties": {
+    "schema": {"const": "company-os.release-scope-admission-registry.v1"},
+    "project_id": {"$ref": "#/$defs/id"},
+    "program_id": {"$ref": "#/$defs/id"},
+    "program_version": {"type": "integer", "minimum": 1},
+    "definition_version": {"type": "integer", "minimum": 1},
+    "cycle_id": {"$ref": "#/$defs/id"},
+    "scope_admission_sha256": {"$ref": "#/$defs/sha256"},
+    "scope_definition_sha256": {"$ref": "#/$defs/sha256"},
+    "predecessor_admission_sha256": {"$ref": "#/$defs/sha256"},
+    "trusted_master_public_key_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]*$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

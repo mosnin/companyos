@@ -88,16 +88,25 @@ to the former live log cannot change the sealed evidence.
 ## Required and optional release scope
 
 Declare release criticality before dispatch with `release-scope.v1.json`.
-Its scope-definition digest is signed into a master design-decision receipt, so
-the classification and owning manager cannot be replaced after seeing a failure. Required work
+Its scope-definition digest includes classification, owning manager, manager
+public key, exact manager charter, and admission-verification path. An external
+RSA-3072 master signature binds both the design decision and typed admission.
+`release_scope_controller.py admit` records that admission in a host-controlled,
+create-only registry outside the artifact root and materializes the exact gate
+output named by the manager charters. The same definition version cannot be
+replaced; a change must advance exactly one version from the registry head and
+cite the exact predecessor admission. Required work
 blocks release when rejected. Optional work becomes eligible for omission only
 when its declared recovery-chain cap is exhausted and each chain has a typed
 terminal receipt binding the deliverable, failed score, defects, artifact bytes,
 exact force contract, and rejected force snapshot. The controller independently
-replays that sealed snapshot and requires the claimed artifact list to equal the
-terminal manager-inspected candidate before crediting the receipt. It never
+replays that sealed snapshot and requires an accepted artifact to equal the
+terminal passed inspection, while a rejected artifact must follow the exact
+candidate -> verification -> failed manager inspection -> manager rejection
+chain. The manager-signed receipt must cite the exact admitted charter and
+admission-verification bytes. It never
 authorizes integration; the master must confirm the core outcome still stands.
 A new recovery lane or early stop requires a new master decision and definition
-version. Template zero digests and fixture signatures are intentionally invalid
-until recomputed; repository fixture authentication is an offline binding oracle,
-not live identity authentication.
+version. Template zero digests and RSA signatures are intentionally invalid
+until recomputed. The external trust anchor and admission registry are release
+authority boundaries; neither may be supplied from manager-owned project bytes.

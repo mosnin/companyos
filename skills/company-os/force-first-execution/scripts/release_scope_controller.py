@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import hmac
 import json
 import math
 import re
@@ -14,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import force_loop_controller as force
+import rsa_trust
 import seal_force_snapshot as force_snapshot
 
 
@@ -22,11 +22,14 @@ STATUS_SCHEMA = "company-os.release-status.v1"
 DESIGN_DECISION_SCHEMA = "company-os.release-scope-design-decision.v1"
 DELIVERABLE_RECEIPT_SCHEMA = "company-os.release-deliverable-receipt.v1"
 SNAPSHOT_RECEIPT_SCHEMA = "company-os.force-log-snapshot.v1"
-AUTH_SCHEME = "company-os.fixture-hmac-sha256.v1"
-AUTH_KEYS = {"company-os-repository-test-v1": b"company-os-public-test-fixture-key-v1"}
+ADMISSION_SCHEMA = "company-os.release-scope-admission.v1"
+ADMISSION_VERIFICATION_SCHEMA = "company-os.release-scope-admission-verification.v1"
+ADMISSION_REGISTRY_SCHEMA = "company-os.release-scope-admission-registry.v1"
+AUTH_SCHEME = rsa_trust.SCHEME
 IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._:-]*$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 SAFE_PATH = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$")
+REGISTRY_FILE = re.compile(r"^definition-([0-9]{8})\.json$")
 
 
 class ReleaseScopeError(ValueError):
@@ -93,6 +96,261 @@ def _root(path: Path) -> Path:
     return resolved
 
 
+def _trusted_master_public_key(root: Path, path: Path) -> Path:
+    """Resolve the host trust anchor and keep it outside manager-owned evidence."""
+    if path.is_symlink():
+        raise ReleaseScopeError("trusted master public key must not be a symlink")
+    try:
+        resolved = path.resolve(strict=True)
+    except OSError as error:
+        raise ReleaseScopeError(
+            f"trusted master public key could not be resolved: {error}"
+        ) from error
+    if resolved == root or root in resolved.parents:
+        raise ReleaseScopeError(
+            "trusted master public key must be supplied outside the artifact root"
+        )
+    try:
+        rsa_trust.read_public_key(resolved, "trusted master public key")
+    except rsa_trust.TrustError as error:
+        raise ReleaseScopeError(str(error)) from error
+    return resolved
+
+
+def _trusted_admission_registry(root: Path, path: Path) -> Path:
+    if path.is_symlink():
+        raise ReleaseScopeError("trusted admission registry must not be a symlink")
+    try:
+        resolved = path.resolve(strict=True)
+        status = resolved.lstat()
+    except OSError as error:
+        raise ReleaseScopeError(
+            f"trusted admission registry could not be resolved: {error}"
+        ) from error
+    if not stat.S_ISDIR(status.st_mode):
+        raise ReleaseScopeError("trusted admission registry must be a directory")
+    if resolved == root or root in resolved.parents:
+        raise ReleaseScopeError(
+            "trusted admission registry must be supplied outside the artifact root"
+        )
+    return resolved
+
+
+def _registry_program_directory(
+    registry_root: Path,
+    contract: dict[str, Any],
+    *,
+    create: bool,
+) -> Path:
+    current = registry_root
+    for key in ("project_id", "program_id", "cycle_id"):
+        part = _identifier(contract[key], f"registry.{key}")
+        current = current / part
+        if create:
+            try:
+                current.mkdir(mode=0o700)
+                force_snapshot._fsync_directory(current.parent)
+            except FileExistsError:
+                pass
+            except OSError as error:
+                raise ReleaseScopeError(
+                    f"trusted admission registry could not create its program path: {error}"
+                ) from error
+        try:
+            status = current.lstat()
+        except FileNotFoundError as error:
+            raise ReleaseScopeError("release scope has no registered admission") from error
+        except OSError as error:
+            raise ReleaseScopeError(
+                f"trusted admission registry program path is unreadable: {error}"
+            ) from error
+        if stat.S_ISLNK(status.st_mode) or not stat.S_ISDIR(status.st_mode):
+            raise ReleaseScopeError(
+                "trusted admission registry program path must be a real directory"
+            )
+    return current
+
+
+def _admission_registry_record(
+    contract: dict[str, Any],
+    trusted_master_public_key: Path,
+) -> dict[str, Any]:
+    try:
+        raw_key, _, _ = rsa_trust.read_public_key(
+            trusted_master_public_key, "trusted master public key"
+        )
+    except rsa_trust.TrustError as error:
+        raise ReleaseScopeError(str(error)) from error
+    return {
+        "schema": ADMISSION_REGISTRY_SCHEMA,
+        "project_id": contract["project_id"],
+        "program_id": contract["program_id"],
+        "program_version": contract["program_version"],
+        "definition_version": contract["definition_version"],
+        "cycle_id": contract["cycle_id"],
+        "scope_admission_sha256": contract["scope_admission"]["sha256"],
+        "scope_definition_sha256": scope_definition_sha256(contract),
+        "predecessor_admission_sha256": contract["predecessor_admission_sha256"],
+        "trusted_master_public_key_sha256": hashlib.sha256(raw_key).hexdigest(),
+    }
+
+
+def _read_registry_records(directory: Path) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    try:
+        entries = sorted(directory.iterdir(), key=lambda item: item.name)
+    except OSError as error:
+        raise ReleaseScopeError(f"trusted admission registry is unreadable: {error}") from error
+    for entry in entries:
+        match = REGISTRY_FILE.fullmatch(entry.name)
+        if match is None:
+            raise ReleaseScopeError(
+                f"trusted admission registry contains an unexpected entry: {entry.name}"
+            )
+        if entry.is_symlink():
+            raise ReleaseScopeError("trusted admission registry contains a symlink")
+        try:
+            status = entry.lstat()
+            raw = entry.read_bytes()
+            value = json.loads(raw)
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            raise ReleaseScopeError(
+                f"trusted admission registry record is unreadable: {entry.name}"
+            ) from error
+        if not stat.S_ISREG(status.st_mode) or not isinstance(value, dict):
+            raise ReleaseScopeError("trusted admission registry record is not canonical JSON")
+        if raw != canonical_bytes(value) + b"\n":
+            raise ReleaseScopeError("trusted admission registry record bytes are noncanonical")
+        _exact_keys(
+            value,
+            {
+                "schema",
+                "project_id",
+                "program_id",
+                "program_version",
+                "definition_version",
+                "cycle_id",
+                "scope_admission_sha256",
+                "scope_definition_sha256",
+                "predecessor_admission_sha256",
+                "trusted_master_public_key_sha256",
+            },
+            "trusted admission registry record",
+        )
+        version = int(match.group(1))
+        if (
+            value["schema"] != ADMISSION_REGISTRY_SCHEMA
+            or isinstance(value["definition_version"], bool)
+            or not isinstance(value["definition_version"], int)
+            or value["definition_version"] != version
+            or isinstance(value["program_version"], bool)
+            or not isinstance(value["program_version"], int)
+            or value["program_version"] < 1
+        ):
+            raise ReleaseScopeError("trusted admission registry version binding is invalid")
+        for key in ("project_id", "program_id", "cycle_id"):
+            _identifier(value[key], f"trusted admission registry record.{key}")
+        for key in (
+            "scope_admission_sha256",
+            "scope_definition_sha256",
+            "predecessor_admission_sha256",
+            "trusted_master_public_key_sha256",
+        ):
+            _digest(value[key], f"trusted admission registry record.{key}")
+        records.append(value)
+    for index, record in enumerate(records, start=1):
+        if record["definition_version"] != index:
+            raise ReleaseScopeError("trusted admission registry versions are not contiguous")
+        expected_predecessor = (
+            "0" * 64 if index == 1 else records[index - 2]["scope_admission_sha256"]
+        )
+        if record["predecessor_admission_sha256"] != expected_predecessor:
+            raise ReleaseScopeError("trusted admission registry lineage is broken")
+    return records
+
+
+def _register_admission(
+    contract: dict[str, Any],
+    artifact_root: Path,
+    trusted_master_public_key: Path,
+    trusted_admission_registry: Path,
+) -> dict[str, Any]:
+    root = _root(artifact_root)
+    key = _trusted_master_public_key(root, trusted_master_public_key)
+    registry = _trusted_admission_registry(root, trusted_admission_registry)
+    directory = _registry_program_directory(registry, contract, create=True)
+    records = _read_registry_records(directory)
+    expected = _admission_registry_record(contract, key)
+    identity_keys = {
+        "project_id",
+        "program_id",
+        "program_version",
+        "cycle_id",
+        "trusted_master_public_key_sha256",
+    }
+    if any(
+        any(record[item] != expected[item] for item in identity_keys)
+        for record in records
+    ):
+        raise ReleaseScopeError("trusted admission registry identity lineage is broken")
+    version = contract["definition_version"]
+    if version <= len(records):
+        if version == len(records) and records[version - 1] == expected:
+            return expected
+        raise ReleaseScopeError(
+            "release scope definition version is already registered with different bytes"
+        )
+    if version != len(records) + 1:
+        raise ReleaseScopeError(
+            "release scope definition version must advance exactly one registered predecessor"
+        )
+    expected_predecessor = (
+        "0" * 64 if not records else records[-1]["scope_admission_sha256"]
+    )
+    if contract["predecessor_admission_sha256"] != expected_predecessor:
+        raise ReleaseScopeError(
+            "release scope predecessor does not match the trusted admission registry head"
+        )
+    target = directory / f"definition-{version:08d}.json"
+    try:
+        force_snapshot._exclusive_write(target, canonical_bytes(expected) + b"\n")
+    except force.ForceContractError as error:
+        raise ReleaseScopeError(f"release scope admission could not be registered: {error}") from error
+    return expected
+
+
+def _verify_registered_admission(
+    contract: dict[str, Any],
+    artifact_root: Path,
+    trusted_master_public_key: Path,
+    trusted_admission_registry: Path,
+) -> dict[str, Any]:
+    root = _root(artifact_root)
+    key = _trusted_master_public_key(root, trusted_master_public_key)
+    registry = _trusted_admission_registry(root, trusted_admission_registry)
+    directory = _registry_program_directory(registry, contract, create=False)
+    records = _read_registry_records(directory)
+    version = contract["definition_version"]
+    expected = _admission_registry_record(contract, key)
+    identity_keys = {
+        "project_id",
+        "program_id",
+        "program_version",
+        "cycle_id",
+        "trusted_master_public_key_sha256",
+    }
+    if any(
+        any(record[item] != expected[item] for item in identity_keys)
+        for record in records
+    ):
+        raise ReleaseScopeError("trusted admission registry identity lineage is broken")
+    if not records or version != len(records) or records[-1] != expected:
+        raise ReleaseScopeError(
+            "release scope is not the current exact trusted admission"
+        )
+    return expected
+
+
 def _verified_file(
     root: Path, item: dict[str, Any], label: str
 ) -> tuple[Path, bytes]:
@@ -147,6 +405,8 @@ def scope_definition(contract: dict[str, Any]) -> dict[str, Any]:
             "cycle_id",
             "master_task_id",
             "outcome_digest",
+            "predecessor_admission_sha256",
+            "admission_verification_path",
             "deliverables",
             "policy",
         )
@@ -157,22 +417,30 @@ def scope_definition_sha256(contract: dict[str, Any]) -> str:
     return canonical_sha256(scope_definition(contract))
 
 
-def fixture_signature(record: dict[str, Any]) -> str:
-    authentication = record.get("authentication")
-    if not isinstance(authentication, dict):
-        raise ReleaseScopeError("fixture authentication is invalid")
-    if authentication.get("scheme") != AUTH_SCHEME:
-        raise ReleaseScopeError("fixture authentication scheme is unsupported")
-    key_id = authentication.get("key_id")
-    key = AUTH_KEYS.get(key_id) if isinstance(key_id, str) else None
-    if key is None:
-        raise ReleaseScopeError("fixture authentication key is unsupported")
-    unsigned = dict(record)
-    unsigned["authentication"] = {"scheme": AUTH_SCHEME, "key_id": key_id}
-    return hmac.new(key, canonical_sha256(unsigned).encode("ascii"), hashlib.sha256).hexdigest()
+def signature_payload(record: dict[str, Any]) -> bytes:
+    try:
+        return canonical_bytes(rsa_trust.unsigned_record(record))
+    except rsa_trust.TrustError as error:
+        raise ReleaseScopeError(str(error)) from error
 
 
-def _validate_design_decision(contract: dict[str, Any], root: Path) -> None:
+def _verify_signed_record(
+    record: dict[str, Any], public_key_path: Path, label: str
+) -> str:
+    try:
+        return rsa_trust.verify_record(
+            record,
+            signature_payload(record),
+            public_key_path,
+            label,
+        )
+    except rsa_trust.TrustError as error:
+        raise ReleaseScopeError(str(error)) from error
+
+
+def _validate_design_decision(
+    contract: dict[str, Any], root: Path, trusted_master_public_key: Path
+) -> dict[str, Any]:
     reference = contract["accepted_design_decision"]
     if not isinstance(reference, dict):
         raise ReleaseScopeError("accepted_design_decision must be an evidence reference")
@@ -208,6 +476,7 @@ def _validate_design_decision(contract: dict[str, Any], root: Path) -> None:
             "definition_version",
             "cycle_id",
             "outcome_digest",
+            "predecessor_admission_sha256",
             "scope_definition_sha256",
         },
         "accepted design decision bindings",
@@ -219,20 +488,152 @@ def _validate_design_decision(contract: dict[str, Any], root: Path) -> None:
         "definition_version": contract["definition_version"],
         "cycle_id": contract["cycle_id"],
         "outcome_digest": contract["outcome_digest"],
+        "predecessor_admission_sha256": contract["predecessor_admission_sha256"],
         "scope_definition_sha256": scope_definition_sha256(contract),
     }
     if bindings != expected:
         raise ReleaseScopeError("accepted design decision does not bind exact pre-dispatch scope")
-    authentication = decision["authentication"]
-    if not isinstance(authentication, dict):
-        raise ReleaseScopeError("accepted design decision authentication is invalid")
-    _exact_keys(authentication, {"scheme", "key_id", "signature"}, "design authentication")
-    signature = _digest(authentication["signature"], "design authentication signature")
-    if not hmac.compare_digest(signature, fixture_signature(decision)):
-        raise ReleaseScopeError("accepted design decision fixture signature does not verify")
+    _verify_signed_record(decision, trusted_master_public_key, "accepted design decision")
+    return decision
 
 
-def validate_contract(value: Any, artifact_root: Path) -> dict[str, Any]:
+def _validate_admission_shape(
+    admission: dict[str, Any],
+    trusted_master_public_key: Path,
+    label: str,
+) -> dict[str, Any]:
+    _exact_keys(
+        admission,
+        {
+            "schema",
+            "record_version",
+            "admission_id",
+            "decision",
+            "bindings",
+            "accepted_design_decision",
+            "authentication",
+        },
+        label,
+    )
+    if admission["schema"] != ADMISSION_SCHEMA or admission["record_version"] != 1:
+        raise ReleaseScopeError(f"{label} schema/version is invalid")
+    _identifier(admission["admission_id"], f"{label}.admission_id")
+    if admission["decision"] != "admitted_pre_dispatch":
+        raise ReleaseScopeError(f"{label} is not a pre-dispatch admission")
+    bindings = admission["bindings"]
+    if not isinstance(bindings, dict):
+        raise ReleaseScopeError(f"{label} bindings are invalid")
+    _exact_keys(
+        bindings,
+        {
+            "project_id",
+            "program_id",
+            "program_version",
+            "definition_version",
+            "cycle_id",
+            "master_task_id",
+            "outcome_digest",
+            "scope_definition_sha256",
+            "predecessor_admission_sha256",
+            "accepted_design_decision_sha256",
+        },
+        f"{label} bindings",
+    )
+    if not isinstance(admission["accepted_design_decision"], dict):
+        raise ReleaseScopeError(f"{label} design-decision reference is invalid")
+    _exact_keys(
+        admission["accepted_design_decision"],
+        {"path", "sha256"},
+        f"{label}.accepted_design_decision",
+    )
+    for key in (
+        "outcome_digest",
+        "scope_definition_sha256",
+        "predecessor_admission_sha256",
+        "accepted_design_decision_sha256",
+    ):
+        _digest(bindings[key], f"{label}.bindings.{key}")
+    if (
+        bindings["accepted_design_decision_sha256"]
+        != admission["accepted_design_decision"]["sha256"]
+    ):
+        raise ReleaseScopeError(
+            f"{label} design-decision digest does not match its evidence reference"
+        )
+    _verify_signed_record(admission, trusted_master_public_key, label)
+    return admission
+
+
+def _validate_predecessor_admission(
+    contract: dict[str, Any],
+    root: Path,
+    trusted_master_public_key: Path,
+) -> None:
+    reference = contract["predecessor_scope_admission"]
+    digest = contract["predecessor_admission_sha256"]
+    if contract["definition_version"] == 1:
+        if reference is not None or digest != "0" * 64:
+            raise ReleaseScopeError(
+                "definition version one must not claim a predecessor admission"
+            )
+        return
+    if not isinstance(reference, dict) or reference.get("sha256") != digest:
+        raise ReleaseScopeError(
+            "scope change requires the exact predecessor admission reference"
+        )
+    predecessor = _canonical_json_evidence(root, reference, "predecessor scope admission")
+    _validate_admission_shape(
+        predecessor,
+        trusted_master_public_key,
+        "predecessor scope admission",
+    )
+    bindings = predecessor["bindings"]
+    expected = {
+        "project_id": contract["project_id"],
+        "program_id": contract["program_id"],
+        "program_version": contract["program_version"],
+        "definition_version": contract["definition_version"] - 1,
+    }
+    if any(bindings.get(key) != value for key, value in expected.items()):
+        raise ReleaseScopeError(
+            "predecessor admission does not form an exact definition lineage"
+        )
+
+
+def _validate_scope_admission(
+    contract: dict[str, Any],
+    root: Path,
+    trusted_master_public_key: Path,
+) -> dict[str, Any]:
+    reference = contract["scope_admission"]
+    if not isinstance(reference, dict):
+        raise ReleaseScopeError("scope_admission must be an evidence reference")
+    admission = _canonical_json_evidence(root, reference, "scope admission")
+    _validate_admission_shape(admission, trusted_master_public_key, "scope admission")
+    expected_bindings = {
+        "project_id": contract["project_id"],
+        "program_id": contract["program_id"],
+        "program_version": contract["program_version"],
+        "definition_version": contract["definition_version"],
+        "cycle_id": contract["cycle_id"],
+        "master_task_id": contract["master_task_id"],
+        "outcome_digest": contract["outcome_digest"],
+        "scope_definition_sha256": scope_definition_sha256(contract),
+        "predecessor_admission_sha256": contract["predecessor_admission_sha256"],
+        "accepted_design_decision_sha256": contract["accepted_design_decision"]["sha256"],
+    }
+    if admission["bindings"] != expected_bindings:
+        raise ReleaseScopeError("scope admission does not bind exact pre-dispatch scope")
+    if admission["accepted_design_decision"] != contract["accepted_design_decision"]:
+        raise ReleaseScopeError("scope admission does not bind the accepted design decision bytes")
+    return admission
+
+
+def _validate_contract_structure(
+    value: Any,
+    artifact_root: Path,
+    trusted_master_public_key: Path,
+) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ReleaseScopeError("release scope contract must be an object")
     _exact_keys(
@@ -246,9 +647,13 @@ def validate_contract(value: Any, artifact_root: Path) -> dict[str, Any]:
             "cycle_id",
             "master_task_id",
             "outcome_digest",
+            "predecessor_admission_sha256",
+            "predecessor_scope_admission",
+            "admission_verification_path",
             "deliverables",
             "policy",
             "accepted_design_decision",
+            "scope_admission",
         },
         "release scope contract",
     )
@@ -260,6 +665,12 @@ def validate_contract(value: Any, artifact_root: Path) -> dict[str, Any]:
         if isinstance(value[key], bool) or not isinstance(value[key], int) or value[key] < 1:
             raise ReleaseScopeError(f"{key} must be a positive integer")
     _digest(value["outcome_digest"], "outcome_digest")
+    _digest(value["predecessor_admission_sha256"], "predecessor_admission_sha256")
+    root = _root(artifact_root)
+    trusted_master_public_key = _trusted_master_public_key(
+        root, trusted_master_public_key
+    )
+    _safe_path(value["admission_verification_path"], "admission_verification_path")
     policy = value["policy"]
     if not isinstance(policy, dict):
         raise ReleaseScopeError("policy must be an object")
@@ -291,6 +702,8 @@ def validate_contract(value: Any, artifact_root: Path) -> dict[str, Any]:
             {
                 "deliverable_id",
                 "manager_task_id",
+                "manager_public_key",
+                "manager_charter",
                 "criticality",
                 "outcome_contribution",
             },
@@ -298,6 +711,31 @@ def validate_contract(value: Any, artifact_root: Path) -> dict[str, Any]:
         )
         ids.append(_identifier(item["deliverable_id"], f"deliverables[{index}].deliverable_id"))
         _identifier(item["manager_task_id"], f"deliverables[{index}].manager_task_id")
+        manager_key = item["manager_public_key"]
+        if not isinstance(manager_key, dict):
+            raise ReleaseScopeError(f"deliverables[{index}].manager_public_key is invalid")
+        manager_key_path, _ = _verified_file(
+            root,
+            manager_key,
+            f"deliverables[{index}].manager_public_key",
+        )
+        try:
+            rsa_trust.read_public_key(
+                manager_key_path,
+                f"deliverables[{index}].manager_public_key",
+            )
+        except rsa_trust.TrustError as error:
+            raise ReleaseScopeError(str(error)) from error
+        manager_charter = item["manager_charter"]
+        if not isinstance(manager_charter, dict):
+            raise ReleaseScopeError(f"deliverables[{index}].manager_charter is invalid")
+        _validate_manager_charter(
+            value,
+            root,
+            manager_charter,
+            item["manager_task_id"],
+            f"deliverables[{index}].manager_charter",
+        )
         if item["criticality"] not in {"required", "optional"}:
             raise ReleaseScopeError(f"deliverables[{index}].criticality is invalid")
         required_count += item["criticality"] == "required"
@@ -309,9 +747,119 @@ def validate_contract(value: Any, artifact_root: Path) -> dict[str, Any]:
         raise ReleaseScopeError("deliverable identifiers must be unique")
     if required_count == 0:
         raise ReleaseScopeError("at least one deliverable must be required")
-    root = _root(artifact_root)
-    _validate_design_decision(value, root)
+    _validate_design_decision(value, root, trusted_master_public_key)
+    _validate_predecessor_admission(value, root, trusted_master_public_key)
+    _validate_scope_admission(value, root, trusted_master_public_key)
     return value
+
+
+def validate_contract(
+    value: Any,
+    artifact_root: Path,
+    trusted_master_public_key: Path,
+    trusted_admission_registry: Path,
+) -> dict[str, Any]:
+    contract = _validate_contract_structure(
+        value,
+        artifact_root,
+        trusted_master_public_key,
+    )
+    _verify_registered_admission(
+        contract,
+        artifact_root,
+        trusted_master_public_key,
+        trusted_admission_registry,
+    )
+    return contract
+
+
+def build_admission_verification(
+    contract: dict[str, Any],
+    artifact_root: Path,
+    trusted_master_public_key: Path,
+    trusted_admission_registry: Path,
+) -> dict[str, Any]:
+    contract = validate_contract(
+        contract,
+        artifact_root,
+        trusted_master_public_key,
+        trusted_admission_registry,
+    )
+    registry_record = _verify_registered_admission(
+        contract,
+        artifact_root,
+        trusted_master_public_key,
+        trusted_admission_registry,
+    )
+    decision = _canonical_json_evidence(
+        _root(artifact_root),
+        contract["accepted_design_decision"],
+        "accepted design decision",
+    )
+    return {
+        "schema": ADMISSION_VERIFICATION_SCHEMA,
+        "ok": True,
+        "project_id": contract["project_id"],
+        "program_id": contract["program_id"],
+        "program_version": contract["program_version"],
+        "definition_version": contract["definition_version"],
+        "cycle_id": contract["cycle_id"],
+        "admission_verification_path": contract["admission_verification_path"],
+        "scope_definition_sha256": scope_definition_sha256(contract),
+        "scope_contract_sha256": canonical_sha256(contract),
+        "registry_record_sha256": canonical_sha256(registry_record),
+        "scope_admission": contract["scope_admission"],
+        "accepted_design_decision": contract["accepted_design_decision"],
+        "master_public_key_sha256": decision["authentication"]["public_key_sha256"],
+    }
+
+
+def write_admission_verification(
+    contract: dict[str, Any],
+    artifact_root: Path,
+    trusted_master_public_key: Path,
+    trusted_admission_registry: Path,
+) -> dict[str, Any]:
+    """Materialize the deterministic pre-dispatch gate at its signed path."""
+    root = _root(artifact_root)
+    contract = _validate_contract_structure(
+        contract,
+        root,
+        trusted_master_public_key,
+    )
+    _register_admission(
+        contract,
+        root,
+        trusted_master_public_key,
+        trusted_admission_registry,
+    )
+    value = build_admission_verification(
+        contract,
+        root,
+        trusted_master_public_key,
+        trusted_admission_registry,
+    )
+    relative = contract["admission_verification_path"]
+    target, existing = force_snapshot._safe_target(root, relative)
+    content = canonical_bytes(value) + b"\n"
+    if existing is not None and existing != content:
+        raise ReleaseScopeError(
+            "existing admission verification conflicts with the admitted scope"
+        )
+    if existing is None:
+        try:
+            force_snapshot._exclusive_write(target, content)
+        except force.ForceContractError as error:
+            raise ReleaseScopeError(
+                f"admission verification could not be materialized: {error}"
+            ) from error
+    return {
+        **value,
+        "evidence": {
+            "path": relative,
+            "sha256": hashlib.sha256(content).hexdigest(),
+        },
+    }
 
 
 def _validate_snapshot_receipt(
@@ -383,10 +931,69 @@ def _validate_snapshot_receipt(
         raise ReleaseScopeError(f"{label} sealed force evidence is invalid: {error}") from error
     if verification["terminal_event"] != expected_terminal:
         raise ReleaseScopeError(f"{label} verified terminal decision does not match disposition")
+    if expected_terminal == "manager_reject" and not verification[
+        "terminal_rejection_inspected"
+    ]:
+        raise ReleaseScopeError(
+            f"{label} rejection lacks verified failed inspection of the terminal candidate"
+        )
     return {
         "artifacts": verification["terminal_artifacts"],
         "rework_cycles": verification["rework_cycles"],
     }
+
+
+def _validate_admission_verification(
+    contract: dict[str, Any],
+    root: Path,
+    reference: dict[str, Any],
+    expected: dict[str, Any],
+    label: str,
+) -> None:
+    if reference.get("path") != contract["admission_verification_path"]:
+        raise ReleaseScopeError(f"{label} path differs from the pre-dispatch gate")
+    value = _canonical_json_evidence(root, reference, label)
+    if value != expected:
+        raise ReleaseScopeError(f"{label} does not match the pre-dispatch admission gate")
+
+
+def _validate_manager_charter(
+    contract: dict[str, Any],
+    root: Path,
+    reference: dict[str, Any],
+    manager_task_id: str,
+    label: str,
+) -> None:
+    charter = _canonical_json_evidence(root, reference, label)
+    if not isinstance(charter, dict) or charter.get("schema") != "company-os.mission-charter.v2":
+        raise ReleaseScopeError(f"{label} schema is invalid")
+    for key in ("program_version", "definition_version", "outcome_digest"):
+        if charter.get(key) != contract[key]:
+            raise ReleaseScopeError(f"{label} {key} does not match release scope")
+    ids = charter.get("ids")
+    expected_ids = {
+        "project_id": contract["project_id"],
+        "program_id": contract["program_id"],
+        "cycle_id": contract["cycle_id"],
+        "task_id": manager_task_id,
+        "parent_task_id": contract["master_task_id"],
+    }
+    if not isinstance(ids, dict) or any(ids.get(key) != value for key, value in expected_ids.items()):
+        raise ReleaseScopeError(f"{label} identity does not match release manager ownership")
+    context = charter.get("task_local_context")
+    paths = context.get("artifact_paths") if isinstance(context, dict) else None
+    required_paths = {
+        contract["scope_admission"]["path"],
+        contract["admission_verification_path"],
+    }
+    if (
+        not isinstance(paths, list)
+        or any(not isinstance(path, str) for path in paths)
+        or not required_paths.issubset(set(paths))
+    ):
+        raise ReleaseScopeError(
+            f"{label} was not dispatched with the pre-dispatch admission evidence"
+        )
 
 
 def _validate_terminal_receipt(
@@ -394,6 +1001,8 @@ def _validate_terminal_receipt(
     root: Path,
     reference: dict[str, Any],
     deliverable_id: str,
+    admission_verification: dict[str, Any],
+    trusted_master_public_key: Path,
     label: str,
 ) -> dict[str, Any]:
     receipt = _canonical_json_evidence(root, reference, label)
@@ -412,6 +1021,8 @@ def _validate_terminal_receipt(
             "force_task_id",
             "rework_cycles",
             "disposition",
+            "manager_charter",
+            "scope_admission_verification",
             "force_contract",
             "terminal_force_snapshot_receipt",
             "quality_score",
@@ -439,13 +1050,37 @@ def _validate_terminal_receipt(
     }
     if any(receipt[key] != expected for key, expected in expected_bindings.items()):
         raise ReleaseScopeError(f"{label} does not bind exact release scope")
-    authentication = receipt["authentication"]
-    if not isinstance(authentication, dict):
-        raise ReleaseScopeError(f"{label} authentication is invalid")
-    _exact_keys(authentication, {"scheme", "key_id", "signature"}, f"{label}.authentication")
-    signature = _digest(authentication["signature"], f"{label}.authentication.signature")
-    if not hmac.compare_digest(signature, fixture_signature(receipt)):
-        raise ReleaseScopeError(f"{label} fixture signature does not verify")
+    definition = next(
+        item for item in contract["deliverables"] if item["deliverable_id"] == deliverable_id
+    )
+    manager_key_path, _ = _verified_file(
+        root,
+        definition["manager_public_key"],
+        f"{label}.manager_public_key",
+    )
+    _verify_signed_record(receipt, manager_key_path, label)
+    admission_reference = receipt["scope_admission_verification"]
+    manager_charter_reference = receipt["manager_charter"]
+    if not isinstance(admission_reference, dict):
+        raise ReleaseScopeError(f"{label} admission verification reference is invalid")
+    if not isinstance(manager_charter_reference, dict):
+        raise ReleaseScopeError(f"{label} manager charter reference is invalid")
+    _validate_admission_verification(
+        contract,
+        root,
+        admission_reference,
+        admission_verification,
+        f"{label}.scope_admission_verification",
+    )
+    if manager_charter_reference != definition["manager_charter"]:
+        raise ReleaseScopeError(f"{label} manager charter differs from admitted scope")
+    _validate_manager_charter(
+        contract,
+        root,
+        manager_charter_reference,
+        receipt["manager_task_id"],
+        f"{label}.manager_charter",
+    )
     _identifier(receipt["force_task_id"], f"{label}.force_task_id")
     for key in ("attempt_chain", "rework_cycles"):
         if isinstance(receipt[key], bool) or not isinstance(receipt[key], int) or receipt[key] < 0:
@@ -514,7 +1149,11 @@ def _validate_terminal_receipt(
 
 
 def validate_status(
-    contract: dict[str, Any], value: Any, artifact_root: Path
+    contract: dict[str, Any],
+    value: Any,
+    artifact_root: Path,
+    trusted_master_public_key: Path,
+    trusted_admission_registry: Path,
 ) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ReleaseScopeError("release status must be an object")
@@ -551,6 +1190,12 @@ def validate_status(
         raise ReleaseScopeError("release status deliverables must be a list")
     actual_ids: list[str] = []
     root = _root(artifact_root)
+    admission_verification = build_admission_verification(
+        contract,
+        root,
+        trusted_master_public_key,
+        trusted_admission_registry,
+    )
     for index, item in enumerate(statuses):
         if not isinstance(item, dict):
             raise ReleaseScopeError(f"status deliverables[{index}] must be an object")
@@ -594,6 +1239,8 @@ def validate_status(
                     root,
                     reference,
                     deliverable_id,
+                    admission_verification,
+                    trusted_master_public_key,
                     f"{deliverable_id}.terminal_receipts[{receipt_index}]",
                 )
             )
@@ -688,24 +1335,44 @@ def _read_json(path: Path, label: str) -> Any:
 
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser()
-    root.add_argument("--contract", type=Path, required=True)
-    root.add_argument("--status", type=Path, required=True)
-    root.add_argument("--artifact-root", type=Path, required=True)
+    commands = root.add_subparsers(dest="command", required=True)
+    admit = commands.add_parser("admit")
+    evaluate_parser = commands.add_parser("evaluate")
+    for command in (admit, evaluate_parser):
+        command.add_argument("--contract", type=Path, required=True)
+        command.add_argument("--artifact-root", type=Path, required=True)
+        command.add_argument("--trusted-master-public-key", type=Path, required=True)
+        command.add_argument("--trusted-admission-registry", type=Path, required=True)
+    evaluate_parser.add_argument("--status", type=Path, required=True)
     return root
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
-        contract = validate_contract(
-            _read_json(args.contract, "release scope contract"), args.artifact_root
-        )
-        status = validate_status(
-            contract,
-            _read_json(args.status, "release status"),
-            args.artifact_root,
-        )
-        result = evaluate(contract, status)
+        raw_contract = _read_json(args.contract, "release scope contract")
+        if args.command == "admit":
+            result = write_admission_verification(
+                raw_contract,
+                args.artifact_root,
+                args.trusted_master_public_key,
+                args.trusted_admission_registry,
+            )
+        else:
+            contract = validate_contract(
+                raw_contract,
+                args.artifact_root,
+                args.trusted_master_public_key,
+                args.trusted_admission_registry,
+            )
+            status = validate_status(
+                contract,
+                _read_json(args.status, "release status"),
+                args.artifact_root,
+                args.trusted_master_public_key,
+                args.trusted_admission_registry,
+            )
+            result = evaluate(contract, status)
     except ReleaseScopeError as error:
         print(json.dumps({"ok": False, "error": str(error)}, sort_keys=True, separators=(",", ":")))
         return 1

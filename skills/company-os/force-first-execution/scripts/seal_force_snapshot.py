@@ -43,10 +43,8 @@ def _terminal_artifact_rows(events: list[dict[str, Any]]) -> list[dict[str, str]
             None,
         )
     elif terminal_event == "manager_reject":
-        boundary = next(
-            (item for item in reversed(events) if item["event"] == "candidate_runnable"),
-            None,
-        )
+        candidate, _, inspection = _terminal_rejection_chain(events)
+        boundary = candidate if inspection is not None else None
     else:
         boundary = None
     if boundary is None:
@@ -62,6 +60,53 @@ def _terminal_artifact_rows(events: list[dict[str, Any]]) -> list[dict[str, str]
         {"path": path, "sha256": materialized[path]}
         for path in sorted(paths)
     ]
+
+
+def _terminal_rejection_chain(
+    events: list[dict[str, Any]],
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None]:
+    if events[-1]["event"] != "manager_reject":
+        return None, None, None
+    candidate = next(
+        (item for item in reversed(events[:-1]) if item["event"] == "candidate_runnable"),
+        None,
+    )
+    if candidate is None:
+        return None, None, None
+    verification = next(
+        (
+            item
+            for item in events[candidate["sequence"] : -1]
+            if item["event"] == "verification_passed"
+        ),
+        None,
+    )
+    if verification is None:
+        return candidate, None, None
+    inspection = next(
+        (
+            item
+            for item in events[verification["sequence"] : -1]
+            if item["event"] == "manager_inspection_failed"
+        ),
+        None,
+    )
+    if inspection is None:
+        return candidate, verification, None
+    invalid_after_inspection = {
+        "artifact_materialized",
+        "candidate_runnable",
+        "verification_passed",
+        "manager_inspection_passed",
+        "manager_rework",
+        "rework_started",
+    }
+    if any(
+        item["event"] in invalid_after_inspection
+        for item in events[inspection["sequence"] : -1]
+    ):
+        return candidate, verification, None
+    return candidate, verification, inspection
 
 
 def _snapshot_bytes(events: list[dict[str, Any]]) -> bytes:
@@ -346,6 +391,11 @@ def verify(
         "terminal_artifacts": _terminal_artifact_rows(accepted_events),
         "rework_cycles": sum(
             item["event"] == "rework_started" for item in accepted_events
+        ),
+        "terminal_rejection_inspected": (
+            _terminal_rejection_chain(accepted_events)[2] is not None
+            if accepted_events[-1]["event"] == "manager_reject"
+            else None
         ),
     }
 

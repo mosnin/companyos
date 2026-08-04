@@ -4,7 +4,7 @@
   "title": "Company OS Release Deliverable Receipt v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "project_id", "program_id", "program_version", "definition_version", "cycle_id", "deliverable_id", "manager_task_id", "attempt_chain", "force_task_id", "rework_cycles", "disposition", "force_contract", "terminal_force_snapshot_receipt", "quality_score", "quality_gate_lowered", "defects", "artifact_evidence", "authentication"],
+  "required": ["schema", "project_id", "program_id", "program_version", "definition_version", "cycle_id", "deliverable_id", "manager_task_id", "attempt_chain", "force_task_id", "rework_cycles", "disposition", "manager_charter", "scope_admission_verification", "force_contract", "terminal_force_snapshot_receipt", "quality_score", "quality_gate_lowered", "defects", "artifact_evidence", "authentication"],
   "properties": {
     "schema": {"const": "company-os.release-deliverable-receipt.v1"},
     "project_id": {"type": "string"},
@@ -18,6 +18,8 @@
     "force_task_id": {"type": "string"},
     "rework_cycles": {"type": "integer", "minimum": 0, "maximum": 3},
     "disposition": {"enum": ["accepted", "rejected"]},
+    "manager_charter": {"$ref": "#/$defs/file"},
+    "scope_admission_verification": {"$ref": "#/$defs/file"},
     "force_contract": {"$ref": "#/$defs/file"},
     "terminal_force_snapshot_receipt": {"$ref": "#/$defs/file"},
     "quality_score": {"type": "number", "minimum": 0, "maximum": 10},
@@ -27,11 +29,12 @@
     "authentication": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["scheme", "key_id", "signature"],
+      "required": ["scheme", "key_id", "public_key_sha256", "signature"],
       "properties": {
-        "scheme": {"const": "company-os.fixture-hmac-sha256.v1"},
-        "key_id": {"const": "company-os-repository-test-v1"},
-        "signature": {"$ref": "#/$defs/sha256"}
+        "scheme": {"const": "company-os.rsa-3072-sha256-pkcs1-v1_5.v1"},
+        "key_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]*$"},
+        "public_key_sha256": {"$ref": "#/$defs/sha256"},
+        "signature": {"type": "string", "pattern": "^[A-Za-z0-9_-]{512}$"}
       }
     }
   },
