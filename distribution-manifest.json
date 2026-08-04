@@ -6,6 +6,126 @@
   "distribution_version": "0.5.1",
   "files": [
     {
+      "path": "company-os/assign-capability-skills/SKILL.md",
+      "sha256": "7ec0c8c4429b60bacd31fc7d0bae3697b90cd8e1ff972fb6334f4d1046443c09",
+      "size": 4825
+    },
+    {
+      "path": "company-os/assign-capability-skills/agents/openai.yaml",
+      "sha256": "a65f89f5e220a8d81425261e9168a365937503ad43e4b650d64fbf817e186f89",
+      "size": 292
+    },
+    {
+      "path": "company-os/assign-capability-skills/fixtures/systematic-debugging-worker/assignment.json",
+      "sha256": "3552fc0549fea5db36d457691ce9318f91aac0e2e1b9e1f5cb3d4174a6cff09e",
+      "size": 1408
+    },
+    {
+      "path": "company-os/assign-capability-skills/fixtures/systematic-debugging-worker/request.json",
+      "sha256": "def8767ea621bf3c1e22f63f46619cc32687b538e197e701fad88fe0d7b93388",
+      "size": 536
+    },
+    {
+      "path": "company-os/assign-capability-skills/fixtures/systematic-debugging-worker/simulation-receipt.json",
+      "sha256": "5cc83979cedb7b6b83693897936eb9b5cec8d96d700601bcd4ebfb59d618c993",
+      "size": 998
+    },
+    {
+      "path": "company-os/assign-capability-skills/references/capability-catalog.json",
+      "sha256": "eaff2f1a03189d72b3ded9290df7f92bc236e1eaa28e6c6df2328c4f8a765ca9",
+      "size": 2137476
+    },
+    {
+      "path": "company-os/assign-capability-skills/references/curation-manifest.json",
+      "sha256": "1e9dc448271ac45eb25b71acaf3f6d988a518a33352467be5f5a56aa52308ef6",
+      "size": 6283
+    },
+    {
+      "path": "company-os/assign-capability-skills/references/request.example.json",
+      "sha256": "af5fc24f599a86e61c2e237b4d33a6b9b8c2ea9662a8e49b6ca582b3f8b43073",
+      "size": 501
+    },
+    {
+      "path": "company-os/assign-capability-skills/references/source-catalog.json",
+      "sha256": "2cc73b5e93aa6d5751395a5f6705b0b137787d80ba105613f71c20a475073abf",
+      "size": 2127624
+    },
+    {
+      "path": "company-os/assign-capability-skills/scripts/build_capability_catalog.py",
+      "sha256": "328833b9b0a5e2af8b9b89fcdd33da1ba681d8c276dcc18b1c927b5efdd36082",
+      "size": 12898
+    },
+    {
+      "path": "company-os/assign-capability-skills/scripts/capability_catalog.py",
+      "sha256": "ddc623b33e734222f0eb7b8af3a64c84ca42b564616108e5ebb0be3676c2612d",
+      "size": 44244
+    },
+    {
+      "path": "company-os/assign-capability-skills/scripts/promote_curated_capabilities.py",
+      "sha256": "a5b5f5744436276f5a563678cbb7a180db66fb02245bf30ca7509f92ee5073bc",
+      "size": 10959
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/business/capability-assessment/SKILL.md",
+      "sha256": "cad4e40591237f871fa872d7613a9decdec7a01b8d2e5a87f11db06027742f6d",
+      "size": 4170
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/business/market-definition/SKILL.md",
+      "sha256": "5901307680a108338da90c5d4f50d3c91175a1f9d853e2a67a09b141965c1644",
+      "size": 4109
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/business/market-opportunity-artifact/SKILL.md",
+      "sha256": "7d333457584957c6e5827ee416cc404ea8bce996a47ddb86d598abed66e285eb",
+      "size": 4947
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/business/marketing-context-intake/SKILL.md",
+      "sha256": "c0996b4d32789f1052c41fe0d5d9337ce323ce4aee70316b7f7415315d1fff0f",
+      "size": 4576
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/business/risk-matrix/SKILL.md",
+      "sha256": "950bfdc7bdfeec12dd16d3edee8aae036bc849903201d0a3ce5f1acf85ac27a6",
+      "size": 4108
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/business/scenario-development/SKILL.md",
+      "sha256": "f4d30849daf86cb8b6c14c85c1ea06e440ccab3815ec2f8767c2d5206e5e6660",
+      "size": 4280
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/engineering/browser-boundary-design/SKILL.md",
+      "sha256": "0aa96289b96fbc35bf145cc67e587e0ef07ae35d489188351a5f86461ce40a13",
+      "size": 4003
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/engineering/durable-state-design/SKILL.md",
+      "sha256": "02b41bc855660e6226e34fbdd8193020770d724596c8ccca4e176d9d34c0465f",
+      "size": 4133
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/engineering/engineering-adversarial-review/SKILL.md",
+      "sha256": "3a28d1bc80e1ee64087bf5c3d70233eae79ed6e05f2b5c0167675176b2f53156",
+      "size": 3768
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/engineering/engineering-red-green-evidence/SKILL.md",
+      "sha256": "0c5302749bdb609c433e9e9f96976d456a37749aae0c1ed9f5698f538df31675",
+      "size": 3970
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/engineering/mcp-tool-contract-design/SKILL.md",
+      "sha256": "8842bb35aafe7c6b2a153c30fbc3fa84b37fcfef91344a95799c00db0393cc05",
+      "size": 4144
+    },
+    {
+      "path": "company-os/assign-capability-skills/vendor/engineering/systematic-debugging/SKILL.md",
+      "sha256": "a611f866704303df3d17befa658acbdf3cdb22542cfa84546dd248e2e3862e27",
+      "size": 4369
+    },
+    {
       "path": "company-os/brand-creative-system/SKILL.md",
       "sha256": "d202f89899a6597be1eb04c89f1648242628fcd627a9a1fff6f0b59550d818ca",
       "size": 2216
@@ -27,8 +147,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "7e96a0954224689416b261528df896c5d77862b9ee8fdd633679c52b2c91824a",
-      "size": 7014
+      "sha256": "5724dc82e61a2246567693132ea2550cb734eaa080533126006519b53b0cb4d4",
+      "size": 7606
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -332,8 +452,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "af79cd0d704a83025f6984eb8018e47ee8f13771df34659f12dc1c463397fe8c",
-      "size": 5449
+      "sha256": "25edb9ca6d8f3ba3e436231cf3ca3ac33475b308bfc146a428a9ce218bb176e2",
+      "size": 5498
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
@@ -382,13 +502,13 @@
     },
     {
       "path": "company-os/manage-company-program/schemas/compiled-preflight.schema.json",
-      "sha256": "99042951a7bc9f526c6c9981d9972ad45e698cc8400acfbdba235a80b95e4d0a",
-      "size": 6106
+      "sha256": "b6f1a6c986a8bd2535bb4bd2ae7f881dfbdaf2b8a2e2b145ae7cbe355bb641c7",
+      "size": 11692
     },
     {
       "path": "company-os/manage-company-program/schemas/host-capabilities.schema.json",
-      "sha256": "5fc9188c33db9e1f22bfdf0f3e37ed98ba5626ea2d4a49f7980802afaaf1a8b2",
-      "size": 2105
+      "sha256": "5b0b84d9957b2379235ac869551a9231db7cc28e6a995cf71c6b6054318d3e07",
+      "size": 3933
     },
     {
       "path": "company-os/manage-company-program/schemas/program-semantics.schema.json",
@@ -397,13 +517,13 @@
     },
     {
       "path": "company-os/manage-company-program/schemas/work-definitions.schema.json",
-      "sha256": "0f4b4f5e9df1727ef292942d79479741ea70718ecf77fd96e43ea1fe07428a39",
-      "size": 7298
+      "sha256": "80226a51017f3bf473aac46d66718a24c92277077a761ecc1226b0138c388bb5",
+      "size": 7670
     },
     {
       "path": "company-os/manage-company-program/scripts/compile_program_preflight.py",
-      "sha256": "525b5ccf874cfb32ed8d6ef965038e26d72642564f4fa838d0665745ef86a093",
-      "size": 77501
+      "sha256": "37f0a148ad05eaf2682de1bf2bc7026770825751242004618499d9024d5fcfd8",
+      "size": 105788
     },
     {
       "path": "company-os/operational-control/SKILL.md",
@@ -527,8 +647,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/SKILL.md",
-      "sha256": "5aad4001113bd8a225a5361d111ed3287423a5f54d83efe21f3ce2ea9c97c731",
-      "size": 3168
+      "sha256": "b2998785b04176b254f532aed2ee8a21868b5d5c300e0dda6e860b7c5b1d4820",
+      "size": 3643
     },
     {
       "path": "autonomy-suite/execute-bounded-task/agents/openai.yaml",

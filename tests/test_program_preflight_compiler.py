@@ -15,6 +15,17 @@ assert SPEC is not None and SPEC.loader is not None
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 
+CAPABILITY_MODULE_PATH = (
+    ROOT
+    / "skills/company-os/assign-capability-skills/scripts/capability_catalog.py"
+)
+CAPABILITY_SPEC = importlib.util.spec_from_file_location(
+    "capability_catalog_for_preflight_test", CAPABILITY_MODULE_PATH
+)
+assert CAPABILITY_SPEC is not None and CAPABILITY_SPEC.loader is not None
+CAPABILITY_MODULE = importlib.util.module_from_spec(CAPABILITY_SPEC)
+CAPABILITY_SPEC.loader.exec_module(CAPABILITY_MODULE)
+
 
 class ProgramPreflightCompilerTests(unittest.TestCase):
     def fixture_paths(self, fixture: str) -> tuple[Path, Path, Path]:
@@ -70,6 +81,110 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
                 "runtime_locator": "runtime://fixture/python3",
             }
         )
+
+    def add_bound_skill(
+        self,
+        documents: tuple[dict, dict, dict],
+        capability_id: str,
+        packet_id: str,
+        role: str,
+        digest_character: str,
+    ) -> None:
+        runtime = {
+            "runtime_id": "company-os-skill-reference",
+            "runtime_type": "codex_native_skill_reference",
+            "available": True,
+            "locator": "runtime://codex/native-skill",
+        }
+        if runtime not in documents[1]["runtimes"]:
+            documents[1]["runtimes"].append(runtime)
+        digest = digest_character * 64
+        documents[1]["capabilities"].append(
+            {
+                "capability_id": capability_id,
+                "available": True,
+                "runtime_id": "company-os-skill-reference",
+                "tool_locator": f"workspace://skills/company-os/assign-capability-skills/vendor/fixture/{capability_id}",
+                "runtime_locator": "runtime://codex/native-skill",
+                "capability_kind": "skill",
+                "artifact_sha256": digest,
+                "skill_bindings": [
+                    {
+                        "assignment_id": f"{packet_id}-skills",
+                        "assignment_sha256": "a" * 64,
+                        "catalog_sha256": "b" * 64,
+                        "entrypoint_sha256": digest,
+                        "packet_id": packet_id,
+                        "request_sha256": "c" * 64,
+                        "role": role,
+                        "source_commit": "d" * 40,
+                        "source_id": "fixture-source",
+                        "upstream_entrypoint_sha256": "e" * 64,
+                    }
+                ],
+            }
+        )
+
+    def real_skill_documents(
+        self,
+        *,
+        request_mutate=None,
+        manager_domains: list[str] | None = None,
+        worker_domains: list[str] | None = None,
+        manager_permissions: list[str] | None = None,
+        worker_permissions: list[str] | None = None,
+    ) -> tuple[tuple[dict, dict, dict], dict, dict]:
+        skill_root = ROOT / "skills/company-os/assign-capability-skills"
+        fixture_root = skill_root / "fixtures/systematic-debugging-worker"
+        catalog = json.loads(
+            (skill_root / "references/capability-catalog.json").read_text()
+        )
+        request = json.loads((fixture_root / "request.json").read_text())
+        if request_mutate is not None:
+            request_mutate(request)
+        assignment = CAPABILITY_MODULE.resolve_assignment(catalog, request, skill_root)
+        documents = self.load_fixture("saas-onboarding-launch")
+        manager_definition = next(
+            item
+            for item in documents[2]["manager_definitions"]
+            if item["manager_id"] == "onboarding_manager"
+        )
+        worker_definition = next(
+            item
+            for item in documents[2]["work_definitions"]
+            if item["work_id"] == "activation_path_work"
+        )
+        manager_definition["work_domains"] = (
+            copy.deepcopy(request["domains"])
+            if manager_domains is None
+            else manager_domains
+        )
+        worker_definition["work_domains"] = (
+            copy.deepcopy(request["domains"])
+            if worker_domains is None
+            else worker_domains
+        )
+        manager_definition["authorized_skill_permissions"] = (
+            copy.deepcopy(request["authorized_permissions"])
+            if manager_permissions is None
+            else manager_permissions
+        )
+        worker_definition["authorized_skill_permissions"] = (
+            copy.deepcopy(request["authorized_permissions"])
+            if worker_permissions is None
+            else worker_permissions
+        )
+        documents = (
+            documents[0],
+            CAPABILITY_MODULE.augment_host_manifest(
+                catalog,
+                documents[1],
+                [(request, assignment)],
+                skill_root,
+            ),
+            documents[2],
+        )
+        return documents, request, assignment
 
     def test_brokerage_compiles_five_compact_packets_and_verifies(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -363,6 +478,411 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
                         if item["capability_id"] == "ui_design_quality"
                     ),
                 )
+            MODULE.verify_output(root / "output", *paths)
+
+    def test_skill_request_domains_and_permissions_are_bound_to_task_authority(self) -> None:
+        domain_mismatch, _, _ = self.real_skill_documents(
+            manager_domains=["business_strategy"],
+            worker_domains=["business_strategy"],
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, domain_mismatch)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "output")
+            self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
+            self.assertIn("request domains", str(caught.exception))
+
+        def add_permission(request):
+            request["authorized_permissions"] = ["filesystem_read"]
+
+        permission_mismatch, _, _ = self.real_skill_documents(
+            request_mutate=add_permission,
+            manager_permissions=[],
+            worker_permissions=[],
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, permission_mismatch)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "output")
+            self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
+            self.assertIn("request permissions", str(caught.exception))
+
+    def test_worker_skill_authority_must_narrow_its_parent_manager(self) -> None:
+        documents, _, _ = self.real_skill_documents(
+            manager_domains=["business_strategy"],
+            worker_domains=["software_engineering"],
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "output")
+            self.assertEqual("E_AUTHORITY", caught.exception.code)
+            self.assertIn("widens parent work domains", str(caught.exception))
+
+    def test_legacy_packet_id_collision_remains_valid_without_skill_assignments(self) -> None:
+        documents = self.load_fixture("saas-onboarding-launch")
+        manager = documents[2]["manager_definitions"][0]
+        worker = documents[2]["work_definitions"][0]
+        manager["manager_id"] = worker["work_id"]
+        worker["manager_id"] = worker["work_id"]
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            result = MODULE.compile_program(*paths, root / "output")
+            MODULE.verify_output(root / "output", *paths)
+            self.assertIn(
+                worker["work_id"],
+                [item["packet_id"] for item in result["manager_packets"]],
+            )
+            self.assertIn(
+                worker["work_id"],
+                [item["packet_id"] for item in result["work_packets"]],
+            )
+
+    def test_packet_id_collision_is_rejected_when_skill_assignments_exist(self) -> None:
+        documents, _, _ = self.real_skill_documents()
+        manager = next(
+            item
+            for item in documents[2]["manager_definitions"]
+            if item["manager_id"] == "onboarding_manager"
+        )
+        worker = next(
+            item
+            for item in documents[2]["work_definitions"]
+            if item["work_id"] == "activation_path_work"
+        )
+        manager["manager_id"] = worker["work_id"]
+        worker["manager_id"] = worker["work_id"]
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "output")
+            self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
+            self.assertIn("packet IDs must not collide", str(caught.exception))
+
+    def test_handcrafted_skill_bindings_are_rejected_without_resolver_records(self) -> None:
+        documents = self.load_fixture("saas-onboarding-launch")
+        self.add_bound_skill(
+            documents,
+            "systematic_debugging",
+            "activation_path_work",
+            "worker",
+            "2",
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "output")
+            self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
+            self.assertIn("resolver-verifiable assignment records", str(caught.exception))
+
+    def test_skill_binding_rejects_unknown_packet_role_artifact_drift_and_required_capability_bypass(self) -> None:
+        def unknown_packet(documents):
+            self.add_bound_skill(
+                documents, "systematic_debugging", "missing_work", "worker", "2"
+            )
+
+        self.assert_compile_code(
+            "saas-onboarding-launch", unknown_packet, "E_CAPABILITY_BINDING"
+        )
+
+        def role_mismatch(documents):
+            self.add_bound_skill(
+                documents, "systematic_debugging", "activation_path_work", "manager", "2"
+            )
+
+        self.assert_compile_code(
+            "saas-onboarding-launch", role_mismatch, "E_CAPABILITY_BINDING"
+        )
+
+        def artifact_drift(documents):
+            self.add_bound_skill(
+                documents, "systematic_debugging", "activation_path_work", "worker", "2"
+            )
+            documents[1]["capabilities"][-1]["artifact_sha256"] = "3" * 64
+
+        self.assert_compile_code(
+            "saas-onboarding-launch", artifact_drift, "E_CAPABILITY_BINDING"
+        )
+
+        def required_capability_bypass(documents):
+            self.add_bound_skill(
+                documents, "systematic_debugging", "activation_path_work", "worker", "2"
+            )
+            documents[0]["required_capabilities"].append(
+                {"capability_id": "systematic_debugging", "required": False}
+            )
+            documents[2]["work_definitions"][0]["required_capabilities"].append(
+                "systematic_debugging"
+            )
+
+        self.assert_compile_code(
+            "saas-onboarding-launch",
+            required_capability_bypass,
+            "E_CAPABILITY_BINDING",
+        )
+
+    def test_real_catalog_assignment_compiles_only_into_its_exact_worker_packet(self) -> None:
+        skill_root = ROOT / "skills/company-os/assign-capability-skills"
+        fixture_root = skill_root / "fixtures/systematic-debugging-worker"
+        catalog = json.loads(
+            (skill_root / "references/capability-catalog.json").read_text()
+        )
+        request = json.loads((fixture_root / "request.json").read_text())
+        assignment = json.loads((fixture_root / "assignment.json").read_text())
+        receipt = json.loads((fixture_root / "simulation-receipt.json").read_text())
+        documents = self.load_fixture("saas-onboarding-launch")
+        manager_definition = next(
+            item
+            for item in documents[2]["manager_definitions"]
+            if item["manager_id"] == "onboarding_manager"
+        )
+        worker_definition = next(
+            item
+            for item in documents[2]["work_definitions"]
+            if item["work_id"] == "activation_path_work"
+        )
+        for definition in (manager_definition, worker_definition):
+            definition["work_domains"] = ["software_engineering"]
+            definition["authorized_skill_permissions"] = []
+        documents = (
+            documents[0],
+            CAPABILITY_MODULE.augment_host_manifest(
+                catalog,
+                documents[1],
+                [(request, assignment)],
+                skill_root,
+            ),
+            documents[2],
+        )
+        self.assertEqual(
+            CAPABILITY_MODULE.canonical_digest(catalog), receipt["catalog_sha256"]
+        )
+        self.assertEqual(
+            CAPABILITY_MODULE.canonical_digest(request), receipt["request_sha256"]
+        )
+        self.assertEqual(
+            MODULE._canonical_input_digest(documents[1]),
+            receipt["augmented_host_sha256"],
+        )
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            result = MODULE.compile_program(*paths, root / "output")
+            selected_ref = next(
+                item
+                for item in result["work_packets"]
+                if item["packet_id"] == "activation_path_work"
+            )
+            selected = json.loads((root / "output" / selected_ref["path"]).read_text())
+            self.assertEqual(["systematic-debugging"], selected["assigned_skill_ids"])
+            self.assertEqual(["software_engineering"], selected["work_domains"])
+            self.assertEqual([], selected["authorized_skill_permissions"])
+            self.assertEqual(request, selected["skill_assignment"]["request"])
+            self.assertEqual(assignment, selected["skill_assignment"]["assignment"])
+            schema_path = (
+                ROOT
+                / "skills/company-os/manage-company-program/schemas/compiled-preflight.schema.json"
+            )
+            schema_document = json.loads(schema_path.read_text())
+            packet_schema = MODULE._expand_schema_refs(
+                schema_document["$defs"]["packet"], schema_document
+            )
+            MODULE._validate_schema(selected, packet_schema)
+            malformed = copy.deepcopy(selected)
+            del malformed["skill_assignment"]["request"]["role"]
+            with self.assertRaises(MODULE.PreflightError):
+                MODULE._validate_schema(malformed, packet_schema)
+            skill = next(
+                item
+                for item in selected["semantic_slice"]["capabilities"]
+                if item.get("capability_kind") == "skill"
+            )
+            self.assertEqual("systematic-debugging", skill["capability_id"])
+            self.assertEqual(1, len(skill["skill_bindings"]))
+            self.assertEqual(
+                assignment["binding"]["canonical_sha256"],
+                skill["skill_bindings"][0]["assignment_sha256"],
+            )
+            self.assertEqual(
+                assignment["skills"][0]["entrypoint_sha256"],
+                skill["artifact_sha256"],
+            )
+            self.assertLessEqual(selected_ref["size"], 12 * 1024)
+            self.assertEqual(result["manifest_sha256"], receipt["compiled_manifest_sha256"])
+            self.assertEqual(selected_ref["sha256"], receipt["selected_packet_sha256"])
+            self.assertEqual(selected_ref["size"], receipt["selected_packet_size"])
+            self.assertEqual(
+                assignment["binding"]["canonical_sha256"],
+                receipt["assignment_sha256"],
+            )
+
+            for reference in result["manager_packets"]:
+                packet = json.loads((root / "output" / reference["path"]).read_text())
+                self.assertNotIn("assigned_skill_ids", packet)
+            for reference in result["work_packets"]:
+                if reference["packet_id"] == "activation_path_work":
+                    continue
+                packet = json.loads((root / "output" / reference["path"]).read_text())
+                self.assertNotIn("assigned_skill_ids", packet)
+            MODULE.verify_output(root / "output", *paths)
+
+    def test_real_two_skill_worker_bundle_preserves_manager_execution_order(self) -> None:
+        skill_root = ROOT / "skills/company-os/assign-capability-skills"
+        catalog = json.loads(
+            (skill_root / "references/capability-catalog.json").read_text()
+        )
+        request = {
+            "$schema": "company-os.capability-request.v1",
+            "authorized_permissions": [],
+            "domains": ["software_engineering"],
+            "execution_order": [
+                "systematic-debugging",
+                "engineering-red-green-evidence",
+            ],
+            "max_entrypoint_bytes": 49152,
+            "max_skills": 4,
+            "packet_id": "activation_path_work",
+            "program_id": "saas-onboarding-launch",
+            "request_id": "activation-path-debug-and-evidence",
+            "requested_capability_ids": [
+                "engineering-red-green-evidence",
+                "systematic-debugging",
+            ],
+            "role": "worker",
+            "selection_rationale": {
+                "engineering-red-green-evidence": "Prove the bounded behavior after diagnosis.",
+                "systematic-debugging": "Reproduce and isolate the failure before changing behavior.",
+            },
+        }
+        assignment = CAPABILITY_MODULE.resolve_assignment(catalog, request, skill_root)
+        self.assertEqual(request["execution_order"], assignment["execution_order"])
+        self.assertEqual(
+            request["requested_capability_ids"],
+            [skill["capability_id"] for skill in assignment["skills"]],
+        )
+        self.assertLessEqual(assignment["total_entrypoint_bytes"], 48 * 1024)
+
+        documents = self.load_fixture("saas-onboarding-launch")
+        manager_definition = next(
+            item
+            for item in documents[2]["manager_definitions"]
+            if item["manager_id"] == "onboarding_manager"
+        )
+        worker_definition = next(
+            item
+            for item in documents[2]["work_definitions"]
+            if item["work_id"] == "activation_path_work"
+        )
+        for definition in (manager_definition, worker_definition):
+            definition["work_domains"] = ["software_engineering"]
+            definition["authorized_skill_permissions"] = []
+        documents = (
+            documents[0],
+            CAPABILITY_MODULE.augment_host_manifest(
+                catalog,
+                documents[1],
+                [(request, assignment)],
+                skill_root,
+            ),
+            documents[2],
+        )
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            result = MODULE.compile_program(*paths, root / "output")
+            selected_ref = next(
+                item
+                for item in result["work_packets"]
+                if item["packet_id"] == "activation_path_work"
+            )
+            selected = json.loads((root / "output" / selected_ref["path"]).read_text())
+            self.assertEqual(
+                request["requested_capability_ids"], selected["assigned_skill_ids"]
+            )
+            self.assertEqual(
+                request["execution_order"],
+                selected["skill_assignment"]["assignment"]["execution_order"],
+            )
+            self.assertEqual(request, selected["skill_assignment"]["request"])
+            for reference in result["manager_packets"]:
+                sibling = json.loads((root / "output" / reference["path"]).read_text())
+                self.assertNotIn("assigned_skill_ids", sibling)
+            for reference in result["work_packets"]:
+                if reference["packet_id"] == "activation_path_work":
+                    continue
+                sibling = json.loads((root / "output" / reference["path"]).read_text())
+                self.assertNotIn("assigned_skill_ids", sibling)
+            MODULE.verify_output(root / "output", *paths)
+
+    def test_real_catalog_manager_skill_isolated_to_exact_manager_packet(self) -> None:
+        skill_root = ROOT / "skills/company-os/assign-capability-skills"
+        catalog = json.loads(
+            (skill_root / "references/capability-catalog.json").read_text()
+        )
+        request = {
+            "$schema": "company-os.capability-request.v1",
+            "authorized_permissions": [],
+            "domains": ["marketing"],
+            "execution_order": ["marketing-context-intake"],
+            "max_entrypoint_bytes": 49152,
+            "max_skills": 4,
+            "packet_id": "onboarding_manager",
+            "program_id": "saas-onboarding-launch",
+            "request_id": "onboarding-manager-marketing-context",
+            "requested_capability_ids": ["marketing-context-intake"],
+            "role": "manager",
+            "selection_rationale": {
+                "marketing-context-intake": "The manager needs a bounded context record before planning downstream work."
+            },
+        }
+        assignment = CAPABILITY_MODULE.resolve_assignment(catalog, request, skill_root)
+        documents = self.load_fixture("saas-onboarding-launch")
+        manager_definition = next(
+            item
+            for item in documents[2]["manager_definitions"]
+            if item["manager_id"] == "onboarding_manager"
+        )
+        manager_definition["work_domains"] = ["marketing"]
+        manager_definition["authorized_skill_permissions"] = []
+        documents = (
+            documents[0],
+            CAPABILITY_MODULE.augment_host_manifest(
+                catalog,
+                documents[1],
+                [(request, assignment)],
+                skill_root,
+            ),
+            documents[2],
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            result = MODULE.compile_program(*paths, root / "output")
+            selected_ref = next(
+                item
+                for item in result["manager_packets"]
+                if item["packet_id"] == "onboarding_manager"
+            )
+            selected = json.loads((root / "output" / selected_ref["path"]).read_text())
+            self.assertEqual(["marketing-context-intake"], selected["assigned_skill_ids"])
+            self.assertEqual(request, selected["skill_assignment"]["request"])
+            self.assertEqual(assignment, selected["skill_assignment"]["assignment"])
+            for reference in result["manager_packets"]:
+                if reference["packet_id"] == "onboarding_manager":
+                    continue
+                sibling = json.loads((root / "output" / reference["path"]).read_text())
+                self.assertNotIn("assigned_skill_ids", sibling)
+            for reference in result["work_packets"]:
+                sibling = json.loads((root / "output" / reference["path"]).read_text())
+                self.assertNotIn("assigned_skill_ids", sibling)
             MODULE.verify_output(root / "output", *paths)
 
     def test_duplicate_ui_domain_is_rejected(self) -> None:

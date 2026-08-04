@@ -17,6 +17,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters` |
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
 | UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality` |
+| Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
 | Execution | Deliver approved work through Sol manager tasks and bounded Luna labor with measurable materialization, verification, and decisions | `$manage-company-program`, `$execute-bounded-task`, `$force-first-execution`, `$autonomy-suite`, `$luna-execution-fabric` |
@@ -48,6 +49,13 @@ or work packet instead of repeating the operating system in every prompt.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.
+
+Before Program Preflight, use `$assign-capability-skills` when specialized
+expertise could materially improve an outcome. Search metadata, select an exact
+small bundle, and bind its assignment digest into the task evidence. Never paste
+the whole catalog or external skill collection into a prompt. Selecting no
+external skill is valid; a skill must earn its context cost and may not grant
+tools, permissions, budget, or side effects.
 
 Use `$force-first-execution` inside every delivery lane. Planning, commentary,
 thread count, tests without an artifact, and receipts without an accepted

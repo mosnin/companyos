@@ -14,6 +14,7 @@ import copy
 import hashlib
 import json
 import re
+import runpy
 import sys
 import tempfile
 import unicodedata
@@ -41,7 +42,11 @@ LOCATOR_RE = re.compile(
     r"^(?:runtime|tool|module|workspace)://[a-z0-9][a-z0-9._/-]*$"
 )
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
+HEX40_RE = re.compile(r"^[0-9a-f]{40}$")
 SUPPORTED_CONSTANT_TYPES = {"integer", "string", "boolean"}
+SKILL_RUNTIME_ID = "company-os-skill-reference"
+SKILL_RUNTIME_TYPE = "codex_native_skill_reference"
+SKILL_RUNTIME_LOCATOR = "runtime://codex/native-skill"
 UI_DESIGN_DOMAIN = "ui_design"
 UI_DESIGN_CAPABILITY = "ui_design_quality"
 UI_SOURCE_SUFFIXES = {
@@ -74,6 +79,8 @@ LIST_SORT_KEYS = (
     "work_id",
     "deliverable_id",
     "source_id",
+    "assignment_id",
+    "packet_id",
     "citation_id",
 )
 
@@ -487,9 +494,99 @@ def _work_domains(value: Mapping[str, Any]) -> list[str]:
     domains = value.get("work_domains", [])
     if not isinstance(domains, list):
         raise PreflightError("E_SCHEMA_TYPE", "work_domains must be an array")
+    if not all(isinstance(domain, str) and ID_RE.fullmatch(domain) for domain in domains):
+        raise PreflightError("E_SCHEMA_TYPE", "work_domains contains a noncanonical domain")
     if len(domains) != len(set(domains)):
         raise PreflightError("E_DUPLICATE_CONCEPT", "work_domains contains duplicates")
     return sorted(domains)
+
+
+def _authorized_skill_permissions(value: Mapping[str, Any]) -> list[str]:
+    """Return the task-authoritative skill permission envelope."""
+
+    permissions = value.get("authorized_skill_permissions", [])
+    if not isinstance(permissions, list):
+        raise PreflightError(
+            "E_SCHEMA_TYPE", "authorized_skill_permissions must be an array"
+        )
+    if not all(
+        isinstance(permission, str) and ID_RE.fullmatch(permission)
+        for permission in permissions
+    ):
+        raise PreflightError(
+            "E_SCHEMA_TYPE",
+            "authorized_skill_permissions contains a noncanonical permission",
+        )
+    if len(permissions) != len(set(permissions)):
+        raise PreflightError(
+            "E_DUPLICATE_CONCEPT", "authorized_skill_permissions contains duplicates"
+        )
+    return sorted(permissions)
+
+
+def _validate_task_skill_authority(
+    *,
+    owner: str,
+    value: Mapping[str, Any],
+    packet_id: str,
+    role: str,
+    assigned_skill_ids: Sequence[str],
+    work_domains: Sequence[str],
+    skill_assignments: Mapping[tuple[str, str], Mapping[str, Any]],
+) -> list[str]:
+    """Bind resolver requests to the exact task domain and permission envelope."""
+
+    permissions = _authorized_skill_permissions(value)
+    record = skill_assignments.get((packet_id, role))
+    if not assigned_skill_ids:
+        if record is not None:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"{owner} has a resolver assignment record but no assigned skills",
+            )
+        return permissions
+    if record is None:
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"{owner} has assigned skills but no reproduced resolver record",
+        )
+    if "work_domains" not in value or not work_domains:
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"{owner} must explicitly authorize nonempty work_domains for skill assignment",
+        )
+    if "authorized_skill_permissions" not in value:
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"{owner} must explicitly authorize skill permissions, including an empty list",
+        )
+    request = record["request"]
+    assignment = record["assignment"]
+    if request["domains"] != list(work_domains) or assignment["domains"] != list(work_domains):
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"{owner} skill request domains differ from the task-authoritative work_domains",
+        )
+    if request["authorized_permissions"] != permissions:
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"{owner} skill request permissions differ from the task-authoritative permission envelope",
+        )
+    assignment_skill_ids = [skill["capability_id"] for skill in assignment["skills"]]
+    if assignment_skill_ids != list(assigned_skill_ids):
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"{owner} assigned skill IDs differ from its reproduced resolver record",
+        )
+    if (
+        request["execution_order"] != assignment["execution_order"]
+        or set(assignment["execution_order"]) != set(assignment_skill_ids)
+    ):
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"{owner} skill execution order differs from its reproduced resolver record",
+        )
+    return permissions
 
 
 def _ui_design_signals(
@@ -537,7 +634,11 @@ def _enforce_ui_design_gate(
 
 def _validate_host(
     host: Mapping[str, Any], required_capability_ids: Sequence[str]
-) -> tuple[dict[str, Mapping[str, Any]], dict[str, Mapping[str, Any]]]:
+) -> tuple[
+    dict[str, Mapping[str, Any]],
+    dict[str, Mapping[str, Any]],
+    dict[tuple[str, str], Mapping[str, Any]],
+]:
     runtimes = _index_unique(host["runtimes"], "runtime_id", "runtime")
     capabilities = _index_unique(host["capabilities"], "capability_id", "capability")
     for runtime_id, runtime in runtimes.items():
@@ -572,6 +673,81 @@ def _validate_host(
         # Keep this local assignment explicit: tool_locator is validated even
         # when the capability is unavailable, preventing fallback discovery.
         _ = tool_locator
+        skill_keys = {"capability_kind", "artifact_sha256", "skill_bindings"}
+        present_skill_keys = skill_keys.intersection(capability)
+        if present_skill_keys and present_skill_keys != skill_keys:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"skill capability {capability_id!r} has a partial skill binding envelope",
+            )
+        if present_skill_keys:
+            if capability["capability_kind"] != "skill":
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"capability {capability_id!r} has an unsupported capability kind",
+                )
+            if (
+                runtime_id != SKILL_RUNTIME_ID
+                or runtime.get("runtime_type") != SKILL_RUNTIME_TYPE
+                or runtime_locator != SKILL_RUNTIME_LOCATOR
+            ):
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"skill capability {capability_id!r} is not bound to the reserved skill runtime",
+                )
+            artifact_sha256 = capability["artifact_sha256"]
+            if not isinstance(artifact_sha256, str) or HEX64_RE.fullmatch(artifact_sha256) is None:
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"skill capability {capability_id!r} has an invalid artifact digest",
+                )
+            bindings = capability["skill_bindings"]
+            if not isinstance(bindings, list) or not bindings:
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"skill capability {capability_id!r} must have at least one task binding",
+                )
+            identities: list[tuple[str, str, str]] = []
+            for binding in bindings:
+                identity = (
+                    _require_id(binding.get("packet_id"), f"skill capability {capability_id}.packet_id"),
+                    binding.get("role"),
+                    _require_id(binding.get("assignment_id"), f"skill capability {capability_id}.assignment_id"),
+                )
+                if identity[1] not in {"manager", "worker"}:
+                    raise PreflightError(
+                        "E_CAPABILITY_BINDING",
+                        f"skill capability {capability_id!r} has an unsupported binding role",
+                    )
+                for digest_key in (
+                    "assignment_sha256",
+                    "catalog_sha256",
+                    "entrypoint_sha256",
+                    "request_sha256",
+                    "upstream_entrypoint_sha256",
+                ):
+                    if not isinstance(binding.get(digest_key), str) or HEX64_RE.fullmatch(binding[digest_key]) is None:
+                        raise PreflightError(
+                            "E_CAPABILITY_BINDING",
+                            f"skill capability {capability_id!r} has an invalid {digest_key}",
+                        )
+                if binding["entrypoint_sha256"] != artifact_sha256:
+                    raise PreflightError(
+                        "E_CAPABILITY_BINDING",
+                        f"skill capability {capability_id!r} task binding does not match its artifact digest",
+                    )
+                if not isinstance(binding.get("source_commit"), str) or HEX40_RE.fullmatch(binding["source_commit"]) is None:
+                    raise PreflightError(
+                        "E_CAPABILITY_BINDING",
+                        f"skill capability {capability_id!r} has an invalid source commit",
+                    )
+                _require_id(binding.get("source_id"), f"skill capability {capability_id}.source_id")
+                identities.append(identity)
+            if identities != sorted(identities) or len(identities) != len(set(identities)):
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"skill capability {capability_id!r} task bindings must be unique and sorted",
+                )
     for capability_id in required_capability_ids:
         capability = capabilities.get(capability_id)
         if capability is None:
@@ -585,7 +761,167 @@ def _validate_host(
                 "E_CAPABILITY_UNAVAILABLE",
                 f"required capability {capability_id!r} is unavailable",
             )
-    return capabilities, runtimes
+    skill_assignments = _validate_skill_assignment_records(host, capabilities)
+    return capabilities, runtimes, skill_assignments
+
+
+def _validate_skill_assignment_records(
+    host: Mapping[str, Any], capabilities: Mapping[str, Mapping[str, Any]]
+) -> dict[tuple[str, str], Mapping[str, Any]]:
+    skill_capabilities = {
+        capability_id: capability
+        for capability_id, capability in capabilities.items()
+        if capability.get("capability_kind") == "skill"
+    }
+    records = host.get("skill_assignments", [])
+    if not skill_capabilities:
+        if records:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                "host declares skill assignments without skill capabilities",
+            )
+        return {}
+    if not isinstance(records, list) or not records:
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            "host skill capabilities lack resolver-verifiable assignment records",
+        )
+
+    skill_root = Path(__file__).resolve().parent.parent.parent / "assign-capability-skills"
+    contract_path = skill_root / "scripts" / "capability_catalog.py"
+    catalog_path = skill_root / "references" / "capability-catalog.json"
+    try:
+        contract = runpy.run_path(str(contract_path), run_name="company_os_capability_contract")
+        catalog = contract["_read_canonical_json"](catalog_path, "approved capability catalog")
+        catalog_evidence = contract["validate_catalog"](catalog, skill_root, verify_files=True)
+    except Exception as exc:
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"approved capability catalog cannot be loaded or verified: {exc}",
+        ) from exc
+
+    by_packet: dict[tuple[str, str], Mapping[str, Any]] = {}
+    record_ids: list[str] = []
+    expected_bindings: dict[tuple[str, str, str, str], Mapping[str, Any]] = {}
+    for index, record in enumerate(records):
+        if not isinstance(record, dict) or set(record) != {"assignment", "request"}:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"host skill assignment record {index} does not have exact request/assignment keys",
+            )
+        request = record["request"]
+        assignment = record["assignment"]
+        try:
+            expected_assignment = contract["resolve_assignment"](
+                catalog, request, skill_root
+            )
+            contract["validate_assignment"](assignment)
+            if contract["canonical_bytes"](assignment) != contract["canonical_bytes"](
+                expected_assignment
+            ):
+                raise ValueError("assignment does not reproduce from the approved catalog and request")
+        except Exception as exc:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"host skill assignment record {index} does not reproduce: {exc}",
+            ) from exc
+        if assignment["program_id"] != host["program_id"]:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"skill assignment {assignment['assignment_id']!r} targets a different program",
+            )
+        identity = (assignment["packet_id"], assignment["role"])
+        if identity in by_packet:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {assignment['packet_id']!r} has multiple skill assignment records",
+            )
+        by_packet[identity] = copy.deepcopy(record)
+        record_ids.append(assignment["assignment_id"])
+        for skill in assignment["skills"]:
+            binding_identity = (
+                skill["capability_id"],
+                assignment["packet_id"],
+                assignment["role"],
+                assignment["assignment_id"],
+            )
+            expected_bindings[binding_identity] = {
+                "assignment_id": assignment["assignment_id"],
+                "assignment_sha256": assignment["binding"]["canonical_sha256"],
+                "catalog_sha256": catalog_evidence["catalog_sha256"],
+                "entrypoint_sha256": skill["entrypoint_sha256"],
+                "packet_id": assignment["packet_id"],
+                "request_sha256": assignment["request_sha256"],
+                "role": assignment["role"],
+                "source_commit": skill["source_commit"],
+                "source_id": skill["source_id"],
+                "upstream_entrypoint_sha256": skill["upstream_entrypoint_sha256"],
+            }
+            capability = skill_capabilities.get(skill["capability_id"])
+            if capability is None:
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"assignment references missing skill capability {skill['capability_id']!r}",
+                )
+            if (
+                capability["artifact_sha256"] != skill["entrypoint_sha256"]
+                or capability["tool_locator"] != skill["workspace_locator"]
+            ):
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"skill capability {skill['capability_id']!r} differs from its reproduced assignment",
+                )
+
+    if record_ids != sorted(record_ids) or len(record_ids) != len(set(record_ids)):
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            "host skill assignment records must have unique sorted assignment IDs",
+        )
+
+    actual_bindings: dict[tuple[str, str, str, str], Mapping[str, Any]] = {}
+    for capability_id, capability in skill_capabilities.items():
+        for binding in capability["skill_bindings"]:
+            identity = (
+                capability_id,
+                binding["packet_id"],
+                binding["role"],
+                binding["assignment_id"],
+            )
+            actual_bindings[identity] = binding
+    if set(actual_bindings) != set(expected_bindings):
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            "host skill capability bindings do not close over reproduced assignments",
+        )
+    for identity, expected in expected_bindings.items():
+        if actual_bindings[identity] != expected:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"host skill capability binding {identity!r} differs from its reproduced assignment",
+            )
+    return by_packet
+
+
+def _assigned_skill_ids(
+    capabilities: Mapping[str, Mapping[str, Any]], packet_id: str, role: str
+) -> list[str]:
+    selected: list[str] = []
+    for capability_id, capability in capabilities.items():
+        if capability.get("capability_kind") != "skill":
+            continue
+        matches = [
+            binding
+            for binding in capability["skill_bindings"]
+            if binding["packet_id"] == packet_id and binding["role"] == role
+        ]
+        if len(matches) > 1:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {packet_id!r} has multiple assignments for skill {capability_id!r}",
+            )
+        if matches:
+            selected.append(capability_id)
+    return sorted(selected)
 
 
 def _validate_cross_bindings(
@@ -768,6 +1104,7 @@ def _validate_definitions(
     evidence_units: Mapping[str, Mapping[str, Any]],
     oracles: Mapping[str, Mapping[str, Any]],
     capabilities: Mapping[str, Mapping[str, Any]],
+    skill_assignments: Mapping[tuple[str, str], Mapping[str, Any]],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, list[str]]]:
     aliases, prohibited_aliases = _build_term_indexes(terms)
     _check_duplicate_labels(terms, "term")
@@ -794,6 +1131,26 @@ def _validate_definitions(
     referenced_oracles: set[str] = set()
     managers = _index_unique(definitions["manager_definitions"], "manager_id", "manager")
     works = _index_unique(definitions["work_definitions"], "work_id", "work")
+    packet_roles = {
+        **{manager_id: "manager" for manager_id in managers},
+        **{work_id: "worker" for work_id in works},
+    }
+    if skill_assignments and len(packet_roles) != len(managers) + len(works):
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            "manager and worker packet IDs must not collide when skill assignments are present",
+        )
+    for capability_id, capability in capabilities.items():
+        if capability.get("capability_kind") != "skill":
+            continue
+        for binding in capability["skill_bindings"]:
+            expected_role = packet_roles.get(binding["packet_id"])
+            if expected_role is None or binding["role"] != expected_role:
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"skill {capability_id!r} references an unknown packet or mismatched role: "
+                    f"{binding['role']}:{binding['packet_id']}",
+                )
     actual_worker_ids: dict[str, list[str]] = {manager_id: [] for manager_id in managers}
 
     manager_packets: list[dict[str, Any]] = []
@@ -811,6 +1168,17 @@ def _validate_definitions(
             prohibition_ids, prohibitions, "manager", f"manager {manager_id}"
         )
         cap_ids = _resolve_refs(manager["required_capabilities"], capabilities, f"manager {manager_id}")
+        skill_cap_ids = [
+            capability_id
+            for capability_id in cap_ids
+            if capabilities[capability_id].get("capability_kind") == "skill"
+        ]
+        if skill_cap_ids:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"manager {manager_id!r} places assigned skills in required_capabilities {skill_cap_ids!r}",
+            )
+        assigned_skill_ids = _assigned_skill_ids(capabilities, manager_id, "manager")
         term_ids = _resolve_terms(
             manager["required_terms"], terms, aliases, prohibited_aliases, f"manager {manager_id}"
         )
@@ -835,6 +1203,15 @@ def _validate_definitions(
         work_domains = _enforce_ui_design_gate(
             f"manager {manager_id}", manager, scope, deliverables, cap_ids
         )
+        skill_permissions = _validate_task_skill_authority(
+            owner=f"manager {manager_id}",
+            value=manager,
+            packet_id=manager_id,
+            role="manager",
+            assigned_skill_ids=assigned_skill_ids,
+            work_domains=work_domains,
+            skill_assignments=skill_assignments,
+        )
         manager_packet = {
                 "manager_id": manager_id,
                 "label": manager["label"],
@@ -843,12 +1220,15 @@ def _validate_definitions(
                 "authority_state_id": state_id,
                 "prohibition_ids": prohibition_ids,
                 "required_capability_ids": cap_ids,
+                "assigned_skill_ids": assigned_skill_ids,
                 "required_term_ids": term_ids,
                 "deliverables": deliverables,
                 "worker_ids": sorted(manager["worker_ids"]),
             }
         if "work_domains" in manager:
             manager_packet["work_domains"] = work_domains
+        if "authorized_skill_permissions" in manager:
+            manager_packet["authorized_skill_permissions"] = skill_permissions
         manager_packets.append(manager_packet)
 
     manager_packet_by_id = {item["manager_id"]: item for item in manager_packets}
@@ -878,6 +1258,17 @@ def _validate_definitions(
             prohibition_ids, prohibitions, "worker", f"work {work_id}"
         )
         cap_ids = _resolve_refs(work["required_capabilities"], capabilities, f"work {work_id}")
+        skill_cap_ids = [
+            capability_id
+            for capability_id in cap_ids
+            if capabilities[capability_id].get("capability_kind") == "skill"
+        ]
+        if skill_cap_ids:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"work {work_id!r} places assigned skills in required_capabilities {skill_cap_ids!r}",
+            )
+        assigned_skill_ids = _assigned_skill_ids(capabilities, work_id, "worker")
         parent_packet = manager_packet_by_id[manager_id]
         missing_parent_prohibitions = sorted(
             set(parent_packet["prohibition_ids"]) - set(prohibition_ids)
@@ -919,8 +1310,43 @@ def _validate_definitions(
         work_domains = _enforce_ui_design_gate(
             f"work {work_id}", work, scope, deliverables, cap_ids
         )
+        skill_permissions = _validate_task_skill_authority(
+            owner=f"work {work_id}",
+            value=work,
+            packet_id=work_id,
+            role="worker",
+            assigned_skill_ids=assigned_skill_ids,
+            work_domains=work_domains,
+            skill_assignments=skill_assignments,
+        )
+        parent_domains = _work_domains(managers[manager_id])
+        widened_domains = sorted(set(work_domains) - set(parent_domains))
+        non_ui_widened_domains = [
+            domain for domain in widened_domains if domain != UI_DESIGN_DOMAIN
+        ]
+        if non_ui_widened_domains:
+            raise PreflightError(
+                "E_AUTHORITY",
+                f"work {work_id!r} widens parent work domains {non_ui_widened_domains!r}",
+            )
+        parent_skill_permissions = _authorized_skill_permissions(managers[manager_id])
+        widened_skill_permissions = sorted(
+            set(skill_permissions) - set(parent_skill_permissions)
+        )
+        if widened_skill_permissions:
+            raise PreflightError(
+                "E_AUTHORITY",
+                f"work {work_id!r} widens parent skill permissions {widened_skill_permissions!r}",
+            )
+        if assigned_skill_ids and (
+            "work_domains" not in managers[manager_id]
+            or "authorized_skill_permissions" not in managers[manager_id]
+        ):
+            raise PreflightError(
+                "E_AUTHORITY",
+                f"work {work_id!r} cannot receive skills without an explicit parent domain and permission envelope",
+            )
         if UI_DESIGN_DOMAIN in work_domains:
-            parent_domains = _work_domains(managers[manager_id])
             if (
                 UI_DESIGN_DOMAIN not in parent_domains
                 or UI_DESIGN_CAPABILITY not in parent_packet["required_capability_ids"]
@@ -937,11 +1363,14 @@ def _validate_definitions(
                 "authority_state_id": state_id,
                 "prohibition_ids": prohibition_ids,
                 "required_capability_ids": cap_ids,
+                "assigned_skill_ids": assigned_skill_ids,
                 "required_term_ids": term_ids,
                 "deliverables": deliverables,
             }
         if "work_domains" in work:
             work_packet["work_domains"] = work_domains
+        if "authorized_skill_permissions" in work:
+            work_packet["authorized_skill_permissions"] = skill_permissions
         work_packets.append(work_packet)
 
     for index, (left_owner, left_path) in enumerate(all_scopes):
@@ -1136,6 +1565,7 @@ def _packet_semantic_slice(
     terms: Mapping[str, Mapping[str, Any]],
     capabilities: Mapping[str, Mapping[str, Any]],
     runtimes: Mapping[str, Mapping[str, Any]],
+    skill_assignments: Mapping[tuple[str, str], Mapping[str, Any]],
 ) -> dict[str, Any]:
     deliverables = normalized["deliverables"]
     term_ids = set(normalized["required_term_ids"])
@@ -1150,8 +1580,29 @@ def _packet_semantic_slice(
     authority = copy.deepcopy(states[normalized["authority_state_id"]])
     selected_prohibitions = _resolve_semantic_object(prohibitions, normalized["prohibition_ids"])
     selected_capabilities: list[dict[str, Any]] = []
-    for capability_id in normalized["required_capability_ids"]:
+    if "work_id" in normalized:
+        packet_id = normalized["work_id"]
+        role = "worker"
+    else:
+        packet_id = normalized["manager_id"]
+        role = "manager"
+    selected_ids = sorted(
+        set(normalized["required_capability_ids"]) | set(normalized.get("assigned_skill_ids", []))
+    )
+    for capability_id in selected_ids:
         capability = copy.deepcopy(capabilities[capability_id])
+        if capability.get("capability_kind") == "skill":
+            matches = [
+                binding
+                for binding in capability["skill_bindings"]
+                if binding["packet_id"] == packet_id and binding["role"] == role
+            ]
+            if len(matches) != 1:
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"packet {packet_id!r} does not have exactly one binding for skill {capability_id!r}",
+                )
+            capability["skill_bindings"] = matches
         runtime = runtimes[capability["runtime_id"]]
         capability["runtime"] = {
             "runtime_id": runtime["runtime_id"],
@@ -1217,8 +1668,22 @@ def _build_packet(
     }
     if kind == "manager":
         packet["worker_ids"] = copy.deepcopy(normalized["worker_ids"])
+    if normalized.get("assigned_skill_ids"):
+        packet["assigned_skill_ids"] = copy.deepcopy(normalized["assigned_skill_ids"])
+        role = "worker" if kind == "work" else "manager"
+        assignment_record = semantic_indexes["skill_assignments"].get((packet_id, role))
+        if assignment_record is None:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {packet_id!r} lacks its reproduced skill assignment record",
+            )
+        packet["skill_assignment"] = copy.deepcopy(assignment_record)
     if "work_domains" in normalized:
         packet["work_domains"] = copy.deepcopy(normalized["work_domains"])
+    if "authorized_skill_permissions" in normalized:
+        packet["authorized_skill_permissions"] = copy.deepcopy(
+            normalized["authorized_skill_permissions"]
+        )
     digest = _unsigned_bound(packet)[1]
     packet["binding"]["canonical_sha256"] = digest
     return packet, digest
@@ -1271,7 +1736,20 @@ def compile_program(
         semantics["required_capabilities"], "capability_id", "required capability"
     )
     required_caps = _required_capabilities(semantics, definitions)
-    host_capabilities, runtimes = _validate_host(capabilities_doc, required_caps)
+    host_capabilities, runtimes, skill_assignments = _validate_host(
+        capabilities_doc, required_caps
+    )
+    globally_required_skills = [
+        capability_id
+        for capability_id in required_caps
+        if host_capabilities[capability_id].get("capability_kind") == "skill"
+    ]
+    if globally_required_skills:
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            "skill capabilities must be task-bound assignments, not global/required tool capabilities: "
+            f"{globally_required_skills!r}",
+        )
     evidence_units = _index_unique(definitions["evidence_units"], "evidence_id", "evidence unit")
     for constant in constants.values():
         _check_constant_type(constant)
@@ -1318,6 +1796,7 @@ def compile_program(
         evidence_units,
         oracles,
         host_capabilities,
+        skill_assignments,
     )
     documents = {
         "program_semantics": semantics,
@@ -1335,6 +1814,7 @@ def compile_program(
         "terms": terms,
         "capabilities": host_capabilities,
         "runtimes": runtimes,
+        "skill_assignments": skill_assignments,
     }
     output_dir_path = Path(output_dir)
     _ensure_empty_output_dir(output_dir_path)
@@ -1457,13 +1937,105 @@ def _verify_packet_structure(packet: Mapping[str, Any], expected_kind: str, expe
     }
     if expected_kind == "manager":
         required.add("worker_ids")
-    allowed = required | {"work_domains"}
+    allowed = required | {
+        "work_domains",
+        "authorized_skill_permissions",
+        "assigned_skill_ids",
+        "skill_assignment",
+    }
     if not required.issubset(packet) or not set(packet).issubset(allowed):
         extra = sorted(set(packet) - allowed)
         missing = sorted(required - set(packet))
         raise PreflightError("E_UNBOUND_OUTPUT", f"packet keys differ; extra={extra!r}, missing={missing!r}")
-    if "work_domains" in packet and packet["work_domains"] != [UI_DESIGN_DOMAIN]:
+    packet_domains = packet.get("work_domains", [])
+    if "work_domains" in packet and (
+        not isinstance(packet_domains, list)
+        or not packet_domains
+        or packet_domains != sorted(packet_domains)
+        or len(packet_domains) != len(set(packet_domains))
+        or not all(isinstance(item, str) and ID_RE.fullmatch(item) for item in packet_domains)
+    ):
         raise PreflightError("E_PACKET_MUTATED", "packet work_domains is not canonical")
+    packet_skill_permissions = packet.get("authorized_skill_permissions", [])
+    if "authorized_skill_permissions" in packet and (
+        not isinstance(packet_skill_permissions, list)
+        or packet_skill_permissions != sorted(packet_skill_permissions)
+        or len(packet_skill_permissions) != len(set(packet_skill_permissions))
+        or not all(
+            isinstance(item, str) and ID_RE.fullmatch(item)
+            for item in packet_skill_permissions
+        )
+    ):
+        raise PreflightError(
+            "E_PACKET_MUTATED", "packet authorized_skill_permissions is not canonical"
+        )
+    assigned_skill_ids = packet.get("assigned_skill_ids", [])
+    if "assigned_skill_ids" in packet and (
+        not isinstance(assigned_skill_ids, list) or not assigned_skill_ids
+    ):
+        raise PreflightError("E_CAPABILITY_BINDING", "packet assigned_skill_ids must be a nonempty array")
+    if not all(isinstance(item, str) and ID_RE.fullmatch(item) for item in assigned_skill_ids):
+        raise PreflightError("E_CAPABILITY_BINDING", "packet assigned_skill_ids contain an invalid ID")
+    if assigned_skill_ids != sorted(assigned_skill_ids) or len(assigned_skill_ids) != len(set(assigned_skill_ids)):
+        raise PreflightError("E_CAPABILITY_BINDING", "packet assigned_skill_ids must be unique and sorted")
+    assignment_record = packet.get("skill_assignment")
+    if bool(assigned_skill_ids) != (assignment_record is not None):
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            "packet must carry one reproduced skill assignment exactly when skills are assigned",
+        )
+    if assignment_record is not None:
+        if not isinstance(assignment_record, dict) or set(assignment_record) != {"assignment", "request"}:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                "packet skill assignment record keys are not exact",
+            )
+        assignment = assignment_record["assignment"]
+        request = assignment_record["request"]
+        if not isinstance(assignment, dict) or not isinstance(request, dict):
+            raise PreflightError("E_CAPABILITY_BINDING", "packet skill assignment documents are malformed")
+        expected_role = "manager" if expected_kind == "manager" else "worker"
+        if (
+            assignment.get("packet_id") != expected_id
+            or assignment.get("role") != expected_role
+            or request.get("packet_id") != expected_id
+            or request.get("role") != expected_role
+        ):
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {expected_id!r} skill assignment identity does not match the packet",
+            )
+        assignment_skill_ids = [
+            item.get("capability_id")
+            for item in assignment.get("skills", [])
+            if isinstance(item, dict)
+        ]
+        if assignment_skill_ids != assigned_skill_ids:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {expected_id!r} assigned skill IDs differ from its reproduced assignment",
+            )
+        execution_order = assignment.get("execution_order")
+        if (
+            request.get("execution_order") != execution_order
+            or not isinstance(execution_order, list)
+            or len(execution_order) != len(set(execution_order))
+            or set(execution_order) != set(assigned_skill_ids)
+        ):
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {expected_id!r} skill execution order is not exact",
+            )
+        if request.get("domains") != packet_domains or assignment.get("domains") != packet_domains:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {expected_id!r} skill domains differ from its task authority",
+            )
+        if request.get("authorized_permissions") != packet_skill_permissions:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {expected_id!r} skill permissions differ from its task authority",
+            )
     if packet["packet_kind"] != expected_kind or packet["packet_id"] != expected_id:
         raise PreflightError("E_PACKET_MUTATED", f"packet identity mismatch for {expected_kind}:{expected_id}")
     if packet["schema_version"] != SCHEMA_VERSION or packet["$schema"] != "company-os.compiled-preflight.packet.v1":
@@ -1481,6 +2053,46 @@ def _verify_packet_structure(packet: Mapping[str, Any], expected_kind: str, expe
     if canonical_digest(packet["input_bindings"]) != packet["input_set_sha256"]:
         raise PreflightError("E_UNBOUND_OUTPUT", "packet input_set_sha256 is not bound to input_bindings")
     _check_scope(packet["scope"], f"packet {expected_id}")
+    semantic_slice = packet.get("semantic_slice")
+    if not isinstance(semantic_slice, dict) or not isinstance(semantic_slice.get("capabilities"), list):
+        raise PreflightError("E_UNBOUND_OUTPUT", "packet capability semantic slice is malformed")
+    skill_capabilities = [
+        capability
+        for capability in semantic_slice["capabilities"]
+        if isinstance(capability, dict) and capability.get("capability_kind") == "skill"
+    ]
+    if [item.get("capability_id") for item in skill_capabilities] != assigned_skill_ids:
+        raise PreflightError("E_CAPABILITY_BINDING", "packet assigned skills do not close over its semantic slice")
+    expected_role = "manager" if expected_kind == "manager" else "worker"
+    for capability in skill_capabilities:
+        bindings = capability.get("skill_bindings")
+        if (
+            not isinstance(bindings, list)
+            or len(bindings) != 1
+            or bindings[0].get("packet_id") != expected_id
+            or bindings[0].get("role") != expected_role
+            or bindings[0].get("entrypoint_sha256") != capability.get("artifact_sha256")
+        ):
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"packet {expected_id!r} has a skill without an exact task-local binding",
+            )
+        if assignment_record is not None:
+            assigned_skill = next(
+                item
+                for item in assignment_record["assignment"]["skills"]
+                if item["capability_id"] == capability["capability_id"]
+            )
+            if (
+                assigned_skill.get("entrypoint") is None
+                or assigned_skill.get("entrypoint_sha256") != capability.get("artifact_sha256")
+                or assigned_skill.get("workspace_locator") != capability.get("tool_locator")
+                or not isinstance(assigned_skill.get("required_permissions"), list)
+            ):
+                raise PreflightError(
+                    "E_CAPABILITY_BINDING",
+                    f"packet {expected_id!r} skill proof is missing its exact path, permissions, or digest",
+                )
 
 
 def _validate_output_reference(reference: Any, kind: str) -> Mapping[str, Any]:

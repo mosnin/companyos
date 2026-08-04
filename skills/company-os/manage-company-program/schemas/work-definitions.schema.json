@@ -82,8 +82,9 @@
           "work_domains": {
             "type": "array",
             "uniqueItems": true,
-            "items": {"type": "string", "enum": ["ui_design"]}
+            "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"}
           },
+          "authorized_skill_permissions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"}},
           "scope": {"$ref": "#/$defs/scope"},
           "authority_state": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
           "prohibition_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
@@ -108,8 +109,9 @@
           "work_domains": {
             "type": "array",
             "uniqueItems": true,
-            "items": {"type": "string", "enum": ["ui_design"]}
+            "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"}
           },
+          "authorized_skill_permissions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"}},
           "scope": {"$ref": "#/$defs/scope"},
           "authority_state": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
           "prohibition_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
