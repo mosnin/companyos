@@ -34,6 +34,9 @@ charter; never require the root transcript or a repeated Company OS manual.
    receipt, and decision SLOs. Credit only artifacts and checks. On a soft miss,
    continue fresh observable work or send one precise intervention. After
    verification and inspection, write the receipt; after it verifies, decide.
+   At design time, also freeze required versus optional release scope and the
+   optional recovery-chain cap. After each terminal decision, seal and verify
+   the immutable force-log snapshot before integration.
 6. Use native Codex task creation, waiting, reading, listing, and messaging only
    from the interactive host. Repository code does not call those app tools.
 7. Keep at most three Luna workers active, one task per worker, no worker child
@@ -48,8 +51,12 @@ charter; never require the root transcript or a repeated Company OS manual.
    Only routine execution subphases after accepted design and before verification
    may auto-continue while charter, checks, budget, concurrency, and authority
    remain valid. Every subphase stays visible.
-10. Integrate only accepted worker artifacts. Escalate authority, cancellation,
-   budget, model availability, or evidence gaps instead of widening the charter.
+10. Integrate only accepted worker artifacts and sealed force snapshots. An
+   optional failure becomes eligible for omission only through the predeclared,
+   design-bound graceful-degradation policy and typed terminal receipts;
+   integration still waits for the authenticated master decision. Required
+   failures block release. Escalate authority, cancellation, budget, model
+   availability, or evidence gaps instead of widening the charter.
 
 ## Program preflight packet contract
 

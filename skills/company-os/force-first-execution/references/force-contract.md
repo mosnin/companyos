@@ -73,3 +73,31 @@ terminal manager decision are invalid.
 
 Soft SLO misses remain in the output metrics even when later work is accepted.
 First-pass failure remains false after successful rework.
+
+## Terminal evidence snapshots
+
+The live manager log is mutable while work continues and must not be referenced
+directly by an integration receipt. After `manager_accept`, `manager_reject`, or
+`hard_stop`, run `seal_force_snapshot.py seal`. It writes a canonical,
+create-only JSONL snapshot and a receipt binding the contract, event count,
+terminal event, artifact set, and exact snapshot bytes. Run `verify` before
+integration. Exact replay is idempotent, and an exact orphan snapshot can finish
+its receipt after a crash; conflicting pre-existing bytes fail closed. Appending
+to the former live log cannot change the sealed evidence.
+
+## Required and optional release scope
+
+Declare release criticality before dispatch with `release-scope.v1.json`.
+Its scope-definition digest is signed into a master design-decision receipt, so
+the classification and owning manager cannot be replaced after seeing a failure. Required work
+blocks release when rejected. Optional work becomes eligible for omission only
+when its declared recovery-chain cap is exhausted and each chain has a typed
+terminal receipt binding the deliverable, failed score, defects, artifact bytes,
+exact force contract, and rejected force snapshot. The controller independently
+replays that sealed snapshot and requires the claimed artifact list to equal the
+terminal manager-inspected candidate before crediting the receipt. It never
+authorizes integration; the master must confirm the core outcome still stands.
+A new recovery lane or early stop requires a new master decision and definition
+version. Template zero digests and fixture signatures are intentionally invalid
+until recomputed; repository fixture authentication is an offline binding oracle,
+not live identity authentication.

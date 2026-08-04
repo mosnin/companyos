@@ -157,8 +157,8 @@
     },
     {
       "path": "company-os/force-first-execution/SKILL.md",
-      "sha256": "614fee10916daba8c663c5d9d6435075bb58725705cb4f051a24c5cb50d4bf6c",
-      "size": 3951
+      "sha256": "fcd53790348a3fe2c91ad35b431b2d83299f2eb683da5a2e5fa42185cd2f8be5",
+      "size": 6590
     },
     {
       "path": "company-os/force-first-execution/agents/openai.yaml",
@@ -176,9 +176,29 @@
       "size": 131
     },
     {
+      "path": "company-os/force-first-execution/assets/release-deliverable-receipt.v1.json",
+      "sha256": "7a9f0e706f5263c2b9adc652f17cde187772f441ad4638b12672a0f5533ec482",
+      "size": 1225
+    },
+    {
+      "path": "company-os/force-first-execution/assets/release-scope-design-decision.v1.json",
+      "sha256": "e548e11eb7105333eec2567be37f5a85711014af6f984bee7fb92087bd2397eb",
+      "size": 764
+    },
+    {
+      "path": "company-os/force-first-execution/assets/release-scope.v1.json",
+      "sha256": "f3c42ca92498ed3a18dc303023db39bed77da71abbfeda4769cbb0d5dba5f58a",
+      "size": 1158
+    },
+    {
+      "path": "company-os/force-first-execution/assets/release-status.v1.json",
+      "sha256": "fce11abf0908b0ad23bb8e24ebc46017f44f57c33c1336c5dffbb769867de563",
+      "size": 1316
+    },
+    {
       "path": "company-os/force-first-execution/references/force-contract.md",
-      "sha256": "e7103e8e4432efc02639d58be4cbe0fc62d3a2dd60c1a89c50ca51653671caf8",
-      "size": 3647
+      "sha256": "10977a541c44e65e10c332b5558f5d262d984d8c5f1c9e6bb05f105be11c86f7",
+      "size": 5403
     },
     {
       "path": "company-os/force-first-execution/schemas/force-contract.schema.json",
@@ -186,9 +206,39 @@
       "size": 2144
     },
     {
+      "path": "company-os/force-first-execution/schemas/release-deliverable-receipt.schema.json",
+      "sha256": "4a9e556a789cb1e6a39597b35738d7204c021c776a50a59ad9538308128269ab",
+      "size": 2319
+    },
+    {
+      "path": "company-os/force-first-execution/schemas/release-scope-design-decision.schema.json",
+      "sha256": "c30f2800d6ebfcc2f9105f6722712375808b02d2e3e3d341514568e8166e4e56",
+      "size": 1690
+    },
+    {
+      "path": "company-os/force-first-execution/schemas/release-scope.schema.json",
+      "sha256": "6c2c858efad79ceb89a402edb4021e7f018e71b8734e401160b1b1c9a3828986",
+      "size": 2248
+    },
+    {
+      "path": "company-os/force-first-execution/schemas/release-status.schema.json",
+      "sha256": "f0d12293554e3e04dcf3361eb05cf5b8d9e2922110a7052f08d8e2ee751fc40a",
+      "size": 2053
+    },
+    {
       "path": "company-os/force-first-execution/scripts/force_loop_controller.py",
       "sha256": "5fa017f77f3efabbc55f1aa475066226f8f8efd2a7e7ffeb47ffe8560e9562d3",
       "size": 36105
+    },
+    {
+      "path": "company-os/force-first-execution/scripts/release_scope_controller.py",
+      "sha256": "1405d218a83b22cf87b1652d1f5f0afe1975bfdc33ccade266fbad542509cdbb",
+      "size": 30195
+    },
+    {
+      "path": "company-os/force-first-execution/scripts/seal_force_snapshot.py",
+      "sha256": "795f94a9ff08d59813e5c10b1a138f89778f1de55500c36ead48b4bb2f278b40",
+      "size": 15035
     },
     {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",
@@ -252,8 +302,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "eb12aff16744d4e8105fc54959dc69a3c61b236ebb774aa996444dbee9b8fe52",
-      "size": 4802
+      "sha256": "c6f420e8746f5fc1d381129527be49b7415b214306b6c9188546cda0d22ea5e0",
+      "size": 5299
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",

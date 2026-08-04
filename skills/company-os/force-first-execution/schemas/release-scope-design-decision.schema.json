@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.release-scope-design-decision.v1",
+  "title": "Company OS Release Scope Design Decision v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "record_version", "decision", "authority_role", "decider_task_id", "bindings", "authentication"],
+  "properties": {
+    "schema": {"const": "company-os.release-scope-design-decision.v1"},
+    "record_version": {"const": 1},
+    "decision": {"const": "accepted"},
+    "authority_role": {"const": "master"},
+    "decider_task_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]*$"},
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "program_id", "program_version", "definition_version", "cycle_id", "outcome_digest", "scope_definition_sha256"],
+      "properties": {
+        "project_id": {"type": "string"},
+        "program_id": {"type": "string"},
+        "program_version": {"type": "integer", "minimum": 1},
+        "definition_version": {"type": "integer", "minimum": 1},
+        "cycle_id": {"type": "string"},
+        "outcome_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "scope_definition_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "key_id", "signature"],
+      "properties": {
+        "scheme": {"const": "company-os.fixture-hmac-sha256.v1"},
+        "key_id": {"const": "company-os-repository-test-v1"},
+        "signature": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

@@ -45,6 +45,25 @@ through them.
    materialize the receipt immediately. Once the receipt verifies, make the
    manager decision immediately. Preserve first-pass failure and every rework;
    never rewrite history to make the final score look cleaner.
+7. After the terminal manager decision, seal the event log with
+   [scripts/seal_force_snapshot.py](scripts/seal_force_snapshot.py). Bind
+   integration evidence to the immutable snapshot receipt, never to a live log
+   that can append later. Verify the snapshot again before integration.
+8. Before worker dispatch, classify each promised release deliverable as
+   `required` or `optional` in
+   [assets/release-scope.v1.json](assets/release-scope.v1.json). Classification
+   and manager ownership are immutable for the cycle and must be bound by the
+   authenticated master design decision. A failed required deliverable blocks release. A failed
+   optional enhancement becomes eligible for omission only after every
+   predeclared recovery chain ends in a typed terminal rejection receipt. Never
+   transfer a failed score to the released scope or create another recovery lane
+   without a new master decision. Evaluate the result with
+   [scripts/release_scope_controller.py](scripts/release_scope_controller.py),
+   using [assets/release-status.v1.json](assets/release-status.v1.json) for the
+   exact accepted/rejected evidence envelope and
+   [assets/release-deliverable-receipt.v1.json](assets/release-deliverable-receipt.v1.json)
+   for each attempt chain. The controller returns eligibility; integration still
+   requires an authenticated master scope decision.
 
 ## Evidence sequence
 
@@ -70,3 +89,22 @@ requirements and state transitions.
 This skill is used by `$manage-company-program` and `$execute-bounded-task`.
 The manager owns control and acceptance; the worker owns only its bounded
 deliverable scope.
+
+Terminal logs are not integrated directly. `seal_force_snapshot.py seal`
+creates a canonical JSONL snapshot and content-addressed receipt with
+create-only, exact-replay-idempotent semantics. `verify` proves the contract, terminal sequence,
+artifact set, snapshot bytes, and receipt again. Later writes to the live log
+cannot change the accepted snapshot.
+
+Graceful degradation is not a quality exception. Release scope is declared
+before dispatch and bound to the master design decision. The controller only
+marks a reduced release eligible when every required deliverable is accepted,
+every optional recovery chain has a typed rejected terminal force snapshot, and
+the failed score and defects are retained. It never infers master acceptance.
+Each terminal receipt also binds the exact force contract and the sealer
+replays the underlying snapshot before the receipt is credited. Claimed release
+artifacts must exactly equal the manager-inspected terminal candidate. The JSON assets
+are templates: replace every zero digest and fixture signature with values
+computed from the exact project-local bytes. Repository fixture authentication
+proves deterministic binding only; live identity and final integration authority
+remain external authenticated master decisions.
