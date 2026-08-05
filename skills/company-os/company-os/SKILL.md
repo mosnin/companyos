@@ -12,6 +12,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Pillar | Responsibility | Skill |
 | --- | --- | --- |
 | Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint` |
+| Federated company kernel | Turn one accepted company objective into durable business-unit, program, manager, worker, shared-service, and scale contracts | `$compile-federated-company-kernel` |
 | Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
 | Improvement plane | Compile a typed, protected, reversible candidate program from a reproduced bottleneck or forward-capability opportunity | `$evolve-company-capability` |
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
@@ -39,6 +40,23 @@ blocking unknowns are concrete. Compile the accepted blueprint into department,
 capability, playbook, routine, work-graph, knowledge, asset, integration, and
 storage artifacts. The blueprint describes the company; project instances
 execute bounded programs inside it.
+
+After blueprint acceptance, use `$compile-federated-company-kernel` when the
+company needs more than one bounded program or must scale across departments.
+The kernel is the bridge from company form to operating force: it converts an
+objective and accountable workstreams into durable control cells, dynamic Sol
+manager partitions, Luna-max worker capacity, shared services, admission
+limits, and scale gates. Target capacity is not active concurrency. A target of
+1,000 agents begins with the smallest admitted cohort that can prove accepted
+throughput, recovery, and authority, then advances through explicit gates.
+
+The kernel's repository-derived mechanisms are exact, subordinate contracts.
+Desired/observed reconciliation, reservation and adoption fencing, event
+cursor replay, runtime role readback, cited context retrieval, trace diagnosis,
+candidate search, and artifact-specific transfer evaluation retain their
+source pins and rejected assumptions. They do not install or activate upstream
+runtimes and cannot create another controller, scheduler, acceptance chain, or
+promotion authority.
 
 An instance may adapt its operating method through evidence-backed, reversible experiments. It may not autonomously expand authority, weaken approvals, change cancellation precedence, mix project data, or approve its own adaptations. Promote a pattern into the shared core only after it improves at least three independent project instances and passes independent review.
 

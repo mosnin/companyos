@@ -7,10 +7,15 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version 0.6.0 is the manifest-backed, locally verified source candidate. It
-adds governed source intelligence, evaluator-method resolution, externally
-signed capability-promotion contracts, portable capability packets, and a
-feature-off Improvement Plane. It is not signed, globally installed, runtime
+Version 0.7.0 is the manifest-backed, locally verified source candidate. It
+adds a feature-off federated company kernel that compiles an accepted objective
+into durable business-unit and program cells, dynamically partitioned Sol
+manager ownership, Luna-max worker capacity, bounded admission, and explicit
+scale gates. Its mechanism contracts bind exact reviewed repository pins and
+preserve both adopted behavior and rejected assumptions. It retains the 0.6.0
+governed source intelligence, evaluator-method resolution, externally signed
+capability-promotion contracts, portable capability packets, and feature-off
+Improvement Plane. It is not signed, globally installed, runtime
 activated, scheduler activated, or production accepted. Version 0.5.1 remains
 the last freshly signed source release; its detached signature binds the
 independently accepted exact 21-file Operator Command Center surface to carrier

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Federated Company Kernel"
+  short_description: "Compile elastic company cells and control boundaries"
+  default_prompt: "Use $compile-federated-company-kernel to compile this company objective into a federated operating topology with dynamic Sol managers, Luna workers, shared services, and explicit scale gates."

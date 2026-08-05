@@ -1,0 +1,285 @@
+{
+  "$schema": "company-os.federated-mechanism-contracts.v1",
+  "contracts": [
+    {
+      "adopt": [
+        "generation-bound desired specification",
+        "observed-status reconciliation",
+        "conflict retry with finalization",
+        "credential rotation as host lifecycle"
+      ],
+      "contract_id": "desired-observed-host-reconciliation",
+      "placement": "execution_hot_path",
+      "reject": [
+        "mutable object-store task state as authority",
+        "room messages as authority",
+        "marker files as leases",
+        "restart-lost in-memory readiness"
+      ],
+      "source_bindings": [
+        {
+          "pin": "124f06d13fd6bb4c2054128dcff26bcd9f9c8dbf",
+          "source_id": "agentscope-ai-agentteams"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "finite recursive cell limits",
+        "tree-wide slot reservation",
+        "compare-and-swap adoption",
+        "wind-down capacity reserve",
+        "distinct paused adopted and terminal states"
+      ],
+      "contract_id": "bounded-cell-reservation-and-adoption",
+      "placement": "execution_hot_path",
+      "reject": [
+        "worktrees as security isolation",
+        "unsigned radio identity",
+        "automatic squash integration",
+        "child budget oversubscription"
+      ],
+      "source_bindings": [
+        {
+          "pin": "73ce05adcd73d52c69afb394447d7ab95880d321",
+          "source_id": "plasma-ai-fractal"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "monotonic event cursors",
+        "idempotent producer identity",
+        "append tail and catch-up",
+        "forked replay into derived read models"
+      ],
+      "contract_id": "durable-event-cursor-and-replay",
+      "placement": "execution_hot_path",
+      "reject": [
+        "transport as task authority",
+        "acknowledgement before durable effect settlement",
+        "unproven offset and close propagation behavior"
+      ],
+      "source_bindings": [
+        {
+          "pin": "a172acc389351cb3db6deb5cd60e3dec11e7ff39",
+          "source_id": "durable-streams-durable-streams"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "requested role manifest",
+        "pre-launch configuration drift check",
+        "post-launch observed role readback",
+        "confirmed refuted or inconclusive claim status"
+      ],
+      "contract_id": "role-intent-and-observed-readback",
+      "placement": "execution_hot_path",
+      "reject": [
+        "configuration as observed runtime proof",
+        "post-hoc validation after effects",
+        "unsigned local receipts as attestation",
+        "installer mutation as admission"
+      ],
+      "source_bindings": [
+        {
+          "pin": "add3915f4e35200fee75b200ff64eb457b87d9ec",
+          "source_id": "miyago9267-pilotfish-codex"
+        },
+        {
+          "pin": "bc6d448ccae5fa769f50e5d735970bed8e57d1dd",
+          "source_id": "aitransformationdirector-use-luna-subagents"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "confirmed scope before task execution",
+        "machine-checkable lifecycle transitions",
+        "task-result evidence",
+        "independent review and bounded repair routing"
+      ],
+      "contract_id": "contract-transition-diagnostics",
+      "placement": "execution_hot_path",
+      "reject": [
+        "wholesale workflow harness",
+        "implicit plugin installation",
+        "browser MCP or deploy authority",
+        "workflow state outside Company OS authority"
+      ],
+      "source_bindings": [
+        {
+          "pin": "32f80926ac11ae514342401c6eeaae1fb860656a",
+          "source_id": "valkor-ai-loom"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "source-specific retrieval adapters",
+        "cited bounded evidence snippets",
+        "derived graph projection with provenance",
+        "retrieval separated from permissions and writes"
+      ],
+      "contract_id": "read-only-cited-context-broker",
+      "placement": "shared_service",
+      "reject": [
+        "natural-language database writes",
+        "prompt-scoped caller identity",
+        "graph inference as policy",
+        "retrieved text as instructions",
+        "commercial reuse of academically restricted code"
+      ],
+      "source_bindings": [
+        {
+          "pin": "088a8ebb3d0e4764e3f30937345ea3753d5990a8",
+          "source_id": "agno-agi-scout"
+        },
+        {
+          "pin": "38eece5bbb0cb9f5706fed908abd16dba0f5505e",
+          "source_id": "topoteretes-cognee"
+        },
+        {
+          "pin": "ac86a8ff01354e6b9c4d1b17089fba89d42dcf2b",
+          "source_id": "neo4j-agent-memory"
+        },
+        {
+          "pin": "d982b5a8df1a269ee0e57a1d0ebd55feb719832c",
+          "source_id": "tencent-youtu-graphrag"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "representative and outlier trace selection",
+        "bounded source-linked diagnostic subquestions",
+        "falsifiable bottleneck hypothesis",
+        "held-out post-change trace comparison"
+      ],
+      "contract_id": "trace-diagnosis-adapter",
+      "placement": "offline_learning",
+      "reject": [
+        "trace bus as durable authority",
+        "diagnostic adapter dispatching work",
+        "unredacted trace ingestion",
+        "same-corpus optimization proof"
+      ],
+      "source_bindings": [
+        {
+          "pin": "0b68141633c14f488461aaecdf91a739a411f05d",
+          "source_id": "context-labs-halo"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "normalized execution experience",
+        "mentor or evaluator checkpoint",
+        "evidence-linked lesson extraction",
+        "privacy-sanitized compilation",
+        "independent later-task transfer challenge"
+      ],
+      "contract_id": "governed-experience-and-transfer",
+      "placement": "offline_learning",
+      "reject": [
+        "same-run lesson accepting originating work",
+        "unbounded transcript retention",
+        "lesson as company policy",
+        "promotion without later-task evidence"
+      ],
+      "source_bindings": [
+        {
+          "pin": "4beafff2ff41da7d97a4faee9b516ccde466fb4b",
+          "source_id": "ray-r-ren-agent-apprenticeship"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "finite observe choose act verify record debrief",
+        "failure-plane classification",
+        "no-progress terminal state",
+        "later holdout evaluation"
+      ],
+      "contract_id": "bounded-debrief-loop",
+      "placement": "offline_learning",
+      "reject": [
+        "prompt recurrence as scheduler",
+        "unbounded retries",
+        "loop changes without reproduced failure",
+        "debrief as acceptance"
+      ],
+      "source_bindings": [
+        {
+          "pin": "75966cbd572a4185064971c9fe5e9c52e8f8456d",
+          "source_id": "forward-future-loopy"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "small diverse candidate cohorts",
+        "conservative adjacent and first-principles profiles",
+        "Pareto-aware selection",
+        "clade diversity and lineage",
+        "skill-overlap and failure-cluster diagnosis"
+      ],
+      "contract_id": "protected-candidate-search",
+      "placement": "offline_learning",
+      "reject": [
+        "candidate self-editing authority",
+        "candidate-selected evaluator",
+        "challenge-set reuse after exposure",
+        "self-acceptance or self-promotion",
+        "uncapped recursive search"
+      ],
+      "source_bindings": [
+        {
+          "pin": "ba30ee24e8f63dfdb9e557ed8cfaaec7aa09a6df",
+          "source_id": "gepa-ai-gepa"
+        },
+        {
+          "pin": "2702bee8fefda42255efc5be9f60e3bd3db96ae4",
+          "source_id": "shengranhu-adas"
+        },
+        {
+          "pin": "013872d95da978483f5b540e531db063d23890da",
+          "source_id": "metauto-ai-hgm"
+        },
+        {
+          "pin": "36f6f04952293d7054145550c2b9f0b0411bff1c",
+          "source_id": "sentient-agi-evoskill"
+        }
+      ]
+    },
+    {
+      "adopt": [
+        "heterogeneous environment evaluation",
+        "artifact and trace snapshots",
+        "capacity-matched task suites",
+        "separate adaptive validation and sealed challenge"
+      ],
+      "contract_id": "artifact-specific-transfer-evaluation",
+      "placement": "quality_service",
+      "reject": [
+        "one universal benchmark score",
+        "benchmark environment as production proof",
+        "candidate-authored grader",
+        "semantic judge before deterministic floors"
+      ],
+      "source_bindings": [
+        {
+          "pin": "d1e4a10db08c87075c78972e48ecc182be03e2d5",
+          "source_id": "thudm-agentbench"
+        },
+        {
+          "pin": "5d71205cc20a8e95d43aa7cb7120e89ca3323e31",
+          "source_id": "snap-stanford-mlagentbench"
+        }
+      ]
+    }
+  ],
+  "registry_version": 1,
+  "source_intelligence_registry_sha256": "2668c17579e97d4afa2ca7bbc3e36e320b98164f68bdfbcda57ea7599097faae"
+}

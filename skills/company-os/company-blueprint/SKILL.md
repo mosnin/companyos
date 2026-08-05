@@ -33,6 +33,15 @@ and requested capabilities. It emits a content-addressed organization,
 capability map, routine plan, work graph, knowledge graph, asset registry,
 integration registry, storage plan, and manifest.
 
+When the accepted blueprint contains multiple business units, parallel
+programs, or a target capacity beyond one supervised project, compile a
+federated operating kernel next with `$compile-federated-company-kernel`. Map
+blueprint objectives to one concrete kernel objective; map departments to
+business-unit control cells only where they own distinct decisions and
+budgets; map accepted work-graph outcomes to programs and independently
+accountable workstreams. Do not translate every blueprint plane into a
+sequential governance layer.
+
 Department count is not fixed. Create departments only when they own a distinct
 outcome, decision boundary, or operating system. Manager and Luna capacity is
 derived later from the accepted work graph; department labels are not agent

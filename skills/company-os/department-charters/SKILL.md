@@ -39,3 +39,11 @@ Department packs are reusable definitions, not always-running agents. The
 accepted program work graph determines which Sol manager outcomes and Luna
 worker tasks exist for a particular objective. Scheduled department routines
 remain planned until runtime and scheduler activation are separately accepted.
+
+For multi-program companies, `$compile-federated-company-kernel` turns accepted
+department boundaries into durable business-unit control cells. A control cell
+owns policy, budget, interfaces, and exceptions; it is not one permanently
+running manager. Program demand creates peer Sol manager partitions under that
+cell, and bounded Luna worker slots are admitted only for runnable tasks. Keep
+executive span at nine or fewer direct business-unit cells; split work by real
+ownership and interfaces, not by an arbitrary agent ratio.
