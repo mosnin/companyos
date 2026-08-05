@@ -58,7 +58,17 @@
                 "role": {"type": "string", "enum": ["manager", "worker"]},
                 "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
                 "source_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
-                "upstream_entrypoint_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+                "upstream_entrypoint_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "review_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "review_portable_bundle_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "review_acceptance_receipt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "review_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+                "review_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "review_phase": {"type": "string"},
+                "review_effect_class": {"type": "string"},
+                "review_provider_boundary": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+                "review_consumes_artifact_kinds": {"type": "array", "items": {"type": "string"}},
+                "review_produces_artifact_kinds": {"type": "array", "items": {"type": "string"}}
               }
             }
           }

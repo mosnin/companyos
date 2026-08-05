@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evaluate Company Evidence"
+  short_description: "Resolve governed evaluators and evidence"
+  default_prompt: "Use $evaluate-company-evidence to select governed evaluation methods and identify the remaining evaluator evidence for this Company OS program."

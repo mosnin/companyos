@@ -3,9 +3,11 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +30,34 @@ CAPABILITY_SPEC.loader.exec_module(CAPABILITY_MODULE)
 
 
 class ProgramPreflightCompilerTests(unittest.TestCase):
+    def production_context(self) -> dict[str, object]:
+        skill_root = ROOT / "skills/company-os/assign-capability-skills"
+        checkout_manifest = (
+            ROOT.parent
+            / "2026-08-05/company-os-all-repos-depth/evidence/master/capability-review-checkouts.v1.json"
+        )
+        return {
+            "capability_catalog": skill_root / "references/capability-catalog.json",
+            "review_registry": json.loads(
+                (skill_root / "references/capability-review-registry.json").read_text()
+            ),
+            "source_registry": json.loads(
+                (
+                    ROOT
+                    / "skills/company-os/source-intelligence/references/source-intelligence-registry.json"
+                ).read_text()
+            ),
+            "skill_root": skill_root,
+            "checkout_manifest": json.loads(checkout_manifest.read_text()),
+        }
+
+    def portable_paths(self) -> tuple[Path, Path]:
+        skill_root = (
+            ROOT
+            / "skills/company-os/manage-company-program/fixtures/portable-capability-v1/skill-root"
+        )
+        return skill_root.parent / "catalog.json", skill_root
+
     def fixture_paths(self, fixture: str) -> tuple[Path, Path, Path]:
         root = ROOT / "skills/company-os/manage-company-program/fixtures" / fixture
         return (
@@ -41,6 +71,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         return tuple(json.loads(path.read_text(encoding="utf-8")) for path in paths)  # type: ignore[return-value]
 
     def write_inputs(self, directory: Path, documents: tuple[dict, dict, dict]) -> tuple[Path, Path, Path]:
+        directory.mkdir(parents=True, exist_ok=True)
         names = ("program-semantics.json", "host-capabilities.json", "work-definitions.json")
         paths = []
         for name, document in zip(names, documents):
@@ -48,6 +79,63 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             path.write_bytes(MODULE.canonical_bytes(document))
             paths.append(path)
         return tuple(paths)  # type: ignore[return-value]
+
+    def synthetic_v2_documents(self, *, assignment_mutate=None, binding_mutate=None):
+        documents, request, base_assignment, context = self.real_skill_documents()
+        assignment = copy.deepcopy(base_assignment)
+        assignment["$schema"] = "company-os.capability-assignment.v2"
+        assignment["schema_version"] = 2
+        assignment.update(
+            {
+                "review_registry_sha256": "a" * 64,
+                "review_portable_bundle_sha256": "b" * 64,
+                "review_acceptance_receipt_sha256": "c" * 64,
+            }
+        )
+        assignment["skills"][0].update(
+            {
+                "review_id": "review-portable-review-v2",
+                "review_sha256": "d" * 64,
+                "review_phase": "verification",
+                "review_effect_class": "no_effect",
+                "review_provider_boundary": "fixture-provider",
+                "review_consumes_artifact_kinds": ["fixture-request"],
+                "review_produces_artifact_kinds": ["fixture-result"],
+            }
+        )
+        if assignment_mutate is not None:
+            assignment_mutate(assignment)
+        assignment["binding"]["canonical_sha256"] = None
+        assignment["binding"]["canonical_sha256"] = MODULE.canonical_digest(assignment)
+        host = copy.deepcopy(documents[1])
+        host_record = host["skill_assignments"][0]
+        host_record["assignment"] = copy.deepcopy(assignment)
+        capability = next(item for item in host["capabilities"] if item.get("capability_id") == "portable-review")
+        binding = capability["skill_bindings"][0]
+        skill = assignment["skills"][0]
+        for key in MODULE.V2_REVIEW_ROOT_KEYS:
+            if key in assignment:
+                binding[key] = assignment[key]
+        for key in MODULE.V2_REVIEW_SKILL_KEYS:
+            if key in skill:
+                binding[key] = copy.deepcopy(skill[key])
+        binding["assignment_sha256"] = assignment["binding"]["canonical_sha256"]
+        catalog = json.loads((self.portable_paths()[0]).read_text())
+        binding["catalog_sha256"] = CAPABILITY_MODULE.canonical_digest(catalog)
+        if binding_mutate is not None:
+            binding_mutate(binding)
+        documents = (documents[0], host, documents[2])
+        expected = copy.deepcopy(assignment)
+        contract = {
+            "_production_catalog": lambda value: False,
+            "validate_catalog": lambda value, root, verify_files=True, **kwargs: {
+                "catalog_sha256": CAPABILITY_MODULE.canonical_digest(catalog)
+            },
+            "resolve_assignment": lambda *args, **kwargs: copy.deepcopy(expected),
+            "validate_assignment": lambda value: None,
+            "canonical_bytes": MODULE.canonical_bytes,
+        }
+        return documents, context, contract, assignment
 
     def compile_fixture(self, fixture: str, output: Path) -> dict:
         semantics, capabilities, definitions = self.fixture_paths(fixture)
@@ -133,17 +221,41 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         worker_domains: list[str] | None = None,
         manager_permissions: list[str] | None = None,
         worker_permissions: list[str] | None = None,
-    ) -> tuple[tuple[dict, dict, dict], dict, dict]:
-        skill_root = ROOT / "skills/company-os/assign-capability-skills"
-        fixture_root = skill_root / "fixtures/systematic-debugging-worker"
-        catalog = json.loads(
-            (skill_root / "references/capability-catalog.json").read_text()
+    ) -> tuple[tuple[dict, dict, dict], dict, dict, dict[str, object]]:
+        skill_root = (
+            ROOT
+            / "skills/company-os/manage-company-program/fixtures/portable-capability-v1/skill-root"
         )
-        request = json.loads((fixture_root / "request.json").read_text())
+        catalog_path = skill_root.parent / "catalog.json"
+        catalog = json.loads(catalog_path.read_text())
+        context: dict[str, object] = {
+            "capability_catalog": catalog_path,
+            "portable_skill_root": skill_root,
+        }
+        request = {
+            "$schema": "company-os.capability-request.v1",
+            "authorized_permissions": [],
+            "domains": ["software_engineering"],
+            "execution_order": ["portable-review"],
+            "max_entrypoint_bytes": 49152,
+            "max_skills": 4,
+            "packet_id": "activation_path_work",
+            "program_id": "company-os-portable-preflight-v1",
+            "request_id": "portable-review-worker",
+            "requested_capability_ids": ["portable-review"],
+            "role": "worker",
+            "selection_rationale": {
+                "portable-review": "The portable fixture worker reviews its packet-owned artifact."
+            },
+        }
         if request_mutate is not None:
             request_mutate(request)
         assignment = CAPABILITY_MODULE.resolve_assignment(catalog, request, skill_root)
         documents = self.load_fixture("saas-onboarding-launch")
+        documents[0]["program_id"] = "company-os-portable-preflight-v1"
+        documents[1]["program_id"] = "company-os-portable-preflight-v1"
+        documents[1]["host_profile_id"] = "company-os-portable-host-v1"
+        documents[2]["program_id"] = "company-os-portable-preflight-v1"
         manager_definition = next(
             item
             for item in documents[2]["manager_definitions"]
@@ -184,7 +296,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             ),
             documents[2],
         )
-        return documents, request, assignment
+        return documents, request, assignment, context
 
     def test_brokerage_compiles_five_compact_packets_and_verifies(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -481,7 +593,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             MODULE.verify_output(root / "output", *paths)
 
     def test_skill_request_domains_and_permissions_are_bound_to_task_authority(self) -> None:
-        domain_mismatch, _, _ = self.real_skill_documents(
+        domain_mismatch, _, _, context = self.real_skill_documents(
             manager_domains=["business_strategy"],
             worker_domains=["business_strategy"],
         )
@@ -489,14 +601,14 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             root = Path(temp)
             paths = self.write_inputs(root, domain_mismatch)
             with self.assertRaises(MODULE.PreflightError) as caught:
-                MODULE.compile_program(*paths, root / "output")
+                MODULE.compile_program(*paths, root / "output", **context)
             self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
             self.assertIn("request domains", str(caught.exception))
 
         def add_permission(request):
             request["authorized_permissions"] = ["filesystem_read"]
 
-        permission_mismatch, _, _ = self.real_skill_documents(
+        permission_mismatch, _, _, context = self.real_skill_documents(
             request_mutate=add_permission,
             manager_permissions=[],
             worker_permissions=[],
@@ -505,12 +617,12 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             root = Path(temp)
             paths = self.write_inputs(root, permission_mismatch)
             with self.assertRaises(MODULE.PreflightError) as caught:
-                MODULE.compile_program(*paths, root / "output")
+                MODULE.compile_program(*paths, root / "output", **context)
             self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
             self.assertIn("request permissions", str(caught.exception))
 
     def test_worker_skill_authority_must_narrow_its_parent_manager(self) -> None:
-        documents, _, _ = self.real_skill_documents(
+        documents, _, _, context = self.real_skill_documents(
             manager_domains=["business_strategy"],
             worker_domains=["software_engineering"],
         )
@@ -518,7 +630,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             root = Path(temp)
             paths = self.write_inputs(root, documents)
             with self.assertRaises(MODULE.PreflightError) as caught:
-                MODULE.compile_program(*paths, root / "output")
+                MODULE.compile_program(*paths, root / "output", **context)
             self.assertEqual("E_AUTHORITY", caught.exception.code)
             self.assertIn("widens parent work domains", str(caught.exception))
 
@@ -543,7 +655,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             )
 
     def test_packet_id_collision_is_rejected_when_skill_assignments_exist(self) -> None:
-        documents, _, _ = self.real_skill_documents()
+        documents, _, _, context = self.real_skill_documents()
         manager = next(
             item
             for item in documents[2]["manager_definitions"]
@@ -560,7 +672,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             root = Path(temp)
             paths = self.write_inputs(root, documents)
             with self.assertRaises(MODULE.PreflightError) as caught:
-                MODULE.compile_program(*paths, root / "output")
+                MODULE.compile_program(*paths, root / "output", **context)
             self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
             self.assertIn("packet IDs must not collide", str(caught.exception))
 
@@ -628,15 +740,40 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         )
 
     def test_real_catalog_assignment_compiles_only_into_its_exact_worker_packet(self) -> None:
-        skill_root = ROOT / "skills/company-os/assign-capability-skills"
-        fixture_root = skill_root / "fixtures/systematic-debugging-worker"
-        catalog = json.loads(
-            (skill_root / "references/capability-catalog.json").read_text()
+        skill_root = (
+            ROOT
+            / "skills/company-os/manage-company-program/fixtures/portable-capability-v1/skill-root"
         )
-        request = json.loads((fixture_root / "request.json").read_text())
-        assignment = json.loads((fixture_root / "assignment.json").read_text())
-        receipt = json.loads((fixture_root / "simulation-receipt.json").read_text())
+        catalog_path = skill_root.parent / "catalog.json"
+        catalog = json.loads(catalog_path.read_text())
+        context = {
+            "capability_catalog": catalog_path,
+            "portable_skill_root": skill_root,
+        }
+        request = {
+            "$schema": "company-os.capability-request.v1",
+            "authorized_permissions": [],
+            "domains": ["software_engineering"],
+            "execution_order": ["portable-review"],
+            "max_entrypoint_bytes": 49152,
+            "max_skills": 4,
+            "packet_id": "activation_path_work",
+            "program_id": "company-os-portable-preflight-v1",
+            "request_id": "portable-review-worker",
+            "requested_capability_ids": ["portable-review"],
+            "role": "worker",
+            "selection_rationale": {
+                "portable-review": "The portable fixture worker reviews its packet-owned artifact."
+            },
+        }
+        assignment = CAPABILITY_MODULE.resolve_assignment(
+            catalog, request, skill_root
+        )
         documents = self.load_fixture("saas-onboarding-launch")
+        documents[0]["program_id"] = "company-os-portable-preflight-v1"
+        documents[1]["program_id"] = "company-os-portable-preflight-v1"
+        documents[1]["host_profile_id"] = "company-os-portable-host-v1"
+        documents[2]["program_id"] = "company-os-portable-preflight-v1"
         manager_definition = next(
             item
             for item in documents[2]["manager_definitions"]
@@ -661,27 +798,23 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             documents[2],
         )
         self.assertEqual(
-            CAPABILITY_MODULE.canonical_digest(catalog), receipt["catalog_sha256"]
+            CAPABILITY_MODULE.canonical_digest(catalog), assignment["catalog_sha256"]
         )
         self.assertEqual(
-            CAPABILITY_MODULE.canonical_digest(request), receipt["request_sha256"]
-        )
-        self.assertEqual(
-            MODULE._canonical_input_digest(documents[1]),
-            receipt["augmented_host_sha256"],
+            CAPABILITY_MODULE.canonical_digest(request), assignment["request_sha256"]
         )
 
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             paths = self.write_inputs(root, documents)
-            result = MODULE.compile_program(*paths, root / "output")
+            result = MODULE.compile_program(*paths, root / "output", **context)
             selected_ref = next(
                 item
                 for item in result["work_packets"]
                 if item["packet_id"] == "activation_path_work"
             )
             selected = json.loads((root / "output" / selected_ref["path"]).read_text())
-            self.assertEqual(["systematic-debugging"], selected["assigned_skill_ids"])
+            self.assertEqual(["portable-review"], selected["assigned_skill_ids"])
             self.assertEqual(["software_engineering"], selected["work_domains"])
             self.assertEqual([], selected["authorized_skill_permissions"])
             self.assertEqual(request, selected["skill_assignment"]["request"])
@@ -704,7 +837,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
                 for item in selected["semantic_slice"]["capabilities"]
                 if item.get("capability_kind") == "skill"
             )
-            self.assertEqual("systematic-debugging", skill["capability_id"])
+            self.assertEqual("portable-review", skill["capability_id"])
             self.assertEqual(1, len(skill["skill_bindings"]))
             self.assertEqual(
                 assignment["binding"]["canonical_sha256"],
@@ -715,13 +848,6 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
                 skill["artifact_sha256"],
             )
             self.assertLessEqual(selected_ref["size"], 12 * 1024)
-            self.assertEqual(result["manifest_sha256"], receipt["compiled_manifest_sha256"])
-            self.assertEqual(selected_ref["sha256"], receipt["selected_packet_sha256"])
-            self.assertEqual(selected_ref["size"], receipt["selected_packet_size"])
-            self.assertEqual(
-                assignment["binding"]["canonical_sha256"],
-                receipt["assignment_sha256"],
-            )
 
             for reference in result["manager_packets"]:
                 packet = json.loads((root / "output" / reference["path"]).read_text())
@@ -731,34 +857,33 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
                     continue
                 packet = json.loads((root / "output" / reference["path"]).read_text())
                 self.assertNotIn("assigned_skill_ids", packet)
-            MODULE.verify_output(root / "output", *paths)
+            MODULE.verify_output(root / "output", *paths, **context)
 
     def test_real_two_skill_worker_bundle_preserves_manager_execution_order(self) -> None:
-        skill_root = ROOT / "skills/company-os/assign-capability-skills"
-        catalog = json.loads(
-            (skill_root / "references/capability-catalog.json").read_text()
+        skill_root = (
+            ROOT
+            / "skills/company-os/manage-company-program/fixtures/portable-capability-v1/skill-root"
         )
+        catalog_path = skill_root.parent / "catalog.json"
+        catalog = json.loads(catalog_path.read_text())
+        context = {
+            "capability_catalog": catalog_path,
+            "portable_skill_root": skill_root,
+        }
         request = {
             "$schema": "company-os.capability-request.v1",
             "authorized_permissions": [],
             "domains": ["software_engineering"],
-            "execution_order": [
-                "systematic-debugging",
-                "engineering-red-green-evidence",
-            ],
+            "execution_order": ["portable-review"],
             "max_entrypoint_bytes": 49152,
             "max_skills": 4,
             "packet_id": "activation_path_work",
-            "program_id": "saas-onboarding-launch",
-            "request_id": "activation-path-debug-and-evidence",
-            "requested_capability_ids": [
-                "engineering-red-green-evidence",
-                "systematic-debugging",
-            ],
+            "program_id": "company-os-portable-preflight-v1",
+            "request_id": "portable-review-worker-bundle",
+            "requested_capability_ids": ["portable-review"],
             "role": "worker",
             "selection_rationale": {
-                "engineering-red-green-evidence": "Prove the bounded behavior after diagnosis.",
-                "systematic-debugging": "Reproduce and isolate the failure before changing behavior.",
+                "portable-review": "Review the bounded fixture artifact.",
             },
         }
         assignment = CAPABILITY_MODULE.resolve_assignment(catalog, request, skill_root)
@@ -770,6 +895,10 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         self.assertLessEqual(assignment["total_entrypoint_bytes"], 48 * 1024)
 
         documents = self.load_fixture("saas-onboarding-launch")
+        documents[0]["program_id"] = "company-os-portable-preflight-v1"
+        documents[1]["program_id"] = "company-os-portable-preflight-v1"
+        documents[1]["host_profile_id"] = "company-os-portable-host-v1"
+        documents[2]["program_id"] = "company-os-portable-preflight-v1"
         manager_definition = next(
             item
             for item in documents[2]["manager_definitions"]
@@ -797,7 +926,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             paths = self.write_inputs(root, documents)
-            result = MODULE.compile_program(*paths, root / "output")
+            result = MODULE.compile_program(*paths, root / "output", **context)
             selected_ref = next(
                 item
                 for item in result["work_packets"]
@@ -820,37 +949,47 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
                     continue
                 sibling = json.loads((root / "output" / reference["path"]).read_text())
                 self.assertNotIn("assigned_skill_ids", sibling)
-            MODULE.verify_output(root / "output", *paths)
+            MODULE.verify_output(root / "output", *paths, **context)
 
     def test_real_catalog_manager_skill_isolated_to_exact_manager_packet(self) -> None:
-        skill_root = ROOT / "skills/company-os/assign-capability-skills"
-        catalog = json.loads(
-            (skill_root / "references/capability-catalog.json").read_text()
+        skill_root = (
+            ROOT
+            / "skills/company-os/manage-company-program/fixtures/portable-capability-v1/skill-root"
         )
+        catalog_path = skill_root.parent / "catalog.json"
+        catalog = json.loads(catalog_path.read_text())
+        context = {
+            "capability_catalog": catalog_path,
+            "portable_skill_root": skill_root,
+        }
         request = {
             "$schema": "company-os.capability-request.v1",
             "authorized_permissions": [],
-            "domains": ["marketing"],
-            "execution_order": ["marketing-context-intake"],
+            "domains": ["software_engineering"],
+            "execution_order": ["portable-review"],
             "max_entrypoint_bytes": 49152,
             "max_skills": 4,
             "packet_id": "onboarding_manager",
-            "program_id": "saas-onboarding-launch",
-            "request_id": "onboarding-manager-marketing-context",
-            "requested_capability_ids": ["marketing-context-intake"],
+            "program_id": "company-os-portable-preflight-v1",
+            "request_id": "portable-review-manager",
+            "requested_capability_ids": ["portable-review"],
             "role": "manager",
             "selection_rationale": {
-                "marketing-context-intake": "The manager needs a bounded context record before planning downstream work."
+                "portable-review": "The manager reviews the bounded fixture artifact."
             },
         }
         assignment = CAPABILITY_MODULE.resolve_assignment(catalog, request, skill_root)
         documents = self.load_fixture("saas-onboarding-launch")
+        documents[0]["program_id"] = "company-os-portable-preflight-v1"
+        documents[1]["program_id"] = "company-os-portable-preflight-v1"
+        documents[1]["host_profile_id"] = "company-os-portable-host-v1"
+        documents[2]["program_id"] = "company-os-portable-preflight-v1"
         manager_definition = next(
             item
             for item in documents[2]["manager_definitions"]
             if item["manager_id"] == "onboarding_manager"
         )
-        manager_definition["work_domains"] = ["marketing"]
+        manager_definition["work_domains"] = ["software_engineering"]
         manager_definition["authorized_skill_permissions"] = []
         documents = (
             documents[0],
@@ -865,14 +1004,14 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             paths = self.write_inputs(root, documents)
-            result = MODULE.compile_program(*paths, root / "output")
+            result = MODULE.compile_program(*paths, root / "output", **context)
             selected_ref = next(
                 item
                 for item in result["manager_packets"]
                 if item["packet_id"] == "onboarding_manager"
             )
             selected = json.loads((root / "output" / selected_ref["path"]).read_text())
-            self.assertEqual(["marketing-context-intake"], selected["assigned_skill_ids"])
+            self.assertEqual(["portable-review"], selected["assigned_skill_ids"])
             self.assertEqual(request, selected["skill_assignment"]["request"])
             self.assertEqual(assignment, selected["skill_assignment"]["assignment"])
             for reference in result["manager_packets"]:
@@ -883,7 +1022,175 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
             for reference in result["work_packets"]:
                 sibling = json.loads((root / "output" / reference["path"]).read_text())
                 self.assertNotIn("assigned_skill_ids", sibling)
-            MODULE.verify_output(root / "output", *paths)
+            MODULE.verify_output(root / "output", *paths, **context)
+
+    def test_portable_v1_producer_output_is_byte_identical_through_compile_and_verify(self) -> None:
+        documents, _, _, context = self.real_skill_documents()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            first = MODULE.compile_program(*paths, root / "first", **context)
+            second = MODULE.compile_program(*paths, root / "second", **context)
+            first_files = sorted(path.relative_to(root / "first") for path in (root / "first").rglob("*") if path.is_file())
+            second_files = sorted(path.relative_to(root / "second") for path in (root / "second").rglob("*") if path.is_file())
+            self.assertEqual(first_files, second_files)
+            for relative in first_files:
+                self.assertEqual(
+                    (root / "first" / relative).read_bytes(),
+                    (root / "second" / relative).read_bytes(),
+                )
+            self.assertEqual(
+                first["manifest_sha256"],
+                MODULE.verify_output(root / "first", *paths, **context)["manifest_sha256"],
+            )
+
+    def test_skill_host_requires_atomic_four_part_context(self) -> None:
+        documents, _, _, _ = self.real_skill_documents()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            for kwargs in ({}, {"review_registry": {}}):
+                with self.assertRaises(MODULE.PreflightError) as caught:
+                    MODULE.compile_program(*paths, root / "output", **kwargs)
+                self.assertEqual("E_CAPABILITY_REVIEW_CONTEXT", caught.exception.code)
+                self.assertFalse((root / "output").exists())
+
+    def test_current_production_context_reaches_candidate_decision(self) -> None:
+        documents, _, _, _ = self.real_skill_documents()
+        context = self.production_context()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "output", **context)
+            self.assertEqual("E_DECISION", caught.exception.code)
+            self.assertFalse((root / "output").exists())
+
+    def test_independent_provenance_tamper_is_binding_error_and_context_is_unchanged(self) -> None:
+        documents, _, _, _ = self.real_skill_documents()
+        base_context = self.production_context()
+        for name in ("review_registry", "source_registry", "checkout_manifest"):
+            context = copy.deepcopy(base_context)
+            if name == "review_registry":
+                context[name]["catalog_sha256"] = "0" * 64
+            elif name == "source_registry":
+                context[name]["registry_id"] = "tampered-source-registry"
+            else:
+                context[name]["sources"][0]["source_tree"] = "0" * 40
+            before = copy.deepcopy(context)
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                paths = self.write_inputs(root, documents)
+                with self.assertRaises(MODULE.PreflightError) as caught:
+                    MODULE.compile_program(*paths, root / "output", **context)
+                self.assertEqual("E_BINDING", caught.exception.code)
+                self.assertFalse((root / "output").exists())
+            self.assertEqual(before, context)
+
+    def test_portable_fixture_identity_marker_and_cli_boundaries(self) -> None:
+        documents, _, _, context = self.real_skill_documents()
+        catalog_path, skill_root = self.portable_paths()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            renamed = json.loads(catalog_path.read_text())
+            renamed["catalog_id"] = "renamed-portable-catalog"
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "renamed", capability_catalog=renamed, portable_skill_root=skill_root)
+            self.assertEqual("E_CAPABILITY_REVIEW_CONTEXT", caught.exception.code)
+
+            wrong_program = copy.deepcopy(documents)
+            wrong_program[0]["program_id"] = "wrong-portable-program"
+            wrong_program[1]["program_id"] = "wrong-portable-program"
+            wrong_program[2]["program_id"] = "wrong-portable-program"
+            wrong_paths = self.write_inputs(root / "wrong-program", wrong_program)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*wrong_paths, root / "wrong-program-output", **context)
+            self.assertEqual("E_CAPABILITY_REVIEW_CONTEXT", caught.exception.code)
+
+            wrong_host = copy.deepcopy(documents)
+            wrong_host[1]["host_profile_id"] = "wrong-portable-host"
+            wrong_paths = self.write_inputs(root / "wrong-host", wrong_host)
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*wrong_paths, root / "wrong-host-output", **context)
+            self.assertEqual("E_CAPABILITY_REVIEW_CONTEXT", caught.exception.code)
+
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "production-root", capability_catalog=catalog_path, portable_skill_root=ROOT / "skills/company-os/assign-capability-skills")
+            self.assertEqual("E_CAPABILITY_REVIEW_CONTEXT", caught.exception.code)
+
+            copied_root = root / "missing-marker-root"
+            shutil.copytree(skill_root, copied_root)
+            (copied_root / MODULE.PORTABLE_FIXTURE_MARKER).unlink()
+            with self.assertRaises(MODULE.PreflightError) as caught:
+                MODULE.compile_program(*paths, root / "missing-marker", capability_catalog=catalog_path, portable_skill_root=copied_root)
+            self.assertEqual("E_CAPABILITY_REVIEW_CONTEXT", caught.exception.code)
+
+            with self.assertRaises(SystemExit):
+                MODULE.main(["compile", "--capability-catalog", str(catalog_path)])
+
+    def test_synthetic_accepted_v2_envelope_and_exact_rejections(self) -> None:
+        documents, context, contract, assignment = self.synthetic_v2_documents()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            with mock.patch.object(MODULE, "_capability_contract", return_value=contract):
+                result = MODULE.compile_program(*paths, root / "accepted", **context)
+                verified = MODULE.verify_output(root / "accepted", *paths, **context)
+            self.assertEqual(result["manifest_sha256"], verified["manifest_sha256"])
+
+        for missing in (*MODULE.V2_REVIEW_ROOT_KEYS, *MODULE.V2_REVIEW_SKILL_KEYS):
+            def remove_field(value, key=missing):
+                if key in value:
+                    del value[key]
+                else:
+                    del value["skills"][0][key]
+
+            documents, context, contract, _ = self.synthetic_v2_documents(assignment_mutate=remove_field)
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                paths = self.write_inputs(root, documents)
+                with mock.patch.object(MODULE, "_capability_contract", return_value=contract):
+                    with self.assertRaises(MODULE.PreflightError) as caught:
+                        MODULE.compile_program(*paths, root / "missing", **context)
+                self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
+
+        for bad_value in (None, "not-a-digest"):
+            def bad_review_digest(value, replacement=bad_value):
+                value["review_registry_sha256"] = replacement
+
+            documents, context, contract, _ = self.synthetic_v2_documents(assignment_mutate=bad_review_digest)
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                paths = self.write_inputs(root, documents)
+                with mock.patch.object(MODULE, "_capability_contract", return_value=contract):
+                    with self.assertRaises(MODULE.PreflightError) as caught:
+                        MODULE.compile_program(*paths, root / "bad-value", **context)
+                self.assertIn(caught.exception.code, {"E_SCHEMA", "E_CAPABILITY_BINDING"})
+
+        def extra_binding(binding):
+            binding["review_extra"] = "unexpected"
+
+        documents, context, contract, _ = self.synthetic_v2_documents(binding_mutate=extra_binding)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            with mock.patch.object(MODULE, "_capability_contract", return_value=contract):
+                with self.assertRaises(MODULE.PreflightError) as caught:
+                    MODULE.compile_program(*paths, root / "extra", **context)
+            self.assertIn(caught.exception.code, {"E_SCHEMA_UNKNOWN_KEY", "E_CAPABILITY_BINDING"})
+
+        def substituted_binding(binding):
+            binding["review_sha256"] = "e" * 64
+
+        documents, context, contract, _ = self.synthetic_v2_documents(binding_mutate=substituted_binding)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = self.write_inputs(root, documents)
+            with mock.patch.object(MODULE, "_capability_contract", return_value=contract):
+                with self.assertRaises(MODULE.PreflightError) as caught:
+                    MODULE.compile_program(*paths, root / "substituted", **context)
+            self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
 
     def test_duplicate_ui_domain_is_rejected(self) -> None:
         def mutate(documents):

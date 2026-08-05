@@ -78,3 +78,9 @@ scope, an owner or reporting destination is missing, a requested update would ov
 unapproved record, more than one primary market is asserted without a priority, or the work
 would require research, outreach, credentials, spending, legal advice, or any external
 effect. Return the unfinished fields and the authorized reviewer needed to resolve them.
+
+## Capability contract
+
+- Effect: `project_local_write (packet-owned context artifact only)`; permissions: `fs_read`, `fs_write`.
+- Consumes: `accepted_business_inputs`; produces: `marketing_context`.
+- Provider boundary: `none; no global or external writes`.

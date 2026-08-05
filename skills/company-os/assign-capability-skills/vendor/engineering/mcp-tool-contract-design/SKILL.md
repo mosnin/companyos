@@ -79,3 +79,9 @@ Stop and report the blocker when one tool would cross multiple ownership
 boundaries, effect authority is unclear, required data is sensitive without an
 approved handling rule, verification needs a provider call, or cancellation
 applies.
+
+## Capability contract
+
+- Effect: `no_effect`; permissions: none (`[]`).
+- Consumes: `integration_requirements`, `tool_policy`; produces: `mcp_tool_contract`.
+- Provider boundary: `provider_neutral_design; no tool/provider execution`.

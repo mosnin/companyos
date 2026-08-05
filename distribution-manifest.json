@@ -3,12 +3,12 @@
     "company-os",
     "autonomy-suite"
   ],
-  "distribution_version": "0.5.1",
+  "distribution_version": "0.6.0",
   "files": [
     {
       "path": "company-os/assign-capability-skills/SKILL.md",
-      "sha256": "c4dd263604102b3a2619ffcb6df7dd765228a1afa5f356220f67df9602971197",
-      "size": 5932
+      "sha256": "6a1c98dca66c19101cbab8517b6875fded5851658a5b92b70f3acd06e3a05a49",
+      "size": 6140
     },
     {
       "path": "company-os/assign-capability-skills/agents/openai.yaml",
@@ -32,8 +32,18 @@
     },
     {
       "path": "company-os/assign-capability-skills/references/capability-catalog.json",
-      "sha256": "eaff2f1a03189d72b3ded9290df7f92bc236e1eaa28e6c6df2328c4f8a765ca9",
-      "size": 2137476
+      "sha256": "46e31b2f4ffdf2362e2c70a8bc254b72a01d5b5b1d37a138e634cf33096ca271",
+      "size": 2137575
+    },
+    {
+      "path": "company-os/assign-capability-skills/references/capability-review-decisions.json",
+      "sha256": "f56fb43739edc6bbf0ceaeaf340524d4818a24d9b69810842c1475f7bc419c1b",
+      "size": 23648
+    },
+    {
+      "path": "company-os/assign-capability-skills/references/capability-review-registry.json",
+      "sha256": "022d12afad5148b1e847612b112cbf50b35147aba10e64e3ac18e47ffd1d25f6",
+      "size": 39099
     },
     {
       "path": "company-os/assign-capability-skills/references/curation-manifest.json",
@@ -57,73 +67,78 @@
     },
     {
       "path": "company-os/assign-capability-skills/scripts/capability_catalog.py",
-      "sha256": "ddc623b33e734222f0eb7b8af3a64c84ca42b564616108e5ebb0be3676c2612d",
-      "size": 44244
+      "sha256": "1a3b8b6cde821574d03862d1ef63a49b16d4a5442a2256d2a6bf139268a14bd5",
+      "size": 70128
+    },
+    {
+      "path": "company-os/assign-capability-skills/scripts/capability_review_registry.py",
+      "sha256": "5e5a122c80de715c0837c6681ff1188eb6b50b89a406df0f45c2ee2ed37dbd3c",
+      "size": 77419
     },
     {
       "path": "company-os/assign-capability-skills/scripts/promote_curated_capabilities.py",
-      "sha256": "a5b5f5744436276f5a563678cbb7a180db66fb02245bf30ca7509f92ee5073bc",
-      "size": 10959
+      "sha256": "9d516c1aec03dd24aa3a5fb433710c1f720bb3784c3b7c9425d0a73da59d8d54",
+      "size": 11643
     },
     {
       "path": "company-os/assign-capability-skills/vendor/business/capability-assessment/SKILL.md",
-      "sha256": "cad4e40591237f871fa872d7613a9decdec7a01b8d2e5a87f11db06027742f6d",
-      "size": 4170
+      "sha256": "78409535039ac6cbf109ae34f7c9ed7263cf3da21dba8cc15b6e0942645ac178",
+      "size": 4372
     },
     {
       "path": "company-os/assign-capability-skills/vendor/business/market-definition/SKILL.md",
-      "sha256": "5901307680a108338da90c5d4f50d3c91175a1f9d853e2a67a09b141965c1644",
-      "size": 4109
+      "sha256": "436e636129ba68e559aca39ca8b352648c6e4f33534888c49222603431467038",
+      "size": 4326
     },
     {
       "path": "company-os/assign-capability-skills/vendor/business/market-opportunity-artifact/SKILL.md",
-      "sha256": "7d333457584957c6e5827ee416cc404ea8bce996a47ddb86d598abed66e285eb",
-      "size": 4947
+      "sha256": "dae970327eb3e127f59d0d766da243ac8e1597d84cd09d31753d5e3d18978ebe",
+      "size": 5175
     },
     {
       "path": "company-os/assign-capability-skills/vendor/business/marketing-context-intake/SKILL.md",
-      "sha256": "c0996b4d32789f1052c41fe0d5d9337ce323ce4aee70316b7f7415315d1fff0f",
-      "size": 4576
+      "sha256": "c27a829420e33edd69bbedc6b00886970d04c5ca8a9e6930226449f6a9da0bf5",
+      "size": 4837
     },
     {
       "path": "company-os/assign-capability-skills/vendor/business/risk-matrix/SKILL.md",
-      "sha256": "950bfdc7bdfeec12dd16d3edee8aae036bc849903201d0a3ce5f1acf85ac27a6",
-      "size": 4108
+      "sha256": "dcd08b6f69243ec9ccb4d1a53c60d45a0a8b0fd2c41ce78b350d452c7b7ddb88",
+      "size": 4321
     },
     {
       "path": "company-os/assign-capability-skills/vendor/business/scenario-development/SKILL.md",
-      "sha256": "f4d30849daf86cb8b6c14c85c1ea06e440ccab3815ec2f8767c2d5206e5e6660",
-      "size": 4280
+      "sha256": "a7d9ad186644f2da0a618a379c25e5b5fc406ae394e43bdc898e3776c588d411",
+      "size": 4497
     },
     {
       "path": "company-os/assign-capability-skills/vendor/engineering/browser-boundary-design/SKILL.md",
-      "sha256": "0aa96289b96fbc35bf145cc67e587e0ef07ae35d489188351a5f86461ce40a13",
-      "size": 4003
+      "sha256": "ef6dcf9124725dd6f381dbb7eb306490aed516a62a66a448bebbf42f3fc0662e",
+      "size": 4226
     },
     {
       "path": "company-os/assign-capability-skills/vendor/engineering/durable-state-design/SKILL.md",
-      "sha256": "02b41bc855660e6226e34fbdd8193020770d724596c8ccca4e176d9d34c0465f",
-      "size": 4133
+      "sha256": "55c3d8b4fcd24af358464d59e56de2fd761a0f796c297a8c272ca41a7a223b54",
+      "size": 4353
     },
     {
       "path": "company-os/assign-capability-skills/vendor/engineering/engineering-adversarial-review/SKILL.md",
-      "sha256": "3a28d1bc80e1ee64087bf5c3d70233eae79ed6e05f2b5c0167675176b2f53156",
-      "size": 3768
+      "sha256": "56f581dd0e111c152d9d026ede8b7e6ec4b022d4b21540c8cde6a552a4754972",
+      "size": 3986
     },
     {
       "path": "company-os/assign-capability-skills/vendor/engineering/engineering-red-green-evidence/SKILL.md",
-      "sha256": "0c5302749bdb609c433e9e9f96976d456a37749aae0c1ed9f5698f538df31675",
-      "size": 3970
+      "sha256": "b846fe5e5eb6faf466bbff4bd08f86d8b9ac4306a0578f5c89f5a4d886e53e38",
+      "size": 4263
     },
     {
       "path": "company-os/assign-capability-skills/vendor/engineering/mcp-tool-contract-design/SKILL.md",
-      "sha256": "8842bb35aafe7c6b2a153c30fbc3fa84b37fcfef91344a95799c00db0393cc05",
-      "size": 4144
+      "sha256": "5e2690ad0c17012dd173f05071dae43b14ab6765b608b3b38ce9e09ff997b4f1",
+      "size": 4380
     },
     {
       "path": "company-os/assign-capability-skills/vendor/engineering/systematic-debugging/SKILL.md",
-      "sha256": "a611f866704303df3d17befa658acbdf3cdb22542cfa84546dd248e2e3862e27",
-      "size": 4369
+      "sha256": "1ab881c98a5ef6ca244032e898791325e9cbb1fe78a5e40af9921e4f56ec47b2",
+      "size": 4700
     },
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -192,8 +207,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "6cd65d2c7f169b69b49ff4d9ca73d529214cb05991e6a97c9efb106f2648938f",
-      "size": 12847
+      "sha256": "85939e65da99dca617e20ad0700d1bc864d40f541fd910bb6445bc8265989b33",
+      "size": 14819
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -319,6 +334,61 @@
       "path": "company-os/elastic-company-os/scripts/test_runtime_receipts.py",
       "sha256": "3ee00c9521ada8b6fa4ba93b4655a0a414ff3101b337148ef14f9572db2a1361",
       "size": 25873
+    },
+    {
+      "path": "company-os/evaluate-company-evidence/SKILL.md",
+      "sha256": "0726ba97944f6c9475134ae8415da8855475bd9c6c98859ded48fb41158ef943",
+      "size": 2608
+    },
+    {
+      "path": "company-os/evaluate-company-evidence/agents/openai.yaml",
+      "sha256": "c1c73a54008df1c1de9a72cf45c5b1c1f8319b1507e76e93a191e51570b1d475",
+      "size": 283
+    },
+    {
+      "path": "company-os/evaluate-company-evidence/references/evaluation-method-decisions.json",
+      "sha256": "0a95d6866b03de51f6cc934f81a478886ff4d7ab99b41942b8f18ff3ef48df9a",
+      "size": 6795
+    },
+    {
+      "path": "company-os/evaluate-company-evidence/references/evaluator-evidence-registry.json",
+      "sha256": "57174252aca7e992d612d1b5ad7f81d2c2b05093c27c59c355cad385819df405",
+      "size": 10137
+    },
+    {
+      "path": "company-os/evaluate-company-evidence/scripts/evaluator_evidence_registry.py",
+      "sha256": "f4a55b52a34f03009d03478fc4813300605efd51d61c7c9cd1f6013d73c2c6e2",
+      "size": 15268
+    },
+    {
+      "path": "company-os/evolve-company-capability/SKILL.md",
+      "sha256": "d5b912b757906eb2f204e5f844d33faba89e00f81eeff5c57ded2f0bfa8d3d85",
+      "size": 4049
+    },
+    {
+      "path": "company-os/evolve-company-capability/agents/openai.yaml",
+      "sha256": "7905acc85998e86db256da6c621855f2bf87682b8526b45ed9786520f8058cd4",
+      "size": 275
+    },
+    {
+      "path": "company-os/evolve-company-capability/assets/profile-registry.json",
+      "sha256": "e7dafa0c27c01e1d7a8896cfba0c3d7ea35b05102133053f750af47dc5881eee",
+      "size": 578
+    },
+    {
+      "path": "company-os/evolve-company-capability/references/improvement-contract.md",
+      "sha256": "7bac7634e783d85eadc8b622ec63671e8c9e1cda71778691e54bdc60e4d9d771",
+      "size": 2238
+    },
+    {
+      "path": "company-os/evolve-company-capability/references/source-essence.md",
+      "sha256": "68d57e245f751045cac1c20a653b4c758d2e4f8ffbdabf131ee160e4cbed3b90",
+      "size": 1811
+    },
+    {
+      "path": "company-os/evolve-company-capability/scripts/compile_improvement_program.py",
+      "sha256": "6cf71aa2e2a5ca35aafb6b4e49ba5972783ab4d4261f73fe96b648ff3935533a",
+      "size": 69805
     },
     {
       "path": "company-os/force-first-execution/SKILL.md",
@@ -561,6 +631,21 @@
       "size": 12580
     },
     {
+      "path": "company-os/manage-company-program/fixtures/portable-capability-v1/catalog.json",
+      "sha256": "607bc51165228507787bcc3157beb519b4a1c57aea92d6e65e5cc5b24a7eebc5",
+      "size": 1352
+    },
+    {
+      "path": "company-os/manage-company-program/fixtures/portable-capability-v1/skill-root/.company-os-portable-v1",
+      "sha256": "c5c5d7a034e62b25604fbb3e67e5ef219a84b7d8aee59fc81f045edd5e0b65ad",
+      "size": 42
+    },
+    {
+      "path": "company-os/manage-company-program/fixtures/portable-capability-v1/skill-root/vendor/fixture/portable-review/SKILL.md",
+      "sha256": "ee5b9bebfde6b232148a6e2089a29ba44b21d3331781f7a252dbe68614c9f75d",
+      "size": 182
+    },
+    {
       "path": "company-os/manage-company-program/fixtures/saas-onboarding-launch/host-capabilities.json",
       "sha256": "ce379cd36a643998505514b2455593866d75d48d2fcd260a7af061c69c9c9a06",
       "size": 1304
@@ -587,8 +672,8 @@
     },
     {
       "path": "company-os/manage-company-program/schemas/host-capabilities.schema.json",
-      "sha256": "5b0b84d9957b2379235ac869551a9231db7cc28e6a995cf71c6b6054318d3e07",
-      "size": 3933
+      "sha256": "c31c291344d0ec872d62800bb85a66add84bb4f6fd182501f54cc5539c7b5bdc",
+      "size": 4823
     },
     {
       "path": "company-os/manage-company-program/schemas/program-semantics.schema.json",
@@ -602,8 +687,8 @@
     },
     {
       "path": "company-os/manage-company-program/scripts/compile_program_preflight.py",
-      "sha256": "37f0a148ad05eaf2682de1bf2bc7026770825751242004618499d9024d5fcfd8",
-      "size": 105788
+      "sha256": "1dbcd1981a33b7de17becc83026b9823d403f4de70f105db98df908e5f5fc062",
+      "size": 122775
     },
     {
       "path": "company-os/operational-control/SKILL.md",
@@ -659,6 +744,31 @@
       "path": "company-os/select-execution-loop/scripts/select_execution_loop.py",
       "sha256": "2249fb66be779654ec556bf469dd3577f918c42b74598598a4fdb23c8f9b4512",
       "size": 13270
+    },
+    {
+      "path": "company-os/source-intelligence/SKILL.md",
+      "sha256": "5a97a722f33deaba5a19a4c9b4b3603aa32eff2fd5f0fb48642df4899341c332",
+      "size": 2966
+    },
+    {
+      "path": "company-os/source-intelligence/agents/openai.yaml",
+      "sha256": "c4cd064b6d197688da7211c440042ee6c911f1fa138221c1e3515434703ea0d3",
+      "size": 317
+    },
+    {
+      "path": "company-os/source-intelligence/references/mechanism-plane-registry.json",
+      "sha256": "4b4ec45b35bba85013d5bdc7a5d16e72ccd08465da8b7a7738bd49f6d4202e73",
+      "size": 64370
+    },
+    {
+      "path": "company-os/source-intelligence/references/source-intelligence-registry.json",
+      "sha256": "2668c17579e97d4afa2ca7bbc3e36e320b98164f68bdfbcda57ea7599097faae",
+      "size": 86871
+    },
+    {
+      "path": "company-os/source-intelligence/scripts/source_intelligence.py",
+      "sha256": "a2f45c2974169bbb0eee316521005e35cdfacff3563196039674cec38343a128",
+      "size": 21902
     },
     {
       "path": "company-os/ui-design-quality/LICENSE.upstream",

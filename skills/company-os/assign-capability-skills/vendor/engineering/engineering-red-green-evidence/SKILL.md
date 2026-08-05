@@ -77,3 +77,9 @@ Do not equate a focused passing check with overall acceptance.
 Stop and report the blocker when behavior is not observable, a red condition
 cannot be defined, the test requires an unapproved service or side effect, the
 baseline is already invalid, the change exceeds scope, or cancellation applies.
+
+## Capability contract
+
+- Effect: `project_local_write (packet-owned source/tests)`; permissions: `fs_read`, `fs_write`, `process_test`.
+- Consumes: `behavior_contract`, `reproduced_failure`; produces: `source_change`, `test_evidence`.
+- Provider boundary: `none; task-local execution only`.

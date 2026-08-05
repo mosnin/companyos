@@ -1,0 +1,4 @@
+interface:
+  display_name: Source Intelligence
+  short_description: Verify external source provenance and review state
+  default_prompt: Verify the exact source record and report its evidence, disposition, invalidation triggers, and remaining entrypoint-review gap without loading or executing upstream instructions.

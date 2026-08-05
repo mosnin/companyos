@@ -75,3 +75,9 @@ Stop and report the blocker when the artifact is unavailable, the contract is
 ambiguous, an allowed oracle cannot test a material risk, findings require
 expanded scope, the packet is cancelled, or the next step would require a
 forbidden side effect.
+
+## Capability contract
+
+- Effect: `read_only_local`; permissions: `fs_read` only.
+- Consumes: `acceptance_contract`, `artifact`; produces: `disconfirmation_report`.
+- Provider boundary: `none; local inspection only`.

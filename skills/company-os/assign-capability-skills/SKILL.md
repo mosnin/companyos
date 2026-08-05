@@ -20,6 +20,9 @@ language query and treat an empty result as proof that no skill is needed.
    with `scripts/capability_catalog.py search --dispatchable-only`. Search
    returns metadata only; it never loads instructions. Omit the flag only for a
    research decision about unavailable source material.
+   Resolve the catalog source through `$source-intelligence`. Source catalog
+   membership is not review completeness, and a new entrypoint cannot dispatch
+   without a bound entrypoint-level review dossier.
 2. The manager chooses the smallest exact set of capability IDs and records why
    each is necessary. Zero skills is valid only when the accepted artifact
    contract has no required specialized capability. Do not select a skill just

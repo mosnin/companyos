@@ -78,3 +78,9 @@ Stop and report the blocker when the entity identity is unstable, durable
 invariants conflict, ownership is ambiguous, an effect would precede its
 durable record without acceptance, a provider decision is needed, or
 cancellation applies.
+
+## Capability contract
+
+- Effect: `no_effect`; permissions: none (`[]`).
+- Consumes: `architecture_requirements`; produces: `durable_state_design`.
+- Provider boundary: `provider_neutral_design; no provider execution`.

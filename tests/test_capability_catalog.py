@@ -9,10 +9,15 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = ROOT / "skills/company-os/assign-capability-skills"
+PRODUCTION_CATALOG_PATH = SKILL_ROOT / "references/capability-catalog.json"
+REVIEW_REGISTRY_PATH = SKILL_ROOT / "references/capability-review-registry.json"
+SOURCE_INTELLIGENCE_PATH = ROOT / "skills/company-os/source-intelligence/references/source-intelligence-registry.json"
+CHECKOUT_MANIFEST_PATH = Path("/Users/preston/Documents/Codex/2026-08-05/company-os-all-repos-depth/evidence/master/capability-review-checkouts.v1.json")
 MODULE_PATH = SKILL_ROOT / "scripts/capability_catalog.py"
 SPEC = importlib.util.spec_from_file_location("capability_catalog", MODULE_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -232,10 +237,9 @@ class CapabilityCatalogTests(unittest.TestCase):
         raw = catalog_path.read_bytes()
         catalog = json.loads(raw)
         self.assertEqual(raw, MODULE.canonical_bytes(catalog))
-        evidence = MODULE.validate_catalog(catalog, SKILL_ROOT, verify_files=True)
-        self.assertEqual(23, evidence["source_count"])
-        self.assertEqual(2633, evidence["capability_count"])
-        self.assertEqual(12, evidence["dispatchable_count"])
+        with self.assertRaises(MODULE.CatalogError) as ctx:
+            MODULE.validate_catalog(catalog, SKILL_ROOT, verify_files=True)
+        self.assertEqual("E_REVIEW_REQUIRED", ctx.exception.code)
         self.assertEqual(
             {
                 "browser-boundary-design",
@@ -265,20 +269,61 @@ class CapabilityCatalogTests(unittest.TestCase):
         )
         reproduced = PROMOTER.promote(source_catalog, curation, SKILL_ROOT)
         self.assertEqual(raw, MODULE.canonical_bytes(reproduced))
-        results = MODULE.search_catalog(
-            catalog,
-            "systematic debugging evidence",
-            role="worker",
-            domain="software_engineering",
-            limit=5,
-            dispatchable_only=True,
-        )
-        self.assertTrue(results["dispatchable_only"])
-        self.assertIn(
-            "systematic-debugging",
-            [item["capability_id"] for item in results["results"]],
-        )
-        self.assertTrue(all(item["dispatchable"] for item in results["results"]))
+        with self.assertRaises(MODULE.CatalogError) as ctx:
+            MODULE.search_catalog(
+                catalog,
+                "systematic debugging evidence",
+                role="worker",
+                domain="software_engineering",
+                limit=5,
+                dispatchable_only=True,
+            )
+        self.assertEqual(ctx.exception.code, "E_REVIEW_REQUIRED")
+        with self.assertRaises(MODULE.CatalogError) as ctx:
+            MODULE.search_catalog(
+                catalog,
+                "systematic debugging evidence",
+                role="worker",
+                domain="software_engineering",
+                limit=5,
+                dispatchable_only=True,
+                skill_root=SKILL_ROOT,
+                review_registry=json.loads(REVIEW_REGISTRY_PATH.read_text()),
+                source_registry=json.loads(SOURCE_INTELLIGENCE_PATH.read_text()),
+            )
+        self.assertEqual(ctx.exception.code, "E_REVIEW_REQUIRED")
+
+    def test_production_assignment_v2_cannot_downgrade_or_strip_review_binding(self) -> None:
+        catalog = json.loads(PRODUCTION_CATALOG_PATH.read_text())
+        source_registry = json.loads(SOURCE_INTELLIGENCE_PATH.read_text())
+        manifest = json.loads(CHECKOUT_MANIFEST_PATH.read_text())
+        registry = json.loads(REVIEW_REGISTRY_PATH.read_text())
+        for record in registry["records"]:
+            record["review_decision"] = "approved_narrow_wrapper"
+        request = {
+            "$schema": "company-os.capability-request.v1",
+            "request_id": "production-v2-request",
+            "program_id": "company-os",
+            "packet_id": "production-v2-packet",
+            "role": "worker",
+            "domains": ["software_engineering"],
+            "authorized_permissions": ["fs_read", "fs_write", "process_test"],
+            "requested_capability_ids": ["systematic-debugging"],
+            "execution_order": ["systematic-debugging"],
+            "selection_rationale": {"systematic-debugging": "bounded diagnosis"},
+            "max_skills": 4,
+            "max_entrypoint_bytes": 49152,
+        }
+        with self.assertRaises(MODULE.CatalogError) as ctx:
+            MODULE.resolve_assignment(
+                catalog,
+                request,
+                SKILL_ROOT,
+                review_registry=registry,
+                checkout_manifest=manifest,
+                source_registry=source_registry,
+            )
+        self.assertEqual(ctx.exception.code, "E_REVIEW_REQUIRED")
 
     def test_promoter_rejects_readme_and_mismatched_skill_frontmatter(self) -> None:
         source_catalog = json.loads(
@@ -340,6 +385,52 @@ class CapabilityCatalogTests(unittest.TestCase):
             self.assertEqual("example-frontend-review", first["skills"][0]["capability_id"])
             self.assertNotIn(b"Secret procedural body", MODULE.canonical_bytes(first))
             MODULE.validate_assignment(first)
+
+    def test_replay_commit_is_last_for_catalog_operations(self) -> None:
+        """A gate may be checked repeatedly, but errors cannot consume it."""
+        portable = {
+            "acceptance_receipt": {"receipt_id": "test-replay-receipt"},
+            "scope": {"operation_id": "test-replay-operation"},
+            "selected_capability_ids": [],
+            "records": [],
+        }
+        with tempfile.TemporaryDirectory() as directory, patch.object(
+            MODULE, "_review_evidence", return_value=None
+        ):
+            skill_root, catalog, request = self.fixture(Path(directory))
+            for failed_call in (
+                lambda state: MODULE.resolve_assignment(
+                    catalog, {"$schema": "company-os.capability-request.v1"}, skill_root,
+                    portable_bundle=portable, replay_state=state,
+                ),
+                lambda state: MODULE.search_catalog(
+                    catalog, "", role="worker", domain="ui_design", limit=5,
+                    portable_bundle=portable, replay_state=state,
+                ),
+                lambda state: MODULE.augment_host_manifest(
+                    catalog, {"$id": "wrong"}, [(request, MODULE.resolve_assignment(catalog, request, skill_root))], skill_root,
+                    portable_bundle=portable, replay_state=state,
+                ),
+            ):
+                state = {"consumed_receipts": {}}
+                before = MODULE.canonical_bytes(state)
+                with self.assertRaises(MODULE.CatalogError):
+                    failed_call(state)
+                self.assertEqual(before, MODULE.canonical_bytes(state))
+
+            state = {"consumed_receipts": {}}
+            assignment = MODULE.resolve_assignment(
+                catalog, request, skill_root, portable_bundle=portable, replay_state=state,
+            )
+            self.assertEqual(
+                {"test-replay-receipt": "test-replay-operation"}, state["consumed_receipts"]
+            )
+            before_repeat = MODULE.canonical_bytes(state)
+            repeated = MODULE.resolve_assignment(
+                catalog, request, skill_root, portable_bundle=portable, replay_state=state,
+            )
+            self.assertEqual(MODULE.canonical_bytes(assignment), MODULE.canonical_bytes(repeated))
+            self.assertEqual(before_repeat, MODULE.canonical_bytes(state))
 
     def test_multi_skill_execution_order_is_explicit_preserved_and_exact(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

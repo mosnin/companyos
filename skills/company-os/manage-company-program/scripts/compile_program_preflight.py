@@ -49,6 +49,25 @@ SKILL_RUNTIME_TYPE = "codex_native_skill_reference"
 SKILL_RUNTIME_LOCATOR = "runtime://codex/native-skill"
 UI_DESIGN_DOMAIN = "ui_design"
 UI_DESIGN_CAPABILITY = "ui_design_quality"
+ASSIGNMENT_V2_SCHEMA = "company-os.capability-assignment.v2"
+PORTABLE_FIXTURE_CATALOG_ID = "company-os-portable-capability-fixture-v1"
+PORTABLE_FIXTURE_PROGRAM_ID = "company-os-portable-preflight-v1"
+PORTABLE_FIXTURE_HOST_PROFILE_ID = "company-os-portable-host-v1"
+PORTABLE_FIXTURE_MARKER = ".company-os-portable-v1"
+V2_REVIEW_ROOT_KEYS = (
+    "review_registry_sha256",
+    "review_portable_bundle_sha256",
+    "review_acceptance_receipt_sha256",
+)
+V2_REVIEW_SKILL_KEYS = (
+    "review_id",
+    "review_sha256",
+    "review_phase",
+    "review_effect_class",
+    "review_provider_boundary",
+    "review_consumes_artifact_kinds",
+    "review_produces_artifact_kinds",
+)
 UI_SOURCE_SUFFIXES = {
     ".css",
     ".htm",
@@ -633,7 +652,9 @@ def _enforce_ui_design_gate(
 
 
 def _validate_host(
-    host: Mapping[str, Any], required_capability_ids: Sequence[str]
+    host: Mapping[str, Any],
+    required_capability_ids: Sequence[str],
+    governed_context: Mapping[str, Any] | None = None,
 ) -> tuple[
     dict[str, Mapping[str, Any]],
     dict[str, Mapping[str, Any]],
@@ -761,12 +782,83 @@ def _validate_host(
                 "E_CAPABILITY_UNAVAILABLE",
                 f"required capability {capability_id!r} is unavailable",
             )
-    skill_assignments = _validate_skill_assignment_records(host, capabilities)
+    skill_assignments = _validate_skill_assignment_records(
+        host, capabilities, governed_context
+    )
     return capabilities, runtimes, skill_assignments
 
 
+def _assignment_binding_envelope(
+    assignment: Mapping[str, Any],
+    skill: Mapping[str, Any],
+    catalog_sha256: str,
+) -> dict[str, Any]:
+    """Return the exact host binding envelope reproduced by an assignment."""
+
+    envelope = {
+        "assignment_id": assignment["assignment_id"],
+        "assignment_sha256": assignment["binding"]["canonical_sha256"],
+        "catalog_sha256": catalog_sha256,
+        "entrypoint_sha256": skill["entrypoint_sha256"],
+        "packet_id": assignment["packet_id"],
+        "request_sha256": assignment["request_sha256"],
+        "role": assignment["role"],
+        "source_commit": skill["source_commit"],
+        "source_id": skill["source_id"],
+        "upstream_entrypoint_sha256": skill["upstream_entrypoint_sha256"],
+    }
+    is_v2 = (
+        assignment.get("$schema") == ASSIGNMENT_V2_SCHEMA
+        and assignment.get("schema_version") == 2
+    )
+    review_present = set(V2_REVIEW_ROOT_KEYS) | set(V2_REVIEW_SKILL_KEYS)
+    if not is_v2:
+        if review_present.intersection(assignment) or review_present.intersection(skill):
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                "v1 skill assignment carries unsupported review metadata",
+            )
+        return envelope
+    missing_root = [key for key in V2_REVIEW_ROOT_KEYS if key not in assignment]
+    missing_skill = [key for key in V2_REVIEW_SKILL_KEYS if key not in skill]
+    if missing_root or missing_skill:
+        raise PreflightError(
+            "E_CAPABILITY_BINDING",
+            f"v2 skill assignment review envelope is incomplete; missing_root={missing_root!r}, missing_skill={missing_skill!r}",
+        )
+    for key in (*V2_REVIEW_ROOT_KEYS, "review_sha256"):
+        value = assignment.get(key) if key in V2_REVIEW_ROOT_KEYS else skill.get(key)
+        if not isinstance(value, str) or HEX64_RE.fullmatch(value) is None:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"v2 skill assignment review digest {key!r} is not a non-null lowercase sha256",
+            )
+    if not isinstance(skill["review_id"], str) or ID_RE.fullmatch(skill["review_id"]) is None:
+        raise PreflightError("E_CAPABILITY_BINDING", "v2 skill assignment review_id is invalid")
+    for key in ("review_phase", "review_effect_class", "review_provider_boundary"):
+        if not isinstance(skill[key], str) or not skill[key]:
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"v2 skill assignment {key} is null or invalid",
+            )
+    for key in ("review_consumes_artifact_kinds", "review_produces_artifact_kinds"):
+        value = skill[key]
+        if not isinstance(value, list) or not value or any(
+            not isinstance(item, str) or ID_RE.fullmatch(item) is None for item in value
+        ):
+            raise PreflightError(
+                "E_CAPABILITY_BINDING",
+                f"v2 skill assignment {key} is null or invalid",
+            )
+    envelope.update({key: assignment[key] for key in V2_REVIEW_ROOT_KEYS})
+    envelope.update({key: skill[key] for key in V2_REVIEW_SKILL_KEYS})
+    return envelope
+
+
 def _validate_skill_assignment_records(
-    host: Mapping[str, Any], capabilities: Mapping[str, Mapping[str, Any]]
+    host: Mapping[str, Any],
+    capabilities: Mapping[str, Mapping[str, Any]],
+    governed_context: Mapping[str, Any] | None = None,
 ) -> dict[tuple[str, str], Mapping[str, Any]]:
     skill_capabilities = {
         capability_id: capability
@@ -787,14 +879,53 @@ def _validate_skill_assignment_records(
             "host skill capabilities lack resolver-verifiable assignment records",
         )
 
-    skill_root = Path(__file__).resolve().parent.parent.parent / "assign-capability-skills"
-    contract_path = skill_root / "scripts" / "capability_catalog.py"
-    catalog_path = skill_root / "references" / "capability-catalog.json"
+    # A host that carries assignments is a capability-consumer boundary.  Do
+    # not silently rediscover the production catalog or its provenance here:
+    # the caller must provide one complete, explicit governed context.
+    if governed_context is None:
+        raise PreflightError(
+            "E_CAPABILITY_REVIEW_CONTEXT",
+            "skill assignments require capability review registry, source intelligence registry, capability skill root, and checkout manifest",
+        )
+    skill_root = Path(governed_context["skill_root"])
     try:
-        contract = runpy.run_path(str(contract_path), run_name="company_os_capability_contract")
-        catalog = contract["_read_canonical_json"](catalog_path, "approved capability catalog")
-        catalog_evidence = contract["validate_catalog"](catalog, skill_root, verify_files=True)
+        contract = _capability_contract(skill_root)
+        catalog = governed_context.get("catalog")
+        if catalog is None:
+            catalog_path = skill_root / "references" / "capability-catalog.json"
+            catalog = contract["_read_canonical_json"](
+                catalog_path, "approved capability catalog"
+            )
+        validation_kwargs = {}
+        if not governed_context.get("portable"):
+            validation_kwargs = {
+                "review_registry": governed_context["review_registry"],
+                "checkout_manifest": governed_context["checkout_manifest"],
+                "source_registry": governed_context["source_registry"],
+            }
+            if contract["_production_catalog"](catalog):
+                review_module = contract.get("_review_module")
+                if review_module is None:
+                    raise PreflightError(
+                        "E_CAPABILITY_REVIEW_CONTEXT",
+                        "production capability contract lacks its review gate",
+                    )
+                review_module().validate_registry(
+                    governed_context["review_registry"],
+                    catalog,
+                    governed_context["source_registry"],
+                    skill_root,
+                    governed_context["checkout_manifest"],
+                    require_accepted=True,
+                )
+                validation_kwargs["enforce_review_gate"] = False
+        catalog_evidence = contract["validate_catalog"](
+            catalog, skill_root, verify_files=True, **validation_kwargs
+        )
     except Exception as exc:
+        code = getattr(exc, "code", None)
+        if code in {"E_BINDING", "E_DECISION"}:
+            raise PreflightError(code, str(exc)) from exc
         raise PreflightError(
             "E_CAPABILITY_BINDING",
             f"approved capability catalog cannot be loaded or verified: {exc}",
@@ -813,7 +944,12 @@ def _validate_skill_assignment_records(
         assignment = record["assignment"]
         try:
             expected_assignment = contract["resolve_assignment"](
-                catalog, request, skill_root
+                catalog,
+                request,
+                skill_root,
+                review_registry=governed_context["review_registry"],
+                checkout_manifest=governed_context["checkout_manifest"],
+                source_registry=governed_context["source_registry"],
             )
             contract["validate_assignment"](assignment)
             if contract["canonical_bytes"](assignment) != contract["canonical_bytes"](
@@ -845,18 +981,9 @@ def _validate_skill_assignment_records(
                 assignment["role"],
                 assignment["assignment_id"],
             )
-            expected_bindings[binding_identity] = {
-                "assignment_id": assignment["assignment_id"],
-                "assignment_sha256": assignment["binding"]["canonical_sha256"],
-                "catalog_sha256": catalog_evidence["catalog_sha256"],
-                "entrypoint_sha256": skill["entrypoint_sha256"],
-                "packet_id": assignment["packet_id"],
-                "request_sha256": assignment["request_sha256"],
-                "role": assignment["role"],
-                "source_commit": skill["source_commit"],
-                "source_id": skill["source_id"],
-                "upstream_entrypoint_sha256": skill["upstream_entrypoint_sha256"],
-            }
+            expected_bindings[binding_identity] = _assignment_binding_envelope(
+                assignment, skill, catalog_evidence["catalog_sha256"]
+            )
             capability = skill_capabilities.get(skill["capability_id"])
             if capability is None:
                 raise PreflightError(
@@ -1708,13 +1835,202 @@ def _ensure_empty_output_dir(output_dir: Path) -> None:
             raise PreflightError("E_OUTPUT_DIR", f"cannot create output directory {output_dir}: {exc}") from exc
 
 
+def _read_governed_json(value: Any, label: str) -> dict[str, Any]:
+    """Read one governed registry without accepting caller-supplied digests."""
+
+    if isinstance(value, Mapping):
+        result = copy.deepcopy(dict(value))
+    elif isinstance(value, (str, Path)):
+        path = Path(value)
+        try:
+            raw = path.read_bytes()
+            result = json.loads(raw.decode("utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise PreflightError("E_CAPABILITY_REVIEW_CONTEXT", f"cannot read {label}: {exc}") from exc
+    else:
+        raise PreflightError("E_CAPABILITY_REVIEW_CONTEXT", f"{label} must be a JSON object or path")
+    if not isinstance(result, dict):
+        raise PreflightError("E_CAPABILITY_REVIEW_CONTEXT", f"{label} must be a JSON object")
+    return result
+
+
+def _capability_contract(skill_root: Path) -> dict[str, Any]:
+    """Load the capability contract while keeping fixture roots data-only."""
+
+    contract_path = skill_root / "scripts" / "capability_catalog.py"
+    if not contract_path.is_file():
+        contract_path = (
+            Path(__file__).resolve().parent.parent.parent
+            / "assign-capability-skills"
+            / "scripts"
+            / "capability_catalog.py"
+        )
+    try:
+        return runpy.run_path(str(contract_path), run_name="company_os_capability_contract")
+    except Exception as exc:
+        raise PreflightError(
+            "E_CAPABILITY_REVIEW_CONTEXT",
+            f"capability contract cannot be loaded: {exc}",
+        ) from exc
+
+
+def _normalize_governed_context(
+    *,
+    review_registry: Any = None,
+    source_registry: Any = None,
+    skill_root: Any = None,
+    checkout_manifest: Any = None,
+    capability_review_registry: Any = None,
+    source_intelligence_registry: Any = None,
+    capability_skill_root: Any = None,
+    capability_catalog: Any = None,
+    portable_skill_root: Any = None,
+) -> dict[str, Any] | None:
+    """Normalize the all-or-nothing capability provenance context.
+
+    The aliases mirror the governed artifact names used by the CLI and
+    capability contract while retaining the shorter Python API names.
+    """
+
+    if review_registry is not None and capability_review_registry is not None:
+        raise PreflightError(
+            "E_CAPABILITY_REVIEW_CONTEXT",
+            "capability review registry supplied more than once",
+        )
+    if source_registry is not None and source_intelligence_registry is not None:
+        raise PreflightError(
+            "E_CAPABILITY_REVIEW_CONTEXT",
+            "source intelligence registry supplied more than once",
+        )
+    if skill_root is not None and capability_skill_root is not None:
+        raise PreflightError(
+            "E_CAPABILITY_REVIEW_CONTEXT",
+            "capability skill root supplied more than once",
+        )
+    review_registry = (
+        review_registry if review_registry is not None else capability_review_registry
+    )
+    source_registry = (
+        source_registry
+        if source_registry is not None
+        else source_intelligence_registry
+    )
+    skill_root = skill_root if skill_root is not None else capability_skill_root
+    if portable_skill_root is not None and any(
+        value is not None for value in (review_registry, source_registry, skill_root, checkout_manifest)
+    ):
+        raise PreflightError(
+            "E_CAPABILITY_REVIEW_CONTEXT",
+            "portable fixture context cannot be combined with production review context",
+        )
+    values = (review_registry, source_registry, skill_root, checkout_manifest)
+    supplied = [value is not None for value in values]
+    if any(supplied) and not all(supplied):
+        raise PreflightError(
+            "E_CAPABILITY_REVIEW_CONTEXT",
+            "capability review registry, source intelligence registry, capability skill root, and checkout manifest are required together",
+        )
+    if not any(supplied):
+        if capability_catalog is None and portable_skill_root is None:
+            return None
+        if capability_catalog is None or portable_skill_root is None:
+            raise PreflightError(
+                "E_CAPABILITY_REVIEW_CONTEXT",
+                "portable fixture catalog and portable fixture skill root are required together",
+            )
+        root = Path(portable_skill_root)
+        if root.is_symlink() or not root.is_dir():
+            raise PreflightError(
+                "E_CAPABILITY_REVIEW_CONTEXT",
+                f"portable fixture skill root is not a regular directory: {root}",
+            )
+        marker = root / PORTABLE_FIXTURE_MARKER
+        if marker.is_symlink() or not marker.is_file():
+            raise PreflightError(
+                "E_CAPABILITY_REVIEW_CONTEXT",
+                "portable fixture skill root lacks its explicit nonproduction marker",
+            )
+        catalog = _read_governed_json(capability_catalog, "portable fixture capability catalog")
+        try:
+            contract = _capability_contract(root)
+            contract["validate_catalog"](catalog, root, verify_files=True)
+            if (
+                contract["_production_catalog"](catalog)
+                or catalog.get("catalog_id") != PORTABLE_FIXTURE_CATALOG_ID
+            ):
+                raise PreflightError(
+                    "E_CAPABILITY_REVIEW_CONTEXT",
+                    "portable fixture catalog identity is not the governed nonproduction fixture",
+                )
+        except PreflightError:
+            raise
+        except Exception as exc:
+            raise PreflightError(
+                "E_CAPABILITY_REVIEW_CONTEXT",
+                f"portable fixture capability catalog cannot be verified: {exc}",
+            ) from exc
+        return {
+            "catalog": catalog,
+            "portable": True,
+            "review_registry": None,
+            "source_registry": None,
+            "skill_root": root,
+            "checkout_manifest": None,
+        }
+    root = Path(skill_root)
+    if root.is_symlink() or not root.is_dir():
+        raise PreflightError(
+            "E_CAPABILITY_REVIEW_CONTEXT",
+            f"capability skill root is not a regular directory: {root}",
+        )
+    catalog = None
+    if capability_catalog is not None:
+        catalog = _read_governed_json(capability_catalog, "capability catalog")
+    return {
+        "catalog": catalog,
+        "portable": False,
+        "review_registry": _read_governed_json(review_registry, "capability review registry"),
+        "source_registry": _read_governed_json(
+            source_registry, "source intelligence registry"
+        ),
+        "skill_root": root,
+        "checkout_manifest": (
+            Path(checkout_manifest)
+            if isinstance(checkout_manifest, (str, Path))
+            else _read_governed_json(checkout_manifest, "checkout manifest")
+        ),
+    }
+
+
 def compile_program(
     semantics_path: str | Path,
     capabilities_path: str | Path,
     definitions_path: str | Path,
     output_dir: str | Path,
+    *,
+    review_registry: Any = None,
+    source_registry: Any = None,
+    skill_root: Any = None,
+    checkout_manifest: Any = None,
+    capability_review_registry: Any = None,
+    source_intelligence_registry: Any = None,
+    capability_skill_root: Any = None,
+    capability_catalog: Any = None,
+    portable_skill_root: Any = None,
 ) -> dict[str, Any]:
     """Validate source contracts and compile a canonical output tree."""
+
+    governed_context = _normalize_governed_context(
+        review_registry=review_registry,
+        source_registry=source_registry,
+        skill_root=skill_root,
+        checkout_manifest=checkout_manifest,
+        capability_review_registry=capability_review_registry,
+        source_intelligence_registry=source_intelligence_registry,
+        capability_skill_root=capability_skill_root,
+        capability_catalog=capability_catalog,
+        portable_skill_root=portable_skill_root,
+    )
 
     semantics = _read_json(Path(semantics_path), "program semantics")
     capabilities_doc = _read_json(Path(capabilities_path), "host capabilities")
@@ -1723,6 +2039,15 @@ def compile_program(
         raise PreflightError("E_INPUT_BINDING", "all inputs must declare the same program_id")
     if semantics["schema_version"] != SCHEMA_VERSION or capabilities_doc["schema_version"] != SCHEMA_VERSION or definitions["schema_version"] != SCHEMA_VERSION:
         raise PreflightError("E_INPUT_BINDING", "only schema version 1 is supported")
+    if governed_context is not None and governed_context.get("portable"):
+        if (
+            semantics["program_id"] != PORTABLE_FIXTURE_PROGRAM_ID
+            or capabilities_doc.get("host_profile_id") != PORTABLE_FIXTURE_HOST_PROFILE_ID
+        ):
+            raise PreflightError(
+                "E_CAPABILITY_REVIEW_CONTEXT",
+                "portable fixture mode requires its dedicated program and host identities",
+            )
 
     terms = _index_unique(semantics["canonical_terms"], "term_id", "term")
     constants = _index_unique(semantics["constants"], "constant_id", "constant")
@@ -1737,7 +2062,7 @@ def compile_program(
     )
     required_caps = _required_capabilities(semantics, definitions)
     host_capabilities, runtimes, skill_assignments = _validate_host(
-        capabilities_doc, required_caps
+        capabilities_doc, required_caps, governed_context
     )
     globally_required_skills = [
         capability_id
@@ -2132,8 +2457,30 @@ def verify_output(
     semantics_path: str | Path | None = None,
     capabilities_path: str | Path | None = None,
     definitions_path: str | Path | None = None,
+    *,
+    review_registry: Any = None,
+    source_registry: Any = None,
+    skill_root: Any = None,
+    checkout_manifest: Any = None,
+    capability_review_registry: Any = None,
+    source_intelligence_registry: Any = None,
+    capability_skill_root: Any = None,
+    capability_catalog: Any = None,
+    portable_skill_root: Any = None,
 ) -> dict[str, Any]:
     """Verify the output tree and recompile it from all three bound sources."""
+
+    governed_context = _normalize_governed_context(
+        review_registry=review_registry,
+        source_registry=source_registry,
+        skill_root=skill_root,
+        checkout_manifest=checkout_manifest,
+        capability_review_registry=capability_review_registry,
+        source_intelligence_registry=source_intelligence_registry,
+        capability_skill_root=capability_skill_root,
+        capability_catalog=capability_catalog,
+        portable_skill_root=portable_skill_root,
+    )
 
     root = Path(output_dir)
     if root.is_file():
@@ -2255,6 +2602,24 @@ def verify_output(
             Path(capabilities_path),
             Path(definitions_path),
             expected_root,
+            review_registry=governed_context["review_registry"]
+            if governed_context is not None
+            else None,
+            source_registry=governed_context["source_registry"]
+            if governed_context is not None
+            else None,
+            skill_root=governed_context["skill_root"]
+            if governed_context is not None and not governed_context.get("portable")
+            else None,
+            checkout_manifest=governed_context["checkout_manifest"]
+            if governed_context is not None
+            else None,
+            capability_catalog=governed_context["catalog"]
+            if governed_context is not None
+            else None,
+            portable_skill_root=governed_context["skill_root"]
+            if governed_context is not None and governed_context.get("portable")
+            else None,
         )
         actual_files = {
             str(path.relative_to(root)): path.read_bytes()
@@ -2293,11 +2658,44 @@ def _build_parser() -> argparse.ArgumentParser:
     compile_parser.add_argument("--capabilities", "--host-capabilities", dest="capabilities", required=True)
     compile_parser.add_argument("--definitions", "--work-definitions", dest="definitions", required=True)
     compile_parser.add_argument("--output-dir", "--output", dest="output_dir", required=True)
+    for governed_parser in (compile_parser,):
+        governed_parser.add_argument(
+            "--review-registry",
+            "--capability-review-registry",
+            dest="review_registry",
+        )
+        governed_parser.add_argument(
+            "--source-intelligence",
+            "--source-intelligence-registry",
+            dest="source_registry",
+        )
+        governed_parser.add_argument(
+            "--skill-root",
+            "--capability-skill-root",
+            dest="skill_root",
+        )
+        governed_parser.add_argument("--checkout-manifest", dest="checkout_manifest")
     verify_parser = subparsers.add_parser("verify", help="verify a compiled output tree")
     verify_parser.add_argument("--output-dir", "--output", "--manifest", dest="output_dir", required=True)
     verify_parser.add_argument("--semantics", "--program-semantics", dest="semantics", required=True)
     verify_parser.add_argument("--capabilities", "--host-capabilities", dest="capabilities", required=True)
     verify_parser.add_argument("--definitions", "--work-definitions", dest="definitions", required=True)
+    verify_parser.add_argument(
+        "--review-registry",
+        "--capability-review-registry",
+        dest="review_registry",
+    )
+    verify_parser.add_argument(
+        "--source-intelligence",
+        "--source-intelligence-registry",
+        dest="source_registry",
+    )
+    verify_parser.add_argument(
+        "--skill-root",
+        "--capability-skill-root",
+        dest="skill_root",
+    )
+    verify_parser.add_argument("--checkout-manifest", dest="checkout_manifest")
     return parser
 
 
@@ -2305,13 +2703,31 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     try:
         if args.command == "compile":
-            result = compile_program(args.semantics, args.capabilities, args.definitions, args.output_dir)
+            result = compile_program(
+                args.semantics,
+                args.capabilities,
+                args.definitions,
+                args.output_dir,
+                review_registry=args.review_registry,
+                source_registry=args.source_registry,
+                skill_root=args.skill_root,
+                checkout_manifest=args.checkout_manifest,
+            )
             print(
                 f"compiled {result['manifest_sha256']} managers={len(result['manager_packets'])} "
                 f"workers={len(result['work_packets'])} output={result['output_dir']}"
             )
         else:
-            result = verify_output(args.output_dir, args.semantics, args.capabilities, args.definitions)
+            result = verify_output(
+                args.output_dir,
+                args.semantics,
+                args.capabilities,
+                args.definitions,
+                review_registry=args.review_registry,
+                source_registry=args.source_registry,
+                skill_root=args.skill_root,
+                checkout_manifest=args.checkout_manifest,
+            )
             print(
                 f"verified {result['manifest_sha256']} managers={result['manager_count']} "
                 f"workers={result['work_count']} output={result['output_dir']}"

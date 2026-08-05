@@ -82,3 +82,9 @@ Stop and report the blocker when the packet is cancelled, reproduction needs an
 unapproved side effect, evidence would reveal protected data, the fault crosses
 ownership or scope, the hypothesis is inconclusive at the budget limit, or a
 repair would need unapproved authority.
+
+## Capability contract
+
+- Effect: `project_local_write only after packet authorization and supported root cause`; permissions: `fs_read`, `fs_write`, `process_test`.
+- Consumes: `reproduced_failure`, `runtime_evidence`; produces: `root_cause_report`.
+- Provider boundary: `none; writes/tests remain packet-owned and conditional`.

@@ -81,3 +81,9 @@ or reviewer route is missing; when comparable units or dates conflict; when a re
 would depend on unsupplied external research; or when the result would be used to launch,
 price, spend, contract, contact customers, or change production. Return the exact blocker and
 escalate to the packet's authorized reviewer or decision-maker.
+
+## Capability contract
+
+- Effect: `no_effect`; permissions: none (`[]`).
+- Consumes: `market_definition`, `market_evidence`; produces: `market_opportunity_artifact`.
+- Provider boundary: `none; output cannot authorize action`.

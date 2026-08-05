@@ -27,6 +27,20 @@ ENTRY_KEYS = {
     "required_permissions",
     "conflicts",
 }
+PERMISSION_CONTRACTS = {
+    "browser-boundary-design": [],
+    "capability-assessment": [],
+    "durable-state-design": [],
+    "engineering-adversarial-review": ["fs_read"],
+    "engineering-red-green-evidence": ["fs_read", "fs_write", "process_test"],
+    "market-definition": [],
+    "market-opportunity-artifact": [],
+    "marketing-context-intake": ["fs_read", "fs_write"],
+    "mcp-tool-contract-design": [],
+    "risk-matrix": [],
+    "scenario-development": [],
+    "systematic-debugging": ["fs_read", "fs_write", "process_test"],
+}
 
 
 def _exact_keys(value: Mapping[str, Any], expected: set[str], label: str) -> None:
@@ -186,6 +200,9 @@ def promote(
                 f"curated capability {capability_id!r} must be a standalone SKILL.md with no sidecar files",
             )
         raw = _validate_wrapper_entrypoint(path, capability_id)
+        required_permissions = copy.deepcopy(
+            PERMISSION_CONTRACTS.get(capability_id, entry["required_permissions"])
+        )
         additions.append(
             {
                 "capability_id": capability_id,
@@ -204,7 +221,7 @@ def promote(
                 "trust_state": "approved",
                 "dispatchable": True,
                 "load_policy": "explicit",
-                "required_permissions": copy.deepcopy(entry["required_permissions"]),
+                "required_permissions": required_permissions,
                 "conflicts": copy.deepcopy(entry["conflicts"]),
             }
         )
@@ -213,7 +230,7 @@ def promote(
     result["capabilities"] = sorted(
         [*result["capabilities"], *additions], key=lambda item: item["capability_id"]
     )
-    catalog_contract.validate_catalog(result, skill_root, verify_files=True)
+    catalog_contract.validate_catalog(result, skill_root, verify_files=True, enforce_review_gate=False)
     return result
 
 

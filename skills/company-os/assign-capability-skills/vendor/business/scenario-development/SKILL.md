@@ -73,3 +73,9 @@ Stop when the focal decision or horizon is absent, evidence is too thin to disti
 the caller asks for forecasts or probabilities without an authorized model, or an implication
 would trigger spending, contracting, customer outreach, legal advice, production action, or
 another external effect. Report the evidence gap and route it to the named authority.
+
+## Capability contract
+
+- Effect: `no_effect`; permissions: none (`[]`).
+- Consumes: `business_context`, `uncertainty_evidence`; produces: `scenario_set`.
+- Provider boundary: `none; output cannot authorize action`.

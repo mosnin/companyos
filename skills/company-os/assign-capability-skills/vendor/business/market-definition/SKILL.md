@@ -73,3 +73,9 @@ Stop when there is no focal decision, geography or customer unit cannot be bound
 evidence conflicts without an authorized resolution, or the caller requests live research,
 customer contact, pricing action, legal conclusions, or a production change. Report the
 missing input and route the decision to the packet's named authority.
+
+## Capability contract
+
+- Effect: `no_effect`; permissions: none (`[]`).
+- Consumes: `business_context`, `market_evidence`; produces: `market_definition`.
+- Provider boundary: `none; output cannot authorize action`.

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -17,6 +18,7 @@ from typing import Any, Iterable, Mapping, Sequence
 CATALOG_SCHEMA = "company-os.capability-catalog.v1"
 REQUEST_SCHEMA = "company-os.capability-request.v1"
 ASSIGNMENT_SCHEMA = "company-os.capability-assignment.v1"
+ASSIGNMENT_SCHEMA_V2 = "company-os.capability-assignment.v2"
 BINDING_ALGORITHM = "sha256-canonical-json-v1"
 SKILL_RUNTIME_ID = "company-os-skill-reference"
 SKILL_RUNTIME_TYPE = "codex_native_skill_reference"
@@ -25,6 +27,21 @@ HEX40 = re.compile(r"^[0-9a-f]{40}$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$")
 PERMISSION_RE = re.compile(r"^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$")
+CAPABILITY_PERMISSION_CONTRACTS = {
+    "browser-boundary-design": [],
+    "capability-assessment": [],
+    "durable-state-design": [],
+    "engineering-adversarial-review": ["fs_read"],
+    "engineering-red-green-evidence": ["fs_read", "fs_write", "process_test"],
+    "market-definition": [],
+    "market-opportunity-artifact": [],
+    "marketing-context-intake": ["fs_read", "fs_write"],
+    "mcp-tool-contract-design": [],
+    "risk-matrix": [],
+    "scenario-development": [],
+    "systematic-debugging": ["fs_read", "fs_write", "process_test"],
+}
+CAPABILITY_PERMISSION_VOCABULARY = {"fs_read", "fs_write", "process_test"}
 TOKEN_RE = re.compile(r"[a-z0-9]+")
 ROLES = {"manager", "worker"}
 TRUST_STATES = {"approved", "reference_only", "quarantine", "rejected"}
@@ -85,7 +102,7 @@ REQUEST_KEYS = {
     "max_skills",
     "max_entrypoint_bytes",
 }
-ASSIGNMENT_SKILL_KEYS = {
+BASE_ASSIGNMENT_SKILL_KEYS = {
     "capability_id",
     "entrypoint",
     "entrypoint_bytes",
@@ -99,12 +116,129 @@ ASSIGNMENT_SKILL_KEYS = {
     "upstream_skill_path",
     "workspace_locator",
 }
+REVIEW_ASSIGNMENT_SKILL_KEYS = {
+    "review_id",
+    "review_sha256",
+    "review_phase",
+    "review_effect_class",
+    "review_provider_boundary",
+    "review_consumes_artifact_kinds",
+    "review_produces_artifact_kinds",
+}
+ASSIGNMENT_SKILL_KEYS = BASE_ASSIGNMENT_SKILL_KEYS | REVIEW_ASSIGNMENT_SKILL_KEYS
+PRODUCTION_CATALOG_ID = "company-os-capability-library"
+REVIEW_REGISTRY_SCHEMA = "company-os.capability-review-registry.v1"
 
 
 class CatalogError(RuntimeError):
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
+
+
+def _review_module():
+    """Load the sibling review contract without making fixture imports brittle."""
+    module = globals().get("_CAPABILITY_REVIEW_MODULE")
+    if module is not None:
+        return module
+    path = Path(__file__).with_name("capability_review_registry.py")
+    spec = importlib.util.spec_from_file_location("company_os_capability_review_registry", path)
+    if spec is None or spec.loader is None:
+        raise CatalogError("E_REVIEW_REQUIRED", "capability review registry contract is unavailable")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    globals()["_CAPABILITY_REVIEW_MODULE"] = module
+    return module
+
+
+def _production_catalog(catalog: Mapping[str, Any]) -> bool:
+    return catalog.get("catalog_id") == PRODUCTION_CATALOG_ID
+
+
+def _review_evidence(
+    catalog: Mapping[str, Any],
+    skill_root: Path | None,
+    *,
+    review_registry: Mapping[str, Any] | None,
+    checkout_manifest: Mapping[str, Any] | Path | None,
+    source_registry: Mapping[str, Any] | None,
+    require_accepted: bool = True,
+    acceptance_receipt: Mapping[str, Any] | None = None,
+    portable_bundle: Mapping[str, Any] | None = None,
+    trust_anchor: Mapping[str, Any] | str | bytes | None = None,
+    expected_scope: Mapping[str, Any] | None = None,
+    now: Any = None,
+    replay_state: Any = None,
+) -> dict[str, Any] | None:
+    """Verify the production review gate; v1 fixture catalogs stay portable."""
+    if _production_catalog(catalog) and portable_bundle is None:
+        raise CatalogError("E_REVIEW_REQUIRED", "production dispatch requires a signed portable capability bundle")
+    if portable_bundle is not None:
+        if trust_anchor is None or expected_scope is None or replay_state is None:
+            raise CatalogError("E_REVIEW_REQUIRED", "portable production evidence requires trust anchor, expected scope, and replay state")
+        try:
+            review = _review_module()
+            bundle_evidence = review.verify_portable_bundle(
+                portable_bundle,
+                trust_anchor,
+                catalog=catalog,
+                source_registry=source_registry,
+                skill_root=skill_root,
+                expected_scope=expected_scope,
+                now=now,
+                replay_state=replay_state,
+                commit_replay=False,
+            )
+            if review_registry is not None and portable_bundle["candidate_registry_sha256"] != review.canonical_digest(review_registry):
+                raise CatalogError("E_BINDING", "portable bundle candidate registry is stale")
+            return {"registry_sha256": portable_bundle["candidate_registry_sha256"], "portable_bundle": bundle_evidence}
+        except CatalogError:
+            raise
+        except Exception as exc:
+            code = getattr(exc, "code", "E_REVIEW")
+            raise CatalogError(code, str(exc)) from exc
+    if review_registry is None and checkout_manifest is None and source_registry is None:
+        if _production_catalog(catalog):
+            raise CatalogError("E_REVIEW_REQUIRED", "production catalog requires review registry, source intelligence, and checkout manifest")
+        return None
+    if review_registry is None or checkout_manifest is None or source_registry is None or skill_root is None:
+        raise CatalogError("E_REVIEW_REQUIRED", "review registry, source intelligence, checkout manifest, and skill root are required together")
+    try:
+        review = _review_module()
+        return dict(
+            review.validate_registry(
+                review_registry,
+                catalog,
+                source_registry,
+                skill_root,
+                checkout_manifest,
+                require_accepted=require_accepted,
+            )
+        )
+    except Exception as exc:
+        if isinstance(exc, CatalogError):
+            raise
+        code = getattr(exc, "code", "E_REVIEW")
+        raise CatalogError(code, str(exc)) from exc
+
+
+def _commit_portable_replay(
+    portable_bundle: Mapping[str, Any] | None,
+    replay_state: Any,
+) -> None:
+    """Commit only after the caller has completed every local operation check."""
+    if portable_bundle is None or replay_state is None:
+        return
+    try:
+        review = _review_module()
+        review.commit_replay_use(
+            replay_state,
+            portable_bundle["acceptance_receipt"]["receipt_id"],
+            review._scope_operation_id(portable_bundle["scope"]),
+        )
+    except Exception as exc:
+        code = getattr(exc, "code", "E_REPLAY")
+        raise CatalogError(code, str(exc)) from exc
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -305,6 +439,11 @@ def _validate_capability(value: Any, sources: Mapping[str, Mapping[str, Any]]) -
         f"capability {capability_id}.required_permissions",
         pattern=PERMISSION_RE,
     )
+    expected_permissions = CAPABILITY_PERMISSION_CONTRACTS.get(capability_id)
+    if expected_permissions is not None and any(permission not in CAPABILITY_PERMISSION_VOCABULARY for permission in capability["required_permissions"]):
+        raise CatalogError("E_PERMISSION", f"capability {capability_id!r} uses an unsupported permission")
+    if expected_permissions is not None and capability["required_permissions"] != expected_permissions:
+        raise CatalogError("E_PERMISSION", f"capability {capability_id!r} permissions do not match its effect contract")
     _sorted_unique_strings(capability["conflicts"], f"capability {capability_id}.conflicts", pattern=ID_RE)
     if capability_id in capability["conflicts"]:
         raise CatalogError("E_CONFLICT", f"capability {capability_id!r} conflicts with itself")
@@ -322,7 +461,23 @@ def _validate_capability(value: Any, sources: Mapping[str, Mapping[str, Any]]) -
     return capability
 
 
-def validate_catalog(catalog: Mapping[str, Any], skill_root: Path, *, verify_files: bool = True) -> dict[str, Any]:
+def validate_catalog(
+    catalog: Mapping[str, Any],
+    skill_root: Path,
+    *,
+    verify_files: bool = True,
+    review_registry: Mapping[str, Any] | None = None,
+    checkout_manifest: Mapping[str, Any] | Path | None = None,
+    source_registry: Mapping[str, Any] | None = None,
+    acceptance_receipt: Mapping[str, Any] | None = None,
+    portable_bundle: Mapping[str, Any] | None = None,
+    trust_anchor: Mapping[str, Any] | str | bytes | None = None,
+    expected_scope: Mapping[str, Any] | None = None,
+    now: Any = None,
+    replay_state: Any = None,
+    enforce_review_gate: bool = True,
+    commit_replay: bool = True,
+) -> dict[str, Any]:
     expected = {"$schema", "schema_version", "catalog_id", "policy", "sources", "capabilities"}
     _exact_keys(catalog, expected, "catalog")
     if catalog["$schema"] != CATALOG_SCHEMA or catalog["schema_version"] != 1:
@@ -360,6 +515,22 @@ def validate_catalog(catalog: Mapping[str, Any], skill_root: Path, *, verify_fil
                 raise CatalogError("E_ENTRYPOINT", f"entrypoint size drift for {capability['capability_id']!r}")
             if hashlib.sha256(raw).hexdigest() != capability["entrypoint_sha256"]:
                 raise CatalogError("E_ENTRYPOINT", f"entrypoint digest drift for {capability['capability_id']!r}")
+    if enforce_review_gate and (_production_catalog(catalog) or portable_bundle is not None or review_registry is not None):
+        _review_evidence(
+            catalog,
+            skill_root,
+            review_registry=review_registry,
+            checkout_manifest=checkout_manifest,
+            source_registry=source_registry,
+            acceptance_receipt=acceptance_receipt,
+            portable_bundle=portable_bundle,
+            trust_anchor=trust_anchor,
+            expected_scope=expected_scope,
+            now=now,
+            replay_state=replay_state,
+        )
+    if commit_replay:
+        _commit_portable_replay(portable_bundle, replay_state)
     return {
         "$schema": CATALOG_SCHEMA,
         "catalog_id": catalog["catalog_id"],
@@ -420,12 +591,70 @@ def _assignment_unsigned(value: Mapping[str, Any]) -> dict[str, Any]:
     return unsigned
 
 
-def resolve_assignment(catalog: Mapping[str, Any], request: Mapping[str, Any], skill_root: Path) -> dict[str, Any]:
-    validate_catalog(catalog, skill_root, verify_files=True)
+def resolve_assignment(
+    catalog: Mapping[str, Any],
+    request: Mapping[str, Any],
+    skill_root: Path,
+    *,
+    review_registry: Mapping[str, Any] | None = None,
+    checkout_manifest: Mapping[str, Any] | Path | None = None,
+    source_registry: Mapping[str, Any] | None = None,
+    acceptance_receipt: Mapping[str, Any] | None = None,
+    portable_bundle: Mapping[str, Any] | None = None,
+    trust_anchor: Mapping[str, Any] | str | bytes | None = None,
+    expected_scope: Mapping[str, Any] | None = None,
+    now: Any = None,
+    replay_state: Any = None,
+    commit_replay: bool = True,
+) -> dict[str, Any]:
+    validate_catalog(
+        catalog, skill_root, verify_files=True, review_registry=review_registry,
+        checkout_manifest=checkout_manifest, source_registry=source_registry,
+        acceptance_receipt=acceptance_receipt, portable_bundle=portable_bundle,
+        trust_anchor=trust_anchor, expected_scope=expected_scope, now=now,
+        replay_state=replay_state, commit_replay=False,
+    )
+    review_evidence = _review_evidence(
+        catalog,
+        skill_root,
+        review_registry=review_registry,
+        checkout_manifest=checkout_manifest,
+        source_registry=source_registry,
+        acceptance_receipt=acceptance_receipt,
+        portable_bundle=portable_bundle,
+        trust_anchor=trust_anchor,
+        expected_scope=expected_scope,
+        now=now,
+        replay_state=replay_state,
+    )
     policy = _object(catalog["policy"], "catalog.policy")
     request = validate_request(request, policy)
     indexed = {item["capability_id"]: item for item in catalog["capabilities"]}
     selected: list[dict[str, Any]] = []
+    review_index: dict[str, Mapping[str, Any]] = {}
+    review_registry_sha256: str | None = None
+    if review_evidence is not None:
+        review_registry_sha256 = review_evidence["registry_sha256"]
+        if portable_bundle is not None:
+            portable_ids = set(portable_bundle["selected_capability_ids"])
+            if not set(request["requested_capability_ids"]).issubset(portable_ids):
+                raise CatalogError("E_SELECTION", "request selects a capability outside the accepted portable bundle")
+            review_index = {item["capability_id"]: item for item in portable_bundle["records"]}
+        else:
+            review_index = {item["capability_id"]: item for item in review_registry["records"]}
+            try:
+                _review_module().resolve_reviews(
+                    review_registry,
+                    catalog,
+                    source_registry,
+                    skill_root,
+                    request["requested_capability_ids"],
+                    checkout_manifest,
+                    require_accepted=True,
+                )
+            except Exception as exc:
+                code = getattr(exc, "code", "E_REVIEW")
+                raise CatalogError(code, str(exc)) from exc
     selected_ids = set(request["requested_capability_ids"])
     total_bytes = 0
     for capability_id in request["requested_capability_ids"]:
@@ -450,8 +679,7 @@ def resolve_assignment(catalog: Mapping[str, Any], request: Mapping[str, Any], s
             raise CatalogError("E_ENTRYPOINT", f"entrypoint drift for {capability_id!r}")
         total_bytes += capability["entrypoint_bytes"]
         source = next(item for item in catalog["sources"] if item["source_id"] == capability["source_id"])
-        selected.append(
-            {
+        skill = {
                 "capability_id": capability_id,
                 "entrypoint": capability["entrypoint"],
                 "entrypoint_bytes": capability["entrypoint_bytes"],
@@ -468,12 +696,27 @@ def resolve_assignment(catalog: Mapping[str, Any], request: Mapping[str, Any], s
                     + PurePosixPath(capability["entrypoint"]).parent.as_posix()
                 ),
             }
-        )
+        if review_evidence is not None:
+            record = review_index.get(capability_id)
+            if record is None:
+                raise CatalogError("E_REVIEW_REQUIRED", f"capability {capability_id!r} lacks a review record")
+            skill.update(
+                {
+                    "review_id": record["review_id"],
+                    "review_sha256": canonical_digest(record),
+                    "review_phase": record["phase"],
+                    "review_effect_class": record["effect_class"],
+                    "review_provider_boundary": record["provider_boundary"],
+                    "review_consumes_artifact_kinds": copy.deepcopy(record["consumes_artifact_kinds"]),
+                    "review_produces_artifact_kinds": copy.deepcopy(record["produces_artifact_kinds"]),
+                }
+            )
+        selected.append(skill)
     if total_bytes > request["max_entrypoint_bytes"]:
         raise CatalogError("E_LIMIT", "selected entrypoints exceed the task-local byte limit")
     assignment = {
-        "$schema": ASSIGNMENT_SCHEMA,
-        "schema_version": 1,
+        "$schema": ASSIGNMENT_SCHEMA_V2 if review_evidence is not None else ASSIGNMENT_SCHEMA,
+        "schema_version": 2 if review_evidence is not None else 1,
         "assignment_id": request["request_id"],
         "program_id": request["program_id"],
         "packet_id": request["packet_id"],
@@ -487,12 +730,23 @@ def resolve_assignment(catalog: Mapping[str, Any], request: Mapping[str, Any], s
         "skills": selected,
         "binding": {"algorithm": BINDING_ALGORITHM, "canonical_sha256": None},
     }
+    if review_evidence is not None:
+        assignment["review_registry_sha256"] = review_registry_sha256
+        assignment["review_portable_bundle_sha256"] = (
+            _review_module().canonical_digest(portable_bundle) if portable_bundle is not None else None
+        )
+        assignment["review_acceptance_receipt_sha256"] = (
+            _review_module().canonical_digest(portable_bundle["acceptance_receipt"])
+            if portable_bundle is not None else None
+        )
     assignment["binding"]["canonical_sha256"] = canonical_digest(_assignment_unsigned(assignment))
+    if commit_replay:
+        _commit_portable_replay(portable_bundle, replay_state)
     return assignment
 
 
 def validate_assignment(assignment: Mapping[str, Any]) -> None:
-    expected = {
+    base_expected = {
         "$schema",
         "schema_version",
         "assignment_id",
@@ -508,8 +762,13 @@ def validate_assignment(assignment: Mapping[str, Any]) -> None:
         "skills",
         "binding",
     }
+    v2 = assignment.get("$schema") == ASSIGNMENT_SCHEMA_V2 and assignment.get("schema_version") == 2
+    expected = base_expected | (
+        {"review_registry_sha256", "review_portable_bundle_sha256", "review_acceptance_receipt_sha256"}
+        if v2 else set()
+    )
     _exact_keys(assignment, expected, "assignment")
-    if assignment["$schema"] != ASSIGNMENT_SCHEMA or assignment["schema_version"] != 1:
+    if not v2 and (assignment.get("$schema") != ASSIGNMENT_SCHEMA or assignment.get("schema_version") != 1):
         raise CatalogError("E_SCHEMA", "assignment schema/version is unsupported")
     for key in ("assignment_id", "program_id", "packet_id"):
         _id(assignment[key], f"assignment.{key}")
@@ -524,6 +783,12 @@ def validate_assignment(assignment: Mapping[str, Any]) -> None:
     for key in ("catalog_sha256", "request_sha256"):
         if not isinstance(assignment[key], str) or not HEX64.fullmatch(assignment[key]):
             raise CatalogError("E_SCHEMA", f"assignment.{key} is invalid")
+    review_registry_sha256 = assignment.get("review_registry_sha256")
+    if v2 and (not isinstance(review_registry_sha256, str) or not HEX64.fullmatch(review_registry_sha256)):
+        raise CatalogError("E_REVIEW", "v2 assignment requires a review registry digest")
+    for key in ("review_portable_bundle_sha256", "review_acceptance_receipt_sha256"):
+        if v2 and (not isinstance(assignment[key], str) or not HEX64.fullmatch(assignment[key])):
+            raise CatalogError("E_REVIEW", f"v2 assignment {key} is invalid or unbound")
     if not isinstance(assignment["skills"], list):
         raise CatalogError("E_SCHEMA", "assignment.skills must be an array")
     if not isinstance(assignment["skill_count"], int) or isinstance(assignment["skill_count"], bool) or assignment["skill_count"] < 0:
@@ -533,7 +798,11 @@ def validate_assignment(assignment: Mapping[str, Any]) -> None:
     skill_ids: list[str] = []
     for index, raw_skill in enumerate(assignment["skills"]):
         skill = dict(_object(raw_skill, f"assignment.skills[{index}]"))
-        _exact_keys(skill, ASSIGNMENT_SKILL_KEYS, f"assignment.skills[{index}]")
+        _exact_keys(
+            skill,
+            BASE_ASSIGNMENT_SKILL_KEYS | (REVIEW_ASSIGNMENT_SKILL_KEYS if v2 else set()),
+            f"assignment.skills[{index}]",
+        )
         capability_id = _id(skill["capability_id"], f"assignment.skills[{index}].capability_id")
         skill_ids.append(capability_id)
         entrypoint = _relative_path(
@@ -557,6 +826,7 @@ def validate_assignment(assignment: Mapping[str, Any]) -> None:
             skill["required_permissions"],
             f"assignment.skills[{index}].required_permissions",
             pattern=PERMISSION_RE,
+            allowed=CAPABILITY_PERMISSION_VOCABULARY if v2 else None,
         )
         expected_locator = (
             "workspace://skills/company-os/assign-capability-skills/"
@@ -564,6 +834,29 @@ def validate_assignment(assignment: Mapping[str, Any]) -> None:
         )
         if skill["workspace_locator"] != expected_locator:
             raise CatalogError("E_PATH", f"assignment skill {capability_id!r} workspace locator is not bound to its entrypoint")
+        if not v2:
+            continue
+        review_fields = (
+            "review_id", "review_sha256", "review_phase", "review_effect_class",
+            "review_provider_boundary", "review_consumes_artifact_kinds", "review_produces_artifact_kinds",
+        )
+        if skill["review_id"] is None:
+            raise CatalogError("E_REVIEW", f"assignment skill {capability_id!r} lacks a complete review envelope")
+        _id(skill["review_id"], f"assignment.skills[{index}].review_id")
+        if not isinstance(skill["review_sha256"], str) or not HEX64.fullmatch(skill["review_sha256"]):
+            raise CatalogError("E_REVIEW", f"assignment skill {capability_id!r} review digest is invalid")
+        if skill["review_phase"] not in {"analysis", "design", "implementation", "verification"}:
+            raise CatalogError("E_REVIEW", f"assignment skill {capability_id!r} review phase is invalid")
+        if skill["review_effect_class"] not in {"no_effect", "project_local_write", "read_only_local"}:
+            raise CatalogError("E_REVIEW", f"assignment skill {capability_id!r} review effect is invalid")
+        _id(skill["review_provider_boundary"], f"assignment.skills[{index}].review_provider_boundary")
+        _sorted_unique_strings(skill["review_consumes_artifact_kinds"], f"assignment.skills[{index}].review_consumes_artifact_kinds", pattern=ID_RE, nonempty=True)
+        _sorted_unique_strings(skill["review_produces_artifact_kinds"], f"assignment.skills[{index}].review_produces_artifact_kinds", pattern=ID_RE, nonempty=True)
+        if review_registry_sha256 is None:
+            raise CatalogError("E_REVIEW", "per-skill review metadata requires a review registry digest")
+        expected_permissions = CAPABILITY_PERMISSION_CONTRACTS.get(capability_id)
+        if expected_permissions is not None and skill["required_permissions"] != expected_permissions:
+            raise CatalogError("E_PERMISSION", f"assignment skill {capability_id!r} permissions do not match its reviewed effect")
     if skill_ids != sorted(skill_ids) or len(skill_ids) != len(set(skill_ids)):
         raise CatalogError("E_SCHEMA", "assignment skills must have unique sorted capability IDs")
     if set(execution_order) != set(skill_ids):
@@ -588,6 +881,17 @@ def augment_host_manifest(
     base_host: Mapping[str, Any],
     request_assignment_pairs: Sequence[tuple[Mapping[str, Any], Mapping[str, Any]]],
     skill_root: Path,
+    *,
+    review_registry: Mapping[str, Any] | None = None,
+    checkout_manifest: Mapping[str, Any] | Path | None = None,
+    source_registry: Mapping[str, Any] | None = None,
+    acceptance_receipt: Mapping[str, Any] | None = None,
+    portable_bundle: Mapping[str, Any] | None = None,
+    trust_anchor: Mapping[str, Any] | str | bytes | None = None,
+    expected_scope: Mapping[str, Any] | None = None,
+    now: Any = None,
+    replay_state: Any = None,
+    commit_replay: bool = True,
 ) -> dict[str, Any]:
     """Bind verified task-local skill assignments into a host manifest.
 
@@ -595,7 +899,26 @@ def augment_host_manifest(
     loaded from their exact workspace entrypoints by the assigned task.
     """
 
-    evidence = validate_catalog(catalog, skill_root, verify_files=True)
+    evidence = validate_catalog(
+        catalog, skill_root, verify_files=True, review_registry=review_registry,
+        checkout_manifest=checkout_manifest, source_registry=source_registry,
+        acceptance_receipt=acceptance_receipt, portable_bundle=portable_bundle,
+        trust_anchor=trust_anchor, expected_scope=expected_scope, now=now,
+        replay_state=replay_state, commit_replay=False,
+    )
+    review_evidence = _review_evidence(
+        catalog,
+        skill_root,
+        review_registry=review_registry,
+        checkout_manifest=checkout_manifest,
+        source_registry=source_registry,
+        acceptance_receipt=acceptance_receipt,
+        portable_bundle=portable_bundle,
+        trust_anchor=trust_anchor,
+        expected_scope=expected_scope,
+        now=now,
+        replay_state=replay_state,
+    )
     host = copy.deepcopy(dict(_object(base_host, "base host manifest")))
     if host.get("$id") != "company-os.host-capabilities.v1" or host.get("schema_version") != 1:
         raise CatalogError("E_HOST", "base host manifest schema/version is unsupported")
@@ -628,8 +951,24 @@ def augment_host_manifest(
     bound_packet_ids: set[str] = set()
     bound_packet_capabilities: set[tuple[str, str, str]] = set()
     for request, assignment in request_assignment_pairs:
-        expected = resolve_assignment(catalog, request, skill_root)
+        expected = resolve_assignment(
+            catalog,
+            request,
+            skill_root,
+            review_registry=review_registry,
+            checkout_manifest=checkout_manifest,
+            source_registry=source_registry,
+            acceptance_receipt=acceptance_receipt,
+            portable_bundle=portable_bundle,
+            trust_anchor=trust_anchor,
+            expected_scope=expected_scope,
+            now=now,
+            replay_state=replay_state,
+            commit_replay=False,
+        )
         validate_assignment(assignment)
+        if _production_catalog(catalog) and assignment.get("$schema") != ASSIGNMENT_SCHEMA_V2:
+            raise CatalogError("E_REVIEW", "production host augmentation requires capability-assignment.v2")
         if canonical_bytes(assignment) != canonical_bytes(expected):
             raise CatalogError("E_ASSIGNMENT_DRIFT", "assignment does not reproduce from its catalog and request")
         if assignment["program_id"] != program_id:
@@ -667,6 +1006,22 @@ def augment_host_manifest(
                 "source_id": skill["source_id"],
                 "upstream_entrypoint_sha256": skill["upstream_entrypoint_sha256"],
             }
+            if assignment.get("$schema") == ASSIGNMENT_SCHEMA_V2:
+                review_binding = {
+                    "review_registry_sha256": assignment.get("review_registry_sha256"),
+                    "review_portable_bundle_sha256": assignment.get("review_portable_bundle_sha256"),
+                    "review_acceptance_receipt_sha256": assignment.get("review_acceptance_receipt_sha256"),
+                    "review_id": skill.get("review_id"),
+                    "review_sha256": skill.get("review_sha256"),
+                    "review_phase": skill.get("review_phase"),
+                    "review_effect_class": skill.get("review_effect_class"),
+                    "review_provider_boundary": skill.get("review_provider_boundary"),
+                    "review_consumes_artifact_kinds": copy.deepcopy(skill.get("review_consumes_artifact_kinds")),
+                    "review_produces_artifact_kinds": copy.deepcopy(skill.get("review_produces_artifact_kinds")),
+                }
+                if any(value is None for value in review_binding.values()):
+                    raise CatalogError("E_REVIEW", "v2 host binding requires a complete review envelope")
+                binding.update(review_binding)
             expected_capability = {
                 "capability_id": capability_id,
                 "available": True,
@@ -694,6 +1049,8 @@ def augment_host_manifest(
             )
 
     if not selected_any:
+        if commit_replay:
+            _commit_portable_replay(portable_bundle, replay_state)
         return host
 
     required_runtime = {
@@ -712,6 +1069,8 @@ def augment_host_manifest(
         assignment_records,
         key=lambda item: item["assignment"]["assignment_id"],
     )
+    if commit_replay:
+        _commit_portable_replay(portable_bundle, replay_state)
     return host
 
 
@@ -723,7 +1082,39 @@ def search_catalog(
     domain: str | None,
     limit: int,
     dispatchable_only: bool = False,
+    skill_root: Path | None = None,
+    review_registry: Mapping[str, Any] | None = None,
+    checkout_manifest: Mapping[str, Any] | Path | None = None,
+    source_registry: Mapping[str, Any] | None = None,
+    acceptance_receipt: Mapping[str, Any] | None = None,
+    portable_bundle: Mapping[str, Any] | None = None,
+    trust_anchor: Mapping[str, Any] | str | bytes | None = None,
+    expected_scope: Mapping[str, Any] | None = None,
+    now: Any = None,
+    replay_state: Any = None,
+    commit_replay: bool = True,
 ) -> dict[str, Any]:
+    review_evidence = _review_evidence(
+        catalog,
+        skill_root,
+        review_registry=review_registry,
+        checkout_manifest=checkout_manifest,
+        source_registry=source_registry,
+        acceptance_receipt=acceptance_receipt,
+        portable_bundle=portable_bundle,
+        trust_anchor=trust_anchor,
+        expected_scope=expected_scope,
+        now=now,
+        replay_state=replay_state,
+    )
+    review_index = {
+        item["capability_id"]: item
+        for item in (
+            portable_bundle["records"] if portable_bundle is not None
+            else (review_registry["records"] if review_registry is not None else [])
+        )
+    }
+    accepted_ids = set(portable_bundle["selected_capability_ids"]) if portable_bundle is not None else None
     tokens = set(TOKEN_RE.findall(query.lower()))
     if not tokens:
         raise CatalogError("E_QUERY", "search query must contain a word or number")
@@ -735,6 +1126,8 @@ def search_catalog(
     matches: list[tuple[int, str, Mapping[str, Any]]] = []
     for capability in catalog["capabilities"]:
         if dispatchable_only and not capability["dispatchable"]:
+            continue
+        if accepted_ids is not None and capability["capability_id"] not in accepted_ids:
             continue
         if role is not None and role not in capability["roles"]:
             continue
@@ -757,9 +1150,12 @@ def search_catalog(
         if score:
             matches.append((score, capability["capability_id"], capability))
     matches.sort(key=lambda item: (-item[0], item[1]))
+    if commit_replay:
+        _commit_portable_replay(portable_bundle, replay_state)
     return {
         "$schema": "company-os.capability-search-results.v1",
         "catalog_sha256": canonical_digest(catalog),
+        "review_registry_sha256": review_evidence["registry_sha256"] if review_evidence is not None else None,
         "query": query,
         "role": role,
         "domain": domain,
@@ -775,6 +1171,19 @@ def search_catalog(
                 "score": score,
                 "source_id": capability["source_id"],
                 "trust_state": capability["trust_state"],
+                **(
+                    {
+                        "review_id": review_index[capability["capability_id"]]["review_id"],
+                        "review_sha256": canonical_digest(review_index[capability["capability_id"]]),
+                        "review_phase": review_index[capability["capability_id"]]["phase"],
+                        "review_effect_class": review_index[capability["capability_id"]]["effect_class"],
+                        "review_provider_boundary": review_index[capability["capability_id"]]["provider_boundary"],
+                        "review_consumes_artifact_kinds": review_index[capability["capability_id"]]["consumes_artifact_kinds"],
+                        "review_produces_artifact_kinds": review_index[capability["capability_id"]]["produces_artifact_kinds"],
+                    }
+                    if review_evidence is not None
+                    else {}
+                ),
             }
             for score, _, capability in matches[:limit]
         ],
@@ -811,9 +1220,21 @@ def _print(value: Mapping[str, Any]) -> None:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
+
+    def gate_args(command: argparse.ArgumentParser) -> None:
+        command.add_argument("--portable-bundle", type=Path)
+        command.add_argument("--trust-anchor", type=Path)
+        command.add_argument("--expected-scope", type=Path)
+        command.add_argument("--now")
+        command.add_argument("--replay-state", type=Path)
+
     validate = sub.add_parser("validate")
     validate.add_argument("--catalog", type=Path, required=True)
     validate.add_argument("--skill-root", type=Path, required=True)
+    validate.add_argument("--review-registry", type=Path)
+    validate.add_argument("--checkout-manifest", type=Path)
+    validate.add_argument("--source-intelligence", type=Path)
+    gate_args(validate)
     search = sub.add_parser("search")
     search.add_argument("--catalog", type=Path, required=True)
     search.add_argument("--skill-root", type=Path, required=True)
@@ -822,16 +1243,28 @@ def _parser() -> argparse.ArgumentParser:
     search.add_argument("--domain")
     search.add_argument("--limit", type=int, default=5)
     search.add_argument("--dispatchable-only", action="store_true")
+    search.add_argument("--review-registry", type=Path)
+    search.add_argument("--checkout-manifest", type=Path)
+    search.add_argument("--source-intelligence", type=Path)
+    gate_args(search)
     resolve = sub.add_parser("resolve")
     resolve.add_argument("--catalog", type=Path, required=True)
     resolve.add_argument("--request", type=Path, required=True)
     resolve.add_argument("--skill-root", type=Path, required=True)
     resolve.add_argument("--output", type=Path, required=True)
+    resolve.add_argument("--review-registry", type=Path)
+    resolve.add_argument("--checkout-manifest", type=Path)
+    resolve.add_argument("--source-intelligence", type=Path)
+    gate_args(resolve)
     verify = sub.add_parser("verify")
     verify.add_argument("--catalog", type=Path, required=True)
     verify.add_argument("--request", type=Path, required=True)
     verify.add_argument("--assignment", type=Path, required=True)
     verify.add_argument("--skill-root", type=Path, required=True)
+    verify.add_argument("--review-registry", type=Path)
+    verify.add_argument("--checkout-manifest", type=Path)
+    verify.add_argument("--source-intelligence", type=Path)
+    gate_args(verify)
     augment = sub.add_parser("augment-host")
     augment.add_argument("--catalog", type=Path, required=True)
     augment.add_argument("--skill-root", type=Path, required=True)
@@ -839,6 +1272,10 @@ def _parser() -> argparse.ArgumentParser:
     augment.add_argument("--request", type=Path, action="append", required=True)
     augment.add_argument("--assignment", type=Path, action="append", required=True)
     augment.add_argument("--output", type=Path, required=True)
+    augment.add_argument("--review-registry", type=Path)
+    augment.add_argument("--checkout-manifest", type=Path)
+    augment.add_argument("--source-intelligence", type=Path)
+    gate_args(augment)
     return parser
 
 
@@ -846,9 +1283,62 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
         catalog = _read_canonical_json(args.catalog, "catalog")
-        evidence = validate_catalog(catalog, args.skill_root, verify_files=True)
+        review_registry = (
+            _read_canonical_json(args.review_registry, "review registry")
+            if getattr(args, "review_registry", None) is not None
+            else None
+        )
+        checkout_manifest = (
+            _read_canonical_json(args.checkout_manifest, "checkout manifest")
+            if getattr(args, "checkout_manifest", None) is not None
+            else None
+        )
+        source_registry = (
+            _read_canonical_json(args.source_intelligence, "source intelligence")
+            if getattr(args, "source_intelligence", None) is not None
+            else None
+        )
+        portable_bundle = (
+            _read_canonical_json(args.portable_bundle, "portable bundle")
+            if getattr(args, "portable_bundle", None) is not None
+            else None
+        )
+        trust_anchor = None
+        if getattr(args, "trust_anchor", None) is not None:
+            anchor_path = args.trust_anchor
+            if anchor_path.suffix == ".json":
+                trust_anchor = _read_canonical_json(anchor_path, "trust anchor")
+            else:
+                if anchor_path.is_symlink() or not anchor_path.is_file():
+                    raise CatalogError("E_PATH", "trust anchor is not a regular file")
+                trust_anchor = anchor_path.read_text(encoding="ascii")
+        expected_scope = (
+            _read_canonical_json(args.expected_scope, "expected scope")
+            if getattr(args, "expected_scope", None) is not None
+            else None
+        )
+        replay_state = (
+            _read_canonical_json(args.replay_state, "replay state")
+            if getattr(args, "replay_state", None) is not None
+            else None
+        )
+        now = getattr(args, "now", None)
+        evidence = validate_catalog(
+            catalog, args.skill_root, verify_files=True,
+            review_registry=review_registry, checkout_manifest=checkout_manifest,
+            source_registry=source_registry, portable_bundle=portable_bundle,
+            trust_anchor=trust_anchor, expected_scope=expected_scope, now=now,
+            replay_state=replay_state, commit_replay=False,
+        )
+
+        def persist_replay_state() -> None:
+            if getattr(args, "replay_state", None) is not None and replay_state is not None:
+                _write_atomic(args.replay_state, replay_state)
+
         if args.command == "validate":
+            _commit_portable_replay(portable_bundle, replay_state)
             _print({"ok": True, **evidence})
+            persist_replay_state()
             return 0
         if args.command == "search":
             _print(
@@ -859,8 +1349,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                     domain=args.domain,
                     limit=args.limit,
                     dispatchable_only=args.dispatchable_only,
+                    skill_root=args.skill_root,
+                    review_registry=review_registry,
+                    checkout_manifest=checkout_manifest,
+                    source_registry=source_registry,
+                    portable_bundle=portable_bundle,
+                    trust_anchor=trust_anchor,
+                    expected_scope=expected_scope,
+                    now=now,
+                    replay_state=replay_state,
+                    commit_replay=False,
                 )
             )
+            _commit_portable_replay(portable_bundle, replay_state)
+            persist_replay_state()
             return 0
         if args.command == "augment-host":
             if len(args.request) != len(args.assignment):
@@ -873,8 +1375,23 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
                 for index, (request_path, assignment_path) in enumerate(zip(args.request, args.assignment))
             ]
-            augmented = augment_host_manifest(catalog, base_host, pairs, args.skill_root)
+            augmented = augment_host_manifest(
+                catalog,
+                base_host,
+                pairs,
+                args.skill_root,
+                review_registry=review_registry,
+                checkout_manifest=checkout_manifest,
+                source_registry=source_registry,
+                portable_bundle=portable_bundle,
+                trust_anchor=trust_anchor,
+                expected_scope=expected_scope,
+                now=now,
+                replay_state=replay_state,
+                commit_replay=False,
+            )
             _write_atomic(args.output, augmented)
+            _commit_portable_replay(portable_bundle, replay_state)
             _print(
                 {
                     "ok": True,
@@ -886,11 +1403,26 @@ def main(argv: Sequence[str] | None = None) -> int:
                     ),
                 }
             )
+            persist_replay_state()
             return 0
         request = _read_canonical_json(args.request, "request")
-        expected = resolve_assignment(catalog, request, args.skill_root)
+        expected = resolve_assignment(
+            catalog,
+            request,
+            args.skill_root,
+            review_registry=review_registry,
+            checkout_manifest=checkout_manifest,
+            source_registry=source_registry,
+            portable_bundle=portable_bundle,
+            trust_anchor=trust_anchor,
+            expected_scope=expected_scope,
+            now=now,
+            replay_state=replay_state,
+            commit_replay=False,
+        )
         if args.command == "resolve":
             _write_atomic(args.output, expected)
+            _commit_portable_replay(portable_bundle, replay_state)
             _print(
                 {
                     "ok": True,
@@ -900,11 +1432,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "total_entrypoint_bytes": expected["total_entrypoint_bytes"],
                 }
             )
+            persist_replay_state()
             return 0
         assignment = _read_canonical_json(args.assignment, "assignment")
         validate_assignment(assignment)
         if canonical_bytes(assignment) != canonical_bytes(expected):
             raise CatalogError("E_ASSIGNMENT_DRIFT", "assignment does not reproduce from catalog and request")
+        _commit_portable_replay(portable_bundle, replay_state)
         _print(
             {
                 "ok": True,
@@ -913,6 +1447,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "request_sha256": assignment["request_sha256"],
             }
         )
+        persist_replay_state()
         return 0
     except CatalogError as exc:
         _print({"ok": False, "error": {"code": exc.code, "message": str(exc)}})

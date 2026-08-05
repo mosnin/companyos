@@ -74,3 +74,9 @@ Stop when a scoring rubric, owner, objective, or evidence source is missing; whe
 comparison would require unsupplied external data; or when the result is being used to trigger
 hiring, spending, restructuring, customer, legal, or production action. Report the smallest
 missing input and the designated authority required to continue.
+
+## Capability contract
+
+- Effect: `no_effect`; permissions: none (`[]`).
+- Consumes: `business_context`; produces: `capability_assessment`.
+- Provider boundary: `none; output cannot authorize action`.

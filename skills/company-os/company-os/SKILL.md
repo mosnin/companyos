@@ -13,6 +13,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | --- | --- | --- |
 | Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint` |
 | Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
+| Improvement plane | Compile a typed, protected, reversible candidate program from a reproduced bottleneck or forward-capability opportunity | `$evolve-company-capability` |
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
 | Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
@@ -20,6 +21,8 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
 | UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality` |
 | Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
+| Source intelligence | Verify canonical source identity, review provenance, disposition, license state, and invalidation before catalog or framework use | `$source-intelligence` |
+| Evaluator and evidence methods | Resolve artifact-compatible deterministic, semantic, sealed-challenge, and transfer methods without inventing evaluator authority | `$evaluate-company-evidence` |
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
 | Execution | Deliver approved work through Sol manager tasks and bounded Luna labor with measurable materialization, verification, and decisions | `$manage-company-program`, `$execute-bounded-task`, `$force-first-execution`, `$autonomy-suite`, `$luna-execution-fabric` |
@@ -85,6 +88,25 @@ required evidence exists. The loop plan must preserve mandatory requirements,
 finite limits, independent acceptance, and the existing Company OS authority
 chain. External loop runtimes are not automatically installed or activated.
 
+When evidence justifies changing Company OS behavior rather than merely
+executing the current plan, use `$evolve-company-capability` after loop
+selection and before manager dispatch. Bind one typed target, one differentiated
+strategy profile, immutable candidate lineage, four protected evaluation
+partitions, evaluator epoch and role independence, finite budgets, task-local
+capabilities, dependency-derived organization, rollback, and delayed business
+outcome. An unnamed innovation is valid as a bounded measurable hypothesis;
+never force it into repair because the feature has no existing label. The
+compiled program is feature-off desired state. It cannot create work, schedule,
+install, call providers, score itself, accept itself, or promote itself.
+
+Before compiling an improvement program, use `$evaluate-company-evidence` to
+resolve the required evaluation stages and artifact compatibility from the
+governed registry. Research-informed methods are planning evidence only until
+an exact evaluator adapter, calibration, protected member manifest, challenge
+exposure state, and independent acceptance are bound. A missing stage or failed
+judge is `invalid_evidence`; never substitute a caller-provided digest, a zero,
+or a pass.
+
 The Program Contract separates **mandatory user requirements** from manager
 recommendations. A manager may challenge a technology or propose a narrower
 phase, but may not silently delete, invert, or replace a mandatory requirement.
@@ -96,7 +118,9 @@ for an explicit change decision. Calling the manager's preferred alternative an
 Resolve capabilities before manager dispatch and bind the selected capability
 IDs to each artifact plan. Use the host's current available-skill registry for
 first-party, installed, and plugin skills; use `$assign-capability-skills` for
-the governed external catalog. A proposal, PRD, technical architecture,
+the governed external catalog. Before promoting or newly trusting an external
+entrypoint, use `$source-intelligence`; catalog membership, a commit pin, or a
+repository-level review is not an entrypoint dossier. A proposal, PRD, technical architecture,
 spreadsheet, UI, or other specialized artifact must receive its required domain
 and artifact-production skills. At acceptance, verify applied capability
 receipts against the plan. Reading a general Company OS skill is not evidence

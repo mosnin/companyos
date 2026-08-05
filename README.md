@@ -7,11 +7,16 @@ distribution tooling, and self-hosting program.
 
 ## Current reality
 
-Version 0.5.1 is the manifest-backed, locally verified, freshly signed release
-candidate. Its detached signature binds the independently accepted exact
-21-file Operator Command Center surface to carrier `166cbcc189074d70d0953e2897c85bc4791a39d2`.
-Version 0.5.0 remains the globally installed release until a separately
-authorized transactional upgrade completes. The 0.5.1 source adds feature-off
+Version 0.6.0 is the manifest-backed, locally verified source candidate. It
+adds governed source intelligence, evaluator-method resolution, externally
+signed capability-promotion contracts, portable capability packets, and a
+feature-off Improvement Plane. It is not signed, globally installed, runtime
+activated, scheduler activated, or production accepted. Version 0.5.1 remains
+the last freshly signed source release; its detached signature binds the
+independently accepted exact 21-file Operator Command Center surface to carrier
+`166cbcc189074d70d0953e2897c85bc4791a39d2`. Version 0.5.0 remains the globally
+installed release until a separately authorized transactional upgrade
+completes. The retained 0.5.1 source foundation adds feature-off
 transactional admission, native-task create and cancellation outboxes,
 immutable returned host identity, replay-derived lifecycle state, restart
 reconciliation, terminal receipts, truthful unavailable telemetry, and an

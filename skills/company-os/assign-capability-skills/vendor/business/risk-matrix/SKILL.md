@@ -72,3 +72,9 @@ Stop when the subject, owner, rubric, tolerance, or material evidence is missing
 requires legal, regulatory, safety, privacy, financial, or security judgment beyond the packet;
 or when any proposed response would cause an external effect. Return the unresolved record and
 escalate it to the packet's authorized risk or decision owner.
+
+## Capability contract
+
+- Effect: `no_effect`; permissions: none (`[]`).
+- Consumes: `business_context`, `risk_evidence`; produces: `risk_matrix`.
+- Provider boundary: `none; output cannot authorize mitigation`.

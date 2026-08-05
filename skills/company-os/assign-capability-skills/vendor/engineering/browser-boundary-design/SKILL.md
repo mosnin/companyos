@@ -76,3 +76,9 @@ Do not claim runtime containment from a design record.
 Stop and report the blocker when the task needs credentials, an unapproved
 submission, a non-allowlisted origin, persistent browser state, live browser
 execution, or an authority decision outside the packet.
+
+## Capability contract
+
+- Effect: `no_effect`; permissions: none (`[]`).
+- Consumes: `task_contract`; produces: `browser_boundary_design`.
+- Provider boundary: `browser_design_only; no browser execution or provider call`.

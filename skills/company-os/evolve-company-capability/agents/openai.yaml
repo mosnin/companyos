@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evolve Company Capability"
+  short_description: "Compile a governed improvement program from evidence."
+  default_prompt: "Use $evolve-company-capability to compile a bounded, protected Company OS improvement program for this accepted objective."
