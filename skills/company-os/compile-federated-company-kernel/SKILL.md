@@ -59,6 +59,33 @@ elastic execution capacity admitted against real work.
      --plan /absolute/path/reconciliation-plan.json
    ```
 
+7. Persist the verified plan into the existing project-local Company OS
+   control store before any host command is claimed. This transaction retains
+   the exact kernel, request, observed cursor, plan, event, idempotency result,
+   and actionable command set together:
+
+   ```bash
+   python3 scripts/persist_federated_runtime.py persist \
+     --project /absolute/path/company-project \
+     --kernel /absolute/path/federated-kernel.json \
+     --request /absolute/path/reconciliation-request.json \
+     --plan /absolute/path/reconciliation-plan.json \
+     --at 2026-08-05T12:00:00+00:00
+   ```
+
+   Audit retained plan replay, monotonic cursors, command completeness, lease
+   fencing, hashes, and project isolation after every recovery or deployment:
+
+   ```bash
+   python3 scripts/persist_federated_runtime.py audit \
+     --project /absolute/path/company-project
+   ```
+
+   Claim, settle, and cancel commands only through the lease-fenced interface.
+   A claim requires a private claim token, owner, explicit expiry, and returned
+   generation. Settlement must present that exact tuple. Cancellation is
+   authoritative over any later settlement.
+
 ## Organizational rules
 
 - Keep founder/board authority, company policy, portfolio allocation,
@@ -109,10 +136,25 @@ or approve production actions. Runtime admission requires separately accepted
 persistence, launcher, identity, telemetry, cancellation, and recovery
 adapters.
 
+Persistence is also not activation. `persist_federated_runtime.py` extends the
+same SQLite authority already used by the Company OS controller and writes only
+durable intent. It does not consume its outbox. A separately accepted native
+adapter must claim commands, perform the exact host action, return observed
+identity and role evidence, and settle the command. Never infer provider
+success from a pending, leased, or timed-out command.
+
+The current persistence implementation accepts only kernels whose persistence
+adapter is `sqlite`. It rejects a PostgreSQL-configured kernel instead of
+silently falling back to local storage. PostgreSQL remains an explicit
+activation blocker until a shared adapter passes the same transaction, lease,
+cancellation, cursor, replay, and fault matrix on a disposable database.
+
 ## Acceptance
 
 Require deterministic recompilation, exact source/pin resolution, no duplicate
 ownership, valid budget shares, span-of-control compliance, one authority path,
-task-local capability references, and an explicit scale ladder. Reject a
-kernel that serializes source research, capability discovery, evaluation, and
-learning as sequential execution gates.
+task-local capability references, an explicit scale ladder, atomic intent and
+outbox commit, monotonic observation cursors, expiring generation-fenced
+leases, cancellation precedence, restart audit, and exact idempotent replay.
+Reject a kernel that serializes source research, capability discovery,
+evaluation, and learning as sequential execution gates.

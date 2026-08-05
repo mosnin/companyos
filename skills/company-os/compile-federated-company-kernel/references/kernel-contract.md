@@ -54,6 +54,28 @@ it may be confirmed, refuted, or inconclusive. Unattested local snapshots do not
 prove model identity, cost, token use, or cancellation acknowledgement and may
 not become acceptance evidence.
 
+## Durable intent and command contract
+
+The federated runtime is an extension of the project-local Company OS control
+store, not an independent database. One transaction retains the exact kernel,
+normalized request, observed snapshot cursor, deterministic plan, paired audit
+event, idempotency record, and complete actionable command set. A crash before
+commit retains none of them; a crash after commit retains all of them.
+
+An observation cursor may advance but never move backward. Reusing the same
+cursor with different snapshot bytes is a conflict. Replaying the exact plan is
+idempotent and cannot enqueue another command.
+
+Every command claim has an owner, private token digest, expiry, and monotonically
+increasing lease generation. Recovery may reclaim an expired command with a
+new generation. A stale owner or generation cannot settle it. Cancellation
+clears live claim authority and wins over any later success or retry result.
+Pending or leased commands prove neither host acceptance nor completed work.
+Backend substitution is forbidden. A SQLite authority cannot consume a kernel
+configured for PostgreSQL, and a PostgreSQL authority cannot be inferred from
+portable SQL or a schema-only check. Each backend must pass the complete
+transaction and recovery contract before activation.
+
 ## Throughput contract
 
 Keep volatile knowledge-work queues below the configured utilization ceiling.
