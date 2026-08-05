@@ -217,8 +217,8 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/SKILL.md",
-      "sha256": "e6945a2698135434266768125c0dccfa09b7fca646aec02f325a5398062a474b",
-      "size": 4189
+      "sha256": "086d957dd33b9cf0c4747e927f353e4d3be9a7e022f2e3823e96659c6d0eeac8",
+      "size": 5632
     },
     {
       "path": "company-os/compile-federated-company-kernel/agents/openai.yaml",
@@ -236,14 +236,24 @@
       "size": 8927
     },
     {
+      "path": "company-os/compile-federated-company-kernel/references/federated-reconciliation-request.example.json",
+      "sha256": "fbee4dcc8be76e9f5510b20ee50baed5a837d8fe48d51a55f45fc6fe66b924fc",
+      "size": 853
+    },
+    {
       "path": "company-os/compile-federated-company-kernel/references/kernel-contract.md",
-      "sha256": "2769336a0e91193bedd81ae1e26cff3a0a4fd2a778b7e596bc1787ede3734b01",
-      "size": 2779
+      "sha256": "a58a07f8b8ab908c31a58ad05087a3952e0e1a7273629a5fb2f69f941690a149",
+      "size": 3754
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/compile_federated_kernel.py",
       "sha256": "a899870517b4a96400ada5fc700921895666ed9fc76f107b67127b2895d5e788",
       "size": 37929
+    },
+    {
+      "path": "company-os/compile-federated-company-kernel/scripts/reconcile_federated_kernel.py",
+      "sha256": "9f4694248997f8fe144d611a0bae5dd19955bc4f349e9669e8123a92154c6925",
+      "size": 27924
     },
     {
       "path": "company-os/department-charters/SKILL.md",

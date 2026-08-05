@@ -37,6 +37,23 @@ program cells are durable control entities. Executable model delegation remains
 program manager to bounded workers unless a separately accepted host proves an
 additional level.
 
+## Desired and observed runtime contract
+
+The compiled kernel is desired state. The external host snapshot is observed
+state. Reconciliation binds both to one kernel generation, immutable manager
+specification, idempotency key, native lifecycle, and monotonic event cursor.
+Persist the admission intent before asking the host to create a task. If a
+create is claimed but no identity returns, query the host listing with the same
+idempotency key; do not relaunch. Stale active attempts retain their slot until
+cancellation or terminal evidence settles. Any identity, budget, specification,
+cursor, or role conflict blocks the entire plan so unrelated actions cannot
+leak through a failed reconciliation.
+
+Requested model and reasoning are intent. Returned role readback is evidence;
+it may be confirmed, refuted, or inconclusive. Unattested local snapshots do not
+prove model identity, cost, token use, or cancellation acknowledgement and may
+not become acceptance evidence.
+
 ## Throughput contract
 
 Keep volatile knowledge-work queues below the configured utilization ceiling.

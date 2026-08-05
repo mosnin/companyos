@@ -36,6 +36,29 @@ elastic execution capacity admitted against real work.
      --kernel /absolute/path/federated-kernel.json
    ```
 
+6. Before any host launch, compile one bounded desired/observed reconciliation
+   plan. The request names the current kernel generation, exact manager cells,
+   per-manager and global budgets, and the last returned native-task snapshot:
+   [references/federated-reconciliation-request.example.json](references/federated-reconciliation-request.example.json)
+   is bound to the canonical kernel example and demonstrates the initial empty
+   snapshot.
+
+   ```bash
+   python3 scripts/reconcile_federated_kernel.py plan \
+     --kernel /absolute/path/federated-kernel.json \
+     --request /absolute/path/reconciliation-request.json \
+     --output /absolute/path/reconciliation-plan.json
+   ```
+
+   Verify that plan before an external controller consumes it:
+
+   ```bash
+   python3 scripts/reconcile_federated_kernel.py verify \
+     --kernel /absolute/path/federated-kernel.json \
+     --request /absolute/path/reconciliation-request.json \
+     --plan /absolute/path/reconciliation-plan.json
+   ```
+
 ## Organizational rules
 
 - Keep founder/board authority, company policy, portfolio allocation,
@@ -52,6 +75,13 @@ elastic execution capacity admitted against real work.
   acknowledgements to the executive kernel.
 - Preserve mandatory objective and scope text byte-for-byte in the compiled
   kernel.
+- Persist an admission intent before creation. After a create claim, reconcile
+  the host listing; never issue another create merely because the caller timed
+  out. Hold stale active work against capacity until cancellation or terminal
+  settlement is observed.
+- Treat requested model and reasoning as intent. Require returned role readback
+  to confirm them; cancel on refuted drift and record inconclusive when the host
+  cannot expose them.
 
 ## Mechanism boundaries
 
