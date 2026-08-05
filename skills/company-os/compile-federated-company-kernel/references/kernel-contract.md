@@ -76,6 +76,14 @@ configured for PostgreSQL, and a PostgreSQL authority cannot be inferred from
 portable SQL or a schema-only check. Each backend must pass the complete
 transaction and recovery contract before activation.
 
+The PostgreSQL adapter uses immutable event, kernel, and plan history;
+transactional plan plus command-set ingestion; `FOR UPDATE SKIP LOCKED` command
+claims; expiring generation-fenced leases; authoritative cancellation; and a
+database audit. It revokes public schema, table, and function authority. A
+deployment must grant the minimum required functions to a dedicated runtime
+role; using an owner connection as the runtime identity is not accepted
+production evidence.
+
 ## Throughput contract
 
 Keep volatile knowledge-work queues below the configured utilization ceiling.

@@ -548,7 +548,7 @@ def compile_kernel(
         "distributed_cancellation_and_recovery_unproven",
     ]
     if request["persistence"]["adapter"] == "postgresql":
-        blockers.append("postgresql_persistence_adapter_unproven")
+        blockers.append("postgresql_target_database_unverified")
     if initial_luna_limit < 1:
         blockers.append("initial_concurrency_cannot_admit_a_luna_worker")
 

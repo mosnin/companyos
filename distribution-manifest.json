@@ -217,8 +217,8 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/SKILL.md",
-      "sha256": "95b41d8130802ee4128f3428ccac0c4b908656c3992ca09df1ad357f177f2fdb",
-      "size": 7765
+      "sha256": "d8c3cfe397b1159b76ab34ef84ef9b38dfd398ae0b81389d56a1d1a424331bc6",
+      "size": 8653
     },
     {
       "path": "company-os/compile-federated-company-kernel/agents/openai.yaml",
@@ -237,23 +237,38 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/references/federated-reconciliation-request.example.json",
-      "sha256": "fbee4dcc8be76e9f5510b20ee50baed5a837d8fe48d51a55f45fc6fe66b924fc",
+      "sha256": "70703dacad83961d42547d3dd2d8d67d6f4769dde90d5e97732b2ff1cd7d6ccd",
       "size": 853
     },
     {
       "path": "company-os/compile-federated-company-kernel/references/kernel-contract.md",
-      "sha256": "03240007e9b6f25166f31e77b08d8a7a67300bf83795b6500af73cdbf5340a24",
-      "size": 5054
+      "sha256": "34077dcbd54898fabb8cf0039f00f72882eb2f2cab5e836f014bf560ae6f5a5b",
+      "size": 5527
+    },
+    {
+      "path": "company-os/compile-federated-company-kernel/references/postgresql-federated-runtime.sql",
+      "sha256": "770a09aba712b2191acc35d948918a0ee8b9af1da73d018dfde6d180f8a49fba",
+      "size": 25901
+    },
+    {
+      "path": "company-os/compile-federated-company-kernel/references/postgresql-validation-receipt.json",
+      "sha256": "121fb3db844ee0920bad7e885e38026eb1e7e8b926f03f504c59bbdb10f85a02",
+      "size": 2313
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/compile_federated_kernel.py",
-      "sha256": "a899870517b4a96400ada5fc700921895666ed9fc76f107b67127b2895d5e788",
-      "size": 37929
+      "sha256": "da3231d0d8928e369efa51dadfac7989bb648522d325826a59cec864be8b840f",
+      "size": 37927
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/persist_federated_runtime.py",
       "sha256": "85cc81aa07203bf350385e181e5119bb1d5407c2e158fe301464f38e9ff5d39c",
       "size": 39851
+    },
+    {
+      "path": "company-os/compile-federated-company-kernel/scripts/postgres_federated_runtime.py",
+      "sha256": "334af205b424b3ed4689283cff7b97a88cd7513b764e145a49a8d94eeb0eaded",
+      "size": 20505
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/reconcile_federated_kernel.py",

@@ -143,11 +143,32 @@ adapter must claim commands, perform the exact host action, return observed
 identity and role evidence, and settle the command. Never infer provider
 success from a pending, leased, or timed-out command.
 
-The current persistence implementation accepts only kernels whose persistence
+The local persistence implementation accepts only kernels whose persistence
 adapter is `sqlite`. It rejects a PostgreSQL-configured kernel instead of
-silently falling back to local storage. PostgreSQL remains an explicit
-activation blocker until a shared adapter passes the same transaction, lease,
-cancellation, cursor, replay, and fault matrix on a disposable database.
+silently falling back to local storage.
+
+For a PostgreSQL kernel, use the separate shared adapter. It reads the DSN only
+from the environment variable named by the compiled kernel and requires
+`psycopg` 3 in the host environment. Migration is explicit and never runs as a
+side effect of persistence:
+
+```bash
+python3 scripts/postgres_federated_runtime.py migrate \
+  --kernel /absolute/path/federated-kernel.json
+
+python3 scripts/postgres_federated_runtime.py persist \
+  --kernel /absolute/path/federated-kernel.json \
+  --request /absolute/path/reconciliation-request.json \
+  --plan /absolute/path/reconciliation-plan.json \
+  --at 2026-08-05T12:00:00+00:00
+```
+
+The PostgreSQL adapter has passed the transaction, idempotency, parallel claim,
+lease recovery, cancellation, immutable-history, cross-binding, and audit
+matrix on the disposable Neon branch recorded in
+[references/postgresql-validation-receipt.json](references/postgresql-validation-receipt.json).
+Every new target database remains blocked until its own migration and audit
+complete; a library validation receipt is not target runtime evidence.
 
 ## Acceptance
 
