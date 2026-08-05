@@ -146,9 +146,54 @@
       "size": 229
     },
     {
+      "path": "company-os/company-blueprint/SKILL.md",
+      "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
+      "size": 3151
+    },
+    {
+      "path": "company-os/company-blueprint/agents/openai.yaml",
+      "sha256": "9eee390e6760b6a0fd676a5a1a4025164e69eb97f136785f3f4a404352787fb3",
+      "size": 165
+    },
+    {
+      "path": "company-os/company-blueprint/assets/company-archetypes.json",
+      "sha256": "9b31050bfa4a6c59caa7d8b2d97fe6947a6233bd0481d517c8925394999f5bbc",
+      "size": 1562
+    },
+    {
+      "path": "company-os/company-blueprint/assets/company-blueprint.example.json",
+      "sha256": "80a030738b8c3fa6950f47bea6a1d1b1fdfaeaaf4a62c1f73fe0601b5b0d0889",
+      "size": 2315
+    },
+    {
+      "path": "company-os/company-blueprint/assets/department-packs.json",
+      "sha256": "05a7fed3c320c02ae69dd8866ebd26a687c8c462745523254f884ffa0ab9d2cc",
+      "size": 10679
+    },
+    {
+      "path": "company-os/company-blueprint/assets/playbook-library.json",
+      "sha256": "42616ffdc97bdc157ebf89712edcd20868b131f12dd1e0593edf71539384a876",
+      "size": 9161
+    },
+    {
+      "path": "company-os/company-blueprint/references/company-blueprint-contract.md",
+      "sha256": "137a36328ccf30ad927835d9b827171998e663a3260dfb0838ab71c2c078bc3e",
+      "size": 2011
+    },
+    {
+      "path": "company-os/company-blueprint/schemas/company-blueprint.schema.json",
+      "sha256": "1c9d007ef9abbd6c1a10d56254a7be69b87c5c6fd8693bf3a7bd68abe0e02dd1",
+      "size": 4020
+    },
+    {
+      "path": "company-os/company-blueprint/scripts/compile_company_blueprint.py",
+      "sha256": "5807874c895e3496e74b508dc785e62ada47affdbdc7b07aecd6e6b390e30a05",
+      "size": 31368
+    },
+    {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "9216c43c34df328f741999efb9c69ed37869404960a036c34e6f25b7d589a3e2",
-      "size": 10925
+      "sha256": "315e2a3a7d5e1f75e11d67a7c1179c17715f5366eea7ce4047d3b819198cc57e",
+      "size": 12165
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -157,8 +202,8 @@
     },
     {
       "path": "company-os/department-charters/SKILL.md",
-      "sha256": "40020dd6a130a891ad23e428c753da1aa26ed8959ce346ef2d24f90e6e82bb55",
-      "size": 1432
+      "sha256": "beee9af7b9ce04b7f35608baca0808d77868d104862de0ef2a7eff068ece588a",
+      "size": 2087
     },
     {
       "path": "company-os/department-charters/agents/openai.yaml",
@@ -407,8 +452,8 @@
     },
     {
       "path": "company-os/intelligence/company-scorecard/references/company-os-observatory.md",
-      "sha256": "0ec93e6332a53e483f086eff376c8aa1ea46e6010090277964cb2c0c3c2c008c",
-      "size": 5054
+      "sha256": "e94ae7479de4020f9e1143f016fa24e673f888b9105d63be55e31253d72a4b7e",
+      "size": 5085
     },
     {
       "path": "company-os/intelligence/company-scorecard/scripts/render_execution_efficiency_ingest.py",
@@ -429,6 +474,11 @@
       "path": "company-os/intelligence/company-scorecard/sql/002_ingest_execution_efficiency_receipt.sql",
       "sha256": "82f98385eaaf1d76bb53a587492e1473a091483853e5340eba0c8ed037d76399",
       "size": 13369
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/sql/003_company_blueprints.sql",
+      "sha256": "d7d51fcabab8538e335e35b60801cefb9eead8d60f3d6556ad0e4d1816ed08aa",
+      "size": 7051
     },
     {
       "path": "company-os/intelligence/evidence-research-campaign/SKILL.md",
@@ -702,8 +752,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
-      "sha256": "e825b6d461efa8f433630427a3521affaf547ec529844828a50d220524bb9e15",
-      "size": 12582
+      "sha256": "f353badb0d8ecafdf6a818c29466fb07b0a517ed4cc83ff09013bcd2d40c33c8",
+      "size": 13858
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",
@@ -717,8 +767,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/references/fabric-contract.md",
-      "sha256": "9a5b4262f80cc33b3f7fc069734e5d5ad121b336d7f7630fe16a68939bce4be6",
-      "size": 13750
+      "sha256": "73f3aef59623b957a65a496482c9fda9ef8e907aa9e57c5510b0a612f238939e",
+      "size": 14432
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/scripts/test_validate_codex_native_fabric.py",
@@ -732,8 +782,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py",
-      "sha256": "3fbc5501a376914246a2c402439f509fbaaebfffd22120041af836727030f4e4",
-      "size": 21742
+      "sha256": "1ed455005856064e0cd4b6049fdc4434afade111dc64c10522026ed205171f39",
+      "size": 26498
     },
     {
       "path": "autonomy-suite/quality/verified-work-loop/SKILL.md",

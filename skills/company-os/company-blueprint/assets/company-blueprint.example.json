@@ -1,0 +1,93 @@
+{
+  "$schema": "company-os.company-blueprint.v1",
+  "blueprint_version": 1,
+  "company_id": "acme-software",
+  "execution_ready": true,
+  "identity": {
+    "legal_name": "Acme Software LLC",
+    "mission": "Remove repetitive operational work for service businesses",
+    "operating_name": "Acme",
+    "thesis": "An agent-native workspace can turn fragmented service operations into one accountable system",
+    "values": [
+      "Customer outcomes before activity",
+      "Evidence before claims"
+    ]
+  },
+  "market": {
+    "customer_segments": [
+      "Independent service businesses"
+    ],
+    "offers": [
+      "Agent-native operations platform"
+    ],
+    "problems": [
+      "Work and customer context are fragmented across tools"
+    ]
+  },
+  "objectives": [
+    {
+      "baseline": "0 design partners",
+      "horizon": "2026-Q4",
+      "id": "objective-design-partners",
+      "metric": "Activated design partners",
+      "outcome": "Prove repeatable customer value with five design partners",
+      "priority": 1,
+      "target": "5 activated design partners"
+    }
+  ],
+  "operating_model": {
+    "archetypes": [
+      "software-company"
+    ],
+    "department_overrides": [],
+    "requested_capabilities": [
+      "brand-system",
+      "customer-research",
+      "financial-control",
+      "product-delivery",
+      "revenue-growth"
+    ]
+  },
+  "authority": {
+    "approval_required": [
+      "customer-communication",
+      "financial-commitment",
+      "legal-commitment",
+      "production-write"
+    ],
+    "prohibited_actions": [
+      "credential-disclosure",
+      "unbounded-spend"
+    ]
+  },
+  "brand": {
+    "principles": [
+      "Calm",
+      "Precise",
+      "Human"
+    ],
+    "references": []
+  },
+  "knowledge": {
+    "classifications": [
+      "public",
+      "internal",
+      "confidential"
+    ],
+    "retention_policy": "Retain accepted decisions and artifacts; expire transient working context after the program policy permits",
+    "sources": []
+  },
+  "assets": [],
+  "integrations": [],
+  "storage": {
+    "adapter": "postgresql",
+    "dsn_env": "COMPANY_OS_DATABASE_URL",
+    "schema": "company_os"
+  },
+  "cadence": {
+    "daily": "operations-exception-review",
+    "monthly": "company-operating-review",
+    "weekly": "portfolio-and-program-review"
+  },
+  "unknowns": []
+}

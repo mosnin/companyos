@@ -39,7 +39,9 @@ with worktrees, sandboxes, file ownership, permission envelopes, and leases.
 1. Create one versioned Program Contract with north star, customer value,
    complete outcome, rationale, architecture, roadmap, dependencies, non-goals,
    acceptance evidence, constraints, budget, and stop conditions.
-2. Split the roadmap into at most two independent manager outcomes initially.
+2. Derive manager outcomes from the accepted work graph. Use one manager for
+   each independently accountable outcome or interface boundary; never combine
+   unrelated departments merely to fit a fixed agent count.
 3. Spawn a separate Sol manager thread for each outcome. Send its Manager
    Charter and establish master ↔ manager communication before work.
 4. Require each manager to acknowledge the program ID, version, outcome digest,
@@ -113,10 +115,25 @@ integration. A manager may choose not to dispatch a worker when doing so would
 duplicate completed work, but must record zero workers and cannot claim Luna,
 efficiency, or scaling proof. Requested Luna/max is intent until observed.
 
-## Default limits
+## Elastic capacity and limits
 
-- Two concurrent Sol managers.
-- Three concurrent Luna workers per manager and six globally. These are hard Phase 1 caps; a signed scaling expansion is not implemented yet.
+- The program declares capacity from its accepted work graph. Manager count,
+  workers per manager, and total workers are not fixed defaults. A large
+  program may validly declare 30 Sol managers with 10 Luna tasks each.
+- New manifests declare `topology_mode: elastic_work_graph`. Manifests without
+  it retain the frozen 2/3/6 Phase 1 limits solely for replay compatibility.
+- Capacity is not concurrency. `max_managers`, `max_workers_per_manager`, and
+  `max_total_workers` describe the admitted organization; optional
+  `max_manager_concurrency` and `budget.max_concurrency` bound how many manager
+  controllers and Luna tasks may be active at once. Queued work does not consume
+  an active slot.
+- Start a new program at the smallest concurrency that can expose real
+  dependency and integration behavior, then increase active slots from observed
+  acceptance, collision, recovery, latency, and budget evidence. Do not reduce
+  the declared organization by cramming unrelated outcomes into fewer managers.
+- The validator retains high control-plane safety ceilings (256 managers, 64
+  workers per manager, 4,096 total workers) to reject accidental manifest
+  explosions. These are implementation safeguards, not recommended team sizes.
 - Delegation depth two: master → manager → worker.
 - One retry per worker; two manager review/rework rounds.
 - One write-enabled worker per ownership scope.
@@ -127,9 +144,11 @@ efficiency, or scaling proof. Requested Luna/max is intent until observed.
 - Target 70–85% of model tokens in Luna, 10–20% in managers, and 5–10% in the
   master. These are measured targets, not dispatch quotas.
 
-Raise concurrency only after three accepted cycles show at least 85% first-pass
-worker acceptance, under 20% rework, zero write collisions, and at least 40%
-less Sol-token use per accepted outcome than the single-thread baseline. That evidence may justify a future reviewed policy, not an increase under this validator.
+Raise concurrency after accepted cycles show at least 85% first-pass worker
+acceptance, under 20% rework, zero write collisions, and at least 40% less
+Sol-token use per accepted outcome than the single-thread baseline. Lower
+concurrency when collision, rework, provider throttling, or integration queues
+rise. Scaling is a reconciliation decision, not a one-time phase unlock.
 
 ## Complete context without context pollution
 

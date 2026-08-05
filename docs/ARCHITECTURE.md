@@ -13,6 +13,23 @@
 Installed skills and project instances may never silently modify the canonical
 core.
 
+## Company definition and organization compilation
+
+Before project execution, a versioned Company Blueprint captures identity,
+thesis, customers, offers, objectives, authority, constraints, brand,
+knowledge, assets, integrations, storage, and blocking unknowns. The Company
+Blueprint compiler combines operator-selected archetypes, requested
+capabilities, and explicit overrides into content-addressed organization,
+capability, playbook, routine, work-graph, knowledge-graph, asset, integration,
+and storage artifacts.
+
+Department packs are reusable operating definitions, not persistent agent
+counts. Each pack owns a mission, decisions, capabilities, skills, tools,
+playbooks, recurring routines, metrics, interfaces, approvals, and evidence.
+Programs instantiate only the managers and Luna tasks required by their
+accepted outcome graph. Compiled routines remain planned desired state until
+runtime, scheduler, permission, cancellation, and recovery gates pass.
+
 ## Operator experience
 
 The `brief` command is a read-only projection, never another authority. It
@@ -40,10 +57,15 @@ command keys provide exact retry semantics. JSON and JSONL are repairable
 exports. This is the accepted single-host authority substrate, not a claim of
 distributed or multi-region consensus.
 
-One Sol master will own the program. At most two Sol managers own
-disjoint outcomes, and at most three GPT-5.6 Luna workers per manager perform
-bounded labor. Every child receives a narrower outcome, authority envelope,
-budget, scope, and stop condition. Evidence and exceptions reconcile upward.
+One Sol master owns each program. Sol-manager count is derived from independently
+accountable outcomes and interface boundaries; each manager's GPT-5.6 Luna team
+is derived from its dependency DAG. Declared organizational capacity is
+separate from active concurrency, which is bounded by host availability,
+resource leases, budgets, observed quality, recovery, and collision evidence.
+Every child receives a narrower outcome, authority envelope, budget, scope, and
+stop condition. Evidence and exceptions reconcile upward. Legacy Phase 1
+manifests retain their historical 2/3/6 replay limits; new programs explicitly
+use `elastic_work_graph`.
 
 The interactive Codex host is the target execution surface. It can host tasks
 requested for Sol-manager and Luna-worker roles, while Company OS provides

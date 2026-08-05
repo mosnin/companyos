@@ -1,0 +1,25 @@
+{
+  "$schema": "company-os.company-archetype-catalog.v1",
+  "archetypes": [
+    {
+      "default_departments": ["executive-strategy", "program-management", "operations", "finance"],
+      "id": "professional-services",
+      "required_capabilities": ["company-direction", "customer-success", "financial-control", "program-planning", "revenue-growth"]
+    },
+    {
+      "default_departments": ["executive-strategy", "program-management", "product", "engineering-quality", "brand-creative", "commercial-growth", "customer-success", "finance", "operations", "security-compliance"],
+      "id": "software-company",
+      "required_capabilities": ["brand-system", "company-direction", "customer-research", "customer-success", "financial-control", "product-delivery", "program-planning", "revenue-growth", "software-engineering"]
+    },
+    {
+      "default_departments": ["executive-strategy", "program-management", "brand-creative", "commercial-growth", "customer-success", "finance", "operations"],
+      "id": "agency",
+      "required_capabilities": ["brand-system", "company-direction", "customer-success", "financial-control", "program-planning", "revenue-growth"]
+    },
+    {
+      "default_departments": ["executive-strategy", "program-management", "product", "brand-creative", "commercial-growth", "customer-success", "finance", "operations"],
+      "id": "commerce-company",
+      "required_capabilities": ["brand-system", "company-direction", "customer-success", "financial-control", "product-delivery", "program-planning", "revenue-growth"]
+    }
+  ]
+}
