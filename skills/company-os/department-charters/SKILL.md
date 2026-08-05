@@ -17,9 +17,15 @@ Create a charter before creating a department or agent team.
 - Success metrics, budget, capacity, and quality bar.
 - Escalation, incident, audit, and shutdown path.
 
-## Default departments
+## Composable department packs
 
-Start lean; do not create agents for labels alone:
+Use `$company-blueprint` to select department packs from company archetypes and
+requested capabilities. Start lean, but never combine unrelated decision
+boundaries merely to fit a fixed manager count. A department is accepted only
+when its capabilities, playbooks, tools, routines, metrics, inputs, outputs,
+interfaces, approvals, and shutdown path are concrete.
+
+Common foundations include:
 
 - **Strategy & Product:** direction, research, portfolio, customer outcomes.
 - **Program Management:** roadmaps, dependencies, plans, decision records.
@@ -28,3 +34,8 @@ Start lean; do not create agents for labels alone:
 - **Customer/Go-to-Market:** only with strict approval for external communications and data access.
 
 Each department may propose work to another. It may not command cross-functional or consequential action without the receiving owner and configured approval. Keep a shared company scorecard and resolve conflicts through explicit decision rights.
+
+Department packs are reusable definitions, not always-running agents. The
+accepted program work graph determines which Sol manager outcomes and Luna
+worker tasks exist for a particular objective. Scheduled department routines
+remain planned until runtime and scheduler activation are separately accepted.

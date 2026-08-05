@@ -56,6 +56,7 @@ connection:
 ```text
 sql/001_company_os_observatory.sql
 sql/002_ingest_execution_efficiency_receipt.sql
+sql/003_company_blueprints.sql
 ```
 
 Use a dedicated database when practical, otherwise use the dedicated

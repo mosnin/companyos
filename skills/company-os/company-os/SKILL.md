@@ -11,6 +11,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 
 | Pillar | Responsibility | Skill |
 | --- | --- | --- |
+| Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint` |
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
 | Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
@@ -26,6 +27,14 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 ## Project isolation
 
 Use `$elastic-company-os` to create one `.company-os/` instance per project. The shared Company OS is the governed core; it is not a shared project ledger. Keep each project's strategy, product reality, metrics, departments, cadence, work, and adaptations inside that project's instance.
+
+Before creating the first project instance for a company, use
+`$company-blueprint`. Interview the operator until mission, thesis, customers,
+offers, objectives, constraints, authority, brand, knowledge, systems, and
+blocking unknowns are concrete. Compile the accepted blueprint into department,
+capability, playbook, routine, work-graph, knowledge, asset, integration, and
+storage artifacts. The blueprint describes the company; project instances
+execute bounded programs inside it.
 
 An instance may adapt its operating method through evidence-backed, reversible experiments. It may not autonomously expand authority, weaken approvals, change cancellation precedence, mix project data, or approve its own adaptations. Promote a pattern into the shared core only after it improves at least three independent project instances and passes independent review.
 
@@ -49,6 +58,15 @@ or work packet instead of repeating the operating system in every prompt.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.
+
+The organization is elastic. Derive manager count from independently
+accountable outcomes, interfaces, and departments in the accepted work graph;
+derive each manager's Luna team from its dependency DAG. Never collapse
+unrelated lanes to fit a fixed agent ratio. Declared capacity and active
+concurrency are separate controls: a program may admit 30 managers with 10
+workers each while initially running only a bounded subset. Increase or reduce
+active slots from acceptance, collision, recovery, latency, provider, and
+budget evidence without rewriting the program's real ownership structure.
 
 Before dispatch, the master must publish a compact execution baseline: required
 lanes, intended manager ownership, intended Luna labor, concurrency limit,

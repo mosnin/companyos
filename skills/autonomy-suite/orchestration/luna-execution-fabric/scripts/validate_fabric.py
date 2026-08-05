@@ -13,14 +13,23 @@ from typing import Any
 
 
 DEFAULTS = {
-    "max_managers": 2,
-    "max_workers_per_manager": 3,
-    "max_total_workers": 6,
     "max_depth": 2,
     "max_worker_retries": 1,
     "max_manager_rework_rounds": 2,
 }
-HARD_CAPS = {"max_managers": 2, "max_workers_per_manager": 3, "max_total_workers": 6}
+CAPACITY_FIELDS = ("max_managers", "max_workers_per_manager", "max_total_workers")
+# These protect the local validator and control plane from accidental manifest
+# explosions. They are safety ceilings, not a prescribed organization shape.
+SAFETY_CEILINGS = {
+    "max_managers": 256,
+    "max_workers_per_manager": 64,
+    "max_total_workers": 4096,
+}
+LEGACY_HARD_CAPS = {
+    "max_managers": 2,
+    "max_workers_per_manager": 3,
+    "max_total_workers": 6,
+}
 BUDGET_FIELDS = {"time_minutes", "token_limit", "cost_usd", "max_concurrency", "max_retries"}
 PHASES = [
     "charter",
@@ -148,6 +157,16 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
     program_budget = _validate_budget(manifest.get("budget"), "budget", errors)
 
     limits: dict[str, int] = {}
+    for key in CAPACITY_FIELDS:
+        value = manifest.get(key)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+            errors.append(f"{key} must be an explicitly sized positive integer")
+            value = 1
+        elif value > SAFETY_CEILINGS[key]:
+            errors.append(
+                f"{key} exceeds the control-plane safety ceiling of {SAFETY_CEILINGS[key]}"
+            )
+        limits[key] = value
     for key, default in DEFAULTS.items():
         value = manifest.get(key, default)
         if not isinstance(value, int) or isinstance(value, bool) or value < 1:
@@ -157,9 +176,33 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
 
     if limits["max_depth"] != 2:
         errors.append("max_depth must be exactly 2: master -> manager -> worker")
-    for key, cap in HARD_CAPS.items():
-        if limits[key] > cap:
-            errors.append(f"{key} cannot exceed the Phase 1 hard cap of {cap}")
+    declared_managers = manifest.get("managers")
+    derived_manager_concurrency = (
+        len(declared_managers) if isinstance(declared_managers, list) and declared_managers else 1
+    )
+    manager_concurrency = manifest.get(
+        "max_manager_concurrency", derived_manager_concurrency
+    )
+    topology_mode = manifest.get("topology_mode")
+    if topology_mode not in {None, "elastic_work_graph"}:
+        errors.append("topology_mode must be 'elastic_work_graph' when provided")
+    if topology_mode is None:
+        for key, cap in LEGACY_HARD_CAPS.items():
+            if limits[key] > cap:
+                errors.append(f"{key} cannot exceed the legacy Phase 1 hard cap of {cap}")
+        warnings.append(
+            "legacy fixed topology is active; new programs should declare "
+            "topology_mode='elastic_work_graph'"
+        )
+    if (
+        not isinstance(manager_concurrency, int)
+        or isinstance(manager_concurrency, bool)
+        or manager_concurrency < 1
+    ):
+        errors.append("max_manager_concurrency must be a positive integer when provided")
+        manager_concurrency = 1
+    elif manager_concurrency > limits["max_managers"]:
+        errors.append("max_manager_concurrency may not exceed max_managers")
     if (
         program_budget
         and _nonnegative_int(program_budget.get("max_concurrency"))
@@ -343,7 +386,7 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
             if worker.get("risk") in {"high", "critical"}:
                 warnings.append(f"{wp} requires manager, reviewer, and master verification")
 
-        for field in ("time_minutes", "token_limit", "cost_usd", "max_concurrency"):
+        for field in ("time_minutes", "token_limit", "cost_usd"):
             if (
                 field in manager_budget
                 and all(field in budget for budget in worker_budgets)
@@ -355,7 +398,7 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
 
     if total_workers > limits["max_total_workers"]:
         errors.append("total worker count exceeds max_total_workers")
-    for field in ("time_minutes", "token_limit", "cost_usd", "max_concurrency"):
+    for field in ("time_minutes", "token_limit", "cost_usd"):
         if (
             field in program_budget
             and all(field in budget for budget in manager_budgets)
@@ -376,7 +419,8 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
         "summary": {
             "managers": len(managers),
             "workers": total_workers,
-            "declared_max_concurrency": min(total_workers, limits["max_total_workers"]),
+            "declared_manager_concurrency": manager_concurrency,
+            "declared_worker_concurrency": program_budget.get("max_concurrency"),
             "luna_token_share_target": share,
         },
     }
@@ -461,6 +505,78 @@ def _self_test() -> int:
     }
     if invalid_result["valid"] or not expected.issubset(set(invalid_result["errors"])):
         print(json.dumps(invalid_result, indent=2))
+        return 1
+
+    # A large program may declare many independently owned outcomes while the
+    # scheduler keeps only a bounded subset active. Capacity is not concurrency.
+    large_manifest = json.loads(json.dumps(valid_manifest))
+    large_manifest.update(
+        {
+            "program_id": "large-self-test",
+            "topology_mode": "elastic_work_graph",
+            "max_managers": 30,
+            "max_manager_concurrency": 6,
+            "max_workers_per_manager": 10,
+            "max_total_workers": 300,
+            "budget": {
+                "time_minutes": 3000,
+                "token_limit": 300000,
+                "cost_usd": 300.0,
+                "max_concurrency": 60,
+                "max_retries": 1,
+            },
+        }
+    )
+    large_manifest["managers"] = []
+    for manager_number in range(30):
+        manager = json.loads(json.dumps(valid_manifest["managers"][0]))
+        manager["id"] = f"manager-{manager_number:02d}"
+        manager["outcome"] = f"Deliver outcome {manager_number:02d}"
+        manager["write_scope"] = [f"work/manager-{manager_number:02d}"]
+        manager["budget"] = {
+            "time_minutes": 100,
+            "token_limit": 10000,
+            "cost_usd": 10.0,
+            "max_concurrency": 2,
+            "max_retries": 1,
+        }
+        manager["workers"] = []
+        for worker_number in range(10):
+            worker = json.loads(json.dumps(valid_manifest["managers"][0]["workers"][0]))
+            worker["id"] = f"worker-{manager_number:02d}-{worker_number:02d}"
+            worker["task"] = f"Deliver task {manager_number:02d}-{worker_number:02d}"
+            worker["write_scope"] = [
+                f"work/manager-{manager_number:02d}/worker-{worker_number:02d}"
+            ]
+            worker["budget"] = {
+                "time_minutes": 10,
+                "token_limit": 1000,
+                "cost_usd": 1.0,
+                "max_concurrency": 1,
+                "max_retries": 1,
+            }
+            worker["outcome_context"]["manager_outcome"] = manager["outcome"]
+            manager["workers"].append(worker)
+        large_manifest["managers"].append(manager)
+    large_result = validate(large_manifest)
+    if not large_result["valid"] or large_result["summary"] != {
+        "managers": 30,
+        "workers": 300,
+        "declared_manager_concurrency": 6,
+        "declared_worker_concurrency": 60,
+        "luna_token_share_target": 0.75,
+    }:
+        print(json.dumps(large_result, indent=2))
+        return 1
+
+    oversized_manifest = json.loads(json.dumps(large_manifest))
+    oversized_manifest["max_managers"] = 257
+    oversized_result = validate(oversized_manifest)
+    if oversized_result["valid"] or not any(
+        "control-plane safety ceiling" in error
+        for error in oversized_result["errors"]
+    ):
+        print(json.dumps(oversized_result, indent=2))
         return 1
 
     print("self-test passed")

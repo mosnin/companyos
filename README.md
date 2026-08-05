@@ -77,6 +77,9 @@ until the standalone self-hosting gates pass.
 
 - `skills/company-os/` — company direction, operations, intelligence, and the
   Elastic Company OS controller.
+- `skills/company-os/company-blueprint/` — operator intake and deterministic
+  compilation of company archetypes, departments, capabilities, playbooks,
+  routines, knowledge, assets, integrations, storage, and work graphs.
 - `skills/autonomy-suite/` — bounded loops, work graphs, quality, routing, and
   the Luna Execution Fabric contract.
 - `programs/company-os-self-hosting/` — versioned program contracts, evidence,

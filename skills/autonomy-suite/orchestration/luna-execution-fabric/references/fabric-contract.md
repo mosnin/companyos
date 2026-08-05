@@ -29,9 +29,9 @@ request proves only the request. Record actual task/thread and host metadata
 only when the host exposes them, and never use host identity as lineage. Pause
 when Luna cannot be requested; do not silently reroute and mislabel work.
 
-## Legacy Phase 1 program manifest
+## Elastic program manifest
 
-The JSON below is the frozen controller/`validate_fabric.py` manifest, not a
+The JSON below is the controller/`validate_fabric.py` manifest, not a
 native v2 prompt payload. Do not copy its embedded descriptive fields into a
 manager or worker prompt. Native dispatch uses only the exact compact v2 assets
 described after this legacy example.
@@ -39,6 +39,7 @@ described after this legacy example.
 ```json
 {
   "program_id": "program-001",
+  "topology_mode": "elastic_work_graph",
   "program_version": 1,
   "outcome": "User-visible accepted outcome",
   "acceptance": ["Executable evidence"],
@@ -60,6 +61,7 @@ described after this legacy example.
     "constraints": ["Safety, product, time, or cost constraint"]
   },
   "max_managers": 2,
+  "max_manager_concurrency": 2,
   "max_workers_per_manager": 3,
   "max_total_workers": 6,
   "max_depth": 2,
@@ -157,8 +159,17 @@ descendants of their manager envelope and mutually disjoint.
 No child may widen authority, retries, concurrency, cost, time, tokens, or
 write scope. Evidence and exceptions move upward. The executable depth remains
 master → manager → worker. Each worker has concurrency one, and sibling time,
-token, cost, and concurrency allocations must fit within their manager; manager
-allocations must fit within the program envelope.
+token, and cost allocations must fit within their manager; manager allocations
+must fit within the program envelope. Declared child capacity may exceed active
+concurrency because the scheduler can queue dependency-blocked work.
+
+Topology is derived from the accepted work graph rather than a fixed ratio.
+Create a manager for each independently accountable outcome or interface
+boundary, then create Luna tasks from that manager's dependency DAG. Keep
+`max_manager_concurrency` at or below `max_managers`. The program worker-
+concurrency budget may be lower than total workers, and a manager's worker-
+concurrency budget may be lower than its worker count. This is expected:
+capacity describes the organization; concurrency describes the active window.
 Before worker dispatch, resolve the exact accepted parent manager charter and
 design record. Require matching project/program/cycle/parent identity and
 parent definition digest; make actions/tools subsets, retain every parent
