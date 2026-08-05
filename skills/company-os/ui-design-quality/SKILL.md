@@ -38,10 +38,22 @@ rules remain controlling.
    must be named precisely. For a codebase-wide motion improvement, use
    [improve-animations](vendor/improve-animations/SKILL.md) to create bounded
    plans before execution.
-5. **Materialize early.** Produce a runnable UI candidate and real screenshots,
+5. **Route advanced motion progressively.** Use the pinned
+   [GreenSock GSAP index](vendor/greensock-gsap/llms.txt) only when the accepted
+   design calls for GSAP, a coordinated timeline, ScrollTrigger, advanced
+   animation plugins, or framework-specific GSAP integration. Always load
+   [gsap-performance](vendor/greensock-gsap/gsap-performance/SKILL.md) plus only
+   the smallest matching specialization: `gsap-core`, `gsap-timeline`,
+   `gsap-scrolltrigger`, `gsap-plugins`, `gsap-utils`, `gsap-react`, or
+   `gsap-frameworks`. Do not load the complete bundle by default, switch an
+   existing project's motion library without an accepted architecture decision,
+   or install `gsap` without separate dependency authority. Record the selected
+   entrypoints and pinned source receipt from
+   [greensock-gsap-source.json](references/greensock-gsap-source.json).
+6. **Materialize early.** Produce a runnable UI candidate and real screenshots,
    not only a specification. Follow the force-first milestones and preserve
    before/after evidence when reworking an existing surface.
-6. **Verify independently.** An independently reviewing manager who did not
+7. **Verify independently.** An independently reviewing manager who did not
    author the UI must inspect the live interaction and use
    [review-animations](vendor/review-animations/SKILL.md) for every changed
    motion surface. Worker completion is never UI acceptance.
@@ -60,6 +72,8 @@ The manager receipt must identify the exact commit and include:
   of every interactive control;
 - motion purpose and frequency for every added animation, with slow-motion or
   frame-by-frame evidence when feel cannot be established mechanically;
+- when GSAP is selected, the decision trigger, exact entrypoints loaded,
+  project dependency/version, cleanup behavior, and reduced-motion path;
 - performance evidence appropriate to the change, including obvious layout
   shift, input latency, dropped-frame, and off-GPU animation risks;
 - the exact vendored upstream commit and the subset of suite skills used.
@@ -79,6 +93,8 @@ Block integration when any of these is true:
   breakpoints and interaction states;
 - prototype code leaked into production without an explicit selected variant;
 - motion is decorative on high-frequency or keyboard-initiated actions;
+- GSAP was loaded wholesale, introduced without an accepted need, or left with
+  unverified timeline/ScrollTrigger/plugin cleanup;
 - reduced motion, touch/hover behavior, focus, or error states are unverified;
 - the packet omitted `ui_design` or `ui_design_quality` despite UI source work.
 

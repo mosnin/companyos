@@ -24,6 +24,10 @@ RECONCILER_PATH = SKILL_ROOT / "scripts" / "reconcile_federated_kernel.py"
 SQLITE_ADAPTER_PATH = SKILL_ROOT / "scripts" / "persist_federated_runtime.py"
 MIGRATION_PATH = SKILL_ROOT / "references" / "postgresql-federated-runtime.sql"
 POSTGRESQL_ADAPTER_SCHEMA = "company-os.postgresql-federated-runtime-adapter.v1"
+POSTGRESQL_CLAIM_SCHEMA = "company-os.postgresql-federated-command-claim.v1"
+POSTGRESQL_NATIVE_LAUNCH_SCHEMA = "company-os.postgresql-native-launch-attempt.v1"
+POSTGRESQL_NATIVE_RECOVERY_SCHEMA = "company-os.postgresql-native-launch-recovery.v1"
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 class PostgresRuntimeError(ValueError):
@@ -58,6 +62,78 @@ def canonical_json(value: Any) -> str:
 
 def digest_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def native_launch_content_digest(
+    message_key: str,
+    payload_sha256: str,
+    attempt_id: str,
+    dispatch_digest: str,
+    initial_prompt_sha256: str,
+) -> str:
+    """Derive the exact content binding used by native launch SQL."""
+    fields = (
+        message_key,
+        payload_sha256,
+        attempt_id,
+        dispatch_digest,
+        initial_prompt_sha256,
+    )
+    if any(not isinstance(value, str) or not value for value in fields):
+        raise PostgresRuntimeError("native launch content fields are required")
+    for label, value in (
+        ("message_key", message_key),
+        ("payload_sha256", payload_sha256),
+        ("dispatch_digest", dispatch_digest),
+        ("initial_prompt_sha256", initial_prompt_sha256),
+    ):
+        if SHA256_RE.fullmatch(value) is None:
+            raise PostgresRuntimeError(f"native launch {label} must be lowercase SHA-256")
+    return digest_text("|".join(fields))
+
+
+def _native_attempt_envelope(
+    schema: str,
+    *,
+    project_id: str,
+    message_key: str,
+    result: Any,
+) -> dict[str, Any]:
+    if not isinstance(result, dict):
+        raise PostgresRuntimeError("PostgreSQL native launch function returned an invalid receipt")
+    return {
+        "$schema": schema,
+        "ok": True,
+        "backend": "postgresql",
+        "project_id": project_id,
+        "message_key": message_key,
+        "attempt": result,
+    }
+
+
+def _read_canonical_value(path: Path, label: str) -> Any:
+    if path.is_symlink() or not path.is_file():
+        raise PostgresRuntimeError(f"{label} must be a regular non-symlink file")
+    raw = path.read_bytes()
+    try:
+        value = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise PostgresRuntimeError(f"{label} is not valid JSON") from exc
+    if raw != (canonical_json(value) + "\n").encode("utf-8"):
+        raise PostgresRuntimeError(f"{label} bytes are not canonical JSON")
+    return value
+
+
+def _native_hash(value: str, label: str) -> str:
+    if not isinstance(value, str) or SHA256_RE.fullmatch(value) is None:
+        raise PostgresRuntimeError(f"{label} must be lowercase SHA-256")
+    return value
+
+
+def _native_text(value: str, label: str) -> str:
+    if not isinstance(value, str) or not value or value != value.strip():
+        raise PostgresRuntimeError(f"{label} must be non-empty trimmed text")
+    return value
 
 
 def quote_identifier(value: str) -> str:
@@ -332,7 +408,253 @@ def claim(
                 (project_id, owner, claim_token, now, lease_expires_at, message_key),
             )
             result = row_dict(cursor)
-    return {"ok": True, "backend": "postgresql", "claim": result}
+    return {
+        "$schema": POSTGRESQL_CLAIM_SCHEMA,
+        "ok": True,
+        "backend": "postgresql",
+        "project_id": project_id,
+        "claim_owner": owner,
+        "claim": result,
+    }
+
+
+def prepare_native_launch_attempt(
+    kernel: dict[str, Any],
+    *,
+    project_id: str,
+    message_key: str,
+    owner: str,
+    claim_token: str,
+    lease_generation: int,
+    attempt_id: str,
+    dispatch_digest: str,
+    initial_prompt_sha256: str,
+    at: str,
+) -> dict[str, Any]:
+    """Durably prepare one content-bound native host create before the effect."""
+    _native_text(project_id, "project_id")
+    _native_hash(message_key, "message_key")
+    _native_text(owner, "owner")
+    _native_text(claim_token, "claim_token")
+    _native_text(attempt_id, "attempt_id")
+    if not isinstance(lease_generation, int) or lease_generation < 1:
+        raise PostgresRuntimeError("lease_generation must be a positive integer")
+    _native_hash(dispatch_digest, "dispatch_digest")
+    _native_hash(initial_prompt_sha256, "initial_prompt_sha256")
+    LOCAL.parse_time(at, "at")
+    schema = quote_identifier(kernel["persistence"]["schema"])
+    with database_connection(kernel, "native launch preparation") as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {schema}.prepare_native_launch_attempt(%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    project_id,
+                    message_key,
+                    owner,
+                    claim_token,
+                    lease_generation,
+                    attempt_id,
+                    dispatch_digest,
+                    initial_prompt_sha256,
+                    at,
+                ),
+            )
+            result = cursor.fetchone()[0]
+    return _native_attempt_envelope(
+        POSTGRESQL_NATIVE_LAUNCH_SCHEMA,
+        project_id=project_id,
+        message_key=message_key,
+        result=result,
+    )
+
+
+def mark_native_launch_ambiguous(
+    kernel: dict[str, Any],
+    *,
+    project_id: str,
+    message_key: str,
+    owner: str,
+    claim_token: str,
+    lease_generation: int,
+    attempt_id: str,
+    at: str,
+) -> dict[str, Any]:
+    """Record a possible host effect without asserting task creation."""
+    _native_hash(message_key, "message_key")
+    _native_text(owner, "owner")
+    _native_text(claim_token, "claim_token")
+    _native_text(attempt_id, "attempt_id")
+    if not isinstance(lease_generation, int) or lease_generation < 1:
+        raise PostgresRuntimeError("lease_generation must be a positive integer")
+    LOCAL.parse_time(at, "at")
+    schema = quote_identifier(kernel["persistence"]["schema"])
+    with database_connection(kernel, "native launch ambiguity") as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {schema}.mark_native_launch_ambiguous(%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    project_id,
+                    message_key,
+                    owner,
+                    claim_token,
+                    lease_generation,
+                    attempt_id,
+                    at,
+                ),
+            )
+            result = cursor.fetchone()[0]
+    return _native_attempt_envelope(
+        POSTGRESQL_NATIVE_LAUNCH_SCHEMA,
+        project_id=project_id,
+        message_key=message_key,
+        result=result,
+    )
+
+
+def reclaim_native_launch_attempt(
+    kernel: dict[str, Any],
+    *,
+    project_id: str,
+    message_key: str,
+    owner: str,
+    claim_token: str,
+    expected_generation: int,
+    now: str,
+    lease_expires_at: str,
+) -> dict[str, Any]:
+    """Acquire a new fenced lease only for explicit launch recovery."""
+    _native_hash(message_key, "message_key")
+    _native_text(owner, "owner")
+    _native_text(claim_token, "claim_token")
+    if not isinstance(expected_generation, int) or expected_generation < 1:
+        raise PostgresRuntimeError("expected_generation must be a positive integer")
+    LOCAL.parse_time(now, "now")
+    LOCAL.parse_time(lease_expires_at, "lease_expires_at")
+    schema = quote_identifier(kernel["persistence"]["schema"])
+    with database_connection(kernel, "native launch recovery claim") as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT * FROM {schema}.reclaim_native_launch_attempt(%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    project_id,
+                    message_key,
+                    owner,
+                    claim_token,
+                    expected_generation,
+                    now,
+                    lease_expires_at,
+                ),
+            )
+            result = row_dict(cursor)
+    return _native_attempt_envelope(
+        POSTGRESQL_NATIVE_RECOVERY_SCHEMA,
+        project_id=project_id,
+        message_key=message_key,
+        result=result,
+    )
+
+
+def recover_native_launch_attempt(
+    kernel: dict[str, Any],
+    *,
+    project_id: str,
+    message_key: str,
+    owner: str,
+    claim_token: str,
+    lease_generation: int,
+    attempt_id: str,
+    candidates: list[dict[str, Any]],
+    at: str,
+    requeue_at: str | None = None,
+    absence_evidence: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Bind one exact task, audit typed zero evidence while blocked, or persist conflict."""
+    _native_hash(message_key, "message_key")
+    _native_text(owner, "owner")
+    _native_text(claim_token, "claim_token")
+    _native_text(attempt_id, "attempt_id")
+    if not isinstance(lease_generation, int) or lease_generation < 1:
+        raise PostgresRuntimeError("lease_generation must be a positive integer")
+    if not isinstance(candidates, list) or any(not isinstance(item, dict) for item in candidates):
+        raise PostgresRuntimeError("native launch candidates must be a list of objects")
+    if not candidates and absence_evidence is None:
+        raise PostgresRuntimeError("absence evidence is required when candidates are empty")
+    if absence_evidence is not None and not isinstance(absence_evidence, dict):
+        raise PostgresRuntimeError("absence evidence must be an object")
+    LOCAL.parse_time(at, "at")
+    if requeue_at is not None:
+        LOCAL.parse_time(requeue_at, "requeue_at")
+    candidates_json = canonical_json(candidates)
+    absence_evidence_json = (
+        canonical_json(absence_evidence) if absence_evidence is not None else None
+    )
+    schema = quote_identifier(kernel["persistence"]["schema"])
+    with database_connection(kernel, "native launch recovery") as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {schema}.recover_native_launch_attempt(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    project_id,
+                    message_key,
+                    owner,
+                    claim_token,
+                    lease_generation,
+                    attempt_id,
+                    candidates_json,
+                    at,
+                    requeue_at,
+                    absence_evidence_json,
+                ),
+            )
+            result = cursor.fetchone()[0]
+    return _native_attempt_envelope(
+        POSTGRESQL_NATIVE_RECOVERY_SCHEMA,
+        project_id=project_id,
+        message_key=message_key,
+        result=result,
+    )
+
+
+def abandon_native_launch_attempt(
+    kernel: dict[str, Any],
+    *,
+    project_id: str,
+    message_key: str,
+    owner: str,
+    claim_token: str,
+    lease_generation: int,
+    attempt_id: str,
+    at: str,
+    absence_evidence: dict[str, Any],
+    requeue_at: str | None = None,
+) -> dict[str, Any]:
+    return recover_native_launch_attempt(
+        kernel,
+        project_id=project_id,
+        message_key=message_key,
+        owner=owner,
+        claim_token=claim_token,
+        lease_generation=lease_generation,
+        attempt_id=attempt_id,
+        candidates=[],
+        at=at,
+        requeue_at=requeue_at,
+        absence_evidence=absence_evidence,
+    )
+
+
+# Compatibility aliases retain older host names. `abandon` is deliberately an
+# audit-only zero-candidate call in this version; it cannot requeue or authorize
+# another host create without a future separately authorized transition.
+prepare_native_launch = prepare_native_launch_attempt
+reclaim_native_launch = reclaim_native_launch_attempt
+recover_native_launch = recover_native_launch_attempt
+abandon_native_launch = abandon_native_launch_attempt
+prepare_launch_attempt = prepare_native_launch_attempt
+mark_launch_ambiguous = mark_native_launch_ambiguous
+reclaim_launch_attempt = reclaim_native_launch_attempt
+recover_launch_attempt = recover_native_launch_attempt
+abandon_launch_attempt = abandon_native_launch_attempt
 
 
 def settle(
@@ -370,14 +692,30 @@ def settle(
 
 
 def cancel(
-    kernel: dict[str, Any], *, project_id: str, message_key: str, reason: str, at: str
+    kernel: dict[str, Any],
+    *,
+    project_id: str,
+    message_key: str,
+    owner: str,
+    claim_token: str,
+    lease_generation: int,
+    reason: str,
+    at: str,
 ) -> dict[str, Any]:
     schema = quote_identifier(kernel["persistence"]["schema"])
     with database_connection(kernel, "cancellation") as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                f"SELECT {schema}.cancel_command(%s,%s,%s,%s)",
-                (project_id, message_key, reason, at),
+                f"SELECT {schema}.cancel_command(%s,%s,%s,%s,%s,%s,%s)",
+                (
+                    project_id,
+                    message_key,
+                    owner,
+                    claim_token,
+                    lease_generation,
+                    reason,
+                    at,
+                ),
             )
             result = cursor.fetchone()[0]
     return {"ok": True, "backend": "postgresql", "status": result}
@@ -451,6 +789,123 @@ def command_claim(args: argparse.Namespace) -> int:
         return 2
 
 
+def command_prepare_native_launch(args: argparse.Namespace) -> int:
+    try:
+        result = prepare_native_launch_attempt(
+            load_kernel(Path(args.kernel)),
+            project_id=args.project_id,
+            message_key=args.message_key,
+            owner=args.owner,
+            claim_token=token_from_env(args.claim_token_env),
+            lease_generation=args.lease_generation,
+            attempt_id=args.attempt_id,
+            dispatch_digest=args.dispatch_digest,
+            initial_prompt_sha256=args.initial_prompt_sha256,
+            at=args.at,
+        )
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    except (PostgresRuntimeError, RECONCILE.ReconciliationError, RECONCILE.KERNEL.KernelError, OSError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, sort_keys=True))
+        return 2
+
+
+def command_mark_native_launch_ambiguous(args: argparse.Namespace) -> int:
+    try:
+        result = mark_native_launch_ambiguous(
+            load_kernel(Path(args.kernel)),
+            project_id=args.project_id,
+            message_key=args.message_key,
+            owner=args.owner,
+            claim_token=token_from_env(args.claim_token_env),
+            lease_generation=args.lease_generation,
+            attempt_id=args.attempt_id,
+            at=args.at,
+        )
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    except (PostgresRuntimeError, RECONCILE.ReconciliationError, RECONCILE.KERNEL.KernelError, OSError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, sort_keys=True))
+        return 2
+
+
+def command_reclaim_native_launch(args: argparse.Namespace) -> int:
+    try:
+        result = reclaim_native_launch_attempt(
+            load_kernel(Path(args.kernel)),
+            project_id=args.project_id,
+            message_key=args.message_key,
+            owner=args.owner,
+            claim_token=token_from_env(args.claim_token_env),
+            expected_generation=args.expected_generation,
+            now=args.now,
+            lease_expires_at=args.lease_expires_at,
+        )
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    except (PostgresRuntimeError, RECONCILE.ReconciliationError, RECONCILE.KERNEL.KernelError, OSError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, sort_keys=True))
+        return 2
+
+
+def command_recover_native_launch(args: argparse.Namespace) -> int:
+    try:
+        candidates = _read_canonical_value(Path(args.candidates), "native launch candidates")
+        if not isinstance(candidates, list):
+            raise PostgresRuntimeError("native launch candidates must be a JSON array")
+        absence_evidence = None
+        if args.absence_evidence:
+            absence_evidence = _read_canonical_value(
+                Path(args.absence_evidence), "native launch absence evidence"
+            )
+            if not isinstance(absence_evidence, dict):
+                raise PostgresRuntimeError("native launch absence evidence must be a JSON object")
+        result = recover_native_launch_attempt(
+            load_kernel(Path(args.kernel)),
+            project_id=args.project_id,
+            message_key=args.message_key,
+            owner=args.owner,
+            claim_token=token_from_env(args.claim_token_env),
+            lease_generation=args.lease_generation,
+            attempt_id=args.attempt_id,
+            candidates=candidates,
+            at=args.at,
+            requeue_at=args.requeue_at,
+            absence_evidence=absence_evidence,
+        )
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    except (PostgresRuntimeError, RECONCILE.ReconciliationError, RECONCILE.KERNEL.KernelError, OSError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, sort_keys=True))
+        return 2
+
+
+def command_abandon_native_launch(args: argparse.Namespace) -> int:
+    try:
+        absence_evidence = _read_canonical_value(
+            Path(args.absence_evidence), "native launch absence evidence"
+        )
+        if not isinstance(absence_evidence, dict):
+            raise PostgresRuntimeError("native launch absence evidence must be a JSON object")
+        result = abandon_native_launch_attempt(
+            load_kernel(Path(args.kernel)),
+            project_id=args.project_id,
+            message_key=args.message_key,
+            owner=args.owner,
+            claim_token=token_from_env(args.claim_token_env),
+            lease_generation=args.lease_generation,
+            attempt_id=args.attempt_id,
+            at=args.at,
+            absence_evidence=absence_evidence,
+            requeue_at=args.requeue_at,
+        )
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    except (PostgresRuntimeError, RECONCILE.ReconciliationError, RECONCILE.KERNEL.KernelError, OSError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, sort_keys=True))
+        return 2
+
+
 def command_settle(args: argparse.Namespace) -> int:
     try:
         receipt = RECONCILE.read_canonical_object(Path(args.receipt), "settlement receipt")
@@ -478,6 +933,9 @@ def command_cancel(args: argparse.Namespace) -> int:
             load_kernel(Path(args.kernel)),
             project_id=args.project_id,
             message_key=args.message_key,
+            owner=args.owner,
+            claim_token=token_from_env(args.claim_token_env),
+            lease_generation=args.lease_generation,
             reason=args.reason,
             at=args.at,
         )
@@ -519,6 +977,78 @@ def parser() -> argparse.ArgumentParser:
     claim_parser.add_argument("--lease-expires-at", required=True)
     claim_parser.add_argument("--message-key")
     claim_parser.set_defaults(handler=command_claim)
+    prepare_native_parser = sub.add_parser(
+        "prepare-native-launch",
+        help="durably prepare a content-bound native host launch before create",
+    )
+    prepare_native_parser.add_argument("--kernel", required=True)
+    prepare_native_parser.add_argument("--project-id", required=True)
+    prepare_native_parser.add_argument("--message-key", required=True)
+    prepare_native_parser.add_argument("--owner", required=True)
+    prepare_native_parser.add_argument("--claim-token-env", required=True)
+    prepare_native_parser.add_argument("--lease-generation", required=True, type=int)
+    prepare_native_parser.add_argument("--attempt-id", required=True)
+    prepare_native_parser.add_argument("--dispatch-digest", required=True)
+    prepare_native_parser.add_argument("--initial-prompt-sha256", required=True)
+    prepare_native_parser.add_argument("--at", required=True)
+    prepare_native_parser.set_defaults(handler=command_prepare_native_launch)
+    ambiguous_native_parser = sub.add_parser(
+        "mark-native-launch-ambiguous",
+        help="retain a possible native launch effect without claiming success",
+    )
+    ambiguous_native_parser.add_argument("--kernel", required=True)
+    ambiguous_native_parser.add_argument("--project-id", required=True)
+    ambiguous_native_parser.add_argument("--message-key", required=True)
+    ambiguous_native_parser.add_argument("--owner", required=True)
+    ambiguous_native_parser.add_argument("--claim-token-env", required=True)
+    ambiguous_native_parser.add_argument("--lease-generation", required=True, type=int)
+    ambiguous_native_parser.add_argument("--attempt-id", required=True)
+    ambiguous_native_parser.add_argument("--at", required=True)
+    ambiguous_native_parser.set_defaults(handler=command_mark_native_launch_ambiguous)
+    reclaim_native_parser = sub.add_parser(
+        "reclaim-native-launch",
+        help="take an explicit fenced recovery lease without another host create",
+    )
+    reclaim_native_parser.add_argument("--kernel", required=True)
+    reclaim_native_parser.add_argument("--project-id", required=True)
+    reclaim_native_parser.add_argument("--message-key", required=True)
+    reclaim_native_parser.add_argument("--owner", required=True)
+    reclaim_native_parser.add_argument("--claim-token-env", required=True)
+    reclaim_native_parser.add_argument("--expected-generation", required=True, type=int)
+    reclaim_native_parser.add_argument("--now", required=True)
+    reclaim_native_parser.add_argument("--lease-expires-at", required=True)
+    reclaim_native_parser.set_defaults(handler=command_reclaim_native_launch)
+    recover_native_parser = sub.add_parser(
+        "recover-native-launch",
+        help="bind one exact task, audit typed zero evidence while blocked, or block on conflict",
+    )
+    recover_native_parser.add_argument("--kernel", required=True)
+    recover_native_parser.add_argument("--project-id", required=True)
+    recover_native_parser.add_argument("--message-key", required=True)
+    recover_native_parser.add_argument("--owner", required=True)
+    recover_native_parser.add_argument("--claim-token-env", required=True)
+    recover_native_parser.add_argument("--lease-generation", required=True, type=int)
+    recover_native_parser.add_argument("--attempt-id", required=True)
+    recover_native_parser.add_argument("--candidates", required=True)
+    recover_native_parser.add_argument("--at", required=True)
+    recover_native_parser.add_argument("--requeue-at")
+    recover_native_parser.add_argument("--absence-evidence")
+    recover_native_parser.set_defaults(handler=command_recover_native_launch)
+    abandon_native_parser = sub.add_parser(
+        "abandon-native-launch",
+        help="compatibility alias: record typed zero evidence while remaining blocked; never requeues",
+    )
+    abandon_native_parser.add_argument("--kernel", required=True)
+    abandon_native_parser.add_argument("--project-id", required=True)
+    abandon_native_parser.add_argument("--message-key", required=True)
+    abandon_native_parser.add_argument("--owner", required=True)
+    abandon_native_parser.add_argument("--claim-token-env", required=True)
+    abandon_native_parser.add_argument("--lease-generation", required=True, type=int)
+    abandon_native_parser.add_argument("--attempt-id", required=True)
+    abandon_native_parser.add_argument("--at", required=True)
+    abandon_native_parser.add_argument("--absence-evidence", required=True)
+    abandon_native_parser.add_argument("--requeue-at")
+    abandon_native_parser.set_defaults(handler=command_abandon_native_launch)
     settle_parser = sub.add_parser("settle")
     settle_parser.add_argument("--kernel", required=True)
     settle_parser.add_argument("--project-id", required=True)
@@ -534,6 +1064,9 @@ def parser() -> argparse.ArgumentParser:
     cancel_parser.add_argument("--kernel", required=True)
     cancel_parser.add_argument("--project-id", required=True)
     cancel_parser.add_argument("--message-key", required=True)
+    cancel_parser.add_argument("--owner", required=True)
+    cancel_parser.add_argument("--claim-token-env", required=True)
+    cancel_parser.add_argument("--lease-generation", required=True, type=int)
     cancel_parser.add_argument("--reason", required=True)
     cancel_parser.add_argument("--at", required=True)
     cancel_parser.set_defaults(handler=command_cancel)

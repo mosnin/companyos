@@ -7,8 +7,8 @@
   "files": [
     {
       "path": "company-os/assign-capability-skills/SKILL.md",
-      "sha256": "6a1c98dca66c19101cbab8517b6875fded5851658a5b92b70f3acd06e3a05a49",
-      "size": 6140
+      "sha256": "c4575fdf00fd323d5d6d35888442931857204abef405420f5997c5b4bf090c1c",
+      "size": 6737
     },
     {
       "path": "company-os/assign-capability-skills/agents/openai.yaml",
@@ -34,6 +34,11 @@
       "path": "company-os/assign-capability-skills/references/capability-catalog.json",
       "sha256": "46e31b2f4ffdf2362e2c70a8bc254b72a01d5b5b1d37a138e634cf33096ca271",
       "size": 2137575
+    },
+    {
+      "path": "company-os/assign-capability-skills/references/capability-index-v2-integration.md",
+      "sha256": "f7c36faa3272dc06560c35cd7d3b5522ed4ebb844656bcc51cc008e9eaa85b72",
+      "size": 2676
     },
     {
       "path": "company-os/assign-capability-skills/references/capability-review-decisions.json",
@@ -71,6 +76,11 @@
       "size": 70128
     },
     {
+      "path": "company-os/assign-capability-skills/scripts/capability_index_contract_v2.py",
+      "sha256": "cf0e493eda5cdf490905704e6b6b857cf8e3057ed541a02af348211ddbdf45e2",
+      "size": 24042
+    },
+    {
       "path": "company-os/assign-capability-skills/scripts/capability_review_registry.py",
       "sha256": "5e5a122c80de715c0837c6681ff1188eb6b50b89a406df0f45c2ee2ed37dbd3c",
       "size": 77419
@@ -79,6 +89,11 @@
       "path": "company-os/assign-capability-skills/scripts/promote_curated_capabilities.py",
       "sha256": "9d516c1aec03dd24aa3a5fb433710c1f720bb3784c3b7c9425d0a73da59d8d54",
       "size": 11643
+    },
+    {
+      "path": "company-os/assign-capability-skills/scripts/route_capability_bundle_v2.py",
+      "sha256": "67d067eab2c855a4a3a9d3def2ac0f7920935fcb5acf25fa15716c52a74699bc",
+      "size": 10382
     },
     {
       "path": "company-os/assign-capability-skills/vendor/business/capability-assessment/SKILL.md",
@@ -207,8 +222,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "61a13b1f4cf946c3fda51d3024d97d114ea0d053b7b77cbcf7129a18e0acdeed",
-      "size": 16115
+      "sha256": "188e67f5aabd5dcbd5d86c02b57ed149e768e0a4935d3d8f26d90bc05d059acf",
+      "size": 16725
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -217,8 +232,8 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/SKILL.md",
-      "sha256": "d8c3cfe397b1159b76ab34ef84ef9b38dfd398ae0b81389d56a1d1a424331bc6",
-      "size": 8653
+      "sha256": "07c8cf0dec2ba91c78a8eb54f6c9f3416215b5d90b1f72454c82c147ba3e202a",
+      "size": 9946
     },
     {
       "path": "company-os/compile-federated-company-kernel/agents/openai.yaml",
@@ -246,14 +261,24 @@
       "size": 5527
     },
     {
+      "path": "company-os/compile-federated-company-kernel/references/postgresql-admin-validation-evidence.json",
+      "sha256": "ad3116de3182b293fb39e85963880cd823ead821b3c51db879e81954ce3cf739",
+      "size": 4849
+    },
+    {
       "path": "company-os/compile-federated-company-kernel/references/postgresql-federated-runtime.sql",
-      "sha256": "770a09aba712b2191acc35d948918a0ee8b9af1da73d018dfde6d180f8a49fba",
-      "size": 25901
+      "sha256": "f42cfb49f11a4f56302c014e616d8de646816b75915b09327f3958cebec067ac",
+      "size": 73162
+    },
+    {
+      "path": "company-os/compile-federated-company-kernel/references/postgresql-validation-evidence.json",
+      "sha256": "519a9af7098c033f296d914bf56193fda0194a2f02755e71d90219a800c7a4cf",
+      "size": 5371
     },
     {
       "path": "company-os/compile-federated-company-kernel/references/postgresql-validation-receipt.json",
-      "sha256": "121fb3db844ee0920bad7e885e38026eb1e7e8b926f03f504c59bbdb10f85a02",
-      "size": 2313
+      "sha256": "2d110e42f88fc7965920d060718648bfeb955601be1c26a9cf01f45390e965df",
+      "size": 5232
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/compile_federated_kernel.py",
@@ -267,8 +292,13 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/postgres_federated_runtime.py",
-      "sha256": "334af205b424b3ed4689283cff7b97a88cd7513b764e145a49a8d94eeb0eaded",
-      "size": 20505
+      "sha256": "20a8f74665f0fd94ed4dcfb9c5e328f9ba8cfaa907c3b8fc0642491416b8ab1f",
+      "size": 42043
+    },
+    {
+      "path": "company-os/compile-federated-company-kernel/scripts/postgres_runtime_admin.py",
+      "sha256": "7fd3c372c2dc36b8c1370e671e19de4861438548fcf37c2cb121f37d937899c7",
+      "size": 13464
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/reconcile_federated_kernel.py",
@@ -662,8 +692,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "92b1dccfd5b88117e48abeee3c2570fdf5febcc3ef319c7c0585805ff07a34b6",
-      "size": 5094
+      "sha256": "babed17a09ad3cb6d293f77ff21b38d3010cc82809850a20a653e39f844fd1db",
+      "size": 5391
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
@@ -749,6 +779,26 @@
       "path": "company-os/manage-company-program/scripts/compile_program_preflight.py",
       "sha256": "1dbcd1981a33b7de17becc83026b9823d403f4de70f105db98df908e5f5fc062",
       "size": 122775
+    },
+    {
+      "path": "company-os/operate-federated-codex-runtime/SKILL.md",
+      "sha256": "f84fe72f8322ed6844dda013f405075c76d491bd2c9df9efc044d4eae53cfc7e",
+      "size": 7025
+    },
+    {
+      "path": "company-os/operate-federated-codex-runtime/references/native-codex-bridge-contract.md",
+      "sha256": "80562564d994ee387f6c680c3852e0267e99e6432d7a37665717b72ad187cb94",
+      "size": 3021
+    },
+    {
+      "path": "company-os/operate-federated-codex-runtime/references/native-host-binding.example.json",
+      "sha256": "e7b84c29e75343785798dc634bfa406b3820e3c59c260d89ca3c51ee11e4b4c1",
+      "size": 282
+    },
+    {
+      "path": "company-os/operate-federated-codex-runtime/scripts/prepare_native_codex_dispatch.py",
+      "sha256": "d438bef79231b4443c98db4e99ac314f7c8f680f5bf895778ea1f7794f8dea2d",
+      "size": 29574
     },
     {
       "path": "company-os/operational-control/SKILL.md",
@@ -837,13 +887,18 @@
     },
     {
       "path": "company-os/ui-design-quality/SKILL.md",
-      "sha256": "389e69fb9236bd02f2dbd146a78ac6b0d32f111ecb4417b8b0cb8071baeb5b8e",
-      "size": 5381
+      "sha256": "2f53bc4d38e5c5806b9c3786ec78fbea08cb24f3d0c14bc8b7594dc638099a36",
+      "size": 6524
     },
     {
       "path": "company-os/ui-design-quality/UPSTREAM.json",
       "sha256": "1ec61ecd71cf307f3e51ddf0440474b0810cdc4bd0fb071a714c5309f57311f5",
       "size": 1880
+    },
+    {
+      "path": "company-os/ui-design-quality/references/greensock-gsap-source.json",
+      "sha256": "e77139a0d47d81c860eacbdcc42e93b3998879623f9701042a7bba2d56e69d1d",
+      "size": 2207
     },
     {
       "path": "company-os/ui-design-quality/vendor/animation-vocabulary/SKILL.md",
@@ -864,6 +919,56 @@
       "path": "company-os/ui-design-quality/vendor/find-animation-opportunities/SKILL.md",
       "sha256": "91c1243164057fbf824088d12faea937878a757a7ac653e8288b775e8b27b882",
       "size": 9491
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/LICENSE",
+      "sha256": "51b04b06556662dd817e8f4aa6d06bc7139dc73739e1319a7233cfde3e147b90",
+      "size": 1066
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/gsap-core/SKILL.md",
+      "sha256": "3887b47e050ab5afbe2a9a820f23d39fa02ab785e06a343be44c6f91d84d12b3",
+      "size": 14792
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/gsap-frameworks/SKILL.md",
+      "sha256": "842d9d3659ec3ddc8abbdc524708f8facf81f468ac25d0577f48c759c4fa31e6",
+      "size": 10621
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/gsap-performance/SKILL.md",
+      "sha256": "cb5408d6fba707aabcbfe3320317a14c1f8fca6070074e5261047930f50d441e",
+      "size": 4139
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/gsap-plugins/SKILL.md",
+      "sha256": "5838b856c74c07fbc9fa99b6dfd1eee34ea554c3e530c30e0d58014b707d70a4",
+      "size": 21579
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/gsap-react/SKILL.md",
+      "sha256": "88e2a5312b45e8cc7b3c496637ff5bc9af2ae9c925b555c8b235b34cbc989d74",
+      "size": 6565
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/gsap-scrolltrigger/SKILL.md",
+      "sha256": "9351b6666a4749c0740406ea363aaccb99a087ff45cc5e8b99a0f367facf3ef4",
+      "size": 18390
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/gsap-timeline/SKILL.md",
+      "sha256": "1a8b0f39cc4be3ed3d834b89672e4ae2f151b901dc3450bebf10bbc45379fe02",
+      "size": 4394
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/gsap-utils/SKILL.md",
+      "sha256": "1927bcc4ea95b38203404ad5ea1d060b15c4a886c65ae53e885ff1793aabe0ba",
+      "size": 12093
+    },
+    {
+      "path": "company-os/ui-design-quality/vendor/greensock-gsap/llms.txt",
+      "sha256": "32dab4bde09bc822ac17ebc49ee2ff87ca8c304a1c6e0509aadde7223f78b42f",
+      "size": 3111
     },
     {
       "path": "company-os/ui-design-quality/vendor/improve-animations/AUDIT.md",
@@ -917,8 +1022,8 @@
     },
     {
       "path": "autonomy-suite/delegation/supervised-subagent-tree/SKILL.md",
-      "sha256": "82ab61189b42f0a0d8e3d9d4abe044e9ed3c029005df1f1f473406a660be83a0",
-      "size": 2351
+      "sha256": "f0e640ceb9fe878f8b9812c46d50d4f3ab1ec1e5cb8e11c5bb9e6f74e8dc9c25",
+      "size": 2629
     },
     {
       "path": "autonomy-suite/delegation/supervised-subagent-tree/agents/openai.yaml",
@@ -962,8 +1067,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/references/codex-native-task-fabric.md",
-      "sha256": "d14421f04634f07bb3de10336691541a31d1e6c6aed4227b4a2dc7150430f23c",
-      "size": 4985
+      "sha256": "85120eacd4258f9b5a86c9d0f8b8cd0dc9452db4efcaa79a8c3cab2eee0a6fc3",
+      "size": 5193
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/references/fabric-contract.md",

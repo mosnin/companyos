@@ -16,6 +16,16 @@ verify it: domain expertise, artifact production, named technology, and
 independent review. Search each class separately. Do not send one long natural-
 language query and treat an empty result as proof that no skill is needed.
 
+The feature-off v2 contract lives in
+`scripts/capability_index_contract_v2.py` and
+`scripts/route_capability_bundle_v2.py`. It closes the pre-selection gap that
+v1 cannot prove: exhaustive metadata retrieval, typed requirement coverage,
+hard eligibility gates, transitive dependency/resource closure, exact set
+cover, stable semantic ties, and deterministic context accounting. Do not
+activate v2 against live work until a canonical v2 catalog snapshot and task
+compiler bind its inputs; the executable contract is currently an integration
+oracle, not a replacement for the accepted v1 resolver.
+
 1. Search [references/capability-catalog.json](references/capability-catalog.json)
    with `scripts/capability_catalog.py search --dispatchable-only`. Search
    returns metadata only; it never loads instructions. Omit the flag only for a

@@ -21,7 +21,12 @@ Treat delegation as a governed capability, not an unrestricted tool.
 - Prevent cycles, duplicate children, and same-resource concurrent writers.
 - Require a parent or designated reviewer to accept child evidence before merging it into the parent result.
 - Require managers to inspect the artifact or diff and rerun acceptance checks. A worker summary is never acceptance evidence by itself.
-- Permit at most two concurrent managers, three Luna workers per manager, and six Luna workers globally until measured scaling gates are satisfied.
+- Bind manager count, workers per manager, and total worker capacity to the
+  accepted work graph. Bind active concurrency separately to the current scale
+  gate and available budget. Start with the smallest cohort that exposes real
+  dependencies, then raise or lower active slots from measured acceptance,
+  rework, collisions, recovery, latency, and cost. Never collapse unrelated
+  outcomes to satisfy a fixed team ratio.
 - Enforce approval and delegation limits in the control plane and tool adapters; do not rely on task text or prompts to constrain authority.
 
 ## Supervision

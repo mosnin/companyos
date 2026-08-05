@@ -32,7 +32,10 @@ records only and must not claim it can call app task tools.
    child scope, actions, tools, and all six budgets may only narrow. Workers
    never await the master and may not delegate.
 4. Do not create a task whose dependencies are absent, malformed, foreign, or
-   unaccepted. Keep concurrency at three workers per manager and six globally.
+   unaccepted. Use each manager cell's work-graph-derived direct-report and
+   worker-slot capacity, while the global admission controller independently
+   bounds how many managers and workers may be active. Capacity is not
+   concurrency and there is no fixed cross-program team ratio.
 5. Wait and read bounded task sets. Inspect artifacts and checks directly.
 6. Reject or rework stale reports, changed scopes, failed/refused tasks,
    project contamination, policy side effects, and budget pressure.

@@ -40,8 +40,12 @@ charter; never require the root transcript or a repeated Company OS manual.
    optional recovery cap. After each decision, seal and verify the force log.
 7. Use native Codex task creation, waiting, reading, listing, and messaging only
    from the interactive host. Repository code does not call those app tools.
-8. Keep at most three Luna workers active, one task per worker, no worker child
-   delegation, and one writer per ownership scope.
+8. Use the manager cell's exact `direct_report_limit`,
+   `declared_worker_slots`, and active-concurrency allocation. These values come
+   from the accepted work graph; never replace them with a fixed team ratio.
+   Admit the full accountable team while activating only the bounded subset the
+   global controller has capacity to run. Keep one task per worker, no worker
+   child delegation, and one writer per ownership scope.
 9. Inspect every artifact, check, scope, dependency, and receipt. Reject stale,
    weak, failed, refused, scope-drifted, cross-project, or side-effecting work.
    Resolve only exact versioned local references; reject absolute, escaped, or

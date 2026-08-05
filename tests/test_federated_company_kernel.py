@@ -208,6 +208,24 @@ class FederatedCompanyKernelTests(unittest.TestCase):
         self.assertEqual(len(architecture), 3)
         self.assertEqual(sum(item["declared_worker_slots"] for item in architecture), 12)
 
+    def test_role_contracts_do_not_reintroduce_fixed_team_ratios(self):
+        paths = [
+            ROOT / "skills" / "company-os" / "manage-company-program" / "SKILL.md",
+            ROOT / "skills" / "autonomy-suite" / "delegation" / "supervised-subagent-tree" / "SKILL.md",
+            ROOT
+            / "skills"
+            / "autonomy-suite"
+            / "orchestration"
+            / "luna-execution-fabric"
+            / "references"
+            / "codex-native-task-fabric.md",
+        ]
+        combined = "\n".join(path.read_text() for path in paths)
+        self.assertNotIn("three Luna workers per manager", combined)
+        self.assertNotIn("three workers per manager and six globally", combined)
+        self.assertIn("direct_report_limit", combined)
+        self.assertIn("Capacity is not", combined)
+
     def test_example_request_is_canonical_and_compiles(self):
         raw = EXAMPLE.read_bytes()
         request = json.loads(raw)

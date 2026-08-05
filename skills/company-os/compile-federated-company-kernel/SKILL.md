@@ -163,12 +163,38 @@ python3 scripts/postgres_federated_runtime.py persist \
   --at 2026-08-05T12:00:00+00:00
 ```
 
+After migration, an authorized database administrator must run the checked-in
+bootstrap/audit boundary. It requires an existing restricted direct-login
+runtime role, creates a protected definer only when explicitly requested,
+binds one unique project principal, transfers the exact trusted function
+surface, installs only the ten-function runtime API, and emits canonical raw
+catalog evidence without printing the DSN:
+
+```bash
+python3 scripts/postgres_runtime_admin.py bootstrap \
+  --dsn-env COMPANY_OS_POSTGRES_ADMIN_DSN \
+  --project-id company-project \
+  --runtime-role company_os_project_runtime \
+  --definer-role company_os_runtime_definer \
+  --target-label staging-branch-id
+```
+
+The bootstrap does not create runtime logins or passwords and cannot activate
+runtime or scheduling. Repeat `audit` on every target and after every upgrade.
+
 The PostgreSQL adapter has passed the transaction, idempotency, parallel claim,
 lease recovery, cancellation, immutable-history, cross-binding, and audit
 matrix on the disposable Neon branch recorded in
 [references/postgresql-validation-receipt.json](references/postgresql-validation-receipt.json).
+The receipt binds the machine-readable database catalog output in
+[references/postgresql-admin-validation-evidence.json](references/postgresql-admin-validation-evidence.json)
+and the independently replayable admin harness.
 Every new target database remains blocked until its own migration and audit
 complete; a library validation receipt is not target runtime evidence.
+
+After target-database acceptance, use `$operate-federated-codex-runtime` to
+consume commands through native Codex tasks. Persistence never calls task tools
+and native dispatch never becomes durable by prompt text alone.
 
 ## Acceptance
 

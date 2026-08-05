@@ -12,13 +12,23 @@ SKILL_ROOT = ROOT / "skills/company-os/ui-design-quality"
 
 
 class UIDesignQualityTests(unittest.TestCase):
-    def test_full_pinned_upstream_suite_is_present_and_byte_exact(self) -> None:
+    def test_all_pinned_upstream_suites_are_present_and_byte_exact(self) -> None:
         provenance = json.loads((SKILL_ROOT / "UPSTREAM.json").read_text(encoding="utf-8"))
         self.assertEqual(
             "da80201b64de7d608a6dc5f723797ce6c65b692b",
             provenance["source_commit"],
         )
-        expected = provenance["files"]
+        gsap = json.loads(
+            (SKILL_ROOT / "references/greensock-gsap-source.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(
+            "aed9cfd3277740755f6bfc1155c7aa645403b760",
+            gsap["source_commit"],
+        )
+        self.assertFalse(set(provenance["files"]) & set(gsap["files"]))
+        expected = {**provenance["files"], **gsap["files"]}
         actual_paths = {
             path.relative_to(SKILL_ROOT).as_posix()
             for path in (SKILL_ROOT / "vendor").rglob("*")

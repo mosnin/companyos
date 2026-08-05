@@ -13,6 +13,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | --- | --- | --- |
 | Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint` |
 | Federated company kernel | Turn one accepted company objective into durable business-unit, program, manager, worker, shared-service, and scale contracts | `$compile-federated-company-kernel` |
+| Native Codex runtime bridge | Claim durable commands and bind them to verified native Sol manager tasks without duplicate launches | `$operate-federated-codex-runtime` |
 | Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
 | Improvement plane | Compile a typed, protected, reversible candidate program from a reproduced bottleneck or forward-capability opportunity | `$evolve-company-capability` |
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
@@ -57,6 +58,13 @@ candidate search, and artifact-specific transfer evaluation retain their
 source pins and rejected assumptions. They do not install or activate upstream
 runtimes and cannot create another controller, scheduler, acceptance chain, or
 promotion authority.
+
+Use `$operate-federated-codex-runtime` only after the kernel, reconciliation
+plan, shared database audit, and project host binding are accepted. The bridge
+claims one durable command, reconciles existing task evidence, creates or
+recovers one exact native Sol manager task, verifies its initial prompt and
+identity by readback, and returns a settlement receipt. A native task creation
+receipt proves dispatch, not accepted company work.
 
 An instance may adapt its operating method through evidence-backed, reversible experiments. It may not autonomously expand authority, weaken approvals, change cancellation precedence, mix project data, or approve its own adaptations. Promote a pattern into the shared core only after it improves at least three independent project instances and passes independent review.
 
