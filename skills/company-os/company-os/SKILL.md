@@ -12,6 +12,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Pillar | Responsibility | Skill |
 | --- | --- | --- |
 | Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint` |
+| Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
 | Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
@@ -75,6 +76,14 @@ model observations, token fields, cost fields, and quality fields it expects the
 host to expose. After dispatch, read the actual task tree rather than trusting a
 launch message. A host-cap consolidation is a named variance and must preserve
 complete lane ownership; it is not another independent manager.
+
+Before finalizing each manager charter, use `$select-execution-loop` to bind one
+primary loop to the manager outcome. Select from task evidence such as
+recurrence, parallel lanes, uncertainty, traces, novelty, durable events, and
+failure cost. Add diagnostic, learning, or event adapters only when their
+required evidence exists. The loop plan must preserve mandatory requirements,
+finite limits, independent acceptance, and the existing Company OS authority
+chain. External loop runtimes are not automatically installed or activated.
 
 The Program Contract separates **mandatory user requirements** from manager
 recommendations. A manager may challenge a technology or propose a narrower

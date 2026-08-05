@@ -80,6 +80,9 @@ until the standalone self-hosting gates pass.
 - `skills/company-os/company-blueprint/` — operator intake and deterministic
   compilation of company archetypes, departments, capabilities, playbooks,
   routines, knowledge, assets, integrations, storage, and work graphs.
+- `skills/company-os/select-execution-loop/` — deterministic selection of one
+  bounded task-shaped loop plus compatible diagnostic, learning, and durable
+  event adapters.
 - `skills/autonomy-suite/` — bounded loops, work graphs, quality, routing, and
   the Luna Execution Fabric contract.
 - `programs/company-os-self-hosting/` — versioned program contracts, evidence,

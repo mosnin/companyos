@@ -1,0 +1,97 @@
+{
+  "$schema": "company-os.loop-strategy-catalog.v1",
+  "catalog_version": 1,
+  "strategies": [
+    {
+      "id": "bounded-evidence-loop",
+      "kind": "primary",
+      "source_ids": ["loopy"],
+      "use_when": ["general", "research", "optimization"],
+      "cycle": ["observe fresh state", "choose highest-value bounded action", "act reversibly", "verify with accepted oracle", "record evidence and delta", "repeat or stop"],
+      "required_controls": ["finite boundaries", "fresh-state read", "reproducible oracle", "no-progress stop", "approval boundary"],
+      "metrics": ["accepted delta per pass", "first-pass acceptance", "rework rate", "stagnation passes"],
+      "terminal_states": ["success", "clean_noop", "blocked", "approval_required", "exhausted", "stagnated"]
+    },
+    {
+      "id": "contract-delivery-loop",
+      "kind": "primary",
+      "source_ids": ["loom"],
+      "use_when": ["software_delivery", "product_delivery"],
+      "cycle": ["confirm current-phase contract", "decide architecture and interfaces", "compile owned tasks", "implement bounded slice", "verify specification and runtime evidence", "review and integrate or rework"],
+      "required_controls": ["mandatory-requirement lock", "implementation-facing architecture", "owned-path isolation", "independent verification", "integration decision"],
+      "metrics": ["requirement coverage", "accepted lead time", "first-pass acceptance", "escaped defects"],
+      "terminal_states": ["success", "blocked", "approval_required", "exhausted", "stagnated"]
+    },
+    {
+      "id": "recursive-worktree-loop",
+      "kind": "primary",
+      "source_ids": ["fractal"],
+      "use_when": ["software_delivery"],
+      "cycle": ["partition independent outcomes", "spawn bounded child ownership", "execute in isolated worktrees", "report evidence upward", "independently review child result", "merge accepted work or rework"],
+      "required_controls": ["parent-child authority", "depth and descendant caps", "path ownership", "worktree isolation", "single integration owner", "crash reconciliation"],
+      "metrics": ["parallel accepted throughput", "write collisions", "merge rework", "manager span", "idle concurrency"],
+      "terminal_states": ["success", "blocked", "approval_required", "exhausted", "stagnated", "cancelled"]
+    },
+    {
+      "id": "bounded-divergent-exploration-loop",
+      "kind": "primary",
+      "source_ids": ["infinite-agentic-loop"],
+      "use_when": ["creative_exploration", "product_delivery"],
+      "cycle": ["define novelty space and utility gate", "generate bounded independent variants", "compare against prior variants", "eliminate duplicates and unsafe options", "test finalists on held-out criteria", "select or stop"],
+      "required_controls": ["finite variant budget", "independent lanes", "novelty and utility separation", "held-out acceptance", "human approval for consequential selection"],
+      "metrics": ["distinct viable variants", "duplicate rate", "held-out utility", "cost per accepted concept"],
+      "terminal_states": ["success", "clean_noop", "blocked", "approval_required", "exhausted", "stagnated"]
+    },
+    {
+      "id": "recurring-operations-loop",
+      "kind": "primary",
+      "source_ids": ["aeon", "loopy"],
+      "use_when": ["operations"],
+      "cycle": ["wake from governed schedule", "load durable state and due work", "run one bounded operation", "verify output and health", "record memory and next due state", "sleep or escalate"],
+      "required_controls": ["scheduler admission", "frequency guard", "lease and heartbeat", "idempotency", "health evaluation", "repair proposal approval", "missed-run reconciliation"],
+      "metrics": ["schedule fidelity", "successful wakes", "duplicate effects", "mean recovery time", "cost per accepted operation"],
+      "terminal_states": ["success", "clean_noop", "blocked", "approval_required", "exhausted", "stagnated", "cancelled"]
+    },
+    {
+      "id": "event-reaction-loop",
+      "kind": "primary",
+      "source_ids": ["durable-streams"],
+      "use_when": ["operations", "general"],
+      "cycle": ["consume next durable cursor", "claim fenced work", "execute idempotent bounded handler", "verify effect", "acknowledge exact cursor or release", "replay pending work after recovery"],
+      "required_controls": ["ordered append-only events", "idempotent producer", "generation fencing", "bounded lease", "heartbeat", "ack-after-effect", "replay test"],
+      "metrics": ["event lag", "duplicate effects", "replay success", "lease expiry rate", "ack latency"],
+      "terminal_states": ["success", "clean_noop", "blocked", "approval_required", "exhausted", "stagnated", "cancelled"]
+    },
+    {
+      "id": "trace-optimization-adapter",
+      "kind": "adapter",
+      "source_ids": ["halo"],
+      "use_when": ["optimization", "software_delivery", "operations"],
+      "cycle": ["index production traces", "decompose diagnostic questions", "inspect representative and outlier paths", "synthesize ranked bottlenecks", "propose one falsifiable change", "compare fresh traces after execution"],
+      "required_controls": ["trace provenance", "privacy minimization", "diagnosis-effect separation", "fresh post-change trace", "independent acceptance"],
+      "metrics": ["latency delta", "cost delta", "error delta", "tool retry delta", "diagnostic precision"],
+      "terminal_states": ["diagnosis_ready", "insufficient_evidence", "blocked", "exhausted"]
+    },
+    {
+      "id": "apprenticeship-learning-adapter",
+      "kind": "adapter",
+      "source_ids": ["agent-apprenticeship"],
+      "use_when": ["general", "software_delivery", "product_delivery", "research", "optimization", "creative_exploration", "operations"],
+      "cycle": ["capture normalized trace and artifacts", "apply mentor or human checkpoint", "separate execution from loop-design failure", "extract evidence-linked lesson", "compile sanitized experience", "challenge lesson on a later different task"],
+      "required_controls": ["immutable source trace", "independent evaluation", "privacy sanitization", "no same-run self-approval", "cross-task validation before promotion"],
+      "metrics": ["lesson reuse success", "future first-pass acceptance", "rework delta", "false lesson rate"],
+      "terminal_states": ["experience_compiled", "insufficient_evidence", "rejected_lesson", "blocked"]
+    },
+    {
+      "id": "durable-event-transport-adapter",
+      "kind": "adapter",
+      "source_ids": ["durable-streams"],
+      "use_when": ["general", "software_delivery", "product_delivery", "research", "optimization", "creative_exploration", "operations"],
+      "cycle": ["append content-addressed event", "consume from durable offset", "tail or catch up", "fork replay when testing an alternative", "close terminal stream", "materialize read model"],
+      "required_controls": ["monotonic offsets", "producer idempotency", "stream authorization", "retention policy", "replay verification"],
+      "metrics": ["event durability", "catch-up latency", "replay parity", "stream storage cost"],
+      "terminal_states": ["stream_closed", "blocked", "retention_expired"]
+    }
+  ]
+}
+

@@ -34,7 +34,7 @@
       "routines": [
         {"cadence": "0 13 * * 1", "id": "weekly-program-preflight", "playbook": "program-preflight"}
       ],
-      "skills": ["project-program-management", "project-kickoff-roadmap", "durable-task-dag"],
+      "skills": ["project-program-management", "project-kickoff-roadmap", "durable-task-dag", "select-execution-loop"],
       "tools": ["company-os-control-plane", "task-runtime"]
     },
     {
@@ -68,7 +68,7 @@
       "routines": [
         {"cadence": "0 15 * * 2", "id": "technology-radar-review", "playbook": "architecture-decision"}
       ],
-      "skills": ["technology-radar", "manage-company-program", "execute-bounded-task"],
+      "skills": ["technology-radar", "manage-company-program", "execute-bounded-task", "select-execution-loop"],
       "tools": ["repository", "test-runtime", "deployment-provider"]
     },
     {

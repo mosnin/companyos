@@ -30,6 +30,19 @@ Programs instantiate only the managers and Luna tasks required by their
 accepted outcome graph. Compiled routines remain planned desired state until
 runtime, scheduler, permission, cancellation, and recovery gates pass.
 
+## Loop strategy plane
+
+Each manager outcome binds exactly one finite primary loop. The selector derives
+that loop from task evidence rather than a global methodology: bounded evidence
+for general work, contract delivery for implementation, recursive worktrees for
+parallel code ownership, finite divergent exploration for innovation, recurring
+operations for scheduled work, or fenced event reaction for durable events.
+Trace diagnosis, apprenticeship learning, and durable event transport are
+adapters; they may enrich evidence but cannot become competing orchestrators.
+Every plan carries explicit pass, stagnation, concurrency, depth, cost, review,
+approval, metric, and terminal-state controls. Selection is feature-off desired
+state and cannot activate an external runtime or scheduler.
+
 ## Operator experience
 
 The `brief` command is a read-only projection, never another authority. It

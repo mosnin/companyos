@@ -167,13 +167,13 @@
     },
     {
       "path": "company-os/company-blueprint/assets/department-packs.json",
-      "sha256": "05a7fed3c320c02ae69dd8866ebd26a687c8c462745523254f884ffa0ab9d2cc",
-      "size": 10679
+      "sha256": "72038ac6c7cc8c523d312a3581fd00da45a8c204cc494fb525ac99e7d345dcd4",
+      "size": 10729
     },
     {
       "path": "company-os/company-blueprint/assets/playbook-library.json",
-      "sha256": "42616ffdc97bdc157ebf89712edcd20868b131f12dd1e0593edf71539384a876",
-      "size": 9161
+      "sha256": "5a07cb08628f6dad60959994b21b82fcb31538bba2938eddfc499bf801e85505",
+      "size": 9216
     },
     {
       "path": "company-os/company-blueprint/references/company-blueprint-contract.md",
@@ -192,8 +192,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "315e2a3a7d5e1f75e11d67a7c1179c17715f5366eea7ce4047d3b819198cc57e",
-      "size": 12165
+      "sha256": "6cd65d2c7f169b69b49ff4d9ca73d529214cb05991e6a97c9efb106f2648938f",
+      "size": 12847
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -629,6 +629,36 @@
       "path": "company-os/project-program-management/templates/frontier-product-program.md",
       "sha256": "c71f24c82ec6bcc2e79641a314f47cebf5a07b5f836ead55fd16240875fb69f6",
       "size": 2925
+    },
+    {
+      "path": "company-os/select-execution-loop/SKILL.md",
+      "sha256": "c466f166753f2d80923c2fd4a5ca3b9dd911ba68ad35b27a0855c8866dfa7dda",
+      "size": 3084
+    },
+    {
+      "path": "company-os/select-execution-loop/agents/openai.yaml",
+      "sha256": "d93b215d4a16bf75745c08acf3997a2b69edcc42fee85595e7a44de96b512102",
+      "size": 220
+    },
+    {
+      "path": "company-os/select-execution-loop/assets/loop-strategies.json",
+      "sha256": "acd4fee510a373902da253c84245814a24dbae2b95d541ac1ae96564c9988e79",
+      "size": 7168
+    },
+    {
+      "path": "company-os/select-execution-loop/references/selection-contract.md",
+      "sha256": "3a572b8fe6adbab86b6bfe0773da9cc40fe4a0fee88876c98d6ffee609fbab20",
+      "size": 1887
+    },
+    {
+      "path": "company-os/select-execution-loop/references/source-essence.md",
+      "sha256": "00cea372f7cc36df41ccc869b20a035092e5b05f02e984d59fafe7b0a6d92ba8",
+      "size": 3716
+    },
+    {
+      "path": "company-os/select-execution-loop/scripts/select_execution_loop.py",
+      "sha256": "2249fb66be779654ec556bf469dd3577f918c42b74598598a4fdb23c8f9b4512",
+      "size": 13270
     },
     {
       "path": "company-os/ui-design-quality/LICENSE.upstream",
