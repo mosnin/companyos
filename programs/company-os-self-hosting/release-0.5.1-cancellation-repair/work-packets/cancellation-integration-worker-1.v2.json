@@ -1,0 +1,178 @@
+{
+  "acceptance": {
+    "checks": [
+      "all-six-store-pairings-covered",
+      "all-six-controller-pairings-covered",
+      "all-six-observation-integration-pairings-covered",
+      "all-three-illegal-pairs-prove-transactional-no-mutation",
+      "all-three-legal-outcomes-remain-distinct",
+      "prior-store-controller-integration-suites-pass",
+      "owned-path-residue-only"
+    ],
+    "independent_review": {
+      "barriers": [
+        "verification"
+      ],
+      "evidence_requirements": [
+        "manager-source-and-test-inspection"
+      ],
+      "required": false
+    },
+    "oracle": "store, controller, and runtime-observation integration tests cover all six hard-status and acknowledgement-status pairs, prove every illegal pair rejects without transactional mutation, prove acknowledged, refused, and failed outcomes remain distinct and truthful, and preserve cancellation dominance, authority binding, downgrade rejection, and ambiguous-restart no-relaunch"
+  },
+  "artifact_references": [
+    {
+      "kind": "architecture",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/architecture.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "305697ad0d457cd5feb7937137b2a2bb63a7581a53e5de55a13965954cdb2738",
+      "version": 1
+    },
+    {
+      "kind": "roadmap",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/roadmap.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "4ec30f53d023a85803b0ff6962afd588fee0305d37ec85c6618bcc4c778c3a98",
+      "version": 1
+    },
+    {
+      "kind": "interfaces",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/interfaces.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "5488b92d2a619681492de4b0e4f69a1edead2bf417a159a1d5f71fbff3715531",
+      "version": 1
+    }
+  ],
+  "authorization": {
+    "record_path": "artifacts/company-os-self-hosting/authorizations/cancellation-integration-worker-1.design-2.v1.json",
+    "record_sha256": "acd0cdf4edd2a108a3a6303788f583110aee1d56cdb7445c7a3d487158178aa5"
+  },
+  "authorization_expectation": {
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "decision_id": "decision-release-0.5.1-cancellation-repair-design-3",
+    "decision_version": 3,
+    "phase": "design"
+  },
+  "budget": {
+    "max_concurrency": 1,
+    "max_cost_usd": 19.0,
+    "max_retries": 0,
+    "max_tasks": 1,
+    "max_time_minutes": 60,
+    "max_tokens": 38000
+  },
+  "decision_barriers": {
+    "inherited_design_authorization_required": true,
+    "manager_verification_required": true,
+    "worker_waits_for_master": false
+  },
+  "definition_version": 3,
+  "deliverables": [
+    "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+    "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+    "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py"
+  ],
+  "dependencies": [
+    "parent-charter-sha256:c383644e44d2bd0a4914acd06ff6f0e7a250cbbc85ddc306ffa75fea02f6c06b",
+    "parent-definition-digest:cab01209e8dbb865a15264146ad36b260f9929f7ac50e716a1c549b86abd134c",
+    "accepted-design-evidence-sha256:f6379241951234583175526cf9bf17df0164a11b21bde51dbc88363c291fb072",
+    "charter-v3-commit:9df2bad9afa1205fa2741bfb76a334f5dfab722e",
+    "charter-v3-tree:49f33ddcbe859b9c5b58d6498f3640aead86aec4",
+    "runtime-worker-v2-result-must-be-manager-accepted-before-execution",
+    "prior-integration-packet-sha256:13a48052fc19bb804ca26c18f5ecdf5abf656fd5bc497a001d1894a24f2d5708",
+    "prior-integration-definition:9307e5ec7bc8220a0d4e710db4d9d5db1498dc89db9dc33b0b1a85ccc0bad5d3",
+    "no-integration-retry-authorized"
+  ],
+  "ids": {
+    "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+    "parent_task_id": "manager-release-0.5.1-cancellation-repair-1",
+    "program_id": "company-os-self-hosting",
+    "project_id": "company-os-self-hosting",
+    "task_id": "cancellation-integration-worker-1"
+  },
+  "outcome": "Add exhaustive store, controller, and runtime-observation integration adversarial tests for every legal and illegal hard-cancellation and acknowledgement pairing, proving truthful distinct refusal, failure, and non-acknowledgement outcomes and transactional no-mutation rejection while preserving cancellation, authority, downgrade, and restart invariants.",
+  "outcome_digest": "ca4681d07978583e0fce6441463c8e297f75fef5d6dd4cc4f4045055c63a5590",
+  "packet_version": 2,
+  "parent_budget_available": {
+    "max_concurrency": 1,
+    "max_cost_usd": 19.0,
+    "max_retries": 0,
+    "max_tasks": 1,
+    "max_time_minutes": 60,
+    "max_tokens": 38000
+  },
+  "parent_manager_charter": {
+    "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v3.json",
+    "sha256": "c383644e44d2bd0a4914acd06ff6f0e7a250cbbc85ddc306ffa75fea02f6c06b"
+  },
+  "parent_manager_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "permissions": {
+    "allowed_actions": [
+      "read",
+      "write-owned-artifact",
+      "run-local-test",
+      "commit-owned-change"
+    ],
+    "allowed_tools": [
+      "repository",
+      "local-tests"
+    ],
+    "prohibited_actions": [
+      "sign",
+      "global-installation",
+      "canonical-main-write",
+      "runtime-activation",
+      "scheduler-enable",
+      "deploy",
+      "provider-api-call",
+      "network",
+      "credential-access",
+      "production-mutation",
+      "chippy-change",
+      "worker-child-delegation",
+      "cross-scope-write",
+      "readme-write",
+      "ledger-write",
+      "lowercase-path-alias",
+      "parent-directory-authority",
+      "glob-scope",
+      "scope-schema-weakening",
+      "distribution-manifest-refresh-before-implementation-complete"
+    ]
+  },
+  "program_version": 6,
+  "reporting_destination": "task:019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+  "requested_model": "gpt-5.6-luna",
+  "schema": "company-os.work-packet.v2",
+  "scope": {
+    "owned_paths": [
+      "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+      "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+      "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py"
+    ]
+  },
+  "stop_escalation": {
+    "escalate_on": [
+      "dependency-invalid",
+      "failed-local-check",
+      "scope-or-authority-drift",
+      "unexpected-side-effect"
+    ],
+    "stop_conditions": [
+      "oracle-passed",
+      "budget-exhausted",
+      "scope-collision",
+      "authority-changed"
+    ]
+  },
+  "task_local_context": {
+    "artifact_paths": [
+      "artifacts/company-os-self-hosting/authorizations/cancellation-integration-worker-1.design-2.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v2.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v3.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/architecture.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/roadmap.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/interfaces.v1.md"
+    ]
+  }
+}

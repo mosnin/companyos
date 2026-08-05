@@ -1,0 +1,36 @@
+{
+  "authentication": {
+    "key_id": "company-os-repository-test-v1",
+    "scheme": "company-os.fixture-hmac-sha256.v1",
+    "signature": "4fc0b0a4d3867b4cff08825b78e1c8bac476d23a7a5dc6eb89e5991b39eceb24"
+  },
+  "bindings": {
+    "cycle_id": "native-runtime-control-cycle-1",
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "definition_digest": "62f5eaf0f428934b8be93e9f66ef85478477fe52bbeaa5989090e83319fe95c6",
+    "definition_version": 2,
+    "outcome_digest": "73391b5cd8f8582f6108b0152986526a2c5360b89100d64359cd3a178675c1d8",
+    "parent_definition_digest": null,
+    "parent_manager_native_task_id": null,
+    "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "phase": "charter",
+    "program_id": "company-os-self-hosting",
+    "program_version": 6,
+    "project_id": "company-os-self-hosting",
+    "requested_model": "gpt-5.6-sol",
+    "task_id": "manager-native-runtime-control-1"
+  },
+  "decision": "continue",
+  "decision_id": "decision-native-runtime-control-charter-2",
+  "decision_version": 2,
+  "evidence_kind": "repository_fixture",
+  "evidence_reference": {
+    "path": "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.charter.v2.json",
+    "project_id": "company-os-self-hosting",
+    "sha256": "24a835d8b76c56366fdb52c8993ab1ea723980739259fe314f68cbb5f7aba64e",
+    "version": 2
+  },
+  "record_version": 1,
+  "schema": "company-os.authorization-decision.v1",
+  "status": "accepted"
+}

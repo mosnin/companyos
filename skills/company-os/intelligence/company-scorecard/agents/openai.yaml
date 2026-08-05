@@ -1,0 +1,4 @@
+interface:
+  display_name: "Company Scorecard"
+  short_description: "Monitor decisions, outcomes, risk, and agent health"
+  default_prompt: "Use $company-scorecard to build an evidence-linked executive control dashboard for this program."

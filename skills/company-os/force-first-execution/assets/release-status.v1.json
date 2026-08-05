@@ -1,0 +1,43 @@
+{
+  "schema": "company-os.release-status.v1",
+  "project_id": "example-project",
+  "program_id": "example-program",
+  "program_version": 1,
+  "definition_version": 1,
+  "cycle_id": "example-cycle-1",
+  "scope_contract_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "deliverables": [
+    {
+      "deliverable_id": "core-release",
+      "disposition": "accepted",
+      "attempt_chains": 1,
+      "rework_cycles": 0,
+      "evidence": {
+        "terminal_receipts": [
+          {
+            "path": "evidence/core-release.attempt-1.terminal.v1.json",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ]
+      }
+    },
+    {
+      "deliverable_id": "optional-enhancement",
+      "disposition": "rejected",
+      "attempt_chains": 2,
+      "rework_cycles": 2,
+      "evidence": {
+        "terminal_receipts": [
+          {
+            "path": "evidence/optional-enhancement.attempt-1.terminal.v1.json",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "path": "evidence/optional-enhancement.attempt-2.terminal.v1.json",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        ]
+      }
+    }
+  ]
+}

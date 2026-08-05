@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Continuous Company OS operating cycle</title>
+  <desc id="desc">A scheduler wakes a bounded operating cycle that observes state, plans, executes through teams, independently verifies, integrates results, measures outcomes, and records durable state before the next wake.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071d1a"/><stop offset="0.48" stop-color="#151125"/><stop offset="1" stop-color="#302379"/></linearGradient>
+    <pattern id="grain" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="#fff8e7" opacity="0.055"/></pattern>
+    <filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000" flood-opacity="0.45"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0L12 6L0 12Z" fill="#f1d38b"/></marker>
+    <style>.eyebrow{font:700 18px Arial,sans-serif;letter-spacing:4px;fill:#7de7c3}.title{font:700 48px Arial,sans-serif;fill:#fff8e7}.subtitle{font:400 21px Arial,sans-serif;fill:#c9c5d6}.n{font:700 20px Arial,sans-serif;fill:#7de7c3}.h{font:700 25px Arial,sans-serif;fill:#fff8e7}.body{font:400 17px Arial,sans-serif;fill:#d6d2df}.center{font:700 29px Arial,sans-serif;fill:#fff8e7}</style>
+  </defs>
+  <rect width="1600" height="900" rx="36" fill="url(#bg)"/><rect width="1600" height="900" rx="36" fill="url(#grain)"/>
+  <text x="86" y="80" class="eyebrow">CONTINUOUS WITHOUT BECOMING AIMLESS</text>
+  <text x="86" y="137" class="title">Autonomy is a cycle—not one endless prompt.</text>
+  <text x="86" y="178" class="subtitle">Each wake performs bounded work, proves what happened, and leaves the system in a recoverable state.</text>
+
+  <circle cx="800" cy="526" r="174" fill="#3527a0" stroke="#8f7fff" stroke-width="3" filter="url(#shadow)"/>
+  <circle cx="800" cy="526" r="145" fill="none" stroke="#fff8e7" stroke-opacity="0.18" stroke-dasharray="7 12"/>
+  <text x="800" y="505" text-anchor="middle" class="center">DURABLE</text><text x="800" y="542" text-anchor="middle" class="center">CONTROL STATE</text><text x="800" y="580" text-anchor="middle" class="body">ownership · budgets · leases · cancellation</text>
+
+  <g filter="url(#shadow)">
+    <rect x="650" y="232" width="300" height="98" rx="25" fill="#121725" stroke="#7de7c3"/>
+    <rect x="1060" y="313" width="330" height="112" rx="25" fill="#17152b" stroke="#7b68db"/>
+    <rect x="1120" y="610" width="330" height="112" rx="25" fill="#17152b" stroke="#7b68db"/>
+    <rect x="635" y="740" width="330" height="112" rx="25" fill="#17152b" stroke="#f1d38b"/>
+    <rect x="150" y="610" width="330" height="112" rx="25" fill="#17152b" stroke="#f1d38b"/>
+    <rect x="210" y="313" width="330" height="112" rx="25" fill="#17152b" stroke="#7de7c3"/>
+  </g>
+  <g text-anchor="middle">
+    <text x="800" y="266" class="n">01</text><text x="800" y="297" class="h">Wake + observe</text><text x="1225" y="347" class="n">02</text><text x="1225" y="379" class="h">Plan + delegate</text><text x="1225" y="404" class="body">Sol managers define outcomes</text>
+    <text x="1285" y="644" class="n">03</text><text x="1285" y="676" class="h">Execute</text><text x="1285" y="701" class="body">Luna teams produce artifacts</text>
+    <text x="800" y="774" class="n">04</text><text x="800" y="806" class="h">Verify independently</text><text x="800" y="831" class="body">Tests, review, acceptance gates</text>
+    <text x="315" y="644" class="n">05</text><text x="315" y="676" class="h">Integrate + measure</text><text x="315" y="701" class="body">Release only accepted work</text>
+    <text x="375" y="347" class="n">06</text><text x="375" y="379" class="h">Record + sleep</text><text x="375" y="404" class="body">Save evidence and next move</text>
+  </g>
+
+  <path d="M950 281C1032 281 1070 300 1108 326M1390 425C1440 488 1435 551 1388 610M1120 700C1048 768 1017 790 965 795M635 795C544 784 494 748 456 709M210 610C169 540 171 477 220 416M540 326C585 295 608 282 650 281" fill="none" stroke="#f1d38b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="568" y="650" width="464" height="56" rx="28" fill="#081815" stroke="#7de7c3"/>
+  <text x="800" y="685" text-anchor="middle" style="font:700 17px Arial,sans-serif;fill:#7de7c3">RETRY THE BOTTLENECK · NOT THE ENTIRE PROGRAM</text>
+</svg>

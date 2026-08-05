@@ -1,0 +1,130 @@
+{
+  "acceptance_kind": "company-os-0.5.1-operator-command-center-regression-acceptance",
+  "attestation_id": "operator-command-center-v5-company-os-0.5.1-independent-regression-acceptance",
+  "carrier_binding": {
+    "accepted_carrier_commit": "166cbcc189074d70d0953e2897c85bc4791a39d2",
+    "accepted_carrier_git_tree": "97a041630e877a4ae24d734b98bf45e7a4f2e850",
+    "canonical_authority_commit": "60211bd6962b733344c0c789272e96dc5db18a28",
+    "runtime_source_commit": "315924018da7a7684787c79922dd3fd4887209c0"
+  },
+  "checkpoint": "checkpoint:experience:5:2a556ed20ab06f5192066424d7fdfe07148f9fba98a78d10284d51c3a8637032",
+  "company_os_release_version": "0.5.1",
+  "critical_dimension_count": 13,
+  "decision": "accepted",
+  "evidence_boundary": "Accepts only the exact signed 21-file Operator Command Center product surface identified by carrier_binding as a Company OS 0.5.1 regression acceptance. It preserves the Operator Command Center v5 program and outcome semantics. It does not accept distribution integration, installation, provider execution, runtime or scheduler activation, deployment, production or customer mutation, or Chippy action.",
+  "issued_at": "2026-08-02T17:37:14Z",
+  "minimum_critical_score": 9.0,
+  "outcome_id": "operator-command-center-v5",
+  "prior_accepted_surface_lineage": {
+    "accepted_artifact_commit": "09eada016b2da84eb0b49a0a3c1f5873a6dcbcaf",
+    "accepted_artifact_git_tree": "6d1f73c486af4e8d7f8106f28db4f182863521fa",
+    "attestation_id": "operator-command-center-v5-company-os-0.4.3-independent-acceptance",
+    "attestation_sha256": "67d3702a4768302f0c9b22c376226a2edff3793d957c6747d4e2fa71404af8d9",
+    "company_os_release_version": "0.4.3",
+    "detached_signature_sha256": "46602064f59eeb347fb63d07f2987eda0cd808504a9fc21fbcd73f6c07ecb21b",
+    "reviewed_implementation_base": "bf1a8a3918d37d248371528e4360c8f2ef0abc14",
+    "reviewer_id": "company-os-0.4.3-independent-surface-reviewer",
+    "reviewer_public_key_der_sha256": "d4148cf6bad103207e18a93b3d04f02a31e92c954b18250b0d63f565be7e5b8b",
+    "surface_aggregate_sha256": "ed20e7f9026fca0614276cd1df3c5bc3114f3304876334eb149de37533c5d3f6",
+    "surface_id": "operator-command-center-v5-company-os-0.4.3-accepted-surface",
+    "surface_manifest_sha256": "84cddf4250ca509d899fdfef448466d32aa25ba33d945764765175f5aeab3016"
+  },
+  "program_version": 5,
+  "review_mean_score": 9.22,
+  "review_scores": [
+    {
+      "dimension": "North-star alignment",
+      "minimum": 9.0,
+      "score": 9.5,
+      "status": "pass"
+    },
+    {
+      "dimension": "User value",
+      "minimum": 9.0,
+      "score": 9.3,
+      "status": "pass"
+    },
+    {
+      "dimension": "Product coherence",
+      "minimum": 9.0,
+      "score": 9.2,
+      "status": "pass"
+    },
+    {
+      "dimension": "Differentiation",
+      "minimum": 9.0,
+      "score": 9.1,
+      "status": "pass"
+    },
+    {
+      "dimension": "Innovation",
+      "minimum": 9.0,
+      "score": 9.0,
+      "status": "pass"
+    },
+    {
+      "dimension": "Domain fit",
+      "minimum": 9.0,
+      "score": 9.4,
+      "status": "pass"
+    },
+    {
+      "dimension": "Information architecture",
+      "minimum": 9.0,
+      "score": 9.2,
+      "status": "pass"
+    },
+    {
+      "dimension": "Usability",
+      "minimum": 9.0,
+      "score": 9.1,
+      "status": "pass"
+    },
+    {
+      "dimension": "Accessibility",
+      "minimum": 9.0,
+      "score": 9.3,
+      "status": "pass"
+    },
+    {
+      "dimension": "Interaction quality",
+      "minimum": 9.0,
+      "score": 9.0,
+      "status": "pass"
+    },
+    {
+      "dimension": "Visual quality",
+      "minimum": 9.0,
+      "score": 9.2,
+      "status": "pass"
+    },
+    {
+      "dimension": "Brand cohesion",
+      "minimum": 9.0,
+      "score": 9.2,
+      "status": "pass"
+    },
+    {
+      "dimension": "Evidence integrity",
+      "minimum": 9.0,
+      "score": 9.3,
+      "status": "pass"
+    }
+  ],
+  "reviewer_delegation_boundary": "one-time external independent acceptance of the exact 21-file carrier-bound Operator Command Center surface only",
+  "reviewer_delegation_evidence_id": "operator-command-center-exact-carrier-surface-delegation-company-os-0.5.1",
+  "reviewer_delegation_source": {
+    "kind": "explicit-master-instruction",
+    "source_thread_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3"
+  },
+  "reviewer_id": "company-os-0.5.1-external-independent-surface-reviewer",
+  "reviewer_public_key_der_sha256": "bcd8b035cf8aa2e5c5dd792e9e5ecf3226d962f5b6052e8b5f70eb96512bbc15",
+  "rubric_version": "operator-command-center-v5-company-os-0.5.1-regression-review",
+  "schema_version": 1,
+  "signature_algorithm": "RSA-3072-SHA256-PKCS1-v1_5",
+  "surface_aggregate_sha256": "54c290f7c40bc8c0dd5d0829165e8b1bb3ba9d278c2cdac9a11373ebb9bee336",
+  "surface_file_count": 21,
+  "surface_manifest_path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_ACCEPTED_SURFACE.json",
+  "surface_manifest_sha256": "76b06279dec83ba54879c47069983cdd980821610651fdc8ce798d3587f0dc98",
+  "work_id": "work-operator-command-center-v5"
+}

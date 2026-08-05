@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.release-deliverable-receipt.v1",
+  "title": "Company OS Release Deliverable Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project_id", "program_id", "program_version", "definition_version", "cycle_id", "deliverable_id", "manager_task_id", "attempt_chain", "force_task_id", "rework_cycles", "disposition", "manager_charter", "scope_admission_verification", "force_contract", "terminal_force_snapshot_receipt", "quality_score", "quality_gate_lowered", "defects", "artifact_evidence", "authentication"],
+  "properties": {
+    "schema": {"const": "company-os.release-deliverable-receipt.v1"},
+    "project_id": {"type": "string"},
+    "program_id": {"type": "string"},
+    "program_version": {"type": "integer", "minimum": 1},
+    "definition_version": {"type": "integer", "minimum": 1},
+    "cycle_id": {"type": "string"},
+    "deliverable_id": {"type": "string"},
+    "manager_task_id": {"type": "string"},
+    "attempt_chain": {"type": "integer", "minimum": 1},
+    "force_task_id": {"type": "string"},
+    "rework_cycles": {"type": "integer", "minimum": 0, "maximum": 3},
+    "disposition": {"enum": ["accepted", "rejected"]},
+    "manager_charter": {"$ref": "#/$defs/file"},
+    "scope_admission_verification": {"$ref": "#/$defs/file"},
+    "force_contract": {"$ref": "#/$defs/file"},
+    "terminal_force_snapshot_receipt": {"$ref": "#/$defs/file"},
+    "quality_score": {"type": "number", "minimum": 0, "maximum": 10},
+    "quality_gate_lowered": {"const": false},
+    "defects": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "artifact_evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/file"}},
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "key_id", "public_key_sha256", "signature"],
+      "properties": {
+        "scheme": {"const": "company-os.rsa-3072-sha256-pkcs1-v1_5.v1"},
+        "key_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]*$"},
+        "public_key_sha256": {"$ref": "#/$defs/sha256"},
+        "signature": {"type": "string", "pattern": "^[A-Za-z0-9_-]{512}$"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

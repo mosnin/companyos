@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.compiled-preflight.v1",
+  "title": "Company OS Compiled Program Preflight v1",
+  "oneOf": [{"$ref": "#/$defs/manifest"}, {"$ref": "#/$defs/packet"}],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+    "permission": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"},
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonical_sha256"],
+      "properties": {
+        "algorithm": {"type": "string", "const": "sha256(canonical-json-with-binding-canonical_sha256-null)"},
+        "canonical_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "input_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "schema_id", "schema_version", "sha256"],
+      "properties": {
+        "name": {"type": "string", "enum": ["program_semantics", "host_capabilities", "work_definitions"]},
+        "schema_id": {"type": "string", "minLength": 1},
+        "schema_version": {"type": "integer", "const": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "assignment_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "canonical_sha256"],
+      "properties": {
+        "algorithm": {"type": "string", "const": "sha256-canonical-json-v1"},
+        "canonical_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "capability_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$schema", "request_id", "program_id", "packet_id", "role", "domains", "authorized_permissions", "requested_capability_ids", "execution_order", "selection_rationale", "max_skills", "max_entrypoint_bytes"],
+      "properties": {
+        "$schema": {"type": "string", "const": "company-os.capability-request.v1"},
+        "request_id": {"$ref": "#/$defs/id"},
+        "program_id": {"$ref": "#/$defs/id"},
+        "packet_id": {"$ref": "#/$defs/id"},
+        "role": {"type": "string", "enum": ["manager", "worker"]},
+        "domains": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/permission"}},
+        "authorized_permissions": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/permission"}},
+        "requested_capability_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "execution_order": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "selection_rationale": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string", "minLength": 1}},
+        "max_skills": {"type": "integer", "minimum": 1, "maximum": 4},
+        "max_entrypoint_bytes": {"type": "integer", "minimum": 1, "maximum": 49152}
+      }
+    },
+    "assigned_skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability_id", "entrypoint", "entrypoint_bytes", "entrypoint_sha256", "required_permissions", "selection_rationale", "source_commit", "source_id", "upstream_entrypoint_bytes", "upstream_entrypoint_sha256", "upstream_skill_path", "workspace_locator"],
+      "properties": {
+        "capability_id": {"$ref": "#/$defs/id"},
+        "entrypoint": {"type": "string", "pattern": "^vendor/[a-z0-9._/-]+/SKILL\\.md$"},
+        "entrypoint_bytes": {"type": "integer", "minimum": 1},
+        "entrypoint_sha256": {"$ref": "#/$defs/sha256"},
+        "required_permissions": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/permission"}},
+        "selection_rationale": {"type": "string", "minLength": 1},
+        "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "source_id": {"$ref": "#/$defs/id"},
+        "upstream_entrypoint_bytes": {"type": "integer", "minimum": 1},
+        "upstream_entrypoint_sha256": {"$ref": "#/$defs/sha256"},
+        "upstream_skill_path": {"type": "string", "minLength": 1},
+        "workspace_locator": {"type": "string", "pattern": "^workspace://skills/company-os/assign-capability-skills/vendor/[a-z0-9._/-]+$"}
+      }
+    },
+    "capability_assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$schema", "schema_version", "assignment_id", "program_id", "packet_id", "role", "domains", "execution_order", "catalog_sha256", "request_sha256", "skill_count", "total_entrypoint_bytes", "skills", "binding"],
+      "properties": {
+        "$schema": {"type": "string", "const": "company-os.capability-assignment.v1"},
+        "schema_version": {"type": "integer", "const": 1},
+        "assignment_id": {"$ref": "#/$defs/id"},
+        "program_id": {"$ref": "#/$defs/id"},
+        "packet_id": {"$ref": "#/$defs/id"},
+        "role": {"type": "string", "enum": ["manager", "worker"]},
+        "domains": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/permission"}},
+        "execution_order": {"type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "catalog_sha256": {"$ref": "#/$defs/sha256"},
+        "request_sha256": {"$ref": "#/$defs/sha256"},
+        "skill_count": {"type": "integer", "minimum": 1, "maximum": 4},
+        "total_entrypoint_bytes": {"type": "integer", "minimum": 1, "maximum": 49152},
+        "skills": {"type": "array", "minItems": 1, "maxItems": 4, "items": {"$ref": "#/$defs/assigned_skill"}},
+        "binding": {"$ref": "#/$defs/assignment_binding"}
+      }
+    },
+    "skill_assignment_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assignment", "request"],
+      "properties": {
+        "assignment": {"$ref": "#/$defs/capability_assignment"},
+        "request": {"$ref": "#/$defs/capability_request"}
+      }
+    },
+    "packet_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["packet_id", "path", "sha256", "size"],
+      "properties": {
+        "packet_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+        "path": {"type": "string", "pattern": "^(?:manager-packets|work-packets)/[a-z0-9._/-]+\\.json$"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size": {"type": "integer", "minimum": 1}
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$schema", "schema_version", "manifest_kind", "program", "input_bindings", "input_set_sha256", "contract_summary", "packet_counts", "manager_packets", "work_packets", "binding"],
+      "properties": {
+        "$schema": {"type": "string", "const": "company-os.compiled-preflight.v1"},
+        "schema_version": {"type": "integer", "const": 1},
+        "manifest_kind": {"type": "string", "const": "program-preflight"},
+        "program": {"type": "object", "additionalProperties": false, "required": ["program_id", "program_label"], "properties": {"program_id": {"type": "string", "minLength": 1}, "program_label": {"type": "string", "minLength": 1}}},
+        "input_bindings": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/input_binding"}},
+        "input_set_sha256": {"$ref": "#/$defs/sha256"},
+        "contract_summary": {"type": "object", "additionalProperties": false, "required": ["term_ids", "constant_ids", "authority_state_ids", "prohibition_ids", "required_evidence_ids", "oracle_ids", "required_capability_ids"], "properties": {"term_ids": {"type": "array", "items": {"type": "string"}}, "constant_ids": {"type": "array", "items": {"type": "string"}}, "authority_state_ids": {"type": "array", "items": {"type": "string"}}, "prohibition_ids": {"type": "array", "items": {"type": "string"}}, "required_evidence_ids": {"type": "array", "items": {"type": "string"}}, "oracle_ids": {"type": "array", "items": {"type": "string"}}, "required_capability_ids": {"type": "array", "items": {"type": "string"}}}},
+        "packet_counts": {"type": "object", "additionalProperties": false, "required": ["managers", "workers"], "properties": {"managers": {"type": "integer", "minimum": 1}, "workers": {"type": "integer", "minimum": 1}}},
+        "manager_packets": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/packet_ref"}},
+        "work_packets": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/packet_ref"}},
+        "binding": {"$ref": "#/$defs/binding"}
+      }
+    },
+    "packet": {
+      "type": "object",
+      "additionalProperties": false,
+      "allOf": [
+        {"if": {"required": ["assigned_skill_ids"]}, "then": {"required": ["skill_assignment", "work_domains", "authorized_skill_permissions"]}},
+        {"if": {"required": ["skill_assignment"]}, "then": {"required": ["assigned_skill_ids"]}}
+      ],
+      "required": ["$schema", "schema_version", "packet_kind", "packet_id", "program", "input_bindings", "input_set_sha256", "parent", "scope", "authority_state_id", "prohibition_ids", "required_capability_ids", "semantic_slice", "deliverables", "binding"],
+      "properties": {
+        "$schema": {"type": "string", "const": "company-os.compiled-preflight.packet.v1"},
+        "schema_version": {"type": "integer", "const": 1},
+        "packet_kind": {"type": "string", "enum": ["manager", "work"]},
+        "packet_id": {"type": "string", "minLength": 1},
+        "program": {"type": "object", "additionalProperties": false, "required": ["program_id", "program_label"], "properties": {"program_id": {"type": "string", "minLength": 1}, "program_label": {"type": "string", "minLength": 1}}},
+        "input_bindings": {"type": "array", "items": {"$ref": "#/$defs/input_binding"}},
+        "input_set_sha256": {"$ref": "#/$defs/sha256"},
+        "parent": {"type": "object", "additionalProperties": false, "required": ["kind"], "properties": {"kind": {"type": "string", "minLength": 1}, "input_set_sha256": {"$ref": "#/$defs/sha256"}, "manager_id": {"type": "string"}, "packet_sha256": {"$ref": "#/$defs/sha256"}}},
+        "scope": {"type": "object", "additionalProperties": false, "required": ["owned_paths"], "properties": {"owned_paths": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._/-]*$"}}}},
+        "authority_state_id": {"type": "string", "minLength": 1},
+        "prohibition_ids": {"type": "array", "items": {"type": "string"}},
+        "required_capability_ids": {"type": "array", "items": {"type": "string"}},
+        "assigned_skill_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
+        "work_domains": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/permission"}},
+        "authorized_skill_permissions": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/permission"}},
+        "skill_assignment": {"$ref": "#/$defs/skill_assignment_record"},
+        "semantic_slice": {"type": "object", "additionalProperties": false, "required": ["terms", "constants", "authority", "prohibitions", "evidence_units", "artifact_oracles", "capabilities"], "properties": {"terms": {"type": "array"}, "constants": {"type": "array"}, "authority": {"type": "object"}, "prohibitions": {"type": "array"}, "evidence_units": {"type": "array"}, "artifact_oracles": {"type": "array"}, "capabilities": {"type": "array"}}},
+        "deliverables": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+        "worker_ids": {"type": "array", "items": {"type": "string"}},
+        "binding": {"$ref": "#/$defs/binding"}
+      }
+    }
+  }
+}

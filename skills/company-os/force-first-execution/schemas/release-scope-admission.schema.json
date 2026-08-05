@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.release-scope-admission.v1",
+  "title": "Company OS Release Scope Admission v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "record_version", "admission_id", "decision", "bindings", "accepted_design_decision", "authentication"],
+  "properties": {
+    "schema": {"const": "company-os.release-scope-admission.v1"},
+    "record_version": {"const": 1},
+    "admission_id": {"$ref": "#/$defs/id"},
+    "decision": {"const": "admitted_pre_dispatch"},
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "program_id", "program_version", "definition_version", "cycle_id", "master_task_id", "outcome_digest", "scope_definition_sha256", "predecessor_admission_sha256", "accepted_design_decision_sha256"],
+      "properties": {
+        "project_id": {"$ref": "#/$defs/id"},
+        "program_id": {"$ref": "#/$defs/id"},
+        "program_version": {"type": "integer", "minimum": 1},
+        "definition_version": {"type": "integer", "minimum": 1},
+        "cycle_id": {"$ref": "#/$defs/id"},
+        "master_task_id": {"$ref": "#/$defs/id"},
+        "outcome_digest": {"$ref": "#/$defs/sha256"},
+        "scope_definition_sha256": {"$ref": "#/$defs/sha256"},
+        "predecessor_admission_sha256": {"$ref": "#/$defs/sha256"},
+        "accepted_design_decision_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "accepted_design_decision": {"$ref": "#/$defs/file"},
+    "authentication": {"$ref": "#/$defs/authentication"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]*$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "key_id", "public_key_sha256", "signature"],
+      "properties": {
+        "scheme": {"const": "company-os.rsa-3072-sha256-pkcs1-v1_5.v1"},
+        "key_id": {"$ref": "#/$defs/id"},
+        "public_key_sha256": {"$ref": "#/$defs/sha256"},
+        "signature": {"type": "string", "pattern": "^[A-Za-z0-9_-]{512}$"}
+      }
+    }
+  }
+}

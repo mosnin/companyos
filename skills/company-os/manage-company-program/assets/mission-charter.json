@@ -1,0 +1,64 @@
+{
+  "schema": "company-os.mission-charter.v2",
+  "charter_version": 1,
+  "program_version": 1,
+  "definition_version": 1,
+  "ids": {
+    "project_id": "",
+    "program_id": "",
+    "cycle_id": "",
+    "task_id": "",
+    "parent_task_id": ""
+  },
+  "outcome": "",
+  "outcome_digest": null,
+  "requested_model": "gpt-5.6-sol",
+  "authorization_expectation": {
+    "phase": "charter",
+    "decision_id": "",
+    "decision_version": 1,
+    "decider_id": ""
+  },
+  "authorization": {
+    "record_path": "",
+    "record_sha256": null
+  },
+  "artifact_references": [
+    {"kind": "architecture", "project_id": "", "path": "", "version": 1, "sha256": null},
+    {"kind": "roadmap", "project_id": "", "path": "", "version": 1, "sha256": null},
+    {"kind": "interfaces", "project_id": "", "path": "", "version": 1, "sha256": null}
+  ],
+  "task_local_context": {"artifact_paths": []},
+  "scope": {"owned_paths": []},
+  "permissions": {
+    "allowed_actions": [],
+    "allowed_tools": [],
+    "prohibited_actions": []
+  },
+  "dependencies": [],
+  "deliverables": [],
+  "acceptance": {
+    "oracle": "",
+    "checks": [],
+    "independent_review": {
+      "required": true,
+      "barriers": ["design", "verification"],
+      "evidence_requirements": []
+    }
+  },
+  "decision_barriers": {
+    "authenticated_master_decision_required": ["charter", "design", "verification", "integration"],
+    "routine_auto_continue_phase": "execution",
+    "routine_conditions": ["unchanged_charter", "checks_pass", "budget_valid", "concurrency_valid", "authority_unchanged", "no_exception"]
+  },
+  "budget": {
+    "max_tokens": null,
+    "max_cost_usd": null,
+    "max_time_minutes": null,
+    "max_tasks": null,
+    "max_concurrency": null,
+    "max_retries": null
+  },
+  "stop_escalation": {"stop_conditions": [], "escalate_on": []},
+  "reporting_destination": ""
+}

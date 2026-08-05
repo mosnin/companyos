@@ -1,0 +1,7 @@
+interface:
+  display_name: "Assign Capability Skills"
+  short_description: "Route audited skills without prompt bloat"
+  default_prompt: "Use $assign-capability-skills to select and bind the smallest audited skill bundle for this Company OS task."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.work-definitions.v1",
+  "schema_version": 1,
+  "program_id": "brokerage-growth-launch",
+  "constant_bindings": [
+    {"constant_id": "annual_budget_ceiling_usd", "expected_type": "integer", "expected_value": 180000, "expected_unit": "usd", "expected_row_map": "budget.annual_ceiling"},
+    {"constant_id": "listing_launch_rate_bps", "expected_type": "integer", "expected_value": 250, "expected_unit": "basis_points", "expected_row_map": "pricing.listing_launch_rate"},
+    {"constant_id": "lead_response_minutes", "expected_type": "integer", "expected_value": 15, "expected_unit": "minutes", "expected_row_map": "service.lead_response_minutes"},
+    {"constant_id": "broker_enablement_seats", "expected_type": "integer", "expected_value": 50, "expected_unit": "seats", "expected_row_map": "enablement.broker_seats"}
+  ],
+  "term_bindings": [
+    {"term_id": "signed_representation_agreement", "expected_label": "Signed representation agreement", "required_aliases": ["signed representation agreements", "representation agreement"], "prohibited_aliases": ["closing", "closings"]},
+    {"term_id": "listing_launch", "expected_label": "Listing launch", "required_aliases": ["launch listing"], "prohibited_aliases": []},
+    {"term_id": "lead_response_time", "expected_label": "Lead response time", "required_aliases": ["lead response target"], "prohibited_aliases": []},
+    {"term_id": "commission_rate", "expected_label": "Commission rate", "required_aliases": ["commission percentage"], "prohibited_aliases": []},
+    {"term_id": "budget_ceiling", "expected_label": "Budget ceiling", "required_aliases": ["annual budget ceiling"], "prohibited_aliases": []}
+  ],
+  "evidence_units": [
+    {"evidence_id": "market_signal", "claim": "Fixture market signal supports the brokerage launch hypothesis.", "citations": [{"source_id": "brokerage-fixture-market", "locator": "source://brokerage-growth-launch/market-signal", "excerpt": "Brokerage teams prioritize repeatable listing growth."}]},
+    {"evidence_id": "broker_workflow", "claim": "Fixture broker workflow identifies the representation agreement boundary.", "citations": [{"source_id": "brokerage-fixture-workflow", "locator": "source://brokerage-growth-launch/broker-workflow", "excerpt": "A signed representation agreement is a distinct workflow milestone."}]},
+    {"evidence_id": "response_benchmark", "claim": "Fixture response benchmark supports a fifteen minute target.", "citations": [{"source_id": "brokerage-fixture-service", "locator": "source://brokerage-growth-launch/response-benchmark", "excerpt": "New lead response target is fifteen minutes."}]},
+    {"evidence_id": "budget_policy", "claim": "Fixture budget policy binds the annual ceiling to its row map.", "citations": [{"source_id": "brokerage-fixture-finance", "locator": "source://brokerage-growth-launch/budget-policy", "excerpt": "Annual program budget ceiling is 180000 USD."}]},
+    {"evidence_id": "enablement_signal", "claim": "Fixture enablement signal supports the seat allocation.", "citations": [{"source_id": "brokerage-fixture-enablement", "locator": "source://brokerage-growth-launch/enablement-signal", "excerpt": "Broker enablement requires a defined seat plan."}]}
+  ],
+  "manager_definitions": [
+    {
+      "manager_id": "marketing_manager",
+      "label": "Marketing manager",
+      "department_id": "marketing",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/manager/marketing"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["signed representation agreements", "listing launch"],
+      "deliverables": [
+        {"deliverable_id": "marketing_manager_brief", "label": "Marketing launch brief", "path": "programs/brokerage-growth-launch/manager/marketing/brief.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Brokerage launch brief with cited market signal.", "evidence_ids": ["market_signal"], "constant_ids": ["listing_launch_rate_bps"], "term_ids": []}
+      ],
+      "worker_ids": ["market_research_work"]
+    },
+    {
+      "manager_id": "sales_manager",
+      "label": "Sales manager",
+      "department_id": "sales",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/manager/sales"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["representation agreement"],
+      "deliverables": [
+        {"deliverable_id": "sales_manager_brief", "label": "Sales workflow brief", "path": "programs/brokerage-growth-launch/manager/sales/brief.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Sales workflow brief preserving the representation agreement term.", "evidence_ids": ["broker_workflow"], "constant_ids": ["listing_launch_rate_bps"], "term_ids": []}
+      ],
+      "worker_ids": ["listing_workflow_work"]
+    },
+    {
+      "manager_id": "operations_manager",
+      "label": "Operations manager",
+      "department_id": "operations",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/manager/operations"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_privilege_escalation"],
+      "required_capabilities": ["spreadsheet"],
+      "required_terms": ["lead response time"],
+      "deliverables": [
+        {"deliverable_id": "operations_manager_brief", "label": "Operations service brief", "path": "programs/brokerage-growth-launch/manager/operations/brief.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Operations service brief with a fifteen minute response benchmark.", "evidence_ids": ["response_benchmark"], "constant_ids": ["lead_response_minutes"], "term_ids": []}
+      ],
+      "worker_ids": ["response_benchmark_work"]
+    },
+    {
+      "manager_id": "finance_manager",
+      "label": "Finance manager",
+      "department_id": "finance",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/manager/finance"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["spreadsheet"],
+      "required_terms": ["annual budget ceiling"],
+      "deliverables": [
+        {"deliverable_id": "finance_manager_brief", "label": "Finance control brief", "path": "programs/brokerage-growth-launch/manager/finance/brief.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Finance control brief bound to the 180000 USD ceiling.", "evidence_ids": ["budget_policy"], "constant_ids": ["annual_budget_ceiling_usd"], "term_ids": []}
+      ],
+      "worker_ids": ["budget_control_work"]
+    },
+    {
+      "manager_id": "enablement_manager",
+      "label": "Enablement manager",
+      "department_id": "enablement",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/manager/enablement"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_privilege_escalation"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["commission rate"],
+      "deliverables": [
+        {"deliverable_id": "enablement_manager_brief", "label": "Enablement plan brief", "path": "programs/brokerage-growth-launch/manager/enablement/brief.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Enablement plan brief with the approved commission rate reference.", "evidence_ids": ["enablement_signal"], "constant_ids": ["broker_enablement_seats"], "term_ids": []}
+      ],
+      "worker_ids": ["enablement_plan_work"]
+    }
+  ],
+  "work_definitions": [
+    {
+      "work_id": "market_research_work",
+      "manager_id": "marketing_manager",
+      "label": "Market research work",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/work/market-research"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["signed representation agreement"],
+      "deliverables": [
+        {"deliverable_id": "market_research_report", "label": "Market research report", "path": "programs/brokerage-growth-launch/work/market-research/report.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Cited market research for brokerage growth.", "evidence_ids": ["market_signal"], "constant_ids": ["listing_launch_rate_bps"], "term_ids": []}
+      ]
+    },
+    {
+      "work_id": "listing_workflow_work",
+      "manager_id": "sales_manager",
+      "label": "Listing workflow work",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/work/listing-workflow"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["representation agreement"],
+      "deliverables": [
+        {"deliverable_id": "listing_workflow_report", "label": "Listing workflow report", "path": "programs/brokerage-growth-launch/work/listing-workflow/report.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Workflow report with the signed representation agreement boundary.", "evidence_ids": ["broker_workflow"], "constant_ids": ["listing_launch_rate_bps"], "term_ids": []}
+      ]
+    },
+    {
+      "work_id": "response_benchmark_work",
+      "manager_id": "operations_manager",
+      "label": "Response benchmark work",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/work/response-benchmark"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_privilege_escalation"],
+      "required_capabilities": ["spreadsheet"],
+      "required_terms": ["lead response time"],
+      "deliverables": [
+        {"deliverable_id": "response_benchmark_report", "label": "Response benchmark report", "path": "programs/brokerage-growth-launch/work/response-benchmark/report.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Response benchmark report bound to fifteen minutes.", "evidence_ids": ["response_benchmark"], "constant_ids": ["lead_response_minutes"], "term_ids": []}
+      ]
+    },
+    {
+      "work_id": "budget_control_work",
+      "manager_id": "finance_manager",
+      "label": "Budget control work",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/work/budget-control"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["spreadsheet"],
+      "required_terms": ["budget ceiling"],
+      "deliverables": [
+        {"deliverable_id": "budget_control_report", "label": "Budget control report", "path": "programs/brokerage-growth-launch/work/budget-control/report.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Budget control report preserving the 180000 USD ceiling and row map.", "evidence_ids": ["budget_policy"], "constant_ids": ["annual_budget_ceiling_usd"], "term_ids": []}
+      ]
+    },
+    {
+      "work_id": "enablement_plan_work",
+      "manager_id": "enablement_manager",
+      "label": "Enablement plan work",
+      "scope": {"owned_paths": ["programs/brokerage-growth-launch/work/enablement-plan"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_privilege_escalation"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["commission rate"],
+      "deliverables": [
+        {"deliverable_id": "enablement_plan_report", "label": "Enablement plan report", "path": "programs/brokerage-growth-launch/work/enablement-plan/report.md", "artifact_kind": "markdown", "oracle_id": "normalized_nonempty_markdown", "oracle_probe": "Enablement plan report with the commission rate reference.", "evidence_ids": ["enablement_signal"], "constant_ids": ["broker_enablement_seats"], "term_ids": []}
+      ]
+    }
+  ]
+}

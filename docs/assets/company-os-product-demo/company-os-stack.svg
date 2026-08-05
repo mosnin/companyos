@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Company OS operating stack</title>
+  <desc id="desc">A company objective flows through a master manager, four isolated program managers, bounded worker teams, a shared capability plane, and an evidence and acceptance plane.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#090a13"/><stop offset="0.55" stop-color="#181339"/><stop offset="1" stop-color="#063b31"/></linearGradient>
+    <linearGradient id="master" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#715bff"/><stop offset="1" stop-color="#3b21c8"/></linearGradient>
+    <linearGradient id="manager" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#302461"/><stop offset="1" stop-color="#17142c"/></linearGradient>
+    <linearGradient id="worker" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b6b5a"/><stop offset="1" stop-color="#073b36"/></linearGradient>
+    <pattern id="dots" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#fff" opacity="0.06"/></pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity="0.38"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0L12 6L0 12Z" fill="#f3d99b"/></marker>
+    <style>
+      .eyebrow{font:700 18px Arial,sans-serif;letter-spacing:4px;fill:#8ff0cd}.title{font:700 46px Arial,sans-serif;fill:#fff8e7}.subtitle{font:400 21px Arial,sans-serif;fill:#c8c4d7}.label{font:700 24px Arial,sans-serif;fill:#fff8e7}.small{font:400 17px Arial,sans-serif;fill:#d8d4e1}.micro{font:700 15px Arial,sans-serif;letter-spacing:1.2px;fill:#8ff0cd}.flow{font:700 16px Arial,sans-serif;fill:#f3d99b}
+    </style>
+  </defs>
+  <rect width="1600" height="900" rx="36" fill="url(#bg)"/>
+  <rect width="1600" height="900" rx="36" fill="url(#dots)"/>
+  <text x="90" y="78" class="eyebrow">THE OPERATING STACK</text>
+  <text x="90" y="133" class="title">One objective. Many bounded teams. One accepted outcome.</text>
+  <text x="90" y="172" class="subtitle">Direction travels down as compact authority. Evidence travels up as verifiable receipts.</text>
+
+  <rect x="500" y="215" width="600" height="82" rx="22" fill="#fff8e7" filter="url(#shadow)"/>
+  <text x="800" y="251" text-anchor="middle" style="font:700 24px Arial,sans-serif;fill:#17142c">COMPANY OBJECTIVE</text>
+  <text x="800" y="278" text-anchor="middle" style="font:400 17px Arial,sans-serif;fill:#4c4661">Outcome · constraints · budgets · success measures</text>
+
+  <path d="M800 297V332" stroke="#f3d99b" stroke-width="4" marker-end="url(#arrow)"/>
+  <rect x="545" y="342" width="510" height="96" rx="26" fill="url(#master)" stroke="#a99cff" stroke-width="2" filter="url(#shadow)"/>
+  <text x="800" y="382" text-anchor="middle" class="label">MASTER MANAGER · SOL</text>
+  <text x="800" y="414" text-anchor="middle" class="small">Creates the master plan, appoints owners, controls integration</text>
+
+  <path d="M800 438V470M270 470H1330" fill="none" stroke="#f3d99b" stroke-width="3"/>
+  <g fill="none" stroke="#f3d99b" stroke-width="3" marker-end="url(#arrow)"><path d="M270 470V500"/><path d="M623 470V500"/><path d="M977 470V500"/><path d="M1330 470V500"/></g>
+  <text x="800" y="462" text-anchor="middle" class="flow">bounded charters</text>
+
+  <g filter="url(#shadow)">
+    <rect x="110" y="510" width="320" height="118" rx="24" fill="url(#manager)" stroke="#7463da"/>
+    <rect x="470" y="510" width="320" height="118" rx="24" fill="url(#manager)" stroke="#7463da"/>
+    <rect x="830" y="510" width="320" height="118" rx="24" fill="url(#manager)" stroke="#7463da"/>
+    <rect x="1190" y="510" width="300" height="118" rx="24" fill="url(#manager)" stroke="#7463da"/>
+  </g>
+  <text x="270" y="550" text-anchor="middle" class="label">Product</text><text x="270" y="580" text-anchor="middle" class="small">Experience + priorities</text><text x="270" y="609" text-anchor="middle" class="micro">SOL · ISOLATED</text>
+  <text x="630" y="550" text-anchor="middle" class="label">Engineering</text><text x="630" y="580" text-anchor="middle" class="small">Systems + releases</text><text x="630" y="609" text-anchor="middle" class="micro">SOL · ISOLATED</text>
+  <text x="990" y="550" text-anchor="middle" class="label">Growth</text><text x="990" y="580" text-anchor="middle" class="small">Market + distribution</text><text x="990" y="609" text-anchor="middle" class="micro">SOL · ISOLATED</text>
+  <text x="1340" y="550" text-anchor="middle" class="label">Operations</text><text x="1340" y="580" text-anchor="middle" class="small">Delivery + finance</text><text x="1340" y="609" text-anchor="middle" class="micro">SOL · ISOLATED</text>
+
+  <g fill="none" stroke="#8ff0cd" stroke-width="2.5">
+    <path d="M180 628V652M270 628V652M360 628V652"/><path d="M540 628V652M630 628V652M720 628V652"/>
+    <path d="M900 628V652M990 628V652M1080 628V652"/><path d="M1250 628V652M1340 628V652M1430 628V652"/>
+  </g>
+  <g fill="url(#worker)" stroke="#8ff0cd" filter="url(#shadow)">
+    <rect x="125" y="654" width="95" height="60" rx="16"/><rect x="223" y="654" width="95" height="60" rx="16"/><rect x="321" y="654" width="95" height="60" rx="16"/>
+    <rect x="485" y="654" width="95" height="60" rx="16"/><rect x="583" y="654" width="95" height="60" rx="16"/><rect x="681" y="654" width="95" height="60" rx="16"/>
+    <rect x="845" y="654" width="95" height="60" rx="16"/><rect x="943" y="654" width="95" height="60" rx="16"/><rect x="1041" y="654" width="95" height="60" rx="16"/>
+    <rect x="1205" y="654" width="85" height="60" rx="16"/><rect x="1297" y="654" width="85" height="60" rx="16"/><rect x="1389" y="654" width="85" height="60" rx="16"/>
+  </g>
+  <g text-anchor="middle" style="font:700 16px Arial,sans-serif;fill:#fff8e7">
+    <text x="172" y="690">LUNA</text><text x="270" y="690">LUNA</text><text x="368" y="690">LUNA</text>
+    <text x="532" y="690">LUNA</text><text x="630" y="690">LUNA</text><text x="728" y="690">LUNA</text>
+    <text x="892" y="690">LUNA</text><text x="990" y="690">LUNA</text><text x="1088" y="690">LUNA</text>
+    <text x="1248" y="690">LUNA</text><text x="1340" y="690">LUNA</text><text x="1432" y="690">LUNA</text>
+  </g>
+
+  <rect x="90" y="752" width="690" height="90" rx="24" fill="#111220" stroke="#8ff0cd"/>
+  <text x="130" y="788" class="micro">CAPABILITY PLANE</text><text x="130" y="820" class="small">Skills · MCP servers · plugins · sandboxes · approved tools</text>
+  <rect x="820" y="752" width="690" height="90" rx="24" fill="#111220" stroke="#f3d99b"/>
+  <text x="860" y="788" style="font:700 15px Arial,sans-serif;letter-spacing:1.2px;fill:#f3d99b">EVIDENCE + ACCEPTANCE PLANE</text><text x="860" y="820" class="small">Independent review · artifacts · scorecards · durable ledger</text>
+</svg>

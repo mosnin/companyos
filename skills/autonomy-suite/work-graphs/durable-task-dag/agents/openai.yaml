@@ -1,0 +1,3 @@
+interface:
+  display_name: "Durable Task Dag"
+  short_description: "Help with Durable Task Dag tasks"

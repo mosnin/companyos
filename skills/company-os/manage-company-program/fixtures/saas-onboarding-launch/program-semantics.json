@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.program-semantics.v1",
+  "schema_version": 1,
+  "program_id": "saas-onboarding-launch",
+  "program_label": "SaaS Onboarding Launch",
+  "canonical_terms": [
+    {
+      "term_id": "activation_plan",
+      "label": "Activation plan",
+      "aliases": ["customer activation plan"],
+      "prohibited_aliases": []
+    },
+    {
+      "term_id": "implementation_milestone",
+      "label": "Implementation milestone",
+      "aliases": ["onboarding milestone"],
+      "prohibited_aliases": ["go-live" ]
+    },
+    {
+      "term_id": "workspace_admin",
+      "label": "Workspace administrator",
+      "aliases": ["workspace admin"],
+      "prohibited_aliases": []
+    },
+    {
+      "term_id": "retention_signal",
+      "label": "Retention signal",
+      "aliases": ["retention indicator"],
+      "prohibited_aliases": []
+    },
+    {
+      "term_id": "onboarding_budget",
+      "label": "Onboarding budget",
+      "aliases": ["annual onboarding budget"],
+      "prohibited_aliases": []
+    }
+  ],
+  "constants": [
+    {
+      "constant_id": "annual_onboarding_budget_usd",
+      "label": "Annual onboarding budget",
+      "type": "integer",
+      "value": 96000,
+      "unit": "usd",
+      "row_map": "budget.annual_onboarding"
+    },
+    {
+      "constant_id": "time_to_value_days",
+      "label": "Time to value target",
+      "type": "integer",
+      "value": 14,
+      "unit": "days",
+      "row_map": "activation.time_to_value_days"
+    },
+    {
+      "constant_id": "support_response_minutes",
+      "label": "Support response target",
+      "type": "integer",
+      "value": 30,
+      "unit": "minutes",
+      "row_map": "support.response_minutes"
+    },
+    {
+      "constant_id": "workspace_seats",
+      "label": "Workspace seat plan",
+      "type": "integer",
+      "value": 120,
+      "unit": "seats",
+      "row_map": "workspace.seat_plan"
+    }
+  ],
+  "authority_states": [
+    {
+      "state_id": "manager_review",
+      "label": "Manager review and approval",
+      "kind": "manager",
+      "delegable": false,
+      "delegated_states": ["worker_execute"],
+      "allowed_actions": ["decompose", "review", "approve", "reject"]
+    },
+    {
+      "state_id": "worker_execute",
+      "label": "Bounded worker execution",
+      "kind": "worker",
+      "delegable": true,
+      "delegated_states": [],
+      "allowed_actions": ["author", "inspect", "report"]
+    }
+  ],
+  "prohibitions": [
+    {"prohibition_id": "no_customer_send", "label": "No customer-facing sends", "applies_to": ["both"]},
+    {"prohibition_id": "no_provider_mutation", "label": "No provider or production mutation", "applies_to": ["both"]},
+    {"prohibition_id": "no_spend", "label": "No spend or financial commitment", "applies_to": ["both"]},
+    {"prohibition_id": "no_privilege_escalation", "label": "No privilege or authority escalation", "applies_to": ["both"]}
+  ],
+  "evidence_requirements": [
+    {"evidence_id": "activation_signal", "claim": "Activation friction is documented", "required": true, "citation_required": true, "minimum_citations": 1},
+    {"evidence_id": "implementation_sequence", "claim": "Implementation sequence is documented", "required": true, "citation_required": true, "minimum_citations": 1},
+    {"evidence_id": "admin_constraint", "claim": "Workspace administrator constraint is documented", "required": true, "citation_required": true, "minimum_citations": 1},
+    {"evidence_id": "retention_signal_data", "claim": "Retention signal data is documented", "required": true, "citation_required": true, "minimum_citations": 1},
+    {"evidence_id": "onboarding_budget_policy", "claim": "Onboarding budget policy and row map are documented", "required": true, "citation_required": true, "minimum_citations": 1}
+  ],
+  "artifact_oracles": [
+    {
+      "oracle_id": "normalized_nonempty_json",
+      "label": "Normalized non-empty JSON bytes",
+      "kind": "json",
+      "normalization": "unicode-nfc-strip",
+      "rule": "normalized-nonempty",
+      "required": true
+    }
+  ],
+  "required_capabilities": [
+    {"capability_id": "spreadsheet", "required": true},
+    {"capability_id": "document_renderer", "required": true},
+    {"capability_id": "analytics_runtime", "required": true}
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.work-definitions.v1",
+  "schema_version": 1,
+  "program_id": "saas-onboarding-launch",
+  "constant_bindings": [
+    {"constant_id": "annual_onboarding_budget_usd", "expected_type": "integer", "expected_value": 96000, "expected_unit": "usd", "expected_row_map": "budget.annual_onboarding"},
+    {"constant_id": "time_to_value_days", "expected_type": "integer", "expected_value": 14, "expected_unit": "days", "expected_row_map": "activation.time_to_value_days"},
+    {"constant_id": "support_response_minutes", "expected_type": "integer", "expected_value": 30, "expected_unit": "minutes", "expected_row_map": "support.response_minutes"},
+    {"constant_id": "workspace_seats", "expected_type": "integer", "expected_value": 120, "expected_unit": "seats", "expected_row_map": "workspace.seat_plan"}
+  ],
+  "term_bindings": [
+    {"term_id": "activation_plan", "expected_label": "Activation plan", "required_aliases": ["customer activation plan"], "prohibited_aliases": []},
+    {"term_id": "implementation_milestone", "expected_label": "Implementation milestone", "required_aliases": ["onboarding milestone"], "prohibited_aliases": ["go-live"]},
+    {"term_id": "workspace_admin", "expected_label": "Workspace administrator", "required_aliases": ["workspace admin"], "prohibited_aliases": []},
+    {"term_id": "retention_signal", "expected_label": "Retention signal", "required_aliases": ["retention indicator"], "prohibited_aliases": []},
+    {"term_id": "onboarding_budget", "expected_label": "Onboarding budget", "required_aliases": ["annual onboarding budget"], "prohibited_aliases": []}
+  ],
+  "evidence_units": [
+    {"evidence_id": "activation_signal", "claim": "Fixture activation signal identifies the first-use friction.", "citations": [{"source_id": "saas-fixture-activation", "locator": "source://saas-onboarding-launch/activation-signal", "excerpt": "Users need a guided first-use path."}]},
+    {"evidence_id": "implementation_sequence", "claim": "Fixture implementation sequence defines onboarding milestones.", "citations": [{"source_id": "saas-fixture-implementation", "locator": "source://saas-onboarding-launch/implementation-sequence", "excerpt": "Implementation proceeds through bounded milestones."}]},
+    {"evidence_id": "admin_constraint", "claim": "Fixture administrator constraint defines workspace ownership.", "citations": [{"source_id": "saas-fixture-admin", "locator": "source://saas-onboarding-launch/admin-constraint", "excerpt": "A workspace administrator owns the setup boundary."}]},
+    {"evidence_id": "retention_signal_data", "claim": "Fixture retention data identifies a post-activation signal.", "citations": [{"source_id": "saas-fixture-retention", "locator": "source://saas-onboarding-launch/retention-signal", "excerpt": "Retention is evaluated after activation."}]},
+    {"evidence_id": "onboarding_budget_policy", "claim": "Fixture onboarding policy binds the annual budget row map.", "citations": [{"source_id": "saas-fixture-finance", "locator": "source://saas-onboarding-launch/onboarding-budget", "excerpt": "Annual onboarding budget is 96000 USD."}]}
+  ],
+  "manager_definitions": [
+    {
+      "manager_id": "onboarding_manager",
+      "label": "Onboarding manager",
+      "department_id": "customer_success",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/manager/onboarding"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["activation plan"],
+      "deliverables": [
+        {"deliverable_id": "onboarding_manager_packet", "label": "Onboarding manager packet", "path": "programs/saas-onboarding-launch/manager/onboarding/packet.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"activation\":\"guided\"}", "evidence_ids": ["activation_signal"], "constant_ids": ["time_to_value_days"], "term_ids": []}
+      ],
+      "worker_ids": ["activation_path_work"]
+    },
+    {
+      "manager_id": "implementation_manager",
+      "label": "Implementation manager",
+      "department_id": "implementation",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/manager/implementation"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["onboarding milestone"],
+      "deliverables": [
+        {"deliverable_id": "implementation_manager_packet", "label": "Implementation manager packet", "path": "programs/saas-onboarding-launch/manager/implementation/packet.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"milestone\":\"bounded\"}", "evidence_ids": ["implementation_sequence"], "constant_ids": ["workspace_seats"], "term_ids": []}
+      ],
+      "worker_ids": ["milestone_sequence_work"]
+    },
+    {
+      "manager_id": "product_manager",
+      "label": "Product manager",
+      "department_id": "product",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/manager/product"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_privilege_escalation"],
+      "required_capabilities": ["analytics_runtime"],
+      "required_terms": ["workspace admin"],
+      "deliverables": [
+        {"deliverable_id": "product_manager_packet", "label": "Product manager packet", "path": "programs/saas-onboarding-launch/manager/product/packet.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"owner\":\"workspace administrator\"}", "evidence_ids": ["admin_constraint"], "constant_ids": ["workspace_seats"], "term_ids": []}
+      ],
+      "worker_ids": ["workspace_owner_work"]
+    },
+    {
+      "manager_id": "support_manager",
+      "label": "Support manager",
+      "department_id": "support",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/manager/support"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_privilege_escalation"],
+      "required_capabilities": ["spreadsheet", "analytics_runtime"],
+      "required_terms": ["retention indicator"],
+      "deliverables": [
+        {"deliverable_id": "support_manager_packet", "label": "Support manager packet", "path": "programs/saas-onboarding-launch/manager/support/packet.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"retention\":\"measured\"}", "evidence_ids": ["retention_signal_data"], "constant_ids": ["support_response_minutes"], "term_ids": []}
+      ],
+      "worker_ids": ["retention_signal_work"]
+    },
+    {
+      "manager_id": "finance_manager",
+      "label": "Finance manager",
+      "department_id": "finance",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/manager/finance"]},
+      "authority_state": "manager_review",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["spreadsheet"],
+      "required_terms": ["annual onboarding budget"],
+      "deliverables": [
+        {"deliverable_id": "saas_finance_manager_packet", "label": "SaaS finance manager packet", "path": "programs/saas-onboarding-launch/manager/finance/packet.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"budget\":96000}", "evidence_ids": ["onboarding_budget_policy"], "constant_ids": ["annual_onboarding_budget_usd"], "term_ids": []}
+      ],
+      "worker_ids": ["onboarding_budget_work"]
+    }
+  ],
+  "work_definitions": [
+    {
+      "work_id": "activation_path_work",
+      "manager_id": "onboarding_manager",
+      "label": "Activation path work",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/work/activation-path"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["customer activation plan"],
+      "deliverables": [
+        {"deliverable_id": "activation_path_output", "label": "Activation path output", "path": "programs/saas-onboarding-launch/work/activation-path/output.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"path\":\"first-use\"}", "evidence_ids": ["activation_signal"], "constant_ids": ["time_to_value_days"], "term_ids": []}
+      ]
+    },
+    {
+      "work_id": "milestone_sequence_work",
+      "manager_id": "implementation_manager",
+      "label": "Milestone sequence work",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/work/milestone-sequence"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["document_renderer"],
+      "required_terms": ["implementation milestone"],
+      "deliverables": [
+        {"deliverable_id": "milestone_sequence_output", "label": "Milestone sequence output", "path": "programs/saas-onboarding-launch/work/milestone-sequence/output.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"sequence\":[\"setup\",\"verify\"]}", "evidence_ids": ["implementation_sequence"], "constant_ids": ["workspace_seats"], "term_ids": []}
+      ]
+    },
+    {
+      "work_id": "workspace_owner_work",
+      "manager_id": "product_manager",
+      "label": "Workspace owner work",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/work/workspace-owner"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_privilege_escalation"],
+      "required_capabilities": ["analytics_runtime"],
+      "required_terms": ["workspace administrator"],
+      "deliverables": [
+        {"deliverable_id": "workspace_owner_output", "label": "Workspace owner output", "path": "programs/saas-onboarding-launch/work/workspace-owner/output.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"owner\":\"admin\"}", "evidence_ids": ["admin_constraint"], "constant_ids": ["workspace_seats"], "term_ids": []}
+      ]
+    },
+    {
+      "work_id": "retention_signal_work",
+      "manager_id": "support_manager",
+      "label": "Retention signal work",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/work/retention-signal"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_privilege_escalation"],
+      "required_capabilities": ["analytics_runtime", "spreadsheet"],
+      "required_terms": ["retention signal"],
+      "deliverables": [
+        {"deliverable_id": "retention_signal_output", "label": "Retention signal output", "path": "programs/saas-onboarding-launch/work/retention-signal/output.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"signal\":\"retained\"}", "evidence_ids": ["retention_signal_data"], "constant_ids": ["support_response_minutes"], "term_ids": []}
+      ]
+    },
+    {
+      "work_id": "onboarding_budget_work",
+      "manager_id": "finance_manager",
+      "label": "Onboarding budget work",
+      "scope": {"owned_paths": ["programs/saas-onboarding-launch/work/onboarding-budget"]},
+      "authority_state": "worker_execute",
+      "prohibition_ids": ["no_customer_send", "no_provider_mutation", "no_spend"],
+      "required_capabilities": ["spreadsheet"],
+      "required_terms": ["onboarding budget"],
+      "deliverables": [
+        {"deliverable_id": "onboarding_budget_output", "label": "Onboarding budget output", "path": "programs/saas-onboarding-launch/work/onboarding-budget/output.json", "artifact_kind": "json", "oracle_id": "normalized_nonempty_json", "oracle_probe": "{\"annual\":96000}", "evidence_ids": ["onboarding_budget_policy"], "constant_ids": ["annual_onboarding_budget_usd"], "term_ids": []}
+      ]
+    }
+  ]
+}

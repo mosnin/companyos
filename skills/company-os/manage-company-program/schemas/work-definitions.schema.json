@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.work-definitions.v1",
+  "title": "Company OS Bounded Manager and Work Definitions v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "$id", "schema_version", "program_id", "constant_bindings", "term_bindings", "evidence_units", "manager_definitions", "work_definitions"],
+  "properties": {
+    "$schema": {"type": "string", "const": "https://json-schema.org/draft/2020-12/schema"},
+    "$id": {"type": "string", "const": "company-os.work-definitions.v1"},
+    "schema_version": {"type": "integer", "const": 1},
+    "program_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+    "constant_bindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["constant_id", "expected_type", "expected_value", "expected_unit", "expected_row_map"],
+        "properties": {
+          "constant_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "expected_type": {"type": "string", "enum": ["integer", "string", "boolean"]},
+          "expected_value": {"type": ["integer", "string", "boolean"]},
+          "expected_unit": {"type": "string", "pattern": "^[a-z][a-z0-9_/-]*$"},
+          "expected_row_map": {"type": "string", "pattern": "^[a-z][a-z0-9._/-]*$"}
+        }
+      }
+    },
+    "term_bindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["term_id", "expected_label", "required_aliases", "prohibited_aliases"],
+        "properties": {
+          "term_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "expected_label": {"type": "string", "minLength": 1},
+          "required_aliases": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "prohibited_aliases": {"type": "array", "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "evidence_units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evidence_id", "claim", "citations"],
+        "properties": {
+          "evidence_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "claim": {"type": "string", "minLength": 1},
+          "citations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["source_id", "locator", "excerpt"],
+              "properties": {
+                "source_id": {"type": "string", "minLength": 1},
+                "locator": {"type": "string", "minLength": 1},
+                "excerpt": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        }
+      }
+    },
+    "manager_definitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["manager_id", "label", "department_id", "scope", "authority_state", "prohibition_ids", "required_capabilities", "required_terms", "deliverables", "worker_ids"],
+        "properties": {
+          "manager_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "label": {"type": "string", "minLength": 1},
+          "department_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "work_domains": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"}
+          },
+          "authorized_skill_permissions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"}},
+          "scope": {"$ref": "#/$defs/scope"},
+          "authority_state": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "prohibition_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
+          "required_capabilities": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
+          "required_terms": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "deliverables": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/deliverable"}},
+          "worker_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}}
+        }
+      }
+    },
+    "work_definitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["work_id", "manager_id", "label", "scope", "authority_state", "prohibition_ids", "required_capabilities", "required_terms", "deliverables"],
+        "properties": {
+          "work_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "manager_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "label": {"type": "string", "minLength": 1},
+          "work_domains": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"}
+          },
+          "authorized_skill_permissions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$"}},
+          "scope": {"$ref": "#/$defs/scope"},
+          "authority_state": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+          "prohibition_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
+          "required_capabilities": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
+          "required_terms": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "deliverables": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/deliverable"}}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owned_paths"],
+      "properties": {
+        "owned_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._/-]*$"}
+        }
+      }
+    },
+    "deliverable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deliverable_id", "label", "path", "artifact_kind", "oracle_id", "oracle_probe", "evidence_ids", "constant_ids", "term_ids"],
+      "properties": {
+        "deliverable_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+        "label": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._/-]*$"},
+        "artifact_kind": {"type": "string", "enum": ["markdown", "json", "csv", "text"]},
+        "oracle_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"},
+        "oracle_probe": {"type": "string"},
+        "evidence_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
+        "constant_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}},
+        "term_ids": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"}}
+      }
+    }
+  }
+}

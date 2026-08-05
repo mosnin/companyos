@@ -1,0 +1,28 @@
+{
+  "schema_version": "company-os.notion-product-demo.v1",
+  "page_title": "Company OS — An Operating Framework for AI-Native Companies",
+  "source_document": "docs/COMPANY_OS_PRODUCT_DEMO.md",
+  "cover_asset": {
+    "path": "docs/assets/company-os-product-demo/company-os-hero.png",
+    "alt": "A luminous master intelligence coordinating manager and worker chess pieces across a shared operating field"
+  },
+  "inline_assets": [
+    {
+      "after_heading": "The operating stack",
+      "path": "docs/assets/company-os-product-demo/company-os-stack.png",
+      "alt": "Company OS stack from objective through master manager, program managers, worker teams, capabilities, and evidence"
+    },
+    {
+      "after_heading": "Separate rooms, shared truth",
+      "path": "docs/assets/company-os-product-demo/company-os-context-isolation.png",
+      "alt": "Context-isolated master, manager, and worker structure"
+    },
+    {
+      "after_heading": "Continuous operation",
+      "path": "docs/assets/company-os-product-demo/company-os-continuous-loop.png",
+      "alt": "Bounded continuous operating cycle with durable state"
+    }
+  ],
+  "publishing_status": "blocked_connector_unavailable",
+  "publishing_note": "Create a new page only. Do not edit or overwrite any existing Notion page. Upload the cover and inline assets, preserve headings and callouts, then fetch the page and verify every section and image."
+}

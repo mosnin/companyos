@@ -1,0 +1,247 @@
+{
+  "acceptance": {
+    "checks": [
+      "exact-rejected-candidate-and-review-dependencies",
+      "legal-three-by-two-cancellation-matrix",
+      "direct-store-controller-replay-pairing-tests",
+      "contradictory-persisted-evidence-audit-failure",
+      "cancellation-dominance-preserved",
+      "hard-acknowledgement-non-invention-preserved",
+      "authority-payload-binding-preserved",
+      "downgrade-rejection-preserved",
+      "ambiguous-restart-no-relaunch-preserved",
+      "focused-adversarial-suites-green",
+      "full-discovered-non-signature-suites-green",
+      "distribution-manifest-exact-after-implementation",
+      "zero-open-p0-p1",
+      "critical-dimensions-at-least-9",
+      "all-other-applicable-dimensions-above-8",
+      "master-owned-uppercase-documentation-corrections-required-before-signing",
+      "fresh-independent-signature-and-sol-review-required"
+    ],
+    "independent_review": {
+      "barriers": [
+        "design",
+        "verification"
+      ],
+      "evidence_requirements": [
+        "exact-commit-tree-and-diff",
+        "all-six-cancellation-pairings-at-four-layers",
+        "focused-and-full-test-results",
+        "transactional-no-mutation-rejections",
+        "exact-manifest-and-residue",
+        "severity-classified-independent-sol-review",
+        "cancellation-evidence-authority-durability-security-scores",
+        "fresh-external-surface-signature"
+      ],
+      "required": true
+    },
+    "oracle": "the feature-off native runtime accepts exactly the three truthful hard-cancellation and acknowledgement pairs, preserves their distinct evidence semantics across transition persistence store controller audit and replay, rejects or audit-fails all three contradictory pairs without partial mutation, preserves prior safety invariants, and produces an unsigned manifest-exact candidate for master-owned documentation correction, fresh signing, and independent review"
+  },
+  "artifact_references": [
+    {
+      "kind": "architecture",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/architecture.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "305697ad0d457cd5feb7937137b2a2bb63a7581a53e5de55a13965954cdb2738",
+      "version": 1
+    },
+    {
+      "kind": "roadmap",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/roadmap.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "4ec30f53d023a85803b0ff6962afd588fee0305d37ec85c6618bcc4c778c3a98",
+      "version": 1
+    },
+    {
+      "kind": "interfaces",
+      "path": "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/interfaces.v1.md",
+      "project_id": "company-os-self-hosting",
+      "sha256": "5488b92d2a619681492de4b0e4f69a1edead2bf417a159a1d5f71fbff3715531",
+      "version": 1
+    }
+  ],
+  "authorization": {
+    "record_path": "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-3.v1.json",
+    "record_sha256": "12cc77bf6ff740180f97f2c109b32c55d5f800c41dca4a94f7006244fa3f0feb"
+  },
+  "authorization_expectation": {
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "decision_id": "decision-release-0.5.1-cancellation-repair-charter-3",
+    "decision_version": 3,
+    "phase": "charter"
+  },
+  "budget": {
+    "max_concurrency": 2,
+    "max_cost_usd": 40.0,
+    "max_retries": 2,
+    "max_tasks": 2,
+    "max_time_minutes": 120,
+    "max_tokens": 80000
+  },
+  "charter_version": 3,
+  "decision_barriers": {
+    "authenticated_master_decision_required": [
+      "charter",
+      "design",
+      "verification",
+      "integration"
+    ],
+    "routine_auto_continue_phase": "execution",
+    "routine_conditions": [
+      "unchanged_charter",
+      "checks_pass",
+      "budget_valid",
+      "concurrency_valid",
+      "authority_unchanged",
+      "no_exception"
+    ]
+  },
+  "definition_version": 3,
+  "deliverables": [
+    "skills/company-os/elastic-company-os/scripts/native_task_runtime.py",
+    "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py",
+    "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+    "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+    "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
+    "distribution-manifest.json",
+    "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/cancellation-repair-report.v1.md"
+  ],
+  "dependencies": [
+    "rejected-release-candidate:722f5e5bf706d1dd1a48dfbcfacddfff269b7eb1",
+    "rejected-release-candidate-tree:dd164733eb9b970792960566080048e8b567dd01",
+    "rejected-final-review-task:019fc2f8-0465-7db2-9323-762f0537e42c",
+    "master-scope-decision:uppercase-documentation-reserved-for-post-worker-integration",
+    "prior-charter-package-commit:c2b31a16ed791c4142db15af45bc711d564df036",
+    "prior-charter-package-tree:ada523628d2265b1a18e687bffd71f460b18c9ad",
+    "prior-charter-bytes:0892556cff47a9ce6286679ccfb71a576cc325d0e55f98453ceb34da4e87ef7a",
+    "prior-charter-definition:8be7449049c9277f8ae8622996f19fb74a42e46451d92dcf7dbe41c2f63a40a5",
+    "prior-charter-v2-package-commit:09080620d89a1c9d70e00249b719c5c0f85289ff",
+    "prior-charter-v2-package-tree:a1aa01f0c081d7bdeeec92684649590ffb0c6ba6",
+    "prior-charter-v2-bytes:9a7028a170a7f27ecff1375225fa92d8b51723ba7569193cdcdeb9479e709bef",
+    "prior-charter-v2-definition:5916b792f20667bad292953de09f327b4dddb6c768a7979ccc2d19a545209f84",
+    "coordination-commit:2eaad0972e5db67af901b711d62a39102e0e684e",
+    "runtime-candidate:7ee55e7e967ae471cff9fd297f9661371e0a6b99",
+    "runtime-candidate-tree:9ae6bd575e861766ee5c3beecd57f0458082c0c0",
+    "runtime-worker-task:019fc336-f196-7fd0-9127-c719c9cca36f",
+    "runtime-worker-first-receipt:rejected-terminalization-regression",
+    "runtime-worker-second-receipt:reworked-unaccepted-missing-two-illegal-replay-cases"
+  ],
+  "ids": {
+    "cycle_id": "release-0.5.1-cancellation-repair-cycle-1",
+    "parent_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "program_id": "company-os-self-hosting",
+    "project_id": "company-os-self-hosting",
+    "task_id": "manager-release-0.5.1-cancellation-repair-1"
+  },
+  "outcome": "Repair the verified P1 cancellation-evidence defect in the Company OS 0.5.1 native runtime foundation by enforcing legal hard-cancellation and acknowledgement cross-product semantics throughout transition, persistence, replay, audit, store, and controller paths; add exhaustive legal and illegal pairing regressions; preserve cancellation dominance, hard-acknowledgement non-invention, authority binding, downgrade rejection, and ambiguous-restart no-relaunch; refresh the distribution manifest after accepted implementation; deliver an unsigned exact candidate; and require master-owned README and ledger corrections before fresh external signing and independent Sol review.",
+  "outcome_digest": "9265f3a74d6c5821dd85f90f37d65a23fac2a5a44f3aafb45c419692b86cee2b",
+  "permissions": {
+    "allowed_actions": [
+      "read",
+      "write-owned-artifact",
+      "create-native-task",
+      "wait-native-task",
+      "read-native-task",
+      "run-local-test",
+      "commit-owned-change"
+    ],
+    "allowed_tools": [
+      "codex-task-tools",
+      "repository",
+      "local-tests"
+    ],
+    "prohibited_actions": [
+      "sign",
+      "global-installation",
+      "canonical-main-write",
+      "runtime-activation",
+      "scheduler-enable",
+      "deploy",
+      "provider-api-call",
+      "network",
+      "credential-access",
+      "production-mutation",
+      "chippy-change",
+      "worker-child-delegation",
+      "cross-scope-write",
+      "readme-write",
+      "ledger-write",
+      "lowercase-path-alias",
+      "parent-directory-authority",
+      "glob-scope",
+      "scope-schema-weakening",
+      "distribution-manifest-refresh-before-implementation-complete"
+    ]
+  },
+  "program_version": 6,
+  "reporting_destination": "task:019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "requested_model": "gpt-5.6-sol",
+  "schema": "company-os.mission-charter.v2",
+  "scope": {
+    "owned_paths": [
+      "skills/company-os/elastic-company-os/scripts/native_task_runtime.py",
+      "skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py",
+      "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+      "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+      "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
+      "distribution-manifest.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/cancellation-repair-report.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/architecture.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/roadmap.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/interfaces.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v1.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-runtime-worker-1.v1.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-integration-worker-1.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-runtime-worker-1.design.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-integration-worker-1.design.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v1.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v2.json",
+      "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-2.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v2.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-runtime-worker-1.v2.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/work-packets/cancellation-integration-worker-1.v2.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-runtime-worker-1.design-2.v1.json",
+      "artifacts/company-os-self-hosting/authorizations/cancellation-integration-worker-1.design-2.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.design.v2.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v3.json",
+      "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-3.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v3.json"
+    ]
+  },
+  "stop_escalation": {
+    "escalate_on": [
+      "invalid-or-changed-charter",
+      "design-barrier",
+      "scope-or-writer-collision",
+      "prohibited-side-effect",
+      "dependency-or-evidence-gap",
+      "test-or-manifest-failure",
+      "fresh-signature-required",
+      "master-owned-documentation-correction-required"
+    ],
+    "stop_conditions": [
+      "design-barrier-reached",
+      "verification-barrier-reached",
+      "p0-or-p1-found",
+      "score-below-threshold",
+      "budget-exhausted",
+      "authority-changed",
+      "worker-refusal-or-failure"
+    ]
+  },
+  "task_local_context": {
+    "artifact_paths": [
+      "artifacts/company-os-self-hosting/authorizations/manager-release-0.5.1-cancellation-repair-1.charter-3.v1.json",
+      "artifacts/company-os-self-hosting/phase-evidence/manager-release-0.5.1-cancellation-repair-1.charter.v3.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v3.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v2.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/mission-charter.v1.json",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/architecture.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/roadmap.v1.md",
+      "programs/company-os-self-hosting/release-0.5.1-cancellation-repair/interfaces.v1.md"
+    ]
+  }
+}

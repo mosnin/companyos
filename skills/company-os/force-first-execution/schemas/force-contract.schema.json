@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.force-contract.v1",
+  "title": "Company OS Force Contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "task_id", "outcome", "started_at_epoch", "soft_slos", "control", "hard_stop_codes"],
+  "properties": {
+    "schema": {"const": "company-os.force-contract.v1"},
+    "task_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "outcome": {"type": "string", "minLength": 1},
+    "started_at_epoch": {"type": "integer", "minimum": 0},
+    "soft_slos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["first_artifact_seconds", "runnable_candidate_seconds", "verification_seconds", "acceptance_to_receipt_seconds", "receipt_to_decision_seconds"],
+      "properties": {
+        "first_artifact_seconds": {"type": "integer", "minimum": 1},
+        "runnable_candidate_seconds": {"type": "integer", "minimum": 1},
+        "verification_seconds": {"type": "integer", "minimum": 1},
+        "acceptance_to_receipt_seconds": {"type": "integer", "minimum": 1},
+        "receipt_to_decision_seconds": {"type": "integer", "minimum": 1}
+      }
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inflight_observation_fresh_seconds", "max_rework_cycles", "event_log_owner"],
+      "properties": {
+        "inflight_observation_fresh_seconds": {"type": "integer", "minimum": 1},
+        "max_rework_cycles": {"type": "integer", "minimum": 0, "maximum": 3},
+        "event_log_owner": {"const": "manager"}
+      }
+    },
+    "hard_stop_codes": {
+      "type": "array",
+      "minItems": 6,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+      "allOf": [
+        {"contains": {"const": "authority_loss"}},
+        {"contains": {"const": "budget_exhausted"}},
+        {"contains": {"const": "collision"}},
+        {"contains": {"const": "explicit_cancel"}},
+        {"contains": {"const": "prohibited_side_effect"}},
+        {"contains": {"const": "scope_violation"}}
+      ]
+    }
+  }
+}

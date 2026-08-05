@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.release-scope.v1",
+  "title": "Company OS Release Scope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project_id", "program_id", "program_version", "definition_version", "cycle_id", "master_task_id", "outcome_digest", "predecessor_admission_sha256", "predecessor_scope_admission", "admission_verification_path", "deliverables", "policy", "accepted_design_decision", "scope_admission"],
+  "properties": {
+    "schema": {"const": "company-os.release-scope.v1"},
+    "project_id": {"$ref": "#/$defs/id"},
+    "program_id": {"$ref": "#/$defs/id"},
+    "program_version": {"type": "integer", "minimum": 1},
+    "definition_version": {"type": "integer", "minimum": 1},
+    "cycle_id": {"$ref": "#/$defs/id"},
+    "master_task_id": {"$ref": "#/$defs/id"},
+    "outcome_digest": {"$ref": "#/$defs/sha256"},
+    "predecessor_admission_sha256": {"$ref": "#/$defs/sha256"},
+    "predecessor_scope_admission": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/file"}]},
+    "admission_verification_path": {"$ref": "#/$defs/path"},
+    "deliverables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["deliverable_id", "manager_task_id", "manager_public_key", "manager_charter", "criticality", "outcome_contribution"],
+        "properties": {
+          "deliverable_id": {"$ref": "#/$defs/id"},
+          "manager_task_id": {"$ref": "#/$defs/id"},
+          "manager_public_key": {"$ref": "#/$defs/file"},
+          "manager_charter": {"$ref": "#/$defs/file"},
+          "criticality": {"enum": ["required", "optional"]},
+          "outcome_contribution": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_failure", "optional_failure", "max_optional_recovery_chains"],
+      "properties": {
+        "required_failure": {"const": "block_release"},
+        "optional_failure": {"const": "omit_without_quality_relaxation"},
+        "max_optional_recovery_chains": {"type": "integer", "minimum": 0, "maximum": 2}
+      }
+    },
+    "accepted_design_decision": {"$ref": "#/$defs/file"},
+    "scope_admission": {"$ref": "#/$defs/file"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]*$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "path": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"},
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "boundary": "Measures read-only render latency only; excludes development cost and provider runtime.",
+  "external_api_calls": 0,
+  "max_ms": 247.308,
+  "measured_surface": "installed 0.4.0 JSON operator brief against authoritative local rev93",
+  "median_ms": 176.856,
+  "min_ms": 172.332,
+  "output_bytes_max": 14901,
+  "output_bytes_min": 14901,
+  "p95_ms": 235.434,
+  "provider_model_calls": 0,
+  "runs": 20,
+  "schema": "company-os.operator-brief-benchmark.v1"
+}

@@ -1,0 +1,124 @@
+{
+  "aggregate_algorithm": "sha256(canonical-json(files,sort_keys=true,separators=comma-colon,utf8))",
+  "aggregate_sha256": "54c290f7c40bc8c0dd5d0829165e8b1bb3ba9d278c2cdac9a11373ebb9bee336",
+  "carrier_commit": "166cbcc189074d70d0953e2897c85bc4791a39d2",
+  "carrier_git_tree": "97a041630e877a4ae24d734b98bf45e7a4f2e850",
+  "company_os_release_version": "0.5.1",
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "8066484cb208681bd44f5bce15c9f3aff9f2047ce7cda41f6eb8328f69f38240",
+      "size": 2275
+    },
+    {
+      "path": "docs/design/operator-command-center-concept-v1.png",
+      "sha256": "a02a063b16005067fb152ec33e2307159eaf67fd83f2696bee982b4aebc44bff",
+      "size": 1143532
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_ACCEPTANCE_MATRIX.md",
+      "sha256": "69fb515691cc7b87b24d4f40c9ee0da69ba8342585bc5c579f408b2f08731531",
+      "size": 5434
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_ACCEPTANCE_REPORT.md",
+      "sha256": "0ab7b8e86337333be1b8e4bd198d50efe3dea0741e3a1a6552ab7d41306e14b0",
+      "size": 6772
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_DESIGN_SYSTEM.md",
+      "sha256": "b8e90d3712508c8726b591434e727f6dc572e47ae2927843a6952d371dddc692",
+      "size": 6992
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_DESKTOP.jpg",
+      "sha256": "7cfd41d3822a90184e6613195b8a0780e0d51e4113d65b1a7d178e1b3ff8ec41",
+      "size": 148944
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_MOBILE.jpg",
+      "sha256": "52e23e232e8430004609924fccc87c964e6ac387a4bbd55a5243618196f4b541",
+      "size": 52045
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_PRODUCT_BRIEF.md",
+      "sha256": "e8b07b6a5bddcc78a6547122f280d5bf0463543029de59380771e4d41b49b854",
+      "size": 4892
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_PROGRAM_CONTRACT.md",
+      "sha256": "c8de8fc26807939025d7b423606622513f48c220de747ee33eeb674374b5b356",
+      "size": 2658
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_REALITY.md",
+      "sha256": "b325982a0bef8276466552f5571861366bb1ceb6d1e4449f2b828c974b332197",
+      "size": 4379
+    },
+    {
+      "path": "programs/company-os-self-hosting/OPERATOR_COMMAND_CENTER_RENDERED.html",
+      "sha256": "6201957a9fbcfb8df5e15d9cf4fa3eafb02a600a0403dcc76607af949c40c15f",
+      "size": 24072
+    },
+    {
+      "path": "scripts/verify_operator_command_center_surface.py",
+      "sha256": "12b85e6d95f6d38e6ee1b6e9fa49557f9de0dd194b1d4d22ef598bac97fce8bc",
+      "size": 22079
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/SKILL.md",
+      "sha256": "4a7732f6248463360982123eb5a24e3dd1395a94948200f337146c6bc053e917",
+      "size": 16687
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/references/control-contract.md",
+      "sha256": "102d1b8c8e8a43b15c43cb9d83aebfd920059e8f912ec92e0baa96be7493a93a",
+      "size": 15495
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/company_os_controller.py",
+      "sha256": "cc4f0ccb20942982d29eef39dc75f12f25b5224c08587d57d7870bbfb23ec7c4",
+      "size": 417605
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/control_store.py",
+      "sha256": "e4361ecb2eb07b5a7f6557e852065ca10a9fbacfff6386f157f68464a7179aac",
+      "size": 62438
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/operator_brief.py",
+      "sha256": "ef20959026ad4f7ebea5031d0dff967b136ce8f453b0fa58c8352589e372582e",
+      "size": 68373
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/test_company_os_controller.py",
+      "sha256": "34b444d9131d02d7aa7840d3666805e2dfd061addd14642826b29c2ea2ea35b3",
+      "size": 225659
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/test_control_store.py",
+      "sha256": "32b49e5cb396028b7eadb51de89926fed93b6038c4b27b7c719d388353c17712",
+      "size": 74611
+    },
+    {
+      "path": "skills/company-os/elastic-company-os/scripts/test_operator_brief.py",
+      "sha256": "ef19133dacba7f8f67f958dbfe4cc3cb46b36dfc41da852aed1a506169be52b9",
+      "size": 32552
+    },
+    {
+      "path": "tests/test_operator_command_center_surface.py",
+      "sha256": "e1f67f6a737062d409e2d105d26dea67a76263d5cd6601a131a3c7d412791eb5",
+      "size": 16933
+    }
+  ],
+  "path_set_sha256": "5550e277e223925cd579a9da6da1880d7999746d05d7f3d4669668a3859184f8",
+  "prior_surface_lineage": {
+    "accepted_artifact_commit": "09eada016b2da84eb0b49a0a3c1f5873a6dcbcaf",
+    "accepted_artifact_git_tree": "6d1f73c486af4e8d7f8106f28db4f182863521fa",
+    "aggregate_sha256": "ed20e7f9026fca0614276cd1df3c5bc3114f3304876334eb149de37533c5d3f6",
+    "surface_id": "operator-command-center-v5-company-os-0.4.3-accepted-surface",
+    "surface_manifest_sha256": "84cddf4250ca509d899fdfef448466d32aa25ba33d945764765175f5aeab3016"
+  },
+  "schema_version": 1,
+  "surface_id": "operator-command-center-v5-company-os-0.5.1-accepted-surface"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commercial and Customer System"
+  short_description: "Connect product, customers, and growth decisions."
+  default_prompt: "Build or audit a commercial and customer operating system for this project."

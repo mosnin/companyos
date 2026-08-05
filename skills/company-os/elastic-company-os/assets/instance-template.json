@@ -1,0 +1,107 @@
+{
+  "schema_version": 9,
+  "core_version": "2.6.0",
+  "instance": {
+    "project_id": "",
+    "name": "",
+    "project_root": "",
+    "project_type": "software",
+    "instance_version": 1,
+    "status": "paused",
+    "created_at": ""
+  },
+  "strategy": {
+    "north_star": "",
+    "current_outcome": "",
+    "success_metric": "",
+    "program_version": 1,
+    "program_updated_at": "",
+    "program_fingerprint": "",
+    "constraints": [],
+    "non_goals": []
+  },
+  "profile": {
+    "maturity": "established",
+    "risk_class": "customer_facing",
+    "departments": [],
+    "methods": [],
+    "project_specific_dimensions": []
+  },
+  "phase": "reality_audit",
+  "controller": {
+    "validated": false,
+    "validation": null,
+    "schedule_enabled": false,
+    "lease": null,
+    "lease_generation": 0,
+    "revoked_leases": [],
+    "consumed_grant_nonces": [],
+    "max_active_work": 3,
+    "meta_loop_depth": 1,
+    "last_cycle_at": null,
+    "cancellation_requested": false,
+    "restart_checkpoint": null
+  },
+  "portfolio": {
+    "allocation": {
+      "capability": 65,
+      "innovation": 20,
+      "enabler": 10,
+      "maintenance": 5
+    },
+    "committed_outcomes": [],
+    "active_work": [],
+    "completed_work": [],
+    "cancelled_work": []
+  },
+  "evidence": {
+    "reality": [],
+    "intelligence": [],
+    "direction": [],
+    "experience": [],
+    "delivery": [],
+    "verification": [],
+    "learning": []
+  },
+  "quality": {
+    "threshold": 9,
+    "dimensions": {}
+  },
+  "execution_fabric": {
+    "enabled": false,
+    "status": "unconfigured",
+    "program_version": 1,
+    "work_id": null,
+    "cycle_id": null,
+    "manifest": null,
+    "manifest_digest": null,
+    "configured_at": null,
+    "managers": {},
+    "decisions": [],
+    "cancelled_at": null,
+    "cancellation_reason": null
+  },
+  "runtime_adapter": {
+    "enabled": false,
+    "status": "disabled",
+    "program_version": 1,
+    "gateway_public_key_env": "COMPANY_OS_RUNTIME_GATEWAY_PUBLIC_KEY",
+    "observation_gateway_keyring_env": "COMPANY_OS_OBSERVATION_GATEWAY_KEYRING",
+    "phase2_contract_digest": "b83f727e472c95911a60757efb0769a0c39acf11f0c8a7051e1056e34b8b8348",
+    "provider_allowlist": [],
+    "attempts": [],
+    "observation_inboxes": {}
+  },
+  "feedback": {
+    "cycles": [],
+    "failure_patterns": [],
+    "pending_adaptations": [],
+    "applied_adaptations": [],
+    "archived_adaptations": [],
+    "archived_quality_scorecards": [],
+    "archived_runtime_adapters": [],
+    "program_transition_repairs": [],
+    "core_promotion_candidates": [],
+    "archived_evidence": []
+  }
+}

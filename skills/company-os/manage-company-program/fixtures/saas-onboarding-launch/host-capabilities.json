@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.host-capabilities.v1",
+  "schema_version": 1,
+  "program_id": "saas-onboarding-launch",
+  "host_profile_id": "fixture-host-saas-onboarding-launch",
+  "runtimes": [
+    {"runtime_id": "python3", "runtime_type": "standard-library-python", "available": true, "locator": "runtime://fixture/python3"},
+    {"runtime_id": "document_runtime", "runtime_type": "deterministic-document-renderer", "available": true, "locator": "runtime://fixture/document-runtime"},
+    {"runtime_id": "analytics_runtime", "runtime_type": "deterministic-analytics", "available": true, "locator": "runtime://fixture/analytics-runtime"}
+  ],
+  "capabilities": [
+    {"capability_id": "spreadsheet", "available": true, "runtime_id": "python3", "tool_locator": "tool://fixture/spreadsheet", "runtime_locator": "runtime://fixture/python3"},
+    {"capability_id": "document_renderer", "available": true, "runtime_id": "document_runtime", "tool_locator": "tool://fixture/document-renderer", "runtime_locator": "runtime://fixture/document-runtime"},
+    {"capability_id": "analytics_runtime", "available": true, "runtime_id": "analytics_runtime", "tool_locator": "tool://fixture/analytics", "runtime_locator": "runtime://fixture/analytics-runtime"}
+  ]
+}

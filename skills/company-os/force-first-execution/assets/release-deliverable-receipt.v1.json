@@ -1,0 +1,45 @@
+{
+  "schema": "company-os.release-deliverable-receipt.v1",
+  "project_id": "example-project",
+  "program_id": "example-program",
+  "program_version": 1,
+  "definition_version": 1,
+  "cycle_id": "example-cycle-1",
+  "deliverable_id": "core-release",
+  "manager_task_id": "core-release-manager-1",
+  "attempt_chain": 1,
+  "force_task_id": "core-release-worker-1",
+  "rework_cycles": 0,
+  "disposition": "accepted",
+  "manager_charter": {
+    "path": "programs/example-project/example-program/charters/core-release-manager-1.v1.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "scope_admission_verification": {
+    "path": "evidence/release-scope-admission-verification.v1.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "force_contract": {
+    "path": "evidence/core-release.force-contract.v1.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "terminal_force_snapshot_receipt": {
+    "path": "evidence/core-release.force-snapshot-receipt.v1.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "quality_score": 9.0,
+  "quality_gate_lowered": false,
+  "defects": [],
+  "artifact_evidence": [
+    {
+      "path": "outputs/core-release.bin",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "authentication": {
+    "scheme": "company-os.rsa-3072-sha256-pkcs1-v1_5.v1",
+    "key_id": "core-release-manager-key-1",
+    "public_key_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  }
+}

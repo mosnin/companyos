@@ -1,0 +1,36 @@
+{
+  "authentication": {
+    "key_id": "company-os-repository-test-v1",
+    "scheme": "company-os.fixture-hmac-sha256.v1",
+    "signature": "f5b7e57c0dae0d46675f0cc7eec97bcb4b40a8c8678a8825d08cb5f1e4052d0c"
+  },
+  "bindings": {
+    "cycle_id": "native-runtime-control-cycle-1",
+    "decider_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+    "definition_digest": "e7bafd7dd34f2f1a7186774473b57b9c348a192066a8db9916878578517dfbd7",
+    "definition_version": 1,
+    "outcome_digest": "670ef9ee68483e6f14f5559e942ddca6314bc55ae754c1c8fb57f02b846809a7",
+    "parent_definition_digest": "14036ed6823c8da9ebb3684aa3fc06f453290b8b9966ad928db7aee991530f9a",
+    "parent_manager_native_task_id": "019fc22b-f9f4-76e0-b26c-b181c21e1ab4",
+    "parent_task_id": "manager-native-runtime-control-1",
+    "phase": "design",
+    "program_id": "company-os-self-hosting",
+    "program_version": 6,
+    "project_id": "company-os-self-hosting",
+    "requested_model": "gpt-5.6-luna",
+    "task_id": "native-runtime-store-worker-1"
+  },
+  "decision": "continue",
+  "decision_id": "decision-native-runtime-control-design-1",
+  "decision_version": 1,
+  "evidence_kind": "repository_fixture",
+  "evidence_reference": {
+    "path": "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.design.v1.json",
+    "project_id": "company-os-self-hosting",
+    "sha256": "48b464344a52df67f7d7086805522f32d94a04e3c34c08a8750416c3cb702ae3",
+    "version": 1
+  },
+  "record_version": 1,
+  "schema": "company-os.authorization-decision.v1",
+  "status": "accepted"
+}

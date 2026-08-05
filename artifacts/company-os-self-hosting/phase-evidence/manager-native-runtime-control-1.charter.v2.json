@@ -1,0 +1,43 @@
+{
+  "authentication_note": "repository fixture integrity only; not live identity authentication",
+  "cycle_id": "native-runtime-control-cycle-1",
+  "decision": "continue",
+  "decision_id": "decision-native-runtime-control-charter-2",
+  "definition_version": 2,
+  "issued_at": "2026-08-02T13:19:41Z",
+  "manager_id": "manager-native-runtime-control-1",
+  "master_directive": "Use $manage-company-program for one narrow authority repair. Independent re-review of 983b913 found lifecycle/source logic fixed but rejected the custom scope amendment: it reuses company-os.fixture-hmac-sha256.v1 with a noncanonical preimage and the unchanged charter does not include the scope change. In /Users/preston/Documents/Codex/company-os-native-runtime-control, replace that invalid active amendment approach with a new authenticated mission charter version and definition version that explicitly includes skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py in owned_paths and binds the exact prior charter lineage. Create a standard company-os.authorization-decision.v1 and phase-evidence record using the canonical authorization_fixture_signature preimage verified by scripts/validate_role_skills.py. Update authoritative charter references/validation tests/report; remove or clearly supersede the invalid custom amendment artifacts so no verifier can treat them as active. Preserve the already accepted 3159240 runtime source bytes unless the authority integration strictly requires a test/reference change. Commit exact authority source, then an exact-commit report carrier if needed. Run canonical role validator, focused authority tests, 306 packaged regression, reference suite, root suite with expected integration-only failures, diff/residue checks. Do not touch VERSION, distribution manifest, signed Operator surface, install, runtime/scheduler, provider, or Chippy. Return exact commits and remaining gates.",
+  "master_directive_sha256": "5f557194c6232f84737d19de423d58501e9a54a267ffd48f668a169cb68e6662",
+  "master_task_id": "019fa4e9-cd80-7bd2-9416-c8dce5a7e8c3",
+  "outcome_digest": "73391b5cd8f8582f6108b0152986526a2c5360b89100d64359cd3a178675c1d8",
+  "phase": "charter",
+  "prior_charter_lineage": {
+    "authorization_canonical_sha256": "a64e3a83e2dca969523f311c5fdfb40c1b71672502648fe881e9caa556399865",
+    "authorization_path": "artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.charter.v1.json",
+    "charter_path": "programs/company-os-self-hosting/native-runtime-control/mission-charter.v6.json",
+    "charter_sha256": "b15d0cd4dbc64a08b6052d4fbffca85ebbf3ec0a3443ecb1d9745cbda2933f30",
+    "charter_version": 1,
+    "definition_digest": "14036ed6823c8da9ebb3684aa3fc06f453290b8b9966ad928db7aee991530f9a",
+    "definition_version": 1,
+    "phase_evidence_path": "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.charter.v1.json",
+    "phase_evidence_sha256": "5250c07a4556ff362f657c1af6132d26739e883139a5c06adff0eb67b3b3947b"
+  },
+  "program_id": "company-os-self-hosting",
+  "program_version": 6,
+  "replacement_charter": {
+    "added_owned_path": "skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py",
+    "charter_path": "programs/company-os-self-hosting/native-runtime-control/mission-charter.v7.json",
+    "charter_version": 2,
+    "definition_digest": "62f5eaf0f428934b8be93e9f66ef85478477fe52bbeaa5989090e83319fe95c6",
+    "definition_version": 2,
+    "preserves_outcome_budget_permissions_and_prohibitions": true
+  },
+  "reviewed_source_commit": "315924018da7a7684787c79922dd3fd4887209c0",
+  "schema": "company-os.charter-phase-evidence.v2",
+  "status": "accepted",
+  "supersedes_invalid_custom_amendment": {
+    "authorization_path": "artifacts/company-os-self-hosting/authorizations/manager-native-runtime-control-1.scope-amendment.v1.json",
+    "evidence_path": "artifacts/company-os-self-hosting/phase-evidence/manager-native-runtime-control-1.scope-amendment.v1.json",
+    "reason": "noncanonical custom signature preimage and no charter scope authority"
+  }
+}
