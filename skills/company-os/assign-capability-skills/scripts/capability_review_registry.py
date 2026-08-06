@@ -1161,6 +1161,7 @@ def build_acceptance_receipt(
     scope: Mapping[str, Any],
     trust_anchor: Mapping[str, Any] | str | bytes,
     signature: Mapping[str, Any] | str,
+    now: str | None = None,
 ) -> dict[str, Any]:
     """Construct, but never sign, an acceptance receipt.
 
@@ -1204,7 +1205,12 @@ def build_acceptance_receipt(
     }
     # Validate all fields and cryptographically verify the externally supplied
     # signature before returning a receipt that can be persisted or dispatched.
-    validate_acceptance_receipt(receipt, trust_anchor, require_accepted=False)
+    validate_acceptance_receipt(
+        receipt,
+        trust_anchor,
+        require_accepted=False,
+        now=now,
+    )
     return receipt
 
 

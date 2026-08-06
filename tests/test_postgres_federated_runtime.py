@@ -20,8 +20,19 @@ EXAMPLE = SKILL / "references" / "federated-kernel-request.example.json"
 SQL_PATH = SKILL / "references" / "postgresql-federated-runtime.sql"
 VALIDATION_RECEIPT = SKILL / "references" / "postgresql-validation-receipt.json"
 VALIDATION_EVIDENCE = SKILL / "references" / "postgresql-validation-evidence.json"
+CURRENT_SOURCE_EVIDENCE = (
+    SKILL / "references" / "postgresql-current-source-validation-evidence.json"
+)
 ADMIN_VALIDATION_EVIDENCE = SKILL / "references" / "postgresql-admin-validation-evidence.json"
 ADMIN_HARNESS = SKILL / "scripts" / "postgres_runtime_admin.py"
+BRIDGE_PATH = (
+    ROOT
+    / "skills"
+    / "company-os"
+    / "operate-federated-codex-runtime"
+    / "scripts"
+    / "prepare_native_codex_dispatch.py"
+)
 
 
 def load(name: str, path: Path):
@@ -458,8 +469,62 @@ class PostgresFederatedRuntimeTests(unittest.TestCase):
             receipt["adapter_source_sha256"],
             POSTGRES.digest_text(POSTGRES_PATH.read_text()),
         )
-        self.assertRegex(receipt["bridge_source_sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(
+            receipt["bridge_source_sha256"],
+            POSTGRES.digest_text(BRIDGE_PATH.read_text()),
+        )
         self.assertEqual(receipt["tested_kernel_digest"], self.kernel["kernel_digest"])
+        current_raw = CURRENT_SOURCE_EVIDENCE.read_bytes()
+        current = json.loads(current_raw)
+        self.assertEqual(
+            current_raw,
+            (POSTGRES.canonical_json(current) + "\n").encode(),
+        )
+        self.assertEqual(
+            receipt["current_source_evidence_path"],
+            "references/postgresql-current-source-validation-evidence.json",
+        )
+        self.assertEqual(
+            receipt["current_source_evidence_sha256"],
+            POSTGRES.digest_text(current_raw.decode()),
+        )
+        self.assertEqual(current["source"]["kernel_digest"], self.kernel["kernel_digest"])
+        self.assertEqual(
+            current["source"]["adapter_source_sha256"],
+            POSTGRES.digest_text(POSTGRES_PATH.read_text()),
+        )
+        self.assertEqual(
+            current["source"]["schema_source_sha256"],
+            POSTGRES.digest_text(SQL_PATH.read_text()),
+        )
+        self.assertEqual(
+            current["source"]["admin_harness_sha256"],
+            POSTGRES.digest_text(ADMIN_HARNESS.read_text()),
+        )
+        self.assertEqual(
+            current["source"]["bridge_source_sha256"],
+            POSTGRES.digest_text(BRIDGE_PATH.read_text()),
+        )
+        self.assertEqual(
+            current["restricted_runtime_identity"]["current_user"],
+            current["restricted_runtime_identity"]["session_user"],
+        )
+        self.assertFalse(current["restricted_runtime_identity"]["is_superuser"])
+        self.assertFalse(current["runtime_flow"]["first_persistence"]["idempotent"])
+        self.assertTrue(current["runtime_flow"]["idempotent_replay"]["idempotent"])
+        self.assertFalse(
+            current["runtime_flow"]["design_continuation"]["continue_allowed"]
+        )
+        self.assertEqual(
+            current["runtime_flow"]["cancellation"]["status"], "cancelled"
+        )
+        self.assertTrue(current["runtime_flow"]["final_audit"]["ok"])
+        self.assertFalse(
+            current["baseline_full_matrix"]["full_adversarial_matrix_rerun"]
+        )
+        self.assertFalse(current["truth_boundaries"]["runtime_activated"])
+        self.assertFalse(current["truth_boundaries"]["scheduler_activated"])
+        self.assertFalse(current["truth_boundaries"]["provider_task_created"])
         admin_raw = ADMIN_VALIDATION_EVIDENCE.read_bytes()
         admin = json.loads(admin_raw)
         self.assertEqual(admin_raw, (POSTGRES.canonical_json(admin) + "\n").encode())
@@ -543,6 +608,7 @@ class PostgresFederatedRuntimeTests(unittest.TestCase):
                 "legacy_upgrade_quarantine",
                 "legacy_quarantine_blocks_execution",
                 "legacy_upgrade_rerun",
+                "current_source_restricted_runtime_and_bridge",
             },
         )
         self.assertFalse(receipt["main_schema_mutated"])

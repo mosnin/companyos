@@ -82,8 +82,8 @@
     },
     {
       "path": "company-os/assign-capability-skills/scripts/capability_review_registry.py",
-      "sha256": "5e5a122c80de715c0837c6681ff1188eb6b50b89a406df0f45c2ee2ed37dbd3c",
-      "size": 77419
+      "sha256": "7b192aa19585b5184ed33c6a935aa7c1c97d26d656d810fac236236f66d4e888",
+      "size": 77495
     },
     {
       "path": "company-os/assign-capability-skills/scripts/promote_curated_capabilities.py",
@@ -222,8 +222,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "1fe0c9b61f1beec20a0fc3e5b4489c78c7e6b63ec87ca77aae7e0e17376152c3",
-      "size": 16947
+      "sha256": "53f1e304a275da4def56688c8389208e2fdf97259cfa5a028195243383b59eec",
+      "size": 16975
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -266,6 +266,11 @@
       "size": 4849
     },
     {
+      "path": "company-os/compile-federated-company-kernel/references/postgresql-current-source-validation-evidence.json",
+      "sha256": "29a6700ef51971c60c3ab326e9a0bbef8bcbf3d35b30f7e6c26b7214e9a79b01",
+      "size": 2621
+    },
+    {
       "path": "company-os/compile-federated-company-kernel/references/postgresql-federated-runtime.sql",
       "sha256": "f42cfb49f11a4f56302c014e616d8de646816b75915b09327f3958cebec067ac",
       "size": 73162
@@ -277,8 +282,8 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/references/postgresql-validation-receipt.json",
-      "sha256": "2d110e42f88fc7965920d060718648bfeb955601be1c26a9cf01f45390e965df",
-      "size": 5232
+      "sha256": "55e4712007e1c049b584119f286b9bc028b05d1cd4cc0048690d721f0e0dd461",
+      "size": 6471
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/compile_federated_kernel.py",
@@ -1067,8 +1072,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
-      "sha256": "90be0be276ecddd1dab79afad7f365a744e94ef7c4244931427ee0191934d397",
-      "size": 14251
+      "sha256": "c5edc4a916ddc5790c0a8e8c7f62262f37846aa9ea5f8275a4d4c34a5390a29a",
+      "size": 14254
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",

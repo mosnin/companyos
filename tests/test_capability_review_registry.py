@@ -260,6 +260,7 @@ class CapabilityReviewRegistryTests(unittest.TestCase):
                 checkout_manifest_sha256=receipt["checkout_manifest_sha256"], selected_capability_ids=selected,
                 verdict=receipt["verdict"], issued_at=receipt["issued_at"], expires_at=receipt["expires_at"],
                 scope=scope, trust_anchor=anchor, signature=receipt["signature"],
+                now=now,
             )
             bundle = MODULE.promote_selected_reviews(
                 registry, catalog, sources, SKILL_ROOT, MANIFEST_PATH, built, anchor, selected,

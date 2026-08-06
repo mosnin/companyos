@@ -204,7 +204,7 @@ Use these mandatory phase states:
 Every manager sends one compact report at every phase. Verification and final
 integration are always true decision barriers. High, consequential,
 non-delegated, protected-action, and exception paths also require an
-authenticated master design decision of `continue`, `rework`, `pause`, or
+authenticated master decision at design of `continue`, `rework`, `pause`, or
 `terminate` bound to the current program, definition, outcome digest, and phase
 report. A signed charter may preauthorize a low- or medium-risk delegated design
 to continue into execution without another master turn only when a deterministic
