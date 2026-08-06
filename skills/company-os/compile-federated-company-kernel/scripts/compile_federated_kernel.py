@@ -355,9 +355,7 @@ def validate_request(value: dict[str, Any]) -> dict[str, Any]:
                 stream_label = f"{program_label}.workstreams[{stream_index}]"
                 if not isinstance(stream, dict):
                     raise KernelError(f"{stream_label} must be an object")
-                require_exact_keys(
-                    stream,
-                    {
+                stream_keys = {
                         "id",
                         "deliverable",
                         "complexity",
@@ -367,9 +365,17 @@ def validate_request(value: dict[str, Any]) -> dict[str, Any]:
                         "parallel_width",
                         "artifact_kinds",
                         "required_capabilities",
-                    },
-                    stream_label,
-                )
+                    }
+                delivery_contract_keys = {"mandatory_requirements", "acceptance_checks"}
+                if frozenset(stream) not in {
+                    frozenset(stream_keys),
+                    frozenset(stream_keys | delivery_contract_keys),
+                }:
+                    raise KernelError(
+                        f"{stream_label} must provide both mandatory_requirements and "
+                        "acceptance_checks or omit both"
+                    )
+                delivery_contract_complete = delivery_contract_keys.issubset(stream)
                 stream_id = require_id(stream["id"], f"{stream_label}.id")
                 if stream_id in workstream_ids:
                     raise KernelError(f"duplicate workstream {stream_id}")
@@ -380,8 +386,7 @@ def validate_request(value: dict[str, Any]) -> dict[str, Any]:
                 parallel_width = require_int(
                     stream["parallel_width"], 1, estimated_tasks, f"{stream_label}.parallel_width"
                 )
-                normalized_workstreams.append(
-                    {
+                normalized_stream = {
                         "id": stream_id,
                         "deliverable": require_text(stream["deliverable"], f"{stream_label}.deliverable"),
                         "complexity": require_int(stream["complexity"], 1, 5, f"{stream_label}.complexity"),
@@ -398,7 +403,26 @@ def validate_request(value: dict[str, Any]) -> dict[str, Any]:
                             stream["required_capabilities"], f"{stream_label}.required_capabilities", ids=True
                         ),
                     }
-                )
+                if delivery_contract_complete:
+                    mandatory_requirements = require_string_list(
+                        stream["mandatory_requirements"],
+                        f"{stream_label}.mandatory_requirements",
+                    )
+                    acceptance_checks = require_string_list(
+                        stream["acceptance_checks"],
+                        f"{stream_label}.acceptance_checks",
+                    )
+                    if not mandatory_requirements or not acceptance_checks:
+                        raise KernelError(
+                            f"{stream_label} delivery contract arrays must be non-empty"
+                        )
+                    normalized_stream.update(
+                        {
+                            "mandatory_requirements": mandatory_requirements,
+                            "acceptance_checks": acceptance_checks,
+                        }
+                    )
+                normalized_workstreams.append(normalized_stream)
             normalized_programs.append(
                 {
                     "id": program_id,
@@ -511,6 +535,14 @@ def compile_kernel(
                             "requested_worker_reasoning": "max",
                             "required_capabilities": workstream["required_capabilities"],
                             "artifact_kinds": workstream["artifact_kinds"],
+                            "mandatory_requirements": workstream.get("mandatory_requirements", []),
+                            "acceptance_checks": workstream.get("acceptance_checks", []),
+                            "delivery_contract_status": (
+                                "complete"
+                                if workstream.get("mandatory_requirements")
+                                and workstream.get("acceptance_checks")
+                                else "incomplete"
+                            ),
                             "decision_mode": (
                                 "analysis_only_human_decision"
                                 if program["risk_tier"] == "consequential"

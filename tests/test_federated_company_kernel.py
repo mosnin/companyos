@@ -208,6 +208,32 @@ class FederatedCompanyKernelTests(unittest.TestCase):
         self.assertEqual(len(architecture), 3)
         self.assertEqual(sum(item["declared_worker_slots"] for item in architecture), 12)
 
+    def test_explicit_delivery_contract_reaches_every_manager_partition(self):
+        request = request_fixture()
+        stream = request["business_units"][1]["programs"][0]["workstreams"][0]
+        stream["mandatory_requirements"] = ["Retain the requested enterprise scope."]
+        stream["acceptance_checks"] = ["Independent review confirms the enterprise scope."]
+        kernel = self.compile(request)
+        managers = [
+            item
+            for item in kernel["organization"]["manager_cells"]
+            if item["workstream_id"] == "market-intelligence"
+        ]
+        self.assertTrue(managers)
+        self.assertTrue(
+            all(item["delivery_contract_status"] == "complete" for item in managers)
+        )
+        self.assertTrue(
+            all(item["mandatory_requirements"] == stream["mandatory_requirements"] for item in managers)
+        )
+
+    def test_partial_delivery_contract_fails_closed(self):
+        request = request_fixture()
+        stream = request["business_units"][1]["programs"][0]["workstreams"][0]
+        stream["mandatory_requirements"] = ["Retain the requested enterprise scope."]
+        with self.assertRaisesRegex(MODULE.KernelError, "must provide both"):
+            self.compile(request)
+
     def test_role_contracts_do_not_reintroduce_fixed_team_ratios(self):
         paths = [
             ROOT / "skills" / "company-os" / "manage-company-program" / "SKILL.md",

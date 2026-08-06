@@ -201,17 +201,21 @@ Use these mandatory phase states:
 5. `verification`: report manager and independent-review evidence and risks.
 6. `integration`: report the integrated artifact for master acceptance.
 
-Every manager sends one compact report at every phase. Charter, design,
-verification, and final integration are true decision barriers: the master
-returns an authenticated master decision of `continue`, `rework`, `pause`, or
-`terminate`
-bound to the current program, definition, outcome digest, and phase report.
-Silence is never a grant; a time-budgeted wait escalates rather than waiting
-forever. Workers cannot start before design is accepted, and integration cannot
-start before verification is accepted. Routine execution subphases between
-those barriers may auto-continue only under the unchanged accepted charter when
-all checks, budgets, concurrency, and authority conditions pass. Every
-subphase remains visible and overridable.
+Every manager sends one compact report at every phase. Verification and final
+integration are always true decision barriers. High, consequential,
+non-delegated, protected-action, and exception paths also require an
+authenticated master design decision of `continue`, `rework`, `pause`, or
+`terminate` bound to the current program, definition, outcome digest, and phase
+report. A signed charter may preauthorize a low- or medium-risk delegated design
+to continue into execution without another master turn only when a deterministic
+packet policy proves exact requirement owners and checks, disjoint writer
+scopes, satisfied dependencies, resolved capabilities, no protected action or
+scope variance, and intact budgets, concurrency, and authority. Any failed or
+unavailable condition stops at design. Silence is never a grant. Workers cannot
+start before either form of design acceptance, and integration cannot start
+before verification is accepted. Routine execution subphases between those
+barriers may auto-continue only under the unchanged accepted charter when all
+checks pass. Every subphase remains visible and overridable.
 
 Use five typed messages:
 

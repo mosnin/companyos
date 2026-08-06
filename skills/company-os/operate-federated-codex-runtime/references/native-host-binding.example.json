@@ -1,1 +1,1 @@
-{"$schema":"company-os.codex-native-host-binding.v1","binding_id":"atlas-project-local","company_project_id":"atlas-project","kernel_digest":"dc67313670b18a2215a79ea6bb56ec8b1833fabc9a35a6e1a2047e27d77b775b","target":{"directory_name":"atlas-manager-runtime","type":"projectless"}}
+{"$schema":"company-os.codex-native-host-binding.v1","binding_id":"atlas-project-local","company_project_id":"atlas-project","kernel_digest":"9aff7c08b966dc7acf3fd19cb15d0e5370f17257fe2b6495d848be481aa0825d","target":{"directory_name":"atlas-manager-runtime","type":"projectless"}}

@@ -58,13 +58,23 @@ a second scheduler or treat prompt text as durable authority.
 - Use bounded `wait_threads` sets of at most eight targets and retain each
   returned cursor. Read only tasks that complete, need attention, or cross an
   evidence deadline.
-- Managers use `$luna-execution-fabric`, submit their design barrier before
-  creating workers, and dynamically activate Luna tasks within their exact
+- Managers use `$luna-execution-fabric` and dynamically activate Luna tasks
+  within their exact
   `direct_report_limit`, `declared_worker_slots`, packet-bound active-worker
   cap, global admission, budget, dependency, and writer-scope constraints. No
-  fixed team ratio is allowed. Native Codex does not expose a cryptographic
+  fixed team ratio is allowed. For delegated low- and medium-risk cells, the
+  signed dispatch may preauthorize design-to-execution continuation when every
+  packet-listed condition passes; a failed condition stops at the design
+  barrier. High, consequential, non-delegated, protected-action, and exception
+  paths still require an authenticated master decision before worker creation.
+  Native Codex does not expose a cryptographic
   child-concurrency policy, so list/read reconciliation and scale evidence are
   still required rather than claiming provider-enforced limits.
+- Managers are Luna-first: they may not perform worker-eligible artifact labor
+  unless worker authority is unavailable, the work is inherently managerial,
+  or dispatch would duplicate completed work. Every exception is a measured
+  variance. Managers consume receipts instead of worker transcripts and send
+  only barrier, exception, and final deltas to the master.
 - The initial prompt is a compact cell packet, not the master transcript.
   Managers retrieve only cited, task-local context and skills.
 - Requested model and reasoning remain intent unless the host exposes a trusted

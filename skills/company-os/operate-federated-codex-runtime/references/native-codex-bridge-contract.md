@@ -39,6 +39,16 @@ controller independently limits active concurrency. The bridge cannot widen
 either value and never changes user, production, financial, legal, deployment,
 or external-communication authority.
 
+The packet also carries a risk-tiered execution policy. A delegated low- or
+medium-risk cell may use `charter_bound_auto_continue` to eliminate a redundant
+master round trip only when all exact design conditions pass: requirement
+ownership and checks, disjoint writer scopes, satisfied dependencies, resolved
+capabilities, no protected action or variance, and intact budget, concurrency,
+and authority. Otherwise it fails closed at design. High, consequential, and
+non-delegated cells always use `authenticated_master_decision`. Managers are
+Luna-first, consume compact receipts rather than transcripts, and must disclose
+every direct-labor exception.
+
 ## Executable transition order
 
 `claim` → bridge `compile` → candidate `reconcile(pre_create)` →

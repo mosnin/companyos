@@ -292,12 +292,47 @@ def manager_context(kernel: Mapping[str, Any], cell: Mapping[str, Any]) -> dict[
         cell["declared_worker_slots"],
         luna_limit // manager_limit,
     )
+    risk_tier = cell["risk_tier"]
+    delegated_tiers = kernel.get("authority", {}).get("delegated_risk_tiers", [])
+    autonomous_design = (
+        risk_tier in {"low", "medium"}
+        and risk_tier in delegated_tiers
+        and per_manager_cap > 0
+        and cell.get("delivery_contract_status") == "complete"
+        and bool(cell.get("mandatory_requirements"))
+        and bool(cell.get("acceptance_checks"))
+    )
     return {
         "business_unit_mission": unit_matches[0]["mission"],
         "program_objective": program_matches[0]["objective"],
         "quality_targets": dict(quality),
         "global_admission": dict(admission),
         "active_worker_concurrency_cap": per_manager_cap,
+        "execution_policy": {
+            "mode": "luna_first",
+            "design_barrier": (
+                "charter_bound_auto_continue"
+                if autonomous_design
+                else "authenticated_master_decision"
+            ),
+            "autonomous_design_conditions": (
+                [
+                    "all_mandatory_requirements_have_exact_owners_and_checks",
+                    "all_worker_write_scopes_are_disjoint",
+                    "all_dependencies_are_satisfied",
+                    "all_required_capabilities_are_resolved",
+                    "no_protected_action_or_scope_variance_is_required",
+                    "budget_concurrency_and_authority_checks_pass",
+                ]
+                if autonomous_design
+                else []
+            ),
+            "manager_direct_labor": "exception_only_with_variance",
+            "manager_reports": "barrier_exception_and_final_delta_only",
+            "master_context": "packet_and_receipts_only",
+            "luna_labor_share_min": quality["luna_labor_share_min"],
+            "sol_overhead_share_max": quality["sol_overhead_share_max"],
+        },
     }
 
 
@@ -332,18 +367,37 @@ def build_dispatch(
         "authority": kernel["authority"],
         "dispatch_marker": marker,
     }
+    execution_policy = context["execution_policy"]
+    if execution_policy["design_barrier"] == "charter_bound_auto_continue":
+        design_instruction = (
+            "The signed dispatch preauthorizes design-to-execution continuation only when "
+            "every manager_context.execution_policy.autonomous_design_condition is explicitly "
+            "evidenced in your compact design report. If they all pass, create eligible Luna/max "
+            "workers in the same turn. If any condition is unresolved, stop at design and request "
+            "an authenticated master decision. "
+        )
+    else:
+        design_instruction = (
+            "Do not create workers until the master sends an explicit CONTINUE to this task after "
+            "reviewing the design report. "
+        )
     prompt = (
         "Use $luna-execution-fabric.\n\n"
         f"Dispatch marker: {marker}\n"
         "You are the Sol manager for exactly one bounded Company OS cell. "
         "Treat this packet as the complete cell-level program contract, not as permission to "
         "widen it. First return a compact design report with a Luna task DAG, artifact owners, "
-        "acceptance checks, dependencies, and budgets. Do not create workers until the master "
-        "sends an explicit CONTINUE to this task after reviewing that report. Then create "
+        "acceptance checks, dependencies, and budgets. "
+        + design_instruction
+        + "Then create "
         "Luna/max worker tasks only for independently owned work and never exceed "
         "manager_context.active_worker_concurrency_cap or the cell's declared capacity. "
-        "Validate required "
-        "skills before worker dispatch. Preserve mandatory requirements, budgets, writer "
+        "Validate required skills before worker dispatch. A manager must not materialize a "
+        "worker-eligible artifact itself; direct labor is allowed only for inherently managerial "
+        "work, unavailable native worker authority, or duplicate-work avoidance, and every use "
+        "requires an exact variance. Consume worker receipts rather than transcripts, report only "
+        "barriers, exceptions, and final deltas, and stop accepted branches immediately. Preserve "
+        "mandatory requirements, budgets, writer "
         "scopes, evidence, cancellation, and parent reporting. Do not deploy, spend, contact "
         "customers, or write production without the packet's existing approval boundary. "
         "Return one compact manager receipt with accepted artifacts, checks, observed task "

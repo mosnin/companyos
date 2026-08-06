@@ -32,6 +32,13 @@ Every company, business unit, program, and manager partition has:
 - evidence and exception channels;
 - cancellation and shutdown semantics.
 
+An executable workstream additionally carries a complete delivery contract:
+the user's mandatory requirements and the exact acceptance checks that prove
+them. Both arrays must be explicit and non-empty before a delegated low- or
+medium-risk design can use charter-bound autonomous continuation. A broad
+objective and deliverable name alone are intentionally incomplete and remain
+behind an authenticated master design decision.
+
 Organizational recursion is not unlimited agent delegation. Business-unit and
 program cells are durable control entities. Executable model delegation remains
 program manager to bounded workers unless a separately accepted host proves an

@@ -222,8 +222,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "188e67f5aabd5dcbd5d86c02b57ed149e768e0a4935d3d8f26d90bc05d059acf",
-      "size": 16725
+      "sha256": "1fe0c9b61f1beec20a0fc3e5b4489c78c7e6b63ec87ca77aae7e0e17376152c3",
+      "size": 16947
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -232,8 +232,8 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/SKILL.md",
-      "sha256": "07c8cf0dec2ba91c78a8eb54f6c9f3416215b5d90b1f72454c82c147ba3e202a",
-      "size": 9946
+      "sha256": "e06d9a7eeb847bfe9db7b8833fdb4cfb2f39bf1010a2abad92c1d3066e82b8d2",
+      "size": 10397
     },
     {
       "path": "company-os/compile-federated-company-kernel/agents/openai.yaml",
@@ -252,13 +252,13 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/references/federated-reconciliation-request.example.json",
-      "sha256": "70703dacad83961d42547d3dd2d8d67d6f4769dde90d5e97732b2ff1cd7d6ccd",
+      "sha256": "3f8bfe9c18413cb0f2483c43068e4132bd4b111db3ad21bc7df5df8a9b8135bd",
       "size": 853
     },
     {
       "path": "company-os/compile-federated-company-kernel/references/kernel-contract.md",
-      "sha256": "34077dcbd54898fabb8cf0039f00f72882eb2f2cab5e836f014bf560ae6f5a5b",
-      "size": 5527
+      "sha256": "a34275f5676e3f0d42a7a17b1e0871596115b4ebda44c114d3f79000a1ff7f25",
+      "size": 5956
     },
     {
       "path": "company-os/compile-federated-company-kernel/references/postgresql-admin-validation-evidence.json",
@@ -282,8 +282,8 @@
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/compile_federated_kernel.py",
-      "sha256": "da3231d0d8928e369efa51dadfac7989bb648522d325826a59cec864be8b840f",
-      "size": 37927
+      "sha256": "f3c0f6e9f93001a86b21e55c9b6b76d505cbbf4c1173c5bda01ccc6ebc377eb7",
+      "size": 39870
     },
     {
       "path": "company-os/compile-federated-company-kernel/scripts/persist_federated_runtime.py",
@@ -792,23 +792,23 @@
     },
     {
       "path": "company-os/operate-federated-codex-runtime/SKILL.md",
-      "sha256": "f84fe72f8322ed6844dda013f405075c76d491bd2c9df9efc044d4eae53cfc7e",
-      "size": 7025
+      "sha256": "f849075df6e081b3819a07d8aa8c9c197052c25040850f826132f3db826bc104",
+      "size": 7697
     },
     {
       "path": "company-os/operate-federated-codex-runtime/references/native-codex-bridge-contract.md",
-      "sha256": "80562564d994ee387f6c680c3852e0267e99e6432d7a37665717b72ad187cb94",
-      "size": 3021
+      "sha256": "135441fe1485b4170c7a306dd37b41d68189f0d91bed8ab5ce5115d60847369d",
+      "size": 3674
     },
     {
       "path": "company-os/operate-federated-codex-runtime/references/native-host-binding.example.json",
-      "sha256": "e7b84c29e75343785798dc634bfa406b3820e3c59c260d89ca3c51ee11e4b4c1",
+      "sha256": "83896f01c366318da859b73c1ef93aa8ca18f05f02c98269faa42c34e4738486",
       "size": 282
     },
     {
       "path": "company-os/operate-federated-codex-runtime/scripts/prepare_native_codex_dispatch.py",
-      "sha256": "d438bef79231b4443c98db4e99ac314f7c8f680f5bf895778ea1f7794f8dea2d",
-      "size": 29574
+      "sha256": "2d6b5b1e2df0cc7625b1ee347d6f596987e6f0f28d0c3c3bdc16252943cc4d06",
+      "size": 32293
     },
     {
       "path": "company-os/operational-control/SKILL.md",
@@ -1067,8 +1067,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
-      "sha256": "f353badb0d8ecafdf6a818c29466fb07b0a517ed4cc83ff09013bcd2d40c33c8",
-      "size": 13858
+      "sha256": "90be0be276ecddd1dab79afad7f365a744e94ef7c4244931427ee0191934d397",
+      "size": 14251
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",

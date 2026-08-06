@@ -12,7 +12,10 @@ elastic execution capacity admitted against real work.
 ## Required sequence
 
 1. Start from one concrete company objective, business-unit missions, program
-   outcomes, and independently accountable workstreams.
+   outcomes, and independently accountable workstreams. For any workstream that
+   may execute autonomously, include both non-empty `mandatory_requirements` and
+   non-empty `acceptance_checks`; omitting either keeps the delivery contract
+   incomplete and prevents autonomous design continuation.
 2. Read [references/kernel-contract.md](references/kernel-contract.md).
    Use
    [references/federated-kernel-request.example.json](references/federated-kernel-request.example.json)
@@ -102,6 +105,9 @@ elastic execution capacity admitted against real work.
   acknowledgements to the executive kernel.
 - Preserve mandatory objective and scope text byte-for-byte in the compiled
   kernel.
+- Carry mandatory requirements and acceptance checks into every manager
+  partition. Never infer a complete delivery contract from a broad objective,
+  a feature name, or a manager's preferred implementation.
 - Persist an admission intent before creation. After a create claim, reconcile
   the host listing; never issue another create merely because the caller timed
   out. Hold stale active work against capacity until cancellation or terminal

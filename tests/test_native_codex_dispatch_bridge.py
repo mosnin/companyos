@@ -47,8 +47,8 @@ def budget(tokens: int, cost: int, wall: int) -> dict:
     }
 
 
-def command_claim(kernel: dict) -> dict:
-    cell = kernel["organization"]["manager_cells"][0]
+def command_claim(kernel: dict, cell_index: int = 0) -> dict:
+    cell = kernel["organization"]["manager_cells"][cell_index]
     request = RECONCILE.validate_request(
         {
             "$schema": RECONCILE.REQUEST_SCHEMA,
@@ -97,6 +97,26 @@ def host_binding(kernel: dict) -> dict:
         "kernel_digest": kernel["kernel_digest"],
         "target": {"type": "projectless", "directory_name": "atlas-manager-runtime"},
     }
+
+
+def kernel_with_complete_medium_contract(*, delegate_medium: bool = True) -> dict:
+    request = json.loads(EXAMPLE.read_text())
+    if not delegate_medium:
+        request["authority"]["delegated_risk_tiers"] = ["low", "high"]
+    for unit in request["business_units"]:
+        for program in unit["programs"]:
+            if program["risk_tier"] != "medium":
+                continue
+            for stream in program["workstreams"]:
+                stream["mandatory_requirements"] = [
+                    "Preserve the complete user-requested outcome and constraints."
+                ]
+                stream["acceptance_checks"] = [
+                    "Independent readback proves the requested outcome and constraints."
+                ]
+    normalized = KERNEL.validate_request(request)
+    mechanisms, _sources, mechanism_digest, source_digest = KERNEL.validate_mechanisms()
+    return KERNEL.compile_kernel(normalized, mechanisms, mechanism_digest, source_digest)
 
 
 def readback(dispatch: dict, thread_id: str = "thread-1", host_id: str = "local") -> dict:
@@ -166,6 +186,9 @@ class NativeCodexDispatchBridgeTests(unittest.TestCase):
         self.assertIn(f'"active_worker_concurrency_cap":{expected_cap}', prompt)
         self.assertIn('"program_objective":', prompt)
         self.assertIn("Do not create workers until the master sends an explicit CONTINUE", prompt)
+        self.assertIn('"design_barrier":"authenticated_master_decision"', prompt)
+        self.assertIn('"manager_direct_labor":"exception_only_with_variance"', prompt)
+        self.assertIn("must not materialize a worker-eligible artifact itself", prompt)
         self.assertEqual(
             self.dispatch["attempt_id"],
             json.loads(self.claim["claim"]["payload_json"])["action"]["attempt_id"],
@@ -176,6 +199,62 @@ class NativeCodexDispatchBridgeTests(unittest.TestCase):
         retained = deepcopy(self.dispatch)
         digest = retained.pop("dispatch_digest")
         self.assertEqual(digest, BRIDGE.digest_text(BRIDGE.canonical_json(retained)))
+
+    def test_medium_risk_delegated_cell_auto_continues_design_without_a_master_round_trip(self) -> None:
+        kernel = kernel_with_complete_medium_contract()
+        medium_index = next(
+            index
+            for index, cell in enumerate(kernel["organization"]["manager_cells"])
+            if cell["risk_tier"] == "medium"
+        )
+        claim = command_claim(kernel, medium_index)
+        dispatch = BRIDGE.build_dispatch(kernel, claim, host_binding(kernel))
+        prompt = dispatch["arguments"]["prompt"]
+        self.assertIn('"design_barrier":"charter_bound_auto_continue"', prompt)
+        self.assertIn("signed dispatch preauthorizes design-to-execution continuation", prompt)
+        self.assertIn("create eligible Luna/max workers in the same turn", prompt)
+        self.assertNotIn(
+            "Do not create workers until the master sends an explicit CONTINUE",
+            prompt,
+        )
+        self.assertIn('"luna_labor_share_min":0.7', prompt)
+        self.assertIn('"sol_overhead_share_max":0.2', prompt)
+        self.assertIn("Preserve the complete user-requested outcome and constraints.", prompt)
+        self.assertIn(
+            "Independent readback proves the requested outcome and constraints.",
+            prompt,
+        )
+
+    def test_non_delegated_medium_cell_cannot_auto_continue(self) -> None:
+        kernel = kernel_with_complete_medium_contract(delegate_medium=False)
+        medium_index = next(
+            index
+            for index, cell in enumerate(kernel["organization"]["manager_cells"])
+            if cell["risk_tier"] == "medium"
+        )
+        dispatch = BRIDGE.build_dispatch(
+            kernel,
+            command_claim(kernel, medium_index),
+            host_binding(kernel),
+        )
+        prompt = dispatch["arguments"]["prompt"]
+        self.assertIn('"design_barrier":"authenticated_master_decision"', prompt)
+        self.assertIn("Do not create workers until the master sends an explicit CONTINUE", prompt)
+
+    def test_incomplete_delivery_contract_cannot_auto_continue(self) -> None:
+        medium_index = next(
+            index
+            for index, cell in enumerate(self.kernel["organization"]["manager_cells"])
+            if cell["risk_tier"] == "medium"
+        )
+        dispatch = BRIDGE.build_dispatch(
+            self.kernel,
+            command_claim(self.kernel, medium_index),
+            self.binding,
+        )
+        prompt = dispatch["arguments"]["prompt"]
+        self.assertIn('"delivery_contract_status":"incomplete"', prompt)
+        self.assertIn('"design_barrier":"authenticated_master_decision"', prompt)
 
     def test_claim_payload_tampering_and_cross_project_binding_fail_closed(self) -> None:
         tampered = deepcopy(self.claim)

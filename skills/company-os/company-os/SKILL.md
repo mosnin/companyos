@@ -205,11 +205,14 @@ When the project uses an Elastic Company OS instance, this hierarchy is
 controller-governed state. Queue the primary work with
 `--execution-mode luna_fabric`, configure the validated project-local manifest,
 record each manager phase report, and require a separately authenticated master
-decision at the charter, design, verification, and final-integration barriers.
-Silence never grants a barrier decision; a bounded wait escalates instead of
-deadlocking. Routine execution subphases inside an unchanged, already accepted
-charter may auto-continue only after design acceptance and before verification
-when every check, budget, concurrency, and authority condition passes. Every
+decision at verification and final integration. Require it at design for high,
+consequential, non-delegated, protected-action, or exception paths. A signed
+charter may preauthorize delegated low- or medium-risk design continuation only
+under the exact fail-closed conditions in `$luna-execution-fabric`; this is a
+bound decision policy, not silence or manager self-approval. A bounded wait
+escalates instead of deadlocking. Routine execution subphases inside an
+unchanged, already accepted charter may auto-continue before verification when
+every check, budget, concurrency, and authority condition passes. Every
 subphase remains visible. The controller rejects phase skips, stale programs,
 self-approval, write collisions, unreviewed verification, and completion before
 every manager integration is accepted.
