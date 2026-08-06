@@ -612,8 +612,13 @@
     },
     {
       "path": "company-os/intelligence/company-scorecard/references/company-os-observatory.md",
-      "sha256": "e94ae7479de4020f9e1143f016fa24e673f888b9105d63be55e31253d72a4b7e",
-      "size": 5085
+      "sha256": "51d9c161ee4a3f554434780ea2b489476d91ce5cb48d77298b5fa12e6d0fabd0",
+      "size": 5728
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/scripts/render_control_station.py",
+      "sha256": "653f714bec6d435bfe4f0ddb18f87518e73fd1a127ba7df4b7efa634e94ddf3b",
+      "size": 11263
     },
     {
       "path": "company-os/intelligence/company-scorecard/scripts/render_execution_efficiency_ingest.py",
@@ -639,6 +644,11 @@
       "path": "company-os/intelligence/company-scorecard/sql/003_company_blueprints.sql",
       "sha256": "d7d51fcabab8538e335e35b60801cefb9eead8d60f3d6556ad0e4d1816ed08aa",
       "size": 7051
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/sql/004_control_station_snapshot.sql",
+      "sha256": "8262483f3de4861ca2b99187b31d49934c3a9c922e63892e7f399c81a694f952",
+      "size": 5444
     },
     {
       "path": "company-os/intelligence/evidence-research-campaign/SKILL.md",

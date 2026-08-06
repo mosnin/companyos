@@ -57,6 +57,7 @@ connection:
 sql/001_company_os_observatory.sql
 sql/002_ingest_execution_efficiency_receipt.sql
 sql/003_company_blueprints.sql
+sql/004_control_station_snapshot.sql
 ```
 
 Use a dedicated database when practical, otherwise use the dedicated
@@ -120,6 +121,27 @@ ORDER BY CASE severity
   WHEN 'p0' THEN 0 WHEN 'p1' THEN 1 WHEN 'p2' THEN 2 ELSE 3 END,
   opened_at;
 ```
+
+Read-only operator snapshot:
+
+```sql
+SELECT company_os_observatory.control_station_snapshot(
+  'operator-company-os',
+  50
+);
+```
+
+Save the returned JSON object without credentials or private artifact bodies,
+then render the deterministic static operator surface:
+
+```text
+python3 scripts/render_control_station.py snapshot.json \
+  --output control-station.html
+```
+
+The snapshot function is `STABLE`, `SECURITY INVOKER`, bounded to 200 runs, and
+read-only. The HTML is a review surface, not an execution authority: it cannot
+start workers, arm schedules, approve writes, or mutate observatory evidence.
 
 ## Scale gate
 

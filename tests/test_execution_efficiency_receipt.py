@@ -506,6 +506,9 @@ class ExecutionEfficiencyReceiptTests(unittest.TestCase):
         ingest_sql = (
             sql_root / "002_ingest_execution_efficiency_receipt.sql"
         ).read_text()
+        control_station_sql = (
+            sql_root / "004_control_station_snapshot.sql"
+        ).read_text()
         self.assertIn("CREATE SCHEMA IF NOT EXISTS company_os_observatory", schema_sql)
         self.assertIn("CREATE TABLE IF NOT EXISTS company_os_observatory.run_receipts", schema_sql)
         self.assertIn("reject_evidence_mutation", schema_sql)
@@ -518,7 +521,10 @@ class ExecutionEfficiencyReceiptTests(unittest.TestCase):
         self.assertIn("different source commit", ingest_sql)
         self.assertIn("REVOKE EXECUTE ON FUNCTION", ingest_sql)
         self.assertIn("CREATE EXTENSION IF NOT EXISTS pgcrypto", schema_sql)
-        self.assertNotIn("neon", (schema_sql + ingest_sql).lower())
+        self.assertIn("control_station_snapshot", control_station_sql)
+        self.assertIn("SECURITY INVOKER", control_station_sql)
+        self.assertNotIn("SECURITY DEFINER", control_station_sql)
+        self.assertNotIn("neon", (schema_sql + ingest_sql + control_station_sql).lower())
 
 
 if __name__ == "__main__":
