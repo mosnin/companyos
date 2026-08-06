@@ -67,6 +67,16 @@ a second scheduler or treat prompt text as durable authority.
   packet-listed condition passes; a failed condition stops at the design
   barrier. High, consequential, non-delegated, protected-action, and exception
   paths still require an authenticated master decision before worker creation.
+  Auto-continuation is executable policy, not manager prose. The manager must
+  copy the exact canonical manager packet from its initial prompt, materialize
+  a canonical `company-os.manager-design-report.v1`, and run
+  `scripts/prepare_native_codex_dispatch.py verify-design`. Only a content-
+  bound `company-os.manager-design-continuation-receipt.v1` with
+  `continue_allowed:true` permits worker creation. The verifier derives
+  requirement and capability coverage, Luna/max routing, DAG validity, writer-
+  scope isolation, concurrency, budgets, and the absence of protected actions,
+  variances, and unresolved dependencies. Attach the receipt to the final
+  manager receipt so the master can replay the decision independently.
   Native Codex does not expose a cryptographic
   child-concurrency policy, so list/read reconciliation and scale evidence are
   still required rather than claiming provider-enforced limits.

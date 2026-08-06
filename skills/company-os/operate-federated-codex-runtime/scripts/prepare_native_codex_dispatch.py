@@ -26,6 +26,9 @@ CLAIM_SCHEMA = "company-os.postgresql-federated-command-claim.v1"
 BINDING_SCHEMA = "company-os.codex-native-host-binding.v1"
 DISPATCH_SCHEMA = "company-os.codex-native-dispatch.v1"
 CREATION_RECEIPT_SCHEMA = "company-os.codex-native-creation-receipt.v1"
+MANAGER_PACKET_SCHEMA = "company-os.federated-manager-cell-packet.v1"
+DESIGN_REPORT_SCHEMA = "company-os.manager-design-report.v1"
+DESIGN_RECEIPT_SCHEMA = "company-os.manager-design-continuation-receipt.v1"
 RECONCILIATION_INPUT_SCHEMA = "company-os.codex-native-candidate-set.v1"
 RECONCILIATION_OBSERVATION_SCHEMA = "company-os.codex-native-task-observation.v1"
 RECONCILIATION_RECEIPT_SCHEMA = "company-os.codex-native-candidate-reconciliation.v1"
@@ -84,6 +87,17 @@ def sha256(value: Any, label: str) -> str:
     if len(value) != SHA256_LENGTH or any(char not in "0123456789abcdef" for char in value):
         raise NativeBridgeError(f"{label} must be lowercase SHA-256")
     return value
+
+
+def string_list(value: Any, label: str, *, allow_empty: bool = False) -> list[str]:
+    if not isinstance(value, list):
+        raise NativeBridgeError(f"{label} must be an array")
+    rendered = [text(item, f"{label} item") for item in value]
+    if not allow_empty and not rendered:
+        raise NativeBridgeError(f"{label} must not be empty")
+    if len(rendered) != len(set(rendered)):
+        raise NativeBridgeError(f"{label} must contain unique values")
+    return rendered
 
 
 def read_canonical(path: Path, label: str) -> dict[str, Any]:
@@ -302,6 +316,54 @@ def manager_context(kernel: Mapping[str, Any], cell: Mapping[str, Any]) -> dict[
         and bool(cell.get("mandatory_requirements"))
         and bool(cell.get("acceptance_checks"))
     )
+    report_contract = (
+        {
+            "$schema": DESIGN_REPORT_SCHEMA,
+            "report_fields": [
+                "$schema",
+                "manager_packet_digest",
+                "project_id",
+                "cycle_id",
+                "attempt_id",
+                "cell_id",
+                "design_barrier",
+                "workers",
+                "requirement_assignments",
+                "capability_assignments",
+                "unresolved_dependencies",
+                "protected_actions",
+                "scope_variances",
+                "manager_direct_labor_variances",
+            ],
+            "worker_fields": [
+                "worker_id",
+                "outcome",
+                "requested_model",
+                "requested_reasoning",
+                "depends_on",
+                "write_scopes",
+                "budget",
+            ],
+            "requirement_assignment_fields": [
+                "requirement",
+                "owner_worker_ids",
+                "acceptance_checks",
+            ],
+            "capability_assignment_fields": ["capability_id", "worker_ids"],
+            "empty_for_auto_continue": [
+                "unresolved_dependencies",
+                "protected_actions",
+                "scope_variances",
+                "manager_direct_labor_variances",
+            ],
+            "gate_command": (
+                "prepare_native_codex_dispatch.py verify-design "
+                "--manager-packet <packet.json> --design-report <report.json>"
+            ),
+        }
+        if autonomous_design
+        else None
+    )
     return {
         "business_unit_mission": unit_matches[0]["mission"],
         "program_objective": program_matches[0]["objective"],
@@ -327,6 +389,7 @@ def manager_context(kernel: Mapping[str, Any], cell: Mapping[str, Any]) -> dict[
                 if autonomous_design
                 else []
             ),
+            "autonomous_design_report_contract": report_contract,
             "manager_direct_labor": "exception_only_with_variance",
             "manager_reports": "barrier_exception_and_final_delta_only",
             "master_context": "packet_and_receipts_only",
@@ -353,7 +416,7 @@ def build_dispatch(
     admission = action["admission_state"]["admission"]
     marker = f"company-os-dispatch:{claim['message_key']}"
     manager_packet = {
-        "$schema": "company-os.federated-manager-cell-packet.v1",
+        "$schema": MANAGER_PACKET_SCHEMA,
         "project_id": payload["project_id"],
         "kernel_digest": kernel["kernel_digest"],
         "cycle_id": payload["cycle_id"],
@@ -367,14 +430,19 @@ def build_dispatch(
         "authority": kernel["authority"],
         "dispatch_marker": marker,
     }
+    manager_packet["manager_packet_digest"] = digest_text(canonical_json(manager_packet))
     execution_policy = context["execution_policy"]
     if execution_policy["design_barrier"] == "charter_bound_auto_continue":
         design_instruction = (
             "The signed dispatch preauthorizes design-to-execution continuation only when "
             "every manager_context.execution_policy.autonomous_design_condition is explicitly "
-            "evidenced in your compact design report. If they all pass, create eligible Luna/max "
-            "workers in the same turn. If any condition is unresolved, stop at design and request "
-            "an authenticated master decision. "
+            "evidenced in a canonical company-os.manager-design-report.v1. Before worker creation, "
+            "materialize the exact Canonical manager packet and the report, then run "
+            "prepare_native_codex_dispatch.py verify-design --manager-packet <packet.json> "
+            "--design-report <report.json>. Create eligible Luna/max workers in the same turn only "
+            "when its receipt says continue_allowed:true; attach that receipt to the final manager "
+            "receipt. If validation fails or any condition is unresolved, stop at design and "
+            "request an authenticated master decision. "
         )
     else:
         design_instruction = (
@@ -426,6 +494,300 @@ def build_dispatch(
     }
     dispatch["dispatch_digest"] = digest_text(canonical_json(dispatch))
     return dispatch
+
+
+def verify_manager_packet(value: Mapping[str, Any]) -> str:
+    packet = dict(value)
+    supplied_digest = packet.pop("manager_packet_digest", None)
+    if value.get("$schema") != MANAGER_PACKET_SCHEMA:
+        raise NativeBridgeError("manager packet schema is unsupported")
+    if supplied_digest != digest_text(canonical_json(packet)):
+        raise NativeBridgeError("manager packet digest does not verify")
+    return sha256(supplied_digest, "manager_packet.manager_packet_digest")
+
+
+def worker_budget(value: Any, label: str) -> dict[str, int]:
+    if not isinstance(value, Mapping):
+        raise NativeBridgeError(f"{label} must be an object")
+    exact_keys(value, {"max_tokens", "max_cost_microusd", "max_wall_seconds"}, label)
+    result: dict[str, int] = {}
+    for key in ("max_tokens", "max_cost_microusd", "max_wall_seconds"):
+        amount = value[key]
+        if not isinstance(amount, int) or isinstance(amount, bool) or amount < 0:
+            raise NativeBridgeError(f"{label}.{key} must be a non-negative integer")
+        result[key] = amount
+    if result["max_tokens"] < 1 or result["max_wall_seconds"] < 1:
+        raise NativeBridgeError(f"{label} must allocate positive tokens and wall time")
+    return result
+
+
+def scope_conflicts(first: str, second: str) -> bool:
+    first_parts = tuple(first.split("/"))
+    second_parts = tuple(second.split("/"))
+    shorter = min(len(first_parts), len(second_parts))
+    return first_parts[:shorter] == second_parts[:shorter]
+
+
+def validate_writer_scope(value: Any, label: str) -> str:
+    scope = text(value, label)
+    parts = scope.split("/")
+    if scope.startswith("/") or any(part in {"", ".", ".."} for part in parts) or "\\" in scope:
+        raise NativeBridgeError(f"{label} must be a normalized relative scope")
+    return scope
+
+
+def has_dependency_cycle(dependencies: Mapping[str, list[str]]) -> bool:
+    active: set[str] = set()
+    complete: set[str] = set()
+
+    def visit(worker_id: str) -> bool:
+        if worker_id in active:
+            return True
+        if worker_id in complete:
+            return False
+        active.add(worker_id)
+        if any(visit(dependency) for dependency in dependencies[worker_id]):
+            return True
+        active.remove(worker_id)
+        complete.add(worker_id)
+        return False
+
+    return any(visit(worker_id) for worker_id in dependencies)
+
+
+def dependency_critical_wall_seconds(
+    dependencies: Mapping[str, list[str]], wall_seconds: Mapping[str, int]
+) -> int:
+    memo: dict[str, int] = {}
+
+    def duration(worker_id: str) -> int:
+        if worker_id not in memo:
+            prior = max((duration(item) for item in dependencies[worker_id]), default=0)
+            memo[worker_id] = prior + wall_seconds[worker_id]
+        return memo[worker_id]
+
+    return max((duration(worker_id) for worker_id in dependencies), default=0)
+
+
+def verify_design_continuation(
+    manager_packet: Mapping[str, Any], design_report: Mapping[str, Any]
+) -> dict[str, Any]:
+    packet_digest = verify_manager_packet(manager_packet)
+    exact_keys(
+        design_report,
+        {
+            "$schema",
+            "manager_packet_digest",
+            "project_id",
+            "cycle_id",
+            "attempt_id",
+            "cell_id",
+            "design_barrier",
+            "workers",
+            "requirement_assignments",
+            "capability_assignments",
+            "unresolved_dependencies",
+            "protected_actions",
+            "scope_variances",
+            "manager_direct_labor_variances",
+        },
+        "design report",
+    )
+    if design_report["$schema"] != DESIGN_REPORT_SCHEMA:
+        raise NativeBridgeError("design report schema is unsupported")
+    report_digest = digest_text(canonical_json(design_report))
+    errors: list[str] = []
+    for key in ("project_id", "cycle_id", "attempt_id"):
+        if design_report[key] != manager_packet.get(key):
+            errors.append(f"design report {key} does not match manager packet")
+    cell = manager_packet.get("manager_cell")
+    context = manager_packet.get("manager_context")
+    if not isinstance(cell, Mapping) or not isinstance(context, Mapping):
+        raise NativeBridgeError("manager packet lacks cell or context")
+    if design_report["cell_id"] != cell.get("cell_id"):
+        errors.append("design report cell_id does not match manager packet")
+    if design_report["manager_packet_digest"] != packet_digest:
+        errors.append("design report does not bind the exact manager packet")
+    policy = context.get("execution_policy")
+    if not isinstance(policy, Mapping):
+        raise NativeBridgeError("manager packet lacks execution policy")
+    expected_barrier = policy.get("design_barrier")
+    if (
+        expected_barrier != "charter_bound_auto_continue"
+        or design_report["design_barrier"] != expected_barrier
+    ):
+        errors.append("manager cell is not authorized for charter-bound continuation")
+
+    workers_value = design_report["workers"]
+    if not isinstance(workers_value, list) or not workers_value:
+        raise NativeBridgeError("design report workers must be a non-empty array")
+    workers: dict[str, dict[str, Any]] = {}
+    dependencies: dict[str, list[str]] = {}
+    scope_owners: list[tuple[str, str]] = []
+    wall_seconds: dict[str, int] = {}
+    token_total = 0
+    cost_total = 0
+    for index, worker in enumerate(workers_value):
+        label = f"design report worker {index}"
+        if not isinstance(worker, Mapping):
+            raise NativeBridgeError(f"{label} must be an object")
+        exact_keys(
+            worker,
+            {
+                "worker_id",
+                "outcome",
+                "requested_model",
+                "requested_reasoning",
+                "depends_on",
+                "write_scopes",
+                "budget",
+            },
+            label,
+        )
+        worker_id = text(worker["worker_id"], f"{label}.worker_id")
+        if worker_id in workers:
+            raise NativeBridgeError("design report worker IDs must be unique")
+        text(worker["outcome"], f"{label}.outcome")
+        if (
+            worker["requested_model"] != cell.get("requested_worker_model")
+            or worker["requested_reasoning"] != cell.get("requested_worker_reasoning")
+        ):
+            errors.append(f"worker {worker_id} does not use the packet-bound Luna/max route")
+        dependencies[worker_id] = string_list(
+            worker["depends_on"], f"{label}.depends_on", allow_empty=True
+        )
+        scopes = string_list(worker["write_scopes"], f"{label}.write_scopes")
+        for scope_index, scope in enumerate(scopes):
+            scope_owners.append(
+                (validate_writer_scope(scope, f"{label}.write_scopes[{scope_index}]"), worker_id)
+            )
+        allocated = worker_budget(worker["budget"], f"{label}.budget")
+        token_total += allocated["max_tokens"]
+        cost_total += allocated["max_cost_microusd"]
+        wall_seconds[worker_id] = allocated["max_wall_seconds"]
+        workers[worker_id] = dict(worker)
+
+    worker_ids = set(workers)
+    for worker_id, requirements in dependencies.items():
+        unknown = set(requirements) - worker_ids
+        if worker_id in requirements or unknown:
+            errors.append(f"worker {worker_id} has invalid dependencies")
+    dependency_references_valid = not any(
+        set(values) - worker_ids for values in dependencies.values()
+    )
+    dependency_cycle = dependency_references_valid and has_dependency_cycle(dependencies)
+    if dependency_cycle:
+        errors.append("worker dependency graph contains a cycle")
+
+    active_cap = context.get("active_worker_concurrency_cap")
+    declared_cap = cell.get("declared_worker_slots")
+    if (
+        not isinstance(active_cap, int)
+        or isinstance(active_cap, bool)
+        or not isinstance(declared_cap, int)
+        or isinstance(declared_cap, bool)
+        or len(workers) > min(active_cap, declared_cap)
+    ):
+        errors.append("worker plan exceeds packet-bound concurrency")
+
+    manager_budget = manager_packet.get("budget")
+    if not isinstance(manager_budget, Mapping):
+        raise NativeBridgeError("manager packet lacks budget")
+    critical_wall = (
+        dependency_critical_wall_seconds(dependencies, wall_seconds)
+        if dependency_references_valid and not dependency_cycle
+        else manager_budget.get("max_wall_seconds", -1) + 1
+    )
+    if (
+        token_total > manager_budget.get("max_tokens", -1)
+        or cost_total > manager_budget.get("max_cost_microusd", -1)
+        or critical_wall > manager_budget.get("max_wall_seconds", -1)
+    ):
+        errors.append("worker plan exceeds packet-bound budget")
+
+    for first_index, (first_scope, first_owner) in enumerate(scope_owners):
+        for second_scope, second_owner in scope_owners[first_index + 1 :]:
+            if first_owner != second_owner and scope_conflicts(first_scope, second_scope):
+                errors.append(
+                    f"writer scopes overlap between {first_owner} and {second_owner}"
+                )
+
+    assignments_value = design_report["requirement_assignments"]
+    if not isinstance(assignments_value, list):
+        raise NativeBridgeError("requirement_assignments must be an array")
+    assigned_requirements: list[str] = []
+    assigned_checks: set[str] = set()
+    assigned_workers: set[str] = set()
+    for index, assignment in enumerate(assignments_value):
+        label = f"requirement assignment {index}"
+        if not isinstance(assignment, Mapping):
+            raise NativeBridgeError(f"{label} must be an object")
+        exact_keys(
+            assignment,
+            {"requirement", "owner_worker_ids", "acceptance_checks"},
+            label,
+        )
+        assigned_requirements.append(text(assignment["requirement"], f"{label}.requirement"))
+        owners = string_list(assignment["owner_worker_ids"], f"{label}.owner_worker_ids")
+        checks = string_list(assignment["acceptance_checks"], f"{label}.acceptance_checks")
+        if set(owners) - worker_ids:
+            errors.append(f"{label} names an unknown worker")
+        assigned_workers.update(owners)
+        assigned_checks.update(checks)
+    required_requirements = cell.get("mandatory_requirements")
+    required_checks = cell.get("acceptance_checks")
+    if (
+        assigned_requirements != list(required_requirements or [])
+        or len(assigned_requirements) != len(set(assigned_requirements))
+    ):
+        errors.append("mandatory requirements are not assigned exactly in packet order")
+    if assigned_checks != set(required_checks or []):
+        errors.append("acceptance checks do not exactly cover the packet contract")
+
+    capability_values = design_report["capability_assignments"]
+    if not isinstance(capability_values, list):
+        raise NativeBridgeError("capability_assignments must be an array")
+    assigned_capabilities: list[str] = []
+    for index, assignment in enumerate(capability_values):
+        label = f"capability assignment {index}"
+        if not isinstance(assignment, Mapping):
+            raise NativeBridgeError(f"{label} must be an object")
+        exact_keys(assignment, {"capability_id", "worker_ids"}, label)
+        assigned_capabilities.append(text(assignment["capability_id"], f"{label}.capability_id"))
+        owners = string_list(assignment["worker_ids"], f"{label}.worker_ids")
+        if set(owners) - worker_ids:
+            errors.append(f"{label} names an unknown worker")
+        assigned_workers.update(owners)
+    if (
+        assigned_capabilities != list(cell.get("required_capabilities") or [])
+        or len(assigned_capabilities) != len(set(assigned_capabilities))
+    ):
+        errors.append("required capabilities are not assigned exactly in packet order")
+    if assigned_workers != worker_ids:
+        errors.append("every worker must own a requirement or required capability")
+
+    for field in (
+        "unresolved_dependencies",
+        "protected_actions",
+        "scope_variances",
+        "manager_direct_labor_variances",
+    ):
+        values = string_list(design_report[field], f"design report {field}", allow_empty=True)
+        if values:
+            errors.append(f"design report {field} must be empty for auto-continuation")
+
+    errors = sorted(set(errors))
+    return {
+        "$schema": DESIGN_RECEIPT_SCHEMA,
+        "status": "continue_allowed" if not errors else "blocked",
+        "continue_allowed": not errors,
+        "manager_packet_digest": packet_digest,
+        "report_digest": report_digest,
+        "cell_id": cell["cell_id"],
+        "attempt_id": manager_packet["attempt_id"],
+        "authorized_worker_count": len(workers) if not errors else 0,
+        "errors": errors,
+    }
 
 
 def initial_user_text(readback: Mapping[str, Any]) -> tuple[str, str, str]:
@@ -707,6 +1069,18 @@ def command_reconcile(args: argparse.Namespace) -> int:
         return 2
 
 
+def command_verify_design(args: argparse.Namespace) -> int:
+    try:
+        manager_packet = read_canonical(Path(args.manager_packet), "manager packet")
+        design_report = read_canonical(Path(args.design_report), "design report")
+        receipt = verify_design_continuation(manager_packet, design_report)
+        print(canonical_json(receipt))
+        return 0 if receipt["continue_allowed"] else 1
+    except (NativeBridgeError, OSError) as exc:
+        print(canonical_json({"ok": False, "errors": [str(exc)]}))
+        return 2
+
+
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description=__doc__)
     sub = root.add_subparsers(dest="command", required=True)
@@ -724,6 +1098,10 @@ def parser() -> argparse.ArgumentParser:
     reconcile_parser.add_argument("--dispatch", required=True)
     reconcile_parser.add_argument("--candidate-set", required=True)
     reconcile_parser.set_defaults(handler=command_reconcile)
+    design_parser = sub.add_parser("verify-design")
+    design_parser.add_argument("--manager-packet", required=True)
+    design_parser.add_argument("--design-report", required=True)
+    design_parser.set_defaults(handler=command_verify_design)
     return root
 
 

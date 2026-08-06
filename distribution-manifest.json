@@ -792,13 +792,13 @@
     },
     {
       "path": "company-os/operate-federated-codex-runtime/SKILL.md",
-      "sha256": "f849075df6e081b3819a07d8aa8c9c197052c25040850f826132f3db826bc104",
-      "size": 7697
+      "sha256": "9989b15617f7cfa03dbe5606e24eb57643ab8be187a8be7574c11c7a8955c236",
+      "size": 8431
     },
     {
       "path": "company-os/operate-federated-codex-runtime/references/native-codex-bridge-contract.md",
-      "sha256": "135441fe1485b4170c7a306dd37b41d68189f0d91bed8ab5ce5115d60847369d",
-      "size": 3674
+      "sha256": "da0e2c73bb13fa0656bfd0218d51b696c53777d6076efbc4ff9fc017d481ac5b",
+      "size": 5139
     },
     {
       "path": "company-os/operate-federated-codex-runtime/references/native-host-binding.example.json",
@@ -807,8 +807,8 @@
     },
     {
       "path": "company-os/operate-federated-codex-runtime/scripts/prepare_native_codex_dispatch.py",
-      "sha256": "2d6b5b1e2df0cc7625b1ee347d6f596987e6f0f28d0c3c3bdc16252943cc4d06",
-      "size": 32293
+      "sha256": "1acbed0a4dcc995a67f2fe2e7f24b8399bbb4f83f915558c6e7eb8eb2c70a455",
+      "size": 48670
     },
     {
       "path": "company-os/operational-control/SKILL.md",

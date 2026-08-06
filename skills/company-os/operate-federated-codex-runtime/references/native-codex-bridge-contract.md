@@ -49,6 +49,32 @@ non-delegated cells always use `authenticated_master_decision`. Managers are
 Luna-first, consume compact receipts rather than transcripts, and must disclose
 every direct-labor exception.
 
+## Executable design continuation
+
+`charter_bound_auto_continue` is valid only through the bridge's
+`verify-design` command. The command consumes the exact canonical manager
+packet embedded in the initial prompt and a canonical
+`company-os.manager-design-report.v1`. The report binds:
+
+- the packet digest and exact project, cycle, attempt, and cell identities;
+- one or more Luna/max workers, their outcomes, dependency DAG, disjoint writer
+  scopes, and bounded token, cost, and wall-time allocations;
+- every mandatory requirement and acceptance check in packet order;
+- every required capability and its worker owners; and
+- empty unresolved-dependency, protected-action, scope-variance, and manager-
+  direct-labor-variance sets.
+
+The verifier recomputes the packet and report digests, rejects stale or mutated
+inputs, derives concurrency and budget compliance from packet authority, checks
+the dependency graph and scope isolation, and emits a deterministic
+`company-os.manager-design-continuation-receipt.v1`. A blocked or malformed
+receipt authorizes zero workers. High-risk, non-delegated, incomplete-contract,
+or otherwise non-auto packets cannot be converted into auto-continuation by a
+manager report. Because the native host does not enforce child-task policy, the
+manager runs this gate before dispatch and the master independently replays the
+attached receipt at acceptance; requested models remain intent until the host
+exposes observed telemetry.
+
 ## Executable transition order
 
 `claim` → bridge `compile` → candidate `reconcile(pre_create)` →

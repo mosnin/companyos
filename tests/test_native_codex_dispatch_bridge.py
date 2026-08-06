@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from contextlib import redirect_stdout
 import importlib.util
+import io
 import json
 import tempfile
 import unittest
@@ -156,6 +158,60 @@ def candidate_set(dispatch: dict, phase: str, readbacks: list[dict]) -> dict:
     }
 
 
+def manager_packet(dispatch: dict) -> dict:
+    prompt = dispatch["arguments"]["prompt"]
+    return json.loads(prompt.split("Canonical manager packet:\n", 1)[1])
+
+
+def valid_design_report(dispatch: dict, *, worker_count: int = 1) -> dict:
+    packet = manager_packet(dispatch)
+    cell = packet["manager_cell"]
+    workers = []
+    for index in range(worker_count):
+        workers.append(
+            {
+                "worker_id": f"luna-{index + 1}",
+                "outcome": f"Produce bounded artifact partition {index + 1}.",
+                "requested_model": cell["requested_worker_model"],
+                "requested_reasoning": cell["requested_worker_reasoning"],
+                "depends_on": [],
+                "write_scopes": [f"artifacts/partition-{index + 1}"],
+                "budget": {
+                    "max_tokens": 500,
+                    "max_cost_microusd": 50,
+                    "max_wall_seconds": 30,
+                },
+            }
+        )
+    worker_ids = [worker["worker_id"] for worker in workers]
+    return {
+        "$schema": BRIDGE.DESIGN_REPORT_SCHEMA,
+        "manager_packet_digest": packet["manager_packet_digest"],
+        "project_id": packet["project_id"],
+        "cycle_id": packet["cycle_id"],
+        "attempt_id": packet["attempt_id"],
+        "cell_id": cell["cell_id"],
+        "design_barrier": "charter_bound_auto_continue",
+        "workers": workers,
+        "requirement_assignments": [
+            {
+                "requirement": requirement,
+                "owner_worker_ids": worker_ids,
+                "acceptance_checks": list(cell["acceptance_checks"]),
+            }
+            for requirement in cell["mandatory_requirements"]
+        ],
+        "capability_assignments": [
+            {"capability_id": capability, "worker_ids": worker_ids}
+            for capability in cell["required_capabilities"]
+        ],
+        "unresolved_dependencies": [],
+        "protected_actions": [],
+        "scope_variances": [],
+        "manager_direct_labor_variances": [],
+    }
+
+
 class NativeCodexDispatchBridgeTests(unittest.TestCase):
     def setUp(self) -> None:
         self.kernel = compiled_kernel()
@@ -212,18 +268,186 @@ class NativeCodexDispatchBridgeTests(unittest.TestCase):
         prompt = dispatch["arguments"]["prompt"]
         self.assertIn('"design_barrier":"charter_bound_auto_continue"', prompt)
         self.assertIn("signed dispatch preauthorizes design-to-execution continuation", prompt)
-        self.assertIn("create eligible Luna/max workers in the same turn", prompt)
+        self.assertIn("Create eligible Luna/max workers in the same turn", prompt)
         self.assertNotIn(
             "Do not create workers until the master sends an explicit CONTINUE",
             prompt,
         )
         self.assertIn('"luna_labor_share_min":0.7', prompt)
         self.assertIn('"sol_overhead_share_max":0.2', prompt)
+        self.assertIn('"autonomous_design_report_contract":{"$schema":"company-os.manager-design-report.v1"', prompt)
         self.assertIn("Preserve the complete user-requested outcome and constraints.", prompt)
         self.assertIn(
             "Independent readback proves the requested outcome and constraints.",
             prompt,
         )
+        self.assertIn("verify-design --manager-packet", prompt)
+        self.assertIn("continue_allowed:true", prompt)
+
+        report = valid_design_report(dispatch)
+        receipt = BRIDGE.verify_design_continuation(manager_packet(dispatch), report)
+        self.assertTrue(receipt["continue_allowed"])
+        self.assertEqual(receipt["status"], "continue_allowed")
+        self.assertEqual(receipt["authorized_worker_count"], 1)
+        self.assertEqual(
+            receipt["manager_packet_digest"],
+            manager_packet(dispatch)["manager_packet_digest"],
+        )
+
+    def test_design_continuation_rejects_non_auto_cell_and_stale_packet_binding(self) -> None:
+        packet = manager_packet(self.dispatch)
+        report = valid_design_report(self.dispatch)
+        report["manager_packet_digest"] = "0" * 64
+        receipt = BRIDGE.verify_design_continuation(packet, report)
+        self.assertFalse(receipt["continue_allowed"])
+        self.assertIn(
+            "design report does not bind the exact manager packet", receipt["errors"]
+        )
+        self.assertIn(
+            "manager cell is not authorized for charter-bound continuation",
+            receipt["errors"],
+        )
+
+    def test_design_continuation_rejects_requirement_capability_and_luna_route_drift(self) -> None:
+        kernel = kernel_with_complete_medium_contract()
+        medium_index = next(
+            index
+            for index, cell in enumerate(kernel["organization"]["manager_cells"])
+            if cell["risk_tier"] == "medium"
+        )
+        dispatch = BRIDGE.build_dispatch(
+            kernel, command_claim(kernel, medium_index), host_binding(kernel)
+        )
+        report = valid_design_report(dispatch)
+        report["requirement_assignments"] = []
+        report["capability_assignments"] = []
+        report["workers"][0]["requested_model"] = "gpt-5.6-sol"
+        receipt = BRIDGE.verify_design_continuation(manager_packet(dispatch), report)
+        self.assertFalse(receipt["continue_allowed"])
+        self.assertIn(
+            "mandatory requirements are not assigned exactly in packet order",
+            receipt["errors"],
+        )
+        self.assertIn(
+            "required capabilities are not assigned exactly in packet order",
+            receipt["errors"],
+        )
+        self.assertIn(
+            "worker luna-1 does not use the packet-bound Luna/max route",
+            receipt["errors"],
+        )
+
+    def test_design_continuation_rejects_write_collision_budget_and_protected_action(self) -> None:
+        kernel = kernel_with_complete_medium_contract()
+        medium_index = next(
+            index
+            for index, cell in enumerate(kernel["organization"]["manager_cells"])
+            if cell["risk_tier"] == "medium"
+        )
+        dispatch = BRIDGE.build_dispatch(
+            kernel, command_claim(kernel, medium_index), host_binding(kernel)
+        )
+        report = valid_design_report(dispatch, worker_count=2)
+        report["workers"][0]["write_scopes"] = ["artifacts/shared"]
+        report["workers"][1]["write_scopes"] = ["artifacts/shared/nested"]
+        report["workers"][0]["budget"]["max_tokens"] = 1_000
+        report["workers"][1]["budget"]["max_tokens"] = 1_000
+        report["protected_actions"] = ["deploy-production"]
+        receipt = BRIDGE.verify_design_continuation(manager_packet(dispatch), report)
+        self.assertFalse(receipt["continue_allowed"])
+        self.assertEqual(receipt["authorized_worker_count"], 0)
+        self.assertIn("worker plan exceeds packet-bound budget", receipt["errors"])
+        self.assertIn(
+            "writer scopes overlap between luna-1 and luna-2", receipt["errors"]
+        )
+        self.assertIn(
+            "design report protected_actions must be empty for auto-continuation",
+            receipt["errors"],
+        )
+
+    def test_design_continuation_rejects_dependency_cycle_and_scope_variance(self) -> None:
+        kernel = kernel_with_complete_medium_contract()
+        medium_index = next(
+            index
+            for index, cell in enumerate(kernel["organization"]["manager_cells"])
+            if cell["risk_tier"] == "medium"
+        )
+        dispatch = BRIDGE.build_dispatch(
+            kernel, command_claim(kernel, medium_index), host_binding(kernel)
+        )
+        report = valid_design_report(dispatch, worker_count=2)
+        report["workers"][0]["depends_on"] = ["luna-2"]
+        report["workers"][1]["depends_on"] = ["luna-1"]
+        for assignment in report["requirement_assignments"]:
+            assignment["owner_worker_ids"] = ["luna-1"]
+        for assignment in report["capability_assignments"]:
+            assignment["worker_ids"] = ["luna-1"]
+        report["scope_variances"] = ["write outside owned artifact"]
+        receipt = BRIDGE.verify_design_continuation(manager_packet(dispatch), report)
+        self.assertFalse(receipt["continue_allowed"])
+        self.assertIn("worker dependency graph contains a cycle", receipt["errors"])
+        self.assertIn(
+            "every worker must own a requirement or required capability",
+            receipt["errors"],
+        )
+        self.assertIn(
+            "design report scope_variances must be empty for auto-continuation",
+            receipt["errors"],
+        )
+
+    def test_design_continuation_rejects_tampered_manager_packet(self) -> None:
+        kernel = kernel_with_complete_medium_contract()
+        medium_index = next(
+            index
+            for index, cell in enumerate(kernel["organization"]["manager_cells"])
+            if cell["risk_tier"] == "medium"
+        )
+        dispatch = BRIDGE.build_dispatch(
+            kernel, command_claim(kernel, medium_index), host_binding(kernel)
+        )
+        packet = manager_packet(dispatch)
+        packet["manager_context"]["active_worker_concurrency_cap"] = 99
+        with self.assertRaisesRegex(BRIDGE.NativeBridgeError, "packet digest"):
+            BRIDGE.verify_design_continuation(packet, valid_design_report(dispatch))
+
+    def test_verify_design_cli_emits_canonical_replayable_receipt(self) -> None:
+        kernel = kernel_with_complete_medium_contract()
+        medium_index = next(
+            index
+            for index, cell in enumerate(kernel["organization"]["manager_cells"])
+            if cell["risk_tier"] == "medium"
+        )
+        dispatch = BRIDGE.build_dispatch(
+            kernel, command_claim(kernel, medium_index), host_binding(kernel)
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            packet_path = root / "manager-packet.json"
+            report_path = root / "design-report.json"
+            packet_path.write_text(
+                BRIDGE.canonical_json(manager_packet(dispatch)) + "\n", encoding="utf-8"
+            )
+            report_path.write_text(
+                BRIDGE.canonical_json(valid_design_report(dispatch)) + "\n",
+                encoding="utf-8",
+            )
+            args = BRIDGE.parser().parse_args(
+                [
+                    "verify-design",
+                    "--manager-packet",
+                    str(packet_path),
+                    "--design-report",
+                    str(report_path),
+                ]
+            )
+            output = io.StringIO()
+            with redirect_stdout(output):
+                result = args.handler(args)
+            self.assertEqual(result, 0)
+            rendered = output.getvalue().strip()
+            receipt = json.loads(rendered)
+            self.assertTrue(receipt["continue_allowed"])
+            self.assertEqual(rendered, BRIDGE.canonical_json(receipt))
 
     def test_non_delegated_medium_cell_cannot_auto_continue(self) -> None:
         kernel = kernel_with_complete_medium_contract(delegate_medium=False)
