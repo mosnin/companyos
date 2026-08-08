@@ -1,6 +1,6 @@
 ---
 name: compile-federated-company-kernel
-description: Compile a company objective and accountable workstreams into a federated Company OS topology with durable control cells, dynamic Sol-manager capacity, Luna-max worker capacity, delegated authority, shared services, bounded admission, and explicit scale gates. Use when designing or changing a multi-department autonomous company, planning high-concurrency agent operations, replacing a centralized master bottleneck, or preparing a Company OS instance to scale beyond one supervised project.
+description: Compile an outcome-authorized company objective and accountable workstreams into a federated Company OS topology with durable control cells, dynamic Sol-manager capacity, Luna-max worker capacity, delegated authority, shared services, bounded admission, and explicit scale gates. Use when designing or changing a multi-department autonomous company, planning high-concurrency agent operations, replacing a centralized master bottleneck, or preparing a Company OS instance to scale beyond one supervised project.
 ---
 
 # Compile Federated Company Kernel
@@ -11,19 +11,34 @@ elastic execution capacity admitted against real work.
 
 ## Required sequence
 
-1. Start from one concrete company objective, business-unit missions, program
-   outcomes, and independently accountable workstreams. For any workstream that
-   may execute autonomously, include both non-empty `mandatory_requirements` and
-   non-empty `acceptance_checks`; omitting either keeps the delivery contract
-   incomplete and prevents autonomous design continuation.
-2. Read [references/kernel-contract.md](references/kernel-contract.md).
+1. Start from the user's original objective. A broad objective is valid input;
+   do not require the user to supply domain expertise, implementation details,
+   mandatory requirements, or acceptance checks. Run `$compile-outcome-contract`
+   first. If it reports discovery blockers, use `$close-outcome-discovery`,
+   `$define-outcome-artifacts`, `$compile-outcome-evaluators`, and
+   `$compile-outcome-benchmarks` until the outcome is measurable. Calibrate every
+   required evaluator with `$calibrate-outcome-evaluator`, then compile
+   `$authorize-outcome-scale`.
+2. Ordinary federated production scale requires an exact
+   `company-os.outcome-scale-authorization.v1` with `authorized:true`. The
+   authorization is content-bound to the outcome, artifact, evaluator,
+   benchmark, and calibration contracts. Discovery and bounded pilot work may
+   proceed without scale authorization only when the outcome contract explicitly
+   permits it; they may not be relabeled as production scale.
+3. Derive the concrete company objective, business-unit missions, program
+   outcomes, mandatory requirements, acceptance checks, and independently
+   accountable workstreams from the authorized outcome contracts. Every
+   autonomous workstream must carry non-empty `mandatory_requirements` and
+   non-empty `acceptance_checks`; these are compiled results of outcome
+   understanding, not prerequisites the user must already know.
+4. Read [references/kernel-contract.md](references/kernel-contract.md).
    Use
    [references/federated-kernel-request.example.json](references/federated-kernel-request.example.json)
    as a canonical starting shape; replace its company facts and workstreams.
-3. Validate the mechanism registry against the exact Source Intelligence
+5. Validate the mechanism registry against the exact Source Intelligence
    Registry. Repository mechanisms are subordinate contracts, never hidden
    controllers or installation authority.
-4. Compile the request:
+6. Compile the request:
 
    ```bash
    python3 scripts/compile_federated_kernel.py compile \
@@ -31,7 +46,7 @@ elastic execution capacity admitted against real work.
      --output /absolute/path/federated-kernel.json
    ```
 
-5. Verify the emitted kernel against the unchanged request and registries:
+7. Verify the emitted kernel against the unchanged request and registries:
 
    ```bash
    python3 scripts/compile_federated_kernel.py verify \
@@ -39,7 +54,7 @@ elastic execution capacity admitted against real work.
      --kernel /absolute/path/federated-kernel.json
    ```
 
-6. Before any host launch, compile one bounded desired/observed reconciliation
+8. Before any host launch, compile one bounded desired/observed reconciliation
    plan. The request names the current kernel generation, exact manager cells,
    per-manager and global budgets, and the last returned native-task snapshot:
    [references/federated-reconciliation-request.example.json](references/federated-reconciliation-request.example.json)
@@ -62,7 +77,7 @@ elastic execution capacity admitted against real work.
      --plan /absolute/path/reconciliation-plan.json
    ```
 
-7. Persist the verified plan into the existing project-local Company OS
+9. Persist the verified plan into the existing project-local Company OS
    control store before any host command is claimed. This transaction retains
    the exact kernel, request, observed cursor, plan, event, idempotency result,
    and actionable command set together:
@@ -103,11 +118,16 @@ elastic execution capacity admitted against real work.
   utilization, and accepted throughput.
 - Escalate exceptions. Do not send routine worker reports or unchanged phase
   acknowledgements to the executive kernel.
-- Preserve mandatory objective and scope text byte-for-byte in the compiled
-  kernel.
-- Carry mandatory requirements and acceptance checks into every manager
-  partition. Never infer a complete delivery contract from a broad objective,
-  a feature name, or a manager's preferred implementation.
+- Preserve the original objective byte-for-byte through the outcome contract,
+  scale authorization, kernel, and final reality acceptance path.
+- Never infer a complete delivery contract from a broad objective inside the
+  federated production compiler. Instead, route the broad objective through the
+  outcome control plane, which is explicitly responsible for research,
+  artifact discovery, evaluator construction, benchmark binding, and measurable
+  requirement synthesis before production scale.
+- Carry the resulting mandatory requirements and acceptance checks into every
+  manager partition. A manager may refine implementation detail inside its
+  authority but may not weaken the authorized outcome contract.
 - Persist an admission intent before creation. After a create claim, reconcile
   the host listing; never issue another create merely because the caller timed
   out. Hold stale active work against capacity until cancellation or terminal
@@ -141,6 +161,10 @@ activate a scheduler, call a provider, install a repository, allocate money,
 or approve production actions. Runtime admission requires separately accepted
 persistence, launcher, identity, telemetry, cancellation, and recovery
 adapters.
+
+An outcome scale authorization is necessary but not sufficient runtime
+authority. Conversely, no runtime or organizational receipt may substitute for
+it when ordinary production fanout exceeds the bounded discovery or pilot lane.
 
 Persistence is also not activation. `persist_federated_runtime.py` extends the
 same SQLite authority already used by the Company OS controller and writes only
@@ -204,10 +228,13 @@ and native dispatch never becomes durable by prompt text alone.
 
 ## Acceptance
 
-Require deterministic recompilation, exact source/pin resolution, no duplicate
-ownership, valid budget shares, span-of-control compliance, one authority path,
-task-local capability references, an explicit scale ladder, atomic intent and
-outbox commit, monotonic observation cursors, expiring generation-fenced
-leases, cancellation precedence, restart audit, and exact idempotent replay.
-Reject a kernel that serializes source research, capability discovery,
-evaluation, and learning as sequential execution gates.
+Require deterministic outcome compilation, cited discovery closure, rich
+artifact observation, executable independent evaluators, benchmark
+calibration, one passed calibration receipt per required evaluator, an exact
+`company-os.outcome-scale-authorization.v1` for production scale, deterministic
+kernel recompilation, exact source/pin resolution, no duplicate ownership,
+valid budget shares, span-of-control compliance, one authority path, task-local
+capability references, an explicit scale ladder, atomic intent and outbox
+commit, monotonic observation cursors, expiring generation-fenced leases,
+cancellation precedence, restart audit, and exact idempotent replay. Final
+release acceptance remains separately owned by `$accept-outcome-reality`.
