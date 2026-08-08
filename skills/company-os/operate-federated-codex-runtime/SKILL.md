@@ -12,17 +12,31 @@ a second scheduler or treat prompt text as durable authority.
 
 ## Before dispatch
 
-1. Verify the compiled PostgreSQL kernel, reconciliation request and plan,
+1. Classify the requested launch lane as `discovery`, `pilot`, or
+   `production_scale`. Discovery may only execute the bounded questions emitted
+   by `$compile-outcome-contract`. Pilot may only execute bounded candidate work
+   explicitly permitted by that outcome contract. Any ordinary production
+   fanout, manager expansion, or high-concurrency artifact work is
+   `production_scale`.
+2. For `production_scale`, require the exact
+   `company-os.outcome-scale-authorization.v1` associated with the project and
+   verify `authorized:true`. The authorization must bind the current outcome,
+   artifact observation, evaluator runtime, benchmark, and evaluator
+   calibration contracts. Missing, stale, mismatched, or unauthorized outcome
+   evidence is a hard stop before command claim or task creation. Runtime,
+   kernel, manager, budget, or design receipts may never substitute for this
+   authorization.
+3. Verify the compiled PostgreSQL kernel, reconciliation request and plan,
    target-specific database audit, and one explicit host binding. The current
    bridge does not accept the local SQLite claim envelope.
-2. Claim one durable command with an expiring generation-fenced lease. Keep the
+4. Claim one durable command with an expiring generation-fenced lease. Keep the
    claim token only in the host secret store; never put it in a prompt, artifact,
    receipt, task title, or log.
-3. Compile the claim and host binding with
+5. Compile the claim and host binding with
    `scripts/prepare_native_codex_dispatch.py`. Use the resulting tool name,
    target, prompt, model, and reasoning exactly. A manager is Sol/xhigh. Its
    worker policy comes from the bound kernel cell and is Luna/max.
-4. Before calling `create_thread`, list current tasks and read plausible recent
+6. Before calling `create_thread`, list current tasks and read plausible recent
    candidates. Feed a typed observation plus readbacks that exactly cover every
    listed task ID to the executable `reconcile` command. The observation is
    evidence of the host query that ran, not proof of provider-global absence.
@@ -58,11 +72,23 @@ a second scheduler or treat prompt text as durable authority.
 - Use bounded `wait_threads` sets of at most eight targets and retain each
   returned cursor. Read only tasks that complete, need attention, or cross an
   evidence deadline.
-- Managers use `$luna-execution-fabric` and dynamically activate Luna tasks
-  within their exact
-  `direct_report_limit`, `declared_worker_slots`, packet-bound active-worker
-  cap, global admission, budget, dependency, and writer-scope constraints. No
-  fixed team ratio is allowed. For delegated low- and medium-risk cells, the
+- Discovery managers may resolve only the outcome contract's exact blocking
+  unknowns. They must return cited discovery evidence through
+  `$close-outcome-discovery`; they may not silently convert hypotheses into
+  production requirements or broaden themselves into artifact production.
+- Pilot managers may create only the bounded candidate work required to make an
+  artifact observable or calibrate an evaluator. A pilot success does not
+  authorize production scale; re-run `$authorize-outcome-scale` against the
+  resulting current contracts.
+- Production managers use `$luna-execution-fabric` and dynamically activate
+  Luna tasks within their exact `direct_report_limit`, `declared_worker_slots`,
+  packet-bound active-worker cap, global admission, budget, dependency, and
+  writer-scope constraints. Before any child fanout, the manager must retain
+  the parent production-scale authorization binding in its manager design
+  evidence. A child may narrow that authorization but never omit or widen it.
+  If the objective binding or any content-bound outcome input changes, the old
+  authorization is stale and further fanout stops until reauthorization.
+- No fixed team ratio is allowed. For delegated low- and medium-risk cells, the
   signed dispatch may preauthorize design-to-execution continuation when every
   packet-listed condition passes; a failed condition stops at the design
   barrier. High, consequential, non-delegated, protected-action, and exception
@@ -77,9 +103,9 @@ a second scheduler or treat prompt text as durable authority.
   scope isolation, concurrency, budgets, and the absence of protected actions,
   variances, and unresolved dependencies. Attach the receipt to the final
   manager receipt so the master can replay the decision independently.
-  Native Codex does not expose a cryptographic
-  child-concurrency policy, so list/read reconciliation and scale evidence are
-  still required rather than claiming provider-enforced limits.
+  Native Codex does not expose a cryptographic child-concurrency policy, so
+  list/read reconciliation and scale evidence are still required rather than
+  claiming provider-enforced limits.
 - Managers are Luna-first: they may not perform worker-eligible artifact labor
   unless worker authority is unavailable, the work is inherently managerial,
   or dispatch would duplicate completed work. Every exception is a measured
@@ -103,14 +129,14 @@ a second scheduler or treat prompt text as durable authority.
   authorize another create automatically. Ambiguity blocks; silence never
   grants success.
 - Provision an immutable `project_runtime_principals` binding before the first
-  project operation. Each project uses one unique direct `NOINHERIT` database login with
-  schema `USAGE` and `EXECUTE` on only the ten runtime API signatures. Grant it
-  no table privileges, no binding/assertion helpers, and no owner-role
-  membership. The hardened functions run as a trusted definer with a fixed
-  search path while checking the authenticated `session_user`; cross-project
-  calls, direct table access, and runtime rebinding must all fail in the
-  deployment proof. One shared unrestricted runtime login is not a supported
-  tenant boundary.
+  project operation. Each project uses one unique direct `NOINHERIT` database
+  login with schema `USAGE` and `EXECUTE` on only the ten runtime API
+  signatures. Grant it no table privileges, no binding/assertion helpers, and
+  no owner-role membership. The hardened functions run as a trusted definer
+  with a fixed search path while checking the authenticated `session_user`;
+  cross-project calls, direct table access, and runtime rebinding must all fail
+  in the deployment proof. One shared unrestricted runtime login is not a
+  supported tenant boundary.
 - Reapplying the SQL must preserve every explicit runtime-function grant. The
   one-time legacy signature drop is atomically version-gated; deployment
   validation compares all ten function ACLs before and after an exact migration
@@ -127,5 +153,13 @@ a second scheduler or treat prompt text as durable authority.
 A bound native manager task proves only task creation. Company progress requires
 accepted manager and worker artifacts, independent checks, requirement and skill
 coverage, terminal receipts, and the master decision reserved by the program.
+Production-scale throughput additionally requires a current outcome-scale
+authorization. Final product acceptance is not implied by task, manager,
+kernel, or scale authorization: after production, use `$accept-outcome-reality`
+against the original objective, actual artifact evidence, and independent
+accepted evaluator receipts. Production completion narratives are audit context
+only and are inadmissible as final acceptance evidence.
+
 Runtime and recurring scheduling remain off until real programs prove recovery,
-quality, collisions, and efficiency at the current scale gate.
+quality, collisions, outcome discrimination, and efficiency at the current
+scale gate.
