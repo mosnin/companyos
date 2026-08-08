@@ -32,11 +32,29 @@ a second scheduler or treat prompt text as durable authority.
 4. Claim one durable command with an expiring generation-fenced lease. Keep the
    claim token only in the host secret store; never put it in a prompt, artifact,
    receipt, task title, or log.
-5. Compile the claim and host binding with
-   `scripts/prepare_native_codex_dispatch.py`. Use the resulting tool name,
-   target, prompt, model, and reasoning exactly. A manager is Sol/xhigh. Its
-   worker policy comes from the bound kernel cell and is Luna/max.
-6. Before calling `create_thread`, list current tasks and read plausible recent
+5. For `production_scale`, compile the claim through the authorized bridge,
+   never the legacy three-input compiler:
+
+   ```bash
+   python3 scripts/prepare_authorized_native_codex_dispatch.py compile \
+     --kernel /absolute/path/federated-kernel.json \
+     --claim /absolute/path/command-claim.json \
+     --binding /absolute/path/host-binding.json \
+     --outcome-authorization /absolute/path/outcome-scale-authorization.json \
+     --outcome-contract /absolute/path/outcome-contract.json
+   ```
+
+   The wrapper verifies that the authorization is current, its content digest
+   is valid, its outcome binding matches the supplied outcome contract, and the
+   authorized original objective exactly matches the compiled kernel objective.
+   It then content-binds the authorization digest into the native dispatch
+   packet. Discovery and bounded pilot lanes may use their separately defined
+   dispatch path, but they may not be promoted to production by changing a
+   label.
+6. Use the resulting tool name, target, prompt, model, and reasoning exactly. A
+   manager is Sol/xhigh. Its worker policy comes from the bound kernel cell and
+   is Luna/max.
+7. Before calling `create_thread`, list current tasks and read plausible recent
    candidates. Feed a typed observation plus readbacks that exactly cover every
    listed task ID to the executable `reconcile` command. The observation is
    evidence of the host query that ran, not proof of provider-global absence.
