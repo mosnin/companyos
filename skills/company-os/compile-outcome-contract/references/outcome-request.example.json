@@ -1,0 +1,39 @@
+{
+  "$schema": "company-os.outcome-request.v1",
+  "artifact_classes": [],
+  "benchmarks": [],
+  "domain_hypotheses": [
+    {
+      "domain_id": "target-platform",
+      "hypothesis": "The target platform imposes runtime, input, packaging, and performance constraints.",
+      "status": "hypothesis"
+    }
+  ],
+  "evaluators": [],
+  "objective": "Make a viral game.",
+  "objective_id": "viral-game",
+  "outcome_claims": [],
+  "reality_acceptance": null,
+  "unknowns": [
+    {
+      "blocking": true,
+      "closure_evidence": [
+        "cited_platform_requirements",
+        "executable_smoke_test"
+      ],
+      "question": "What platform, engine, packaging, input, performance, and distribution constraints define a valid game?",
+      "resolved": false,
+      "unknown_id": "platform-contract"
+    },
+    {
+      "blocking": true,
+      "closure_evidence": [
+        "reference_set",
+        "scored_comparison_dimensions"
+      ],
+      "question": "What observable properties distinguish a weak game from a high quality reference game in this distribution context?",
+      "resolved": false,
+      "unknown_id": "quality-bar"
+    }
+  ]
+}
