@@ -17,7 +17,10 @@ jobs:
           python-version: "3.11"
       - run: python3 scripts/distribution.py verify-manifest
       - name: Materialize reviewed capability source checkouts
-        run: python3 scripts/prepare_capability_review_ci.py
+        run: |
+          sudo mkdir -p /Users/preston/Documents/Codex/2026-08-05/company-os-all-repos-depth/evidence/master
+          sudo chown -R "$USER":"$USER" /Users/preston
+          python3 scripts/prepare_capability_review_ci.py
       - run: python3 -m unittest discover -s tests -v
       - run: >-
           python3 scripts/verify_operator_command_center_surface.py
