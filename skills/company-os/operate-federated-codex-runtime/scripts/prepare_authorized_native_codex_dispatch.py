@@ -86,7 +86,12 @@ def validate_outcome_authorization(
 
 
 def read_object(path: Path, label: str) -> dict[str, Any]:
-    value = BASE.read_canonical(path, label)
+    if path.is_symlink() or not path.is_file():
+        raise AuthorizedDispatchError(f"{label} must be a regular non-symlink file")
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise AuthorizedDispatchError(f"{label} is not valid JSON") from exc
     if not isinstance(value, dict):
         raise AuthorizedDispatchError(f"{label} must be an object")
     return value
@@ -102,8 +107,7 @@ def command_compile(args: argparse.Namespace) -> int:
         authorization_digest = validate_outcome_authorization(kernel, authorization, outcome)
         dispatch = BASE.build_dispatch(kernel, claim, binding)
         dispatch["outcome_authorization_sha256"] = authorization_digest
-        prior_digest = dispatch.pop("dispatch_digest")
-        _ = prior_digest
+        dispatch.pop("dispatch_digest")
         dispatch["dispatch_digest"] = BASE.digest_text(BASE.canonical_json(dispatch))
         print(BASE.canonical_json(dispatch))
         return 0
