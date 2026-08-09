@@ -19,6 +19,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Correct integration marker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("scripts/apply_outcome_control_integration.py")
+          text = path.read_text(encoding="utf-8")
+          old = 'marker = "## Project execution\\n"'
+          new = 'marker = "## Loop strategy plane\\n"'
+          if text.count(old) != 1:
+              raise SystemExit("architecture marker patch did not match exactly once")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
       - name: Apply integration
         run: python3 scripts/apply_outcome_control_integration.py
       - name: Verify outcome controls
