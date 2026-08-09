@@ -267,8 +267,8 @@
     },
     {
       "path": "company-os/compile-outcome-evaluators/SKILL.md",
-      "sha256": "79a98ff7db21598b69aef248eb482a73315206106b96a362e304ada1ea574e4b",
-      "size": 659
+      "sha256": "7bcec9d772c504d2af2b0a770ad8230ccf8bdbf4230c07647b53d09e363c5518",
+      "size": 899
     },
     {
       "path": "company-os/compile-outcome-evaluators/scripts/compile_evaluator_runtime.py",
@@ -409,6 +409,26 @@
       "path": "company-os/elastic-company-os/scripts/test_runtime_receipts.py",
       "sha256": "3ee00c9521ada8b6fa4ba93b4655a0a414ff3101b337148ef14f9572db2a1361",
       "size": 25873
+    },
+    {
+      "path": "company-os/execute-outcome-evaluator/SKILL.md",
+      "sha256": "dda2003717d876c7acc4f85381ca45b245b71a6c835287e85819f73a67c6cc24",
+      "size": 2206
+    },
+    {
+      "path": "company-os/execute-outcome-evaluator/references/adapter-registry.example.json",
+      "sha256": "b14c2daa225fd2c642fba9b82f0d6bd28acf458c52e939e85b1f5bf3e9972682",
+      "size": 706
+    },
+    {
+      "path": "company-os/execute-outcome-evaluator/references/execution-request.example.json",
+      "sha256": "16cc04f5210027498c54604727e7508a4620b94cbf0b0cf01ebc71e61a572fcd",
+      "size": 708
+    },
+    {
+      "path": "company-os/execute-outcome-evaluator/scripts/execute_evaluator.py",
+      "sha256": "88c136abfe88e1058431cf2aa40892357e45050df25041b9ebf59e72773f461e",
+      "size": 32729
     },
     {
       "path": "company-os/force-first-execution/SKILL.md",

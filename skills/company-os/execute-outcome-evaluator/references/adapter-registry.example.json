@@ -1,0 +1,28 @@
+{
+  "$schema": "company-os.evaluator-adapter-registry.v1",
+  "schema_version": 1,
+  "adapters": [
+    {
+      "adapter_locator": "workspace://evaluators/gameplay",
+      "runtime": "python",
+      "entrypoint": "evaluators/gameplay.py",
+      "entrypoint_sha256": "REPLACE_WITH_ENTRYPOINT_SHA256",
+      "timeout_seconds": 120,
+      "max_output_bytes": 1048576,
+      "arguments": [],
+      "artifact_classes": [
+        "playable-build"
+      ],
+      "produces_evidence": [
+        "play_trace",
+        "video_capture"
+      ],
+      "score_dimensions": [
+        "fun",
+        "polish",
+        "retention_potential"
+      ]
+    }
+  ],
+  "registry_sha256": "REPLACE_WITH_CANONICAL_REGISTRY_SHA256"
+}

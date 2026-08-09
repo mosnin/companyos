@@ -1,0 +1,23 @@
+{
+  "$schema": "company-os.evaluator-execution-request.v1",
+  "run_id": "gameplay-evaluation-001",
+  "objective_id": "viral-game",
+  "evaluator_id": "gameplay",
+  "evaluator_contract_path": "outcome/evaluator-contract.json",
+  "adapter_registry_path": "outcome/adapter-registry.json",
+  "benchmark_contract_path": "outcome/benchmark-contract.json",
+  "executor_actor_id": "independent-gameplay-reviewer",
+  "production_actor_ids": [
+    "game-builder",
+    "game-manager"
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "candidate-build",
+      "artifact_class_id": "playable-build",
+      "path": "builds/candidate/index.html",
+      "sha256": "REPLACE_WITH_ARTIFACT_SHA256"
+    }
+  ],
+  "arguments": {}
+}
