@@ -1068,8 +1068,8 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         documents, _, _, _ = self.real_skill_documents()
         base_context = self.production_context()
         expected_codes = {
-            "review_registry": "E_CAPABILITY_BINDING",
-            "source_registry": "E_CAPABILITY_BINDING",
+            "review_registry": "E_BINDING",
+            "source_registry": "E_BINDING",
             "checkout_manifest": "E_BINDING",
         }
         for name in ("review_registry", "source_registry", "checkout_manifest"):
