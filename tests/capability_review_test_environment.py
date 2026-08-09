@@ -7,7 +7,7 @@ _PREPARED = False
 
 
 def ensure_capability_review_checkouts() -> None:
-    """Materialize the exact reviewed upstream checkouts required by provenance tests."""
+    """Materialize exact reviewed upstream checkouts before provenance dependent tests."""
     global _PREPARED
     if _PREPARED:
         return
