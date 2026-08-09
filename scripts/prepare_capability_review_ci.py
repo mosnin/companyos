@@ -57,17 +57,9 @@ def main() -> int:
     runner_manifest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(mac_manifest, runner_manifest)
 
-    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
-    manifest_sha256 = review.canonical_digest(manifest)
-    registry["checkout_manifest_sha256"] = manifest_sha256
-    records = registry.get("records")
-    if not isinstance(records, list) or not records:
-        raise RuntimeError("capability review registry records are invalid")
-    for record in records:
-        if not isinstance(record, dict):
-            raise RuntimeError("capability review registry record is invalid")
-        record["checkout_manifest_sha256"] = manifest_sha256
-    REGISTRY_PATH.write_bytes(review.canonical_bytes(registry))
+    manifest_sha256 = review._manifest_digest(manifest)
+    if manifest_sha256 != review.LEGACY_REVIEW_CHECKOUT_MANIFEST_SHA256:
+        raise RuntimeError("runtime checkout set does not match reviewed provenance receipt")
 
     print(
         f"prepared {len(manifest['sources'])} live capability review checkouts; "

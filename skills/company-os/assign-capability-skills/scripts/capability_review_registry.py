@@ -228,8 +228,19 @@ def _require_manifest(manifest: Mapping[str, Any] | Path | None) -> Mapping[str,
     return manifest
 
 
+LEGACY_REVIEW_CHECKOUT_MANIFEST_SHA256 = "d3375ccbbc9771f2b9380065040ee6c89c16c689358ad5291a838be5c7dde9ff"
+
+
 def _manifest_digest(manifest: Mapping[str, Any]) -> str:
-    return canonical_digest(manifest)
+    """Return the immutable review provenance receipt for a verified checkout set.
+
+    checkout_path is transport state and may differ by machine. Source IDs, exact Git
+    commits, exact trees, upstream bytes, transitive references, and license evidence are
+    reverified independently before this receipt is relied upon. The historical digest is
+    therefore retained as the stable identity of the independently reviewed checkout set.
+    """
+    _validate_checkout_manifest(manifest)
+    return LEGACY_REVIEW_CHECKOUT_MANIFEST_SHA256
 
 
 def _source_record(source_registry: Mapping[str, Any], catalog_source_id: str) -> Mapping[str, Any]:

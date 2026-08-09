@@ -92,8 +92,8 @@
     },
     {
       "path": "company-os/assign-capability-skills/scripts/capability_review_registry.py",
-      "sha256": "7b192aa19585b5184ed33c6a935aa7c1c97d26d656d810fac236236f66d4e888",
-      "size": 77495
+      "sha256": "9a601345aa1bdc20b07f7a380b1a24bc682825872665d32146d953699ae161ba",
+      "size": 78107
     },
     {
       "path": "company-os/assign-capability-skills/scripts/promote_curated_capabilities.py",
