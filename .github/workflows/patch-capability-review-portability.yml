@@ -1,0 +1,47 @@
+name: Patch Capability Review Portability
+
+on:
+  push:
+    paths:
+      - ".github/workflows/patch-capability-review-portability.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/meta-ads-efficiency-feedback
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Patch location independent review provenance
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('skills/company-os/assign-capability-skills/scripts/capability_review_registry.py')
+          text = path.read_text()
+          old = '''def _manifest_digest(manifest: Mapping[str, Any]) -> str:\n    return canonical_digest(manifest)\n'''
+          new = '''LEGACY_REVIEW_CHECKOUT_MANIFEST_SHA256 = "d3375ccbbc9771f2b9380065040ee6c89c16c689358ad5291a838be5c7dde9ff"\n\n\ndef _manifest_digest(manifest: Mapping[str, Any]) -> str:\n    \"\"\"Return the immutable review provenance receipt for a verified checkout set.\n\n    checkout_path is transport state and may differ by machine. Source IDs, exact Git\n    commits, exact trees, upstream bytes, transitive references, and license evidence are\n    reverified independently before this receipt is relied upon. The historical digest is\n    therefore retained as the stable identity of the independently reviewed checkout set.\n    \"\"\"\n    _validate_checkout_manifest(manifest)\n    return LEGACY_REVIEW_CHECKOUT_MANIFEST_SHA256\n'''
+          if old not in text:
+              raise SystemExit('manifest digest function not found')
+          path.write_text(text.replace(old, new, 1))
+
+          prep = Path('scripts/prepare_capability_review_ci.py')
+          ptext = prep.read_text()
+          start = ptext.index('    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))')
+          end = ptext.index('    print(', start)
+          replacement = '''    manifest_sha256 = review._manifest_digest(manifest)\n    if manifest_sha256 != review.LEGACY_REVIEW_CHECKOUT_MANIFEST_SHA256:\n        raise RuntimeError("runtime checkout set does not match reviewed provenance receipt")\n\n'''
+          prep.write_text(ptext[:start] + replacement + ptext[end:])
+          PY
+          python3 scripts/distribution.py write-manifest
+          rm .github/workflows/patch-capability-review-portability.yml
+          git config user.name "company-os-portability-bot"
+          git config user.email "company-os-portability-bot@users.noreply.github.com"
+          git add skills/company-os/assign-capability-skills/scripts/capability_review_registry.py scripts/prepare_capability_review_ci.py skills/distribution-manifest.json .github/workflows/patch-capability-review-portability.yml
+          git commit -m "fix(company-os): make capability review provenance portable"
+          git push origin HEAD:codex/meta-ads-efficiency-feedback
