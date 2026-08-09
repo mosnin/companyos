@@ -12,6 +12,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+from capability_review_test_environment import ensure_capability_review_checkouts
+ensure_capability_review_checkouts()
 SKILL_ROOT = ROOT / "skills/company-os/assign-capability-skills"
 MODULE_PATH = SKILL_ROOT / "scripts/capability_review_registry.py"
 CATALOG_PATH = SKILL_ROOT / "references/capability-catalog.json"

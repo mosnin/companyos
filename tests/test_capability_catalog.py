@@ -13,6 +13,8 @@ from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
+from capability_review_test_environment import ensure_capability_review_checkouts
+ensure_capability_review_checkouts()
 SKILL_ROOT = ROOT / "skills/company-os/assign-capability-skills"
 PRODUCTION_CATALOG_PATH = SKILL_ROOT / "references/capability-catalog.json"
 REVIEW_REGISTRY_PATH = SKILL_ROOT / "references/capability-review-registry.json"

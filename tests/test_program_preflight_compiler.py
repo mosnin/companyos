@@ -11,6 +11,8 @@ from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
+from capability_review_test_environment import ensure_capability_review_checkouts
+ensure_capability_review_checkouts()
 MODULE_PATH = ROOT / "skills/company-os/manage-company-program/scripts/compile_program_preflight.py"
 SPEC = importlib.util.spec_from_file_location("compile_program_preflight", MODULE_PATH)
 assert SPEC is not None and SPEC.loader is not None
