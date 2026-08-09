@@ -157,13 +157,18 @@
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/SKILL.md",
-      "sha256": "c334262a08ee5cb79aaa3efc3d1cf90b3b2fdba377fa329bd5c01a774a745940",
-      "size": 710
+      "sha256": "a8fb2bf80d3f7299a566096a0745417765419a590eaae732d2d470d0833f196c",
+      "size": 1412
+    },
+    {
+      "path": "company-os/calibrate-outcome-evaluator/references/calibration-request.example.json",
+      "sha256": "a8a4df21c9828733f3db4f75e22710ef5f74bf878f329a923387306f2304e1ce",
+      "size": 623
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/scripts/calibrate_evaluator.py",
-      "sha256": "f792d28b689ff39e18cf3b4ef4431dbad67fd43a692461a40d278e263256de1a",
-      "size": 3345
+      "sha256": "7c286b39dc672e9b1bcf68211c0de4116a5594b4a1af5e7e91c6827e99fa4f01",
+      "size": 20199
     },
     {
       "path": "company-os/close-outcome-discovery/SKILL.md",
@@ -342,8 +347,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_control.py",
-      "sha256": "1dbc1f379fa0e29c76450c68437fadcd2836dc570d8aaed7ab2008af429ec076",
-      "size": 21080
+      "sha256": "94ea22aef9f86d9f0b1b7b7499801104936dac839a6bdd4a33e77969124f74c5",
+      "size": 23405
     },
     {
       "path": "company-os/elastic-company-os/scripts/runtime_gateway.py",

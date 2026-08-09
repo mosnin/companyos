@@ -1,0 +1,26 @@
+{
+  "$schema": "company-os.evaluator-calibration.v2",
+  "objective_id": "viral-game",
+  "evaluator_id": "gameplay",
+  "required_dimensions": [
+    "fun",
+    "polish"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "negative",
+      "expected_rank": 1,
+      "execution_receipt_path": "evidence/evaluator/negative.json"
+    },
+    {
+      "candidate_id": "intermediate",
+      "expected_rank": 2,
+      "execution_receipt_path": "evidence/evaluator/intermediate.json"
+    },
+    {
+      "candidate_id": "exemplar",
+      "expected_rank": 3,
+      "execution_receipt_path": "evidence/evaluator/exemplar.json"
+    }
+  ]
+}
