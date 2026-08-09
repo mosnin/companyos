@@ -1069,8 +1069,8 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
         base_context = self.production_context()
         expected_codes = {
             "review_registry": "E_BINDING",
-            "source_registry": "E_CAPABILITY_BINDING",
-            "checkout_manifest": "E_BINDING",
+            "source_registry": "E_BINDING",
+            "checkout_manifest": "E_CAPABILITY_BINDING",
         }
         for name in ("review_registry", "source_registry", "checkout_manifest"):
             context = copy.deepcopy(base_context)
