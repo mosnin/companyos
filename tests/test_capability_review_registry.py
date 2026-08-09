@@ -13,14 +13,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 from capability_review_test_environment import ensure_capability_review_checkouts
-ensure_capability_review_checkouts()
 SKILL_ROOT = ROOT / "skills/company-os/assign-capability-skills"
 MODULE_PATH = SKILL_ROOT / "scripts/capability_review_registry.py"
 CATALOG_PATH = SKILL_ROOT / "references/capability-catalog.json"
 DECISIONS_PATH = SKILL_ROOT / "references/capability-review-decisions.json"
 REGISTRY_PATH = SKILL_ROOT / "references/capability-review-registry.json"
 SOURCE_PATH = ROOT / "skills/company-os/source-intelligence/references/source-intelligence-registry.json"
-MANIFEST_PATH = Path("/Users/preston/Documents/Codex/2026-08-05/company-os-all-repos-depth/evidence/master/capability-review-checkouts.v1.json")
+MANIFEST_PATH = ensure_capability_review_checkouts()
 SPEC = importlib.util.spec_from_file_location("capability_review_registry", MODULE_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None

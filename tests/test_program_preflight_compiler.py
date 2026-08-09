@@ -12,7 +12,6 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 from capability_review_test_environment import ensure_capability_review_checkouts
-ensure_capability_review_checkouts()
 MODULE_PATH = ROOT / "skills/company-os/manage-company-program/scripts/compile_program_preflight.py"
 SPEC = importlib.util.spec_from_file_location("compile_program_preflight", MODULE_PATH)
 assert SPEC is not None and SPEC.loader is not None
@@ -34,10 +33,7 @@ CAPABILITY_SPEC.loader.exec_module(CAPABILITY_MODULE)
 class ProgramPreflightCompilerTests(unittest.TestCase):
     def production_context(self) -> dict[str, object]:
         skill_root = ROOT / "skills/company-os/assign-capability-skills"
-        checkout_manifest = (
-            ROOT.parent
-            / "2026-08-05/company-os-all-repos-depth/evidence/master/capability-review-checkouts.v1.json"
-        )
+        checkout_manifest = ensure_capability_review_checkouts()
         return {
             "capability_catalog": skill_root / "references/capability-catalog.json",
             "review_registry": json.loads(

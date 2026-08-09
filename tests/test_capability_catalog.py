@@ -14,12 +14,11 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 from capability_review_test_environment import ensure_capability_review_checkouts
-ensure_capability_review_checkouts()
 SKILL_ROOT = ROOT / "skills/company-os/assign-capability-skills"
 PRODUCTION_CATALOG_PATH = SKILL_ROOT / "references/capability-catalog.json"
 REVIEW_REGISTRY_PATH = SKILL_ROOT / "references/capability-review-registry.json"
 SOURCE_INTELLIGENCE_PATH = ROOT / "skills/company-os/source-intelligence/references/source-intelligence-registry.json"
-CHECKOUT_MANIFEST_PATH = Path("/Users/preston/Documents/Codex/2026-08-05/company-os-all-repos-depth/evidence/master/capability-review-checkouts.v1.json")
+CHECKOUT_MANIFEST_PATH = ensure_capability_review_checkouts()
 MODULE_PATH = SKILL_ROOT / "scripts/capability_catalog.py"
 SPEC = importlib.util.spec_from_file_location("capability_catalog", MODULE_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
