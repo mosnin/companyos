@@ -286,6 +286,7 @@ RUNTIME_AUDIT_ERROR_PREFIXES = (
 _CONTROL_STORE_MODULE: Any | None = None
 _NATIVE_TASK_RUNTIME_MODULE: Any | None = None
 _OPERATOR_BRIEF_MODULE: Any | None = None
+_OUTCOME_CONTROL_MODULE: Any | None = None
 _ACTIVE_CONTROL_STORE_TRANSACTION: contextvars.ContextVar[Any | None] = contextvars.ContextVar(
     "company_os_control_store_transaction",
     default=None,
@@ -358,6 +359,22 @@ def operator_brief_module() -> Any:
     return module
 
 
+
+def outcome_control_module() -> Any:
+    """Load portable outcome control validation without relying on PYTHONPATH."""
+    global _OUTCOME_CONTROL_MODULE
+    if _OUTCOME_CONTROL_MODULE is not None:
+        return _OUTCOME_CONTROL_MODULE
+    module_path = Path(__file__).resolve().with_name("outcome_control.py")
+    spec = importlib.util.spec_from_file_location("company_os_outcome_control", module_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("outcome control module could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _OUTCOME_CONTROL_MODULE = module
+    return module
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -397,6 +414,7 @@ def empty_execution_fabric(program_version: int) -> dict[str, Any]:
         "manifest": None,
         "manifest_digest": None,
         "configured_at": None,
+        "outcome_control": None,
         "managers": {},
         "decisions": [],
         "cancelled_at": None,
@@ -2324,7 +2342,7 @@ def validate_execution_fabric_state(
     if status == "unconfigured":
         if fabric.get("enabled"):
             errors.append("an unconfigured execution_fabric cannot be enabled")
-        for field in ("work_id", "cycle_id", "manifest", "manifest_digest", "configured_at"):
+        for field in ("work_id", "cycle_id", "manifest", "manifest_digest", "configured_at", "outcome_control"):
             if fabric.get(field) is not None:
                 errors.append(f"unconfigured execution_fabric.{field} must be null")
         if fabric.get("managers") not in ({}, None):
@@ -2375,6 +2393,48 @@ def validate_execution_fabric_state(
             errors.append("execution_fabric work must use execution_mode luna_fabric")
         if manifest.get("outcome") != work.get("user_visible_outcome"):
             errors.append("execution_fabric outcome must match the governed user-visible outcome")
+
+    outcome_control_state = None
+    if work and manifest:
+        if manifest.get("outcome_control") is None and manifest.get("topology_mode") is None:
+            if fabric.get("outcome_control") is not None:
+                errors.append("legacy execution_fabric may not retain outcome control state")
+        else:
+            try:
+                outcome_control_state = outcome_control_module().validate_manifest_binding(
+                    project_root=project_root,
+                    manifest=manifest,
+                    project_id=str(state.get("instance", {}).get("project_id", "")),
+                    program_version=int(state.get("strategy", {}).get("program_version", 0)),
+                    work_id=str(fabric.get("work_id", "")),
+                    governed_outcome=str(work.get("user_visible_outcome", "")),
+                )
+            except (OSError, ValueError, json.JSONDecodeError) as exc:
+                errors.append(f"execution_fabric outcome control: {exc}")
+            else:
+                if fabric.get("outcome_control") != outcome_control_state:
+                    errors.append("execution_fabric.outcome_control does not match current contracts")
+                if work.get("status") == "completed" and work.get("execution_mode") == "luna_fabric":
+                    completion = work.get("completion")
+                    if not isinstance(completion, dict):
+                        errors.append("completed luna_fabric work requires completion evidence")
+                    else:
+                        completion_ids = completion.get("evidence_ids")
+                        if not isinstance(completion_ids, list):
+                            errors.append("completed luna_fabric work requires evidence_ids")
+                        else:
+                            try:
+                                reality = outcome_control_module().find_reality_receipt(
+                                    project_root=project_root,
+                                    evidence_by_id=evidence_by_id,
+                                    evidence_ids=completion_ids,
+                                    outcome_control=outcome_control_state,
+                                )
+                            except (OSError, ValueError, json.JSONDecodeError) as exc:
+                                errors.append(f"completed luna_fabric reality acceptance: {exc}")
+                            else:
+                                if completion.get("reality_acceptance") != reality:
+                                    errors.append("completed luna_fabric reality acceptance does not match evidence")
 
     if not fabric.get("configured_at"):
         errors.append("configured execution_fabric.configured_at is required")
@@ -6574,6 +6634,7 @@ def finish_cycle(args: argparse.Namespace) -> int:
                 payload_hash=command_payload_hash("finish-cycle", finish_command_payload(state, args)),
             )
             evidence_ids = set(args.evidence_ids)
+            reality_acceptance = None
             work = next(
                 (item for item in state["portfolio"]["active_work"] if item.get("id") == cycle["work_id"]),
                 None,
@@ -6620,6 +6681,25 @@ def finish_cycle(args: argparse.Namespace) -> int:
             if not evidence_ids:
                 raise ValueError("cycle outcome requires recorded project evidence")
             validate_completion_evidence(state, project, cycle, work, evidence_ids)
+            if (
+                work.get("execution_mode", "single") == "luna_fabric"
+                and args.work_disposition == "complete"
+                and isinstance(state.get("execution_fabric", {}).get("outcome_control"), dict)
+            ):
+                completion_evidence_by_id = {
+                    item.get("id"): item
+                    for bucket in state.get("evidence", {}).values()
+                    for item in bucket
+                    if isinstance(item, dict)
+                    and isinstance(item.get("id"), str)
+                    and evidence_is_active(item)
+                }
+                reality_acceptance = outcome_control_module().find_reality_receipt(
+                    project_root=project,
+                    evidence_by_id=completion_evidence_by_id,
+                    evidence_ids=sorted(evidence_ids),
+                    outcome_control=state["execution_fabric"]["outcome_control"],
+                )
             if args.work_disposition == "complete" and args.reviewer_decision != "accepted":
                 raise ValueError("a rejected review must continue the work; it cannot complete it")
             cycle.update(
@@ -6639,6 +6719,8 @@ def finish_cycle(args: argparse.Namespace) -> int:
                     "reviewer_grant": reviewer_grant,
                 }
             )
+            if reality_acceptance is not None:
+                cycle["reality_acceptance"] = reality_acceptance
             if args.commit:
                 cycle["commit"] = args.commit
             if args.ref:
@@ -6656,6 +6738,8 @@ def finish_cycle(args: argparse.Namespace) -> int:
                         "reviewer": args.reviewer,
                         "reviewer_grant": reviewer_grant,
                     }
+                    if reality_acceptance is not None:
+                        completion["reality_acceptance"] = reality_acceptance
                     if args.commit:
                         completion["commit"] = args.commit
                     if args.ref:
@@ -6775,6 +6859,17 @@ def configure_execution_fabric(args: argparse.Namespace) -> int:
                 raise ValueError("manifest outcome must match the governed user-visible outcome")
             if manifest.get("program_contract", {}).get("north_star") != state["strategy"]["north_star"]:
                 raise ValueError("manifest north_star must match Company OS strategy")
+            if manifest.get("outcome_control") is None and manifest.get("topology_mode") is None:
+                outcome_control_state = None
+            else:
+                outcome_control_state = outcome_control_module().validate_manifest_binding(
+                    project_root=project,
+                    manifest=manifest,
+                    project_id=state["instance"]["project_id"],
+                    program_version=state["strategy"]["program_version"],
+                    work_id=args.work_id,
+                    governed_outcome=work["user_visible_outcome"],
+                )
             configured_at = utc_now()
             state["execution_fabric"] = {
                 "enabled": True,
@@ -6787,6 +6882,7 @@ def configure_execution_fabric(args: argparse.Namespace) -> int:
                 "manifest_path": str(manifest_path.relative_to(project)),
                 "manifest_sha256": sha256_file(manifest_path),
                 "configured_at": configured_at,
+                "outcome_control": outcome_control_state,
                 "managers": {
                     manager["id"]: {
                         "id": manager["id"],
@@ -6814,6 +6910,8 @@ def configure_execution_fabric(args: argparse.Namespace) -> int:
                 "execution_fabric_configured",
                 work_id=args.work_id,
                 manifest_digest=state["execution_fabric"]["manifest_digest"],
+                execution_lane=(outcome_control_state or {}).get("execution_lane", "legacy_compatibility"),
+                outcome_control_digest=(outcome_control_state or {}).get("state_sha256"),
             )
             manifest_digest = state["execution_fabric"]["manifest_digest"]
     except (OSError, ValueError, json.JSONDecodeError) as exc:

@@ -15,10 +15,10 @@ Create one isolated `.company-os/` instance per project. Never reuse another pro
 - **Audit loop:** independently evaluates evidence and drift.
 - **Meta-loop:** proposes bounded instance adaptations. It cannot self-approve, modify authority boundaries, or recurse beyond depth one.
 - **Promotion loop:** promotes an instance improvement to the core only after independent evidence from at least three projects.
+- **Outcome control plane:** compiles the original objective into observable artifacts, executable independent evaluators, benchmark tiers, evaluator calibration, and a content-bound scale decision before elastic execution.
 - **Execution fabric:** after direction and experience are accepted, the master
   may use `$luna-execution-fabric` to create isolated Sol manager threads and
-  bounded Luna worker teams. Managers never edit `control.json` or approve
-  Company OS state.
+  bounded Luna worker teams. New elastic manifests must carry the exact outcome control binding. Managers never edit `control.json` or approve Company OS state.
 
 The operating shape is fractal: company, program, manager, and worker each use
 the same outcome → envelope → budget → execution → evidence → reconciliation
@@ -74,7 +74,7 @@ exact no-op when repeated against a healthy store.
 2. **Intelligence:** research current technology, customer behavior, competitors, practitioner experience, and counterevidence.
 3. **Direction:** choose a first-principles product or business thesis and rank committed capabilities plus bounded innovation bets.
 4. **Experience:** define the end-to-end journey, prototype, information architecture, interaction, brand, and measurable value.
-5. **Delivery:** version a complete Program Contract, assign bounded roadmap
+5. **Delivery:** compile and close the outcome contract first. Define rich artifacts, executable independent evaluators, benchmark tiers, and evaluator calibration. A bounded pilot may use at most the legacy 2/3/6 capacity. Elastic production requires a current content-bound outcome scale authorization. Then version a complete Program Contract, assign bounded roadmap
    outcomes to Sol manager threads, and use Luna workers for most labor.
    Managers report at charter, discovery, design, execution, verification, and
    integration; implement vertical, user-visible slices with direct enablers.
@@ -119,6 +119,8 @@ The controller rejects:
 - recursive meta-loops;
 - core promotion without evidence from three independent projects;
 - stage completion with missing evidence, any applicable critical quality score below 9, or any applicable noncritical score below 8;
+- an elastic execution fabric without a current outcome control binding, a pilot that exceeds 2 managers, 3 workers per manager, or 6 total workers, or production scale without exact outcome authorization;
+- completion of outcome-controlled fabric work without exactly one accepted reality receipt bound through completion evidence to the original objective;
 - direct goal edits that do not increment the program version;
 - stale work, evidence, leases, or certification from another program version;
 - evidence without an immutable project-local SHA-256 snapshot, freshness, decision impact, and independent review;
@@ -152,7 +154,7 @@ Use controller commands for every state transition:
 - `certify` requires a command-specific signed certifier grant whose payload hash binds the exact canonical `governance_digest`, reviewer, and accepted decision. It rejects every actor already involved in the work, evidence, cycle review, or quality review.
 - `activate` and `set-schedule` open execution only after certification.
 - `configure-fabric` binds a validated project-local Sol-manager/Luna-worker
-  manifest to primary work queued with `--execution-mode luna_fabric`.
+  manifest to primary work queued with `--execution-mode luna_fabric`. Every new `elastic_work_graph` manifest must bind the current project, program, work outcome, outcome contract, artifact observations, executable evaluators, benchmark contract, and calibration receipts. A `production_scale` lane must additionally bind an authorized scale receipt. Contract drift invalidates the fabric on the next audit.
 - `record-fabric-phase` records one immutable manager report for the exact
   running cycle and current phase barrier.
 - `decide-fabric-phase` requires a command-specific signed master grant and

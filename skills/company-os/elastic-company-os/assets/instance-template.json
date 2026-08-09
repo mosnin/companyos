@@ -76,6 +76,7 @@
     "manifest": null,
     "manifest_digest": null,
     "configured_at": null,
+    "outcome_control": null,
     "managers": {},
     "decisions": [],
     "cancelled_at": null,

@@ -30,6 +30,10 @@ Programs instantiate only the managers and Luna tasks required by their
 accepted outcome graph. Compiled routines remain planned desired state until
 runtime, scheduler, permission, cancellation, and recovery gates pass.
 
+## Outcome control plane
+
+Company OS accepts broad objectives as input. Before a new elastic execution fabric can be configured, the system must compile the original objective into measurable claims, close blocking unknowns with cited evidence, define observable artifact classes, compile executable independent evaluators, bind benchmark tiers, and calibrate those evaluators. A bounded pilot is capped at the legacy 2/3/6 topology. Production scale requires a content-bound authorization over the exact outcome, artifact, evaluator, benchmark, and calibration contracts. Final completion requires an accepted reality receipt from actual artifact evidence, not a production team narrative.
+
 ## Loop strategy plane
 
 Each manager outcome binds exactly one finite primary loop. The selector derives

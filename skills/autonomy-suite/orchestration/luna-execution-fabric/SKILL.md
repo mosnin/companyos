@@ -36,9 +36,7 @@ with worktrees, sandboxes, file ownership, permission envelopes, and leases.
 
 ## Start the fabric
 
-1. Create one versioned Program Contract with north star, customer value,
-   complete outcome, rationale, architecture, roadmap, dependencies, non-goals,
-   acceptance evidence, constraints, budget, and stop conditions.
+1. Start from the original objective and compile its outcome control plane. Resolve blocking unknowns with cited evidence, define observable artifact classes, compile executable independent evaluators, bind benchmark tiers, and calibrate the evaluators. Create one versioned Program Contract only after those controls can measure the intended outcome.
 2. Derive manager outcomes from the accepted work graph. Use one manager for
    each independently accountable outcome or interface boundary; never combine
    unrelated departments merely to fit a fixed agent count.
@@ -54,7 +52,7 @@ with worktrees, sandboxes, file ownership, permission envelopes, and leases.
 
 7. When an Elastic Company OS instance exists, queue the governed primary work
    with `--execution-mode luna_fabric`, then bind the validated manifest through
-   `configure-fabric`. Record every visible phase; use `decide-fabric-phase`
+   `configure-fabric`. A new `elastic_work_graph` manifest requires `outcome_control`. A pilot is capped at 2 managers, 3 workers per manager, and 6 total workers. Production scale requires a content-bound authorized scale receipt. Record every visible phase; use `decide-fabric-phase`
    only for the authenticated charter, design, verification, and final
    integration barriers. The current controller has not implemented native v2
    routine-subphase admission, so the broader runtime remains blocked.
@@ -120,8 +118,8 @@ efficiency, or scaling proof. Requested Luna/max is intent until observed.
 - The program declares capacity from its accepted work graph. Manager count,
   workers per manager, and total workers are not fixed defaults. A large
   program may validly declare 30 Sol managers with 10 Luna tasks each.
-- New manifests declare `topology_mode: elastic_work_graph`. Manifests without
-  it retain the frozen 2/3/6 Phase 1 limits solely for replay compatibility.
+- New manifests declare `topology_mode: elastic_work_graph` and carry an exact portable outcome control binding. Manifests without it retain the frozen 2/3/6 Phase 1 limits solely for replay compatibility and cannot establish elastic scale evidence.
+- The pilot lane may use no more than 2 managers, 3 workers per manager, and 6 total workers. Any larger organization is production scale and requires current outcome authorization before configuration.
 - Capacity is not concurrency. `max_managers`, `max_workers_per_manager`, and
   `max_total_workers` describe the admitted organization; optional
   `max_manager_concurrency` and `budget.max_concurrency` bound how many manager
@@ -185,7 +183,7 @@ Each manager independently verifies the work and returns:
 
 The master additionally returns the validated execution-efficiency receipt and
 its separate delivery, hierarchy, Luna, efficiency, and scaling gate decisions.
-Business acceptance does not imply that any execution-fabric gate passed.
+Business acceptance does not imply that any execution-fabric gate passed. Completion of outcome-controlled fabric work additionally requires one independently accepted reality receipt that judges actual artifacts against the original objective. Production summaries are not acceptance evidence.
 
 The master consumes manager receipts, not worker transcripts. It verifies every
 high-risk result and samples at least one low-risk result per manager.

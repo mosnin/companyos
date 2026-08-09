@@ -186,6 +186,44 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
     topology_mode = manifest.get("topology_mode")
     if topology_mode not in {None, "elastic_work_graph"}:
         errors.append("topology_mode must be 'elastic_work_graph' when provided")
+    if topology_mode == "elastic_work_graph":
+        outcome_control = manifest.get("outcome_control")
+        required_outcome_fields = {
+            "$schema", "execution_lane", "project_id", "program_version", "work_id",
+            "governed_outcome", "objective_id", "outcome_contract_path",
+            "artifact_contract_path", "evaluator_contract_path", "benchmark_contract_path",
+            "calibration_receipts_path", "scale_authorization_path",
+        }
+        if not isinstance(outcome_control, dict):
+            errors.append("elastic_work_graph requires an outcome_control binding")
+        else:
+            if set(outcome_control) != required_outcome_fields:
+                errors.append("outcome_control must define the exact portable binding fields")
+            if outcome_control.get("$schema") != "company-os.outcome-control-binding.v1":
+                errors.append("outcome_control uses an unsupported schema")
+            lane = outcome_control.get("execution_lane")
+            if lane not in {"pilot", "production_scale"}:
+                errors.append("outcome_control.execution_lane must be pilot or production_scale")
+            if outcome_control.get("project_id") != manifest.get("program_id"):
+                errors.append("outcome_control.project_id must match program_id")
+            if outcome_control.get("program_version") != manifest.get("program_version"):
+                errors.append("outcome_control.program_version must match program_version")
+            if outcome_control.get("governed_outcome") != manifest.get("outcome"):
+                errors.append("outcome_control.governed_outcome must match outcome")
+            for field in (
+                "work_id", "objective_id", "outcome_contract_path", "artifact_contract_path",
+                "evaluator_contract_path", "benchmark_contract_path", "calibration_receipts_path",
+            ):
+                if not _nonempty(outcome_control.get(field)):
+                    errors.append(f"outcome_control.{field} must be non-empty")
+            if lane == "production_scale" and not _nonempty(outcome_control.get("scale_authorization_path")):
+                errors.append("production_scale requires outcome_control.scale_authorization_path")
+            if lane == "pilot":
+                if outcome_control.get("scale_authorization_path") not in {None, ""}:
+                    errors.append("pilot may not present scale authorization as pilot authority")
+                for field, cap in LEGACY_HARD_CAPS.items():
+                    if limits[field] > cap:
+                        errors.append(f"pilot {field} cannot exceed {cap}")
     if topology_mode is None:
         for key, cap in LEGACY_HARD_CAPS.items():
             if limits[key] > cap:
@@ -527,6 +565,21 @@ def _self_test() -> int:
             },
         }
     )
+    large_manifest["outcome_control"] = {
+    "$schema": "company-os.outcome-control-binding.v1",
+    "execution_lane": "production_scale",
+    "project_id": "large-self-test",
+    "program_version": 1,
+    "work_id": "large-self-test-work",
+    "governed_outcome": "Produce one accepted artifact",
+    "objective_id": "large-self-test-objective",
+    "outcome_contract_path": "outcome-contract.json",
+    "artifact_contract_path": "artifact-contract.json",
+    "evaluator_contract_path": "evaluator-contract.json",
+    "benchmark_contract_path": "benchmark-contract.json",
+    "calibration_receipts_path": "calibration-receipts.json",
+    "scale_authorization_path": "scale-authorization.json",
+}
     large_manifest["managers"] = []
     for manager_number in range(30):
         manager = json.loads(json.dumps(valid_manifest["managers"][0]))
