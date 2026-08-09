@@ -107,7 +107,7 @@ replacement = '''def _validate_calibrations(
                 "E_CALIBRATION",
                 f"calibration candidate count is invalid: {evaluator_id}",
             )
-        receipts.append(dict(verified))
+        receipts.append(receipt)
         bindings.append(
             {
                 "evaluator_id": evaluator_id,
