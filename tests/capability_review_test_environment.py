@@ -8,7 +8,7 @@ _PREPARED_PATH: Path | None = None
 
 
 def ensure_capability_review_checkouts() -> Path:
-    """Materialize exact pinned upstream checkouts and supply one portable manifest path."""
+    """Materialize exact pinned upstream checkouts and provide one portable manifest path."""
     global _PREPARED_PATH
     if _PREPARED_PATH is not None and _PREPARED_PATH.is_file():
         return _PREPARED_PATH
