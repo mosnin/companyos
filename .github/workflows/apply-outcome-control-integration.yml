@@ -33,6 +33,34 @@ jobs:
           PY
       - name: Apply integration
         run: python3 scripts/apply_outcome_control_integration.py
+      - name: Authorize elastic self test fixture
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py")
+          text = path.read_text(encoding="utf-8")
+          old = '    large_manifest["managers"] = []\n'
+          new = '''    large_manifest["outcome_control"] = {
+              "$schema": "company-os.outcome-control-binding.v1",
+              "execution_lane": "production_scale",
+              "project_id": "large-self-test",
+              "program_version": 1,
+              "work_id": "large-self-test-work",
+              "governed_outcome": "Produce one accepted artifact",
+              "objective_id": "large-self-test-objective",
+              "outcome_contract_path": "outcome-contract.json",
+              "artifact_contract_path": "artifact-contract.json",
+              "evaluator_contract_path": "evaluator-contract.json",
+              "benchmark_contract_path": "benchmark-contract.json",
+              "calibration_receipts_path": "calibration-receipts.json",
+              "scale_authorization_path": "scale-authorization.json",
+          }
+              large_manifest["managers"] = []
+          '''
+          if text.count(old) != 1:
+              raise SystemExit("large self test insertion did not match exactly once")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
       - name: Verify outcome controls
         run: |
           python3 -m unittest tests.test_outcome_compiler -v
