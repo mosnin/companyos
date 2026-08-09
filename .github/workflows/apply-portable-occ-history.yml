@@ -19,6 +19,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Disable already applied CI mutation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("scripts/apply_portable_occ_history.py")
+          text = path.read_text(encoding="utf-8")
+          old = "    patch_ci()\n"
+          if text.count(old) != 1:
+              raise SystemExit("portable migration CI call did not match exactly once")
+          path.write_text(text.replace(old, "", 1), encoding="utf-8")
+          PY
       - name: Apply portable historical verification
         run: python3 scripts/apply_portable_occ_history.py
       - name: Verify distribution
