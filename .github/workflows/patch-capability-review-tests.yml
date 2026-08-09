@@ -1,0 +1,43 @@
+name: Patch Capability Review Tests
+
+on:
+  push:
+    paths:
+      - ".github/workflows/patch-capability-review-tests.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/meta-ads-efficiency-feedback
+      - name: Add portable provenance fixture setup
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          targets = [
+              Path('tests/test_capability_catalog.py'),
+              Path('tests/test_capability_review_registry.py'),
+              Path('tests/test_program_preflight_compiler.py'),
+          ]
+          marker = 'ROOT = Path(__file__).resolve().parents[1]\n'
+          insertion = marker + 'from capability_review_test_environment import ensure_capability_review_checkouts\nensure_capability_review_checkouts()\n'
+          for path in targets:
+              text = path.read_text()
+              if 'ensure_capability_review_checkouts()' in text:
+                  continue
+              if marker not in text:
+                  raise SystemExit(f'ROOT marker not found in {path}')
+              path.write_text(text.replace(marker, insertion, 1))
+          PY
+          rm .github/workflows/patch-capability-review-tests.yml
+          git config user.name "company-os-test-portability-bot"
+          git config user.email "company-os-test-portability-bot@users.noreply.github.com"
+          git add tests/test_capability_catalog.py tests/test_capability_review_registry.py tests/test_program_preflight_compiler.py .github/workflows/patch-capability-review-tests.yml
+          git commit -m "test(company-os): initialize portable review provenance"
+          git push origin HEAD:codex/meta-ads-efficiency-feedback
