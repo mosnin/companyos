@@ -37,12 +37,15 @@ def read_json(path: Path) -> dict[str, Any]:
 
 
 def canonical_bytes(value: Any) -> bytes:
-    return json.dumps(
-        value,
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-        allow_nan=False,
+    return (
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        + "\n"
     ).encode("utf-8")
 
 
@@ -59,155 +62,121 @@ def git(root: Path, *args: str, check: bool = True) -> str:
     return result.stdout.strip()
 
 
-def source_record(source_registry: Mapping[str, Any], catalog_source_id: str) -> Mapping[str, Any]:
-    records = source_registry.get("records")
+def source_index() -> dict[str, Mapping[str, Any]]:
+    registry = read_json(SOURCE_REGISTRY_PATH)
+    records = registry.get("records")
     if not isinstance(records, list):
-        raise MaterializeError("source intelligence registry records are invalid")
-    matches = [
-        item
-        for item in records
-        if isinstance(item, Mapping)
-        and (
-            item.get("source_id") == catalog_source_id
-            or catalog_source_id in item.get("catalog_source_ids", [])
-        )
-    ]
-    if len(matches) != 1:
-        raise MaterializeError(
-            f"catalog source {catalog_source_id!r} resolves to {len(matches)} source records"
-        )
-    return matches[0]
+        raise MaterializeError("source registry records are invalid")
+    index: dict[str, Mapping[str, Any]] = {}
+    for raw in records:
+        if not isinstance(raw, dict):
+            continue
+        source_id = raw.get("source_id")
+        if isinstance(source_id, str):
+            index[source_id] = raw
+        aliases = raw.get("catalog_source_ids")
+        if isinstance(aliases, list):
+            for alias in aliases:
+                if isinstance(alias, str):
+                    index[alias] = raw
+    return index
 
 
 def required_sources() -> list[dict[str, Any]]:
     catalog = read_json(CATALOG_PATH)
     decisions = read_json(DECISIONS_PATH)
     registry = read_json(REGISTRY_PATH)
-    sources = read_json(SOURCE_REGISTRY_PATH)
-
-    decision_index = {
-        item["capability_id"]: item
-        for item in decisions.get("decisions", [])
-        if isinstance(item, dict) and isinstance(item.get("capability_id"), str)
-    }
-    registry_records = {
-        item["capability_id"]: item
-        for item in registry.get("records", [])
-        if isinstance(item, dict) and isinstance(item.get("capability_id"), str)
-    }
-
+    sources = source_index()
+    capabilities = catalog.get("capabilities")
+    review_records = registry.get("records")
+    decision_records = decisions.get("decisions")
+    if not isinstance(capabilities, list) or not isinstance(review_records, list) or not isinstance(decision_records, list):
+        raise MaterializeError("capability review inputs are invalid")
+    review_by_id = {r.get("capability_id"): r for r in review_records if isinstance(r, dict)}
+    decisions_by_id = {r.get("capability_id"): r for r in decision_records if isinstance(r, dict)}
     grouped: dict[str, dict[str, Any]] = {}
-    for capability in catalog.get("capabilities", []):
+    for capability in capabilities:
         if not isinstance(capability, dict) or capability.get("dispatchable") is not True:
             continue
         capability_id = capability.get("capability_id")
         source_id = capability.get("source_id")
         if not isinstance(capability_id, str) or not isinstance(source_id, str):
-            raise MaterializeError("dispatchable capability identity is invalid")
-        decision = decision_index.get(capability_id)
-        reviewed = registry_records.get(capability_id)
-        if decision is None or reviewed is None:
-            raise MaterializeError(f"missing review evidence for {capability_id}")
-        source = source_record(sources, source_id)
-        url = source.get("canonical_source")
-        pin = source.get("pin")
-        if not isinstance(url, str) or not url.startswith("https://github.com/"):
+            raise MaterializeError("dispatchable capability lacks identity")
+        review = review_by_id.get(capability_id)
+        decision = decisions_by_id.get(capability_id)
+        source = sources.get(source_id)
+        if not isinstance(review, dict) or not isinstance(decision, dict) or not isinstance(source, Mapping):
+            raise MaterializeError(f"missing provenance inputs for {capability_id}")
+        canonical_source = source.get("canonical_source")
+        if not isinstance(canonical_source, str) or not canonical_source.startswith("https://github.com/"):
             raise MaterializeError(f"source {source_id} lacks a public GitHub canonical source")
-        if not isinstance(pin, str) or len(pin) != 40:
-            raise MaterializeError(f"source {source_id} lacks an immutable pin")
-        if reviewed.get("source_checkout_commit") != pin:
-            raise MaterializeError(f"source {source_id} registry commit differs from source intelligence")
-        tree = reviewed.get("source_checkout_tree")
-        if not isinstance(tree, str) or len(tree) != 40:
-            raise MaterializeError(f"source {source_id} registry tree is invalid")
-
-        entry = grouped.setdefault(
+        commit = review.get("source_checkout_commit")
+        tree = review.get("source_checkout_tree")
+        if not isinstance(commit, str) or not isinstance(tree, str):
+            raise MaterializeError(f"review {capability_id} lacks checkout pin")
+        entrypoint = capability.get("upstream_skill_path")
+        if not isinstance(entrypoint, str):
+            raise MaterializeError(f"capability {capability_id} lacks upstream path")
+        item = grouped.setdefault(
             source_id,
             {
                 "source_id": source_id,
-                "canonical_source": url,
-                "source_commit": pin,
+                "canonical_source": canonical_source,
+                "source_commit": commit,
                 "source_tree": tree,
                 "paths": set(),
             },
         )
-        if entry["source_commit"] != pin or entry["source_tree"] != tree:
-            raise MaterializeError(f"source {source_id} has inconsistent reviewed pins")
-
-        upstream = capability.get("upstream_skill_path")
-        if not isinstance(upstream, str) or not upstream:
-            raise MaterializeError(f"capability {capability_id} lacks upstream skill path")
-        entry["paths"].add(upstream)
+        if item["source_commit"] != commit or item["source_tree"] != tree:
+            raise MaterializeError(f"source {source_id} has conflicting review pins")
+        item["paths"].add(entrypoint)
+        refs = decision.get("upstream_transitive_references", [])
+        if isinstance(refs, list):
+            for ref in refs:
+                if isinstance(ref, dict) and isinstance(ref.get("path"), str):
+                    item["paths"].add(ref["path"])
         license_evidence = decision.get("license_evidence")
-        if not isinstance(license_evidence, dict) or not isinstance(license_evidence.get("path"), str):
-            raise MaterializeError(f"capability {capability_id} lacks license evidence path")
-        entry["paths"].add(license_evidence["path"])
-        refs = decision.get("upstream_transitive_references")
-        if not isinstance(refs, list):
-            raise MaterializeError(f"capability {capability_id} transitive references are invalid")
-        for ref in refs:
-            if not isinstance(ref, dict) or not isinstance(ref.get("path"), str):
-                raise MaterializeError(f"capability {capability_id} reference path is invalid")
-            entry["paths"].add(ref["path"])
-
+        if isinstance(license_evidence, dict) and isinstance(license_evidence.get("path"), str):
+            item["paths"].add(license_evidence["path"])
     result = []
     for source_id in sorted(grouped):
-        entry = grouped[source_id]
-        result.append({**entry, "paths": sorted(entry["paths"])})
-    if not result:
-        raise MaterializeError("no dispatchable capability sources were found")
+        item = grouped[source_id]
+        item["paths"] = sorted(item["paths"])
+        result.append(item)
     return result
 
 
-def checkout_matches(root: Path, commit: str, tree: str, required_paths: list[str]) -> bool:
-    if not (root / ".git").exists():
-        return False
-    try:
-        if git(root, "rev-parse", "--verify", "HEAD") != commit:
-            return False
-        if git(root, "rev-parse", "--verify", "HEAD^{tree}") != tree:
-            return False
-    except MaterializeError:
-        return False
-    return all((root / path).is_file() for path in required_paths)
-
-
-def materialize_source(source: Mapping[str, Any], root: Path) -> None:
+def materialize_source(source: Mapping[str, Any], checkout: Path) -> None:
     source_id = str(source["source_id"])
+    url = str(source["canonical_source"])
     commit = str(source["source_commit"])
     tree = str(source["source_tree"])
-    url = str(source["canonical_source"])
-    paths = [str(item) for item in source["paths"]]
-    if checkout_matches(root, commit, tree, paths):
-        return
-
-    if root.exists():
-        shutil.rmtree(root)
-    root.parent.mkdir(parents=True, exist_ok=True)
-    root.mkdir()
-    git(root, "init", "-q")
-    git(root, "remote", "add", "origin", url)
-    git(root, "sparse-checkout", "init", "--no-cone")
-    sparse_file = root / ".git/info/sparse-checkout"
-    sparse_file.write_text("\n".join(paths) + "\n", encoding="utf-8")
-
-    last_error: Exception | None = None
-    for _ in range(3):
-        try:
-            git(root, "fetch", "--depth=1", "--filter=blob:none", "origin", commit)
-            git(root, "checkout", "--detach", "-q", "FETCH_HEAD")
-            last_error = None
-            break
-        except MaterializeError as exc:
-            last_error = exc
-    if last_error is not None:
-        raise MaterializeError(f"cannot fetch {source_id}: {last_error}") from last_error
-
-    actual_commit = git(root, "rev-parse", "--verify", "HEAD")
-    actual_tree = git(root, "rev-parse", "--verify", "HEAD^{tree}")
+    if checkout.exists():
+        shutil.rmtree(checkout)
+    checkout.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "clone", "--filter=blob:none", "--no-checkout", url, str(checkout)], check=True, capture_output=True, text=True)
+    result = subprocess.run(
+        ["git", "-c", "core.hooksPath=/dev/null", "-C", str(checkout), "fetch", "--depth=1", "origin", commit],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise MaterializeError(result.stderr.strip() or f"cannot fetch {source_id}@{commit}")
+    subprocess.run(
+        ["git", "-c", "core.hooksPath=/dev/null", "-C", str(checkout), "checkout", "--detach", "FETCH_HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    actual_commit = git(checkout, "rev-parse", "HEAD")
+    actual_tree = git(checkout, "rev-parse", "HEAD^{tree}")
     if actual_commit != commit or actual_tree != tree:
-        raise MaterializeError(f"checkout pin drift for {source_id}")
-    missing = [path for path in paths if not (root / path).is_file()]
+        raise MaterializeError(f"checkout pin mismatch for {source_id}")
+    paths = source.get("paths", [])
+    if not isinstance(paths, list):
+        raise MaterializeError(f"paths for {source_id} are invalid")
+    missing = [path for path in paths if not (checkout / path).is_file()]
     if missing:
         raise MaterializeError(f"checkout {source_id} lacks required paths: {', '.join(missing)}")
 
