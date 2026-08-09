@@ -1,0 +1,42 @@
+name: Verify Post OCC Gates
+
+on:
+  push:
+    paths:
+      - ".github/workflows/verify-post-occ-gates.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/meta-ads-efficiency-feedback
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify controller
+        run: python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
+      - name: Verify control store
+        run: python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
+      - name: Verify runtime observations
+        run: python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
+      - name: Verify operator brief
+        run: python3 skills/company-os/elastic-company-os/scripts/test_operator_brief.py -v
+      - name: Verify self hosting references
+        run: python3 -m unittest discover -s programs/company-os-self-hosting/reference -v
+      - name: Verify Luna execution fabric
+        run: python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
+      - name: Verify Python compilation
+        run: python3 -m py_compile skills/company-os/elastic-company-os/scripts/company_os_controller.py skills/company-os/elastic-company-os/scripts/control_store.py skills/company-os/elastic-company-os/scripts/runtime_observations.py skills/company-os/elastic-company-os/scripts/operator_brief.py skills/company-os/elastic-company-os/scripts/test_company_os_controller.py skills/company-os/elastic-company-os/scripts/test_control_store.py skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py skills/company-os/elastic-company-os/scripts/test_operator_brief.py programs/company-os-self-hosting/reference/gate2_observation_gateway_contract.py programs/company-os-self-hosting/reference/test_gate2_observation_gateway_contract.py scripts/distribution.py tests/test_distribution.py
+      - name: Remove one shot workflow
+        run: |
+          rm .github/workflows/verify-post-occ-gates.yml
+          git config user.name "company-os-verification-bot"
+          git config user.email "company-os-verification-bot@users.noreply.github.com"
+          git add .github/workflows/verify-post-occ-gates.yml
+          git commit -m "chore(company-os): remove post OCC verification workflow"
+          git push origin HEAD:codex/meta-ads-efficiency-feedback
