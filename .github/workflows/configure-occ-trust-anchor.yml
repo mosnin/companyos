@@ -1,0 +1,41 @@
+name: Configure OCC Trust Anchor
+
+on:
+  push:
+    paths:
+      - ".github/workflows/configure-occ-trust-anchor.yml"
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/meta-ads-efficiency-feedback
+      - name: Configure repository variables
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          set_var() {
+            local name="$1"
+            local value="$2"
+            if gh api "repos/$GH_REPO/actions/variables/$name" >/dev/null 2>&1; then
+              gh api --method PATCH "repos/$GH_REPO/actions/variables/$name" -f name="$name" -f value="$value" >/dev/null
+            else
+              gh api --method POST "repos/$GH_REPO/actions/variables" -f name="$name" -f value="$value" >/dev/null
+            fi
+          }
+          set_var COMPANY_OS_OCC_REVIEWER_ID "company-os-0.5.1-external-independent-surface-reviewer"
+          set_var COMPANY_OS_OCC_REVIEWER_PUBLIC_KEY_DER_SHA256 "bcd8b035cf8aa2e5c5dd792e9e5ecf3226d962f5b6052e8b5f70eb96512bbc15"
+          rm .github/workflows/configure-occ-trust-anchor.yml
+          git config user.name "company-os-trust-anchor-bot"
+          git config user.email "company-os-trust-anchor-bot@users.noreply.github.com"
+          git add .github/workflows/configure-occ-trust-anchor.yml
+          git commit -m "chore(company-os): configure operator surface trust anchor"
+          git push origin HEAD:codex/meta-ads-efficiency-feedback
