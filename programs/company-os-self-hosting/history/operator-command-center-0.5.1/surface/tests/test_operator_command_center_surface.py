@@ -152,29 +152,13 @@ class OperatorCommandCenterSurfaceTests(unittest.TestCase):
         ):
             verifier.verify_surface(ROOT, **self.verifier_kwargs())
 
-    @unittest.skipUnless(CURRENT_RELEASE == "0.5.1", "historical signed surface not imported")
-    def test_bundled_historical_surface_and_independent_signature_verify(self) -> None:
+    @unittest.skipUnless(CURRENT_RELEASE == "0.5.1", "final signed surface not imported")
+    def test_current_final_surface_and_independent_signature_verify(self) -> None:
         verifier = load_verifier()
-        result = verifier.verify_surface(ROOT)
+        result = verifier.verify_surface(ROOT, **self.verifier_kwargs())
         self.assertTrue(result["ok"])
         self.assertEqual(result["files"], 21)
         self.assertEqual(result["reviewer_id"], REVIEWER_ID)
-        self.assertEqual(result["verification_mode"], "historical_bundle")
-        self.assertEqual(result["accepted_release_version"], "0.5.1")
-        self.assertFalse(result["current_source_accepted"])
-        historical_controller = (
-            ROOT
-            / verifier.HISTORICAL_SURFACE_ROOT
-            / "skills/company-os/elastic-company-os/scripts/company_os_controller.py"
-        )
-        current_controller = (
-            ROOT / "skills/company-os/elastic-company-os/scripts/company_os_controller.py"
-        )
-        self.assertTrue(historical_controller.is_file())
-        self.assertNotEqual(
-            verifier.sha256_bytes(historical_controller.read_bytes()),
-            verifier.sha256_bytes(current_controller.read_bytes()),
-        )
 
     def test_generated_compatible_claim_and_surface_fixture_verifies(self) -> None:
         verifier = load_verifier()
@@ -184,14 +168,13 @@ class OperatorCommandCenterSurfaceTests(unittest.TestCase):
         self.assertEqual(result["carrier_commit"], "a" * 40)
         self.assertEqual(result["review_mean_score"], 9.22)
 
-    def test_bundled_reviewer_trust_anchor_requires_no_environment(self) -> None:
+    def test_missing_external_reviewer_trust_anchor_fails_closed(self) -> None:
         verifier = load_verifier()
-        result = verifier.verify_surface(ROOT)
-        self.assertEqual(result["reviewer_id"], REVIEWER_ID)
-        self.assertEqual(
-            result["reviewer_public_key_der_sha256"],
-            REVIEWER_PUBLIC_KEY_DER_SHA256,
-        )
+        with self.assertRaisesRegex(
+            verifier.SurfaceVerificationError,
+            "externally supplied reviewer identity trust anchor is required",
+        ):
+            verifier.verify_surface(ROOT)
 
     def test_external_reviewer_identity_and_fingerprint_are_exact(self) -> None:
         verifier = load_verifier()

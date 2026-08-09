@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Verify the bundled historical Operator Command Center 0.5.1 surface.
+"""Verify the independently signed Operator Command Center product surface.
 
-The committed reviewer identity, public key fingerprint, public key, detached
-signature, signed manifest, and exact reviewed file bytes make verification
-self contained for a local clone. This proves the preserved 0.5.1 review only.
-It does not claim that later Company OS source revisions share that acceptance.
-Repository authenticity still depends on obtaining the release or commit from a
-trusted distribution channel.
+The reviewer delegation is intentionally not stored in this repository.  A
+caller must supply both the reviewer identity and the DER public-key fingerprint
+from independently governed acceptance evidence; repository-local keys,
+attestations, and CI configuration cannot establish that trust on their own.
 """
 
 from __future__ import annotations
@@ -26,7 +24,6 @@ SURFACE = PROGRAM / "OPERATOR_COMMAND_CENTER_ACCEPTED_SURFACE.json"
 ATTESTATION = PROGRAM / "OPERATOR_COMMAND_CENTER_ACCEPTANCE_ATTESTATION.json"
 SIGNATURE = PROGRAM / "OPERATOR_COMMAND_CENTER_ACCEPTANCE_SIGNATURE.bin"
 PUBLIC_KEY = PROGRAM / "OPERATOR_COMMAND_CENTER_ACCEPTANCE_REVIEWER_PUBLIC.der"
-HISTORICAL_SURFACE_ROOT = PROGRAM / "history/operator-command-center-0.5.1/surface"
 EXPECTED_REVIEWER_ID = "company-os-0.5.1-external-independent-surface-reviewer"
 EXPECTED_REVIEWER_PUBLIC_KEY_DER_SHA256 = (
     "bcd8b035cf8aa2e5c5dd792e9e5ecf3226d962f5b6052e8b5f70eb96512bbc15"
@@ -150,30 +147,24 @@ def _require_external_reviewer_delegation(
     expected_reviewer_id: str | None,
     expected_reviewer_public_key_der_sha256: str | None,
 ) -> tuple[str, str]:
-    """Resolve the bundled trust anchor while allowing exact explicit rechecks."""
-    reviewer_id = (
-        EXPECTED_REVIEWER_ID
-        if expected_reviewer_id is None
-        else expected_reviewer_id
-    )
-    fingerprint = (
-        EXPECTED_REVIEWER_PUBLIC_KEY_DER_SHA256
-        if expected_reviewer_public_key_der_sha256 is None
-        else expected_reviewer_public_key_der_sha256
-    )
-    if not isinstance(reviewer_id, str) or not reviewer_id.strip():
-        raise SurfaceVerificationError("reviewer identity trust anchor is invalid")
-    if not _is_sha256(fingerprint):
-        raise SurfaceVerificationError("reviewer public-key fingerprint trust anchor is invalid")
-    if reviewer_id != EXPECTED_REVIEWER_ID:
+    """Require an identity/key pair supplied outside the accepted repository tree."""
+    if not isinstance(expected_reviewer_id, str) or not expected_reviewer_id.strip():
         raise SurfaceVerificationError(
-            "reviewer identity does not match the required stable reviewer"
+            "an externally supplied reviewer identity trust anchor is required"
         )
-    if fingerprint != EXPECTED_REVIEWER_PUBLIC_KEY_DER_SHA256:
+    if not _is_sha256(expected_reviewer_public_key_der_sha256):
         raise SurfaceVerificationError(
-            "reviewer public-key fingerprint does not match the required stable reviewer"
+            "an externally supplied reviewer public-key fingerprint trust anchor is required"
         )
-    return reviewer_id, fingerprint
+    if expected_reviewer_id != EXPECTED_REVIEWER_ID:
+        raise SurfaceVerificationError(
+            "externally supplied reviewer identity does not match the required stable reviewer"
+        )
+    if expected_reviewer_public_key_der_sha256 != EXPECTED_REVIEWER_PUBLIC_KEY_DER_SHA256:
+        raise SurfaceVerificationError(
+            "externally supplied reviewer public-key fingerprint does not match the required stable reviewer"
+        )
+    return expected_reviewer_id, expected_reviewer_public_key_der_sha256
 
 
 def _reject_constant(value: str) -> None:
@@ -295,9 +286,7 @@ def verify_surface(
     attestation_path: Path | None = None,
     signature_path: Path | None = None,
     public_key_path: Path | None = None,
-    artifact_root: Path | None = None,
 ) -> dict[str, Any]:
-    default_surface = surface_path is None
     expected_reviewer_id, expected_reviewer_public_key_der_sha256 = (
         _require_external_reviewer_delegation(
             expected_reviewer_id,
@@ -309,16 +298,6 @@ def verify_surface(
     attestation_path = attestation_path or root / ATTESTATION
     signature_path = signature_path or root / SIGNATURE
     public_key_path = public_key_path or root / PUBLIC_KEY
-    historical_bundle = default_surface and artifact_root is None
-    verification_root = (
-        (root / HISTORICAL_SURFACE_ROOT).resolve()
-        if historical_bundle
-        else (artifact_root or root).resolve()
-    )
-    if verification_root.is_symlink() or not verification_root.is_dir():
-        raise SurfaceVerificationError(
-            f"reviewed surface root is missing or invalid: {verification_root}"
-        )
 
     surface_bytes = surface_path.read_bytes()
     attestation_bytes = attestation_path.read_bytes()
@@ -426,7 +405,7 @@ def verify_surface(
             raise SurfaceVerificationError(f"surface file digest is invalid: {path_value}")
         if not isinstance(size, int) or isinstance(size, bool) or size < 0:
             raise SurfaceVerificationError(f"surface file size is invalid: {path_value}")
-        artifact = verification_root / pure
+        artifact = root / pure
         if artifact.is_symlink() or not artifact.is_file():
             raise SurfaceVerificationError(f"surface file is missing or not regular: {path_value}")
         payload = artifact.read_bytes()
@@ -459,11 +438,6 @@ def verify_surface(
         "carrier_commit": carrier_binding["accepted_carrier_commit"],
         "carrier_git_tree": carrier_binding["accepted_carrier_git_tree"],
         "review_mean_score": attestation["review_mean_score"],
-        "verification_mode": (
-            "historical_bundle" if historical_bundle else "explicit_surface"
-        ),
-        "accepted_release_version": "0.5.1",
-        "current_source_accepted": False if historical_bundle else None,
     }
 
 
@@ -472,13 +446,13 @@ def main() -> int:
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument(
         "--expected-reviewer-id",
-        default=None,
-        help="optional exact recheck of the bundled reviewer identity",
+        required=True,
+        help="reviewer identity from independently governed acceptance evidence",
     )
     parser.add_argument(
         "--expected-reviewer-public-key-der-sha256",
-        default=None,
-        help="optional exact recheck of the bundled reviewer public-key fingerprint",
+        required=True,
+        help="DER SHA-256 fingerprint from the same independent reviewer delegation",
     )
     args = parser.parse_args()
     try:
