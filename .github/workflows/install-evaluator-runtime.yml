@@ -39,12 +39,12 @@ jobs:
         run: |
           python3 -m unittest tests.test_evaluator_execution -v
           python3 -m py_compile skills/company-os/execute-outcome-evaluator/scripts/execute_evaluator.py
-      - name: Verify repository tests
-        run: python3 -m unittest discover -s tests -v
       - name: Regenerate distribution manifest
         run: |
           python3 scripts/distribution.py write-manifest
           python3 scripts/distribution.py verify-manifest
+      - name: Verify repository tests
+        run: python3 -m unittest discover -s tests -v
       - name: Commit evaluator execution runtime
         run: |
           git config user.name "company-os-evaluator-runtime-bot"
