@@ -134,7 +134,7 @@ class CapabilityReviewRegistryTests(unittest.TestCase):
             MODULE.validate_registry(registry, catalog, sources, SKILL_ROOT)
         self.assertEqual(ctx.exception.code, "E_CHECKOUT")
         manifest = json.loads(MANIFEST_PATH.read_text())
-        for field, code in (("source_commit", "E_BINDING"), ("source_tree", "E_BINDING"), ("checkout_path", "E_PATH")):
+        for field, code in (("source_commit", "E_CHECKOUT"), ("source_tree", "E_CHECKOUT"), ("checkout_path", "E_PATH")):
             mutated = copy.deepcopy(manifest)
             if field == "checkout_path":
                 mutated["sources"][0][field] = "/tmp/does-not-exist"
@@ -231,7 +231,7 @@ class CapabilityReviewRegistryTests(unittest.TestCase):
                 "candidate_digest": MODULE.canonical_digest(registry),
                 "catalog_sha256": MODULE.canonical_digest(catalog),
                 "source_intelligence_registry_sha256": MODULE.canonical_digest(sources),
-                "checkout_manifest_sha256": MODULE.canonical_digest(json.loads(MANIFEST_PATH.read_text())),
+                "checkout_manifest_sha256": MODULE._manifest_digest(json.loads(MANIFEST_PATH.read_text())),
                 "selected_capability_ids": selected,
                 "selected_review_record_digests": MODULE._selected_record_digests(registry["records"], selected),
                 "verdict": "accepted",

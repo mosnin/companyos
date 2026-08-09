@@ -1081,7 +1081,7 @@ class ProgramPreflightCompilerTests(unittest.TestCase):
                 paths = self.write_inputs(root, documents)
                 with self.assertRaises(MODULE.PreflightError) as caught:
                     MODULE.compile_program(*paths, root / "output", **context)
-                self.assertEqual("E_BINDING", caught.exception.code)
+                self.assertEqual("E_CAPABILITY_BINDING", caught.exception.code)
                 self.assertFalse((root / "output").exists())
             self.assertEqual(before, context)
 
