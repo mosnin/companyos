@@ -67,6 +67,16 @@ def objective_id(value: Mapping[str, Any], label: str) -> str:
     return current
 
 
+def string_set(value: Any, label: str) -> set[str]:
+    if value is None:
+        return set()
+    if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
+        raise ScaleAuthorizationError("E_SCHEMA", f"{label} must be an array of nonempty strings")
+    if len(value) != len(set(value)):
+        raise ScaleAuthorizationError("E_DUPLICATE", f"{label} contains duplicates")
+    return set(value)
+
+
 def authorize(
     outcome: Mapping[str, Any],
     artifacts: Mapping[str, Any],
@@ -109,17 +119,27 @@ def authorize(
     artifact_records = artifacts.get("artifact_classes")
     if not isinstance(artifact_records, list):
         raise ScaleAuthorizationError("E_SCHEMA", "artifact_classes must be an array")
-    required_artifacts = {
-        item["artifact_class_id"]
-        for item in artifact_records
-        if isinstance(item, Mapping) and item.get("required") is True
-    }
+    required_artifacts: set[str] = set()
+    required_evidence_by_artifact: dict[str, set[str]] = {}
+    for index, item in enumerate(artifact_records):
+        if not isinstance(item, Mapping):
+            raise ScaleAuthorizationError("E_SCHEMA", f"artifact_classes[{index}] must be an object")
+        artifact_id = item.get("artifact_class_id")
+        if not isinstance(artifact_id, str) or not artifact_id:
+            raise ScaleAuthorizationError("E_SCHEMA", f"artifact_classes[{index}].artifact_class_id invalid")
+        if item.get("required") is True:
+            required_artifacts.add(artifact_id)
+            required_evidence_by_artifact[artifact_id] = string_set(
+                item.get("required_evidence", []),
+                f"artifact {artifact_id}.required_evidence",
+            )
 
     evaluator_records = evaluators.get("evaluators")
     if not isinstance(evaluator_records, list):
         raise ScaleAuthorizationError("E_SCHEMA", "evaluators.evaluators must be an array")
     required_evaluators: dict[str, set[str]] = {}
     artifact_coverage: set[str] = set()
+    evidence_coverage_by_artifact: dict[str, set[str]] = {}
     for item in evaluator_records:
         if not isinstance(item, Mapping):
             raise ScaleAuthorizationError("E_SCHEMA", "evaluator record must be an object")
@@ -129,13 +149,31 @@ def authorize(
         covered = item.get("artifact_classes")
         if not isinstance(covered, list) or not all(isinstance(x, str) and x for x in covered):
             raise ScaleAuthorizationError("E_SCHEMA", f"{evaluator_id}.artifact_classes invalid")
+        produces_evidence = string_set(
+            item.get("produces_evidence", []),
+            f"{evaluator_id}.produces_evidence",
+        )
         if item.get("required") is True:
             required_evaluators[evaluator_id] = set(covered)
             artifact_coverage.update(covered)
+            for artifact_id in covered:
+                evidence_coverage_by_artifact.setdefault(artifact_id, set()).update(produces_evidence)
 
     uncovered = sorted(required_artifacts - artifact_coverage)
     for artifact_id in uncovered:
         blockers.append({"code": "ARTIFACT_WITHOUT_EVALUATOR", "detail": artifact_id})
+
+    for artifact_id in sorted(required_artifacts):
+        required_evidence = required_evidence_by_artifact.get(artifact_id, set())
+        observed_coverage = evidence_coverage_by_artifact.get(artifact_id, set())
+        missing_evidence = sorted(required_evidence - observed_coverage)
+        if missing_evidence:
+            blockers.append(
+                {
+                    "code": "ARTIFACT_OBSERVATION_EVIDENCE_UNCOVERED",
+                    "detail": f"{artifact_id}:{','.join(missing_evidence)}",
+                }
+            )
 
     calibration_by_evaluator: dict[str, Mapping[str, Any]] = {}
     for receipt in calibrations:
@@ -169,6 +207,10 @@ def authorize(
         "blockers": blockers,
         "required_artifact_classes": sorted(required_artifacts),
         "required_evaluator_ids": sorted(required_evaluators),
+        "required_observation_evidence": {
+            artifact_id: sorted(required_evidence_by_artifact.get(artifact_id, set()))
+            for artifact_id in sorted(required_artifacts)
+        },
         "input_bindings": {
             "outcome_sha256": digest(outcome),
             "artifacts_sha256": digest(artifacts),
