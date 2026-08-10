@@ -204,11 +204,14 @@ def compile_manifest(
     program_version = strategy.get("program_version")
     if not isinstance(program_version, int) or isinstance(program_version, bool) or program_version < 1:
         raise BuildFabricError("E_STATE", "strategy.program_version is invalid")
+
+    program_outcome = f"Materialize missing independent evaluator adapters for objective {objective_id}"
     manager_groups = [batch[index : index + 3] for index in range(0, len(batch), 3)]
     managers = []
     for manager_index, group in enumerate(manager_groups, 1):
         manager_id = f"evaluator-builder-manager-{manager_index:02d}"
         manager_scope = f".company-os/evaluator-build/batch/{manager_index:02d}"
+        manager_outcome = f"Build and verify evaluator adapters for {[item['evaluator_id'] for item in group]}"
         workers = []
         for worker_index, evaluator in enumerate(group, 1):
             entrypoint = evaluator["entrypoint"]
@@ -235,9 +238,9 @@ def compile_manifest(
                     "write_scope": [parent],
                     "risk": "medium",
                     "budget": {
-                        "time_minutes": 45.0,
-                        "token_limit": 14000,
-                        "cost_usd": 14.0,
+                        "time_minutes": 30.0,
+                        "token_limit": 8000,
+                        "cost_usd": 8.0,
                         "max_concurrency": 1,
                         "max_retries": 1,
                     },
@@ -245,9 +248,9 @@ def compile_manifest(
                         "program_version": program_version,
                         "north_star": strategy.get("north_star") or "Produce independently verified outcomes",
                         "user_value": f"Executable evaluator capability for {objective_id}",
-                        "program_outcome": f"Build the independent evaluator capabilities required by {objective_id}",
-                        "manager_outcome": f"Materialize evaluator adapters for {[item['evaluator_id'] for item in group]}",
-                        "roadmap_position": "evaluator capability construction",
+                        "program_outcome": program_outcome,
+                        "manager_outcome": manager_outcome,
+                        "roadmap_position": "execution",
                         "dependencies": [
                             evaluator_contract_path,
                             artifact_contract_path,
@@ -268,7 +271,7 @@ def compile_manifest(
             {
                 "id": manager_id,
                 "model": "gpt-5.6-sol",
-                "outcome": f"Build and verify evaluator adapters for {[item['evaluator_id'] for item in group]}",
+                "outcome": manager_outcome,
                 "acceptance": [
                     "Every assigned adapter path exists or has an explicit prerequisite blocker",
                     "No evaluator requirement was weakened",
@@ -276,10 +279,10 @@ def compile_manifest(
                 ],
                 "phase_ids": PHASES,
                 "budget": {
-                    "time_minutes": 55.0,
-                    "token_limit": 18000,
-                    "cost_usd": 18.0,
-                    "max_concurrency": min(3, len(workers)),
+                    "time_minutes": 120.0,
+                    "token_limit": 30000,
+                    "cost_usd": 30.0,
+                    "max_concurrency": 1,
                     "max_retries": 1,
                 },
                 "write_scope": [manager_scope, *sorted({worker["write_scope"][0] for worker in workers})],
@@ -290,7 +293,7 @@ def compile_manifest(
     fabric = {
         "program_id": project_id,
         "program_version": program_version,
-        "outcome": f"Materialize missing independent evaluator adapters for objective {objective_id}",
+        "outcome": program_outcome,
         "acceptance": [
             "All adapters in this batch are materialized or expose exact external prerequisites",
             "Required evaluator contract semantics are preserved",
@@ -314,9 +317,9 @@ def compile_manifest(
         "max_worker_retries": 1,
         "max_manager_rework_rounds": 2,
         "budget": {
-            "time_minutes": 110.0,
-            "token_limit": 36000,
-            "cost_usd": 36.0,
+            "time_minutes": 360.0,
+            "token_limit": 90000,
+            "cost_usd": 90.0,
             "max_concurrency": len(managers),
             "max_retries": 1,
         },
