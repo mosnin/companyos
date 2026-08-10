@@ -102,8 +102,9 @@ def patch_tests() -> None:
             artifact_bindings=list(reversed(bindings)),
         )
         payload = completed["terminal"]["observation"]
-        self.assertEqual(payload["artifact_bindings"], bindings)
-        self.assertEqual(payload["artifact_digests"], ["a" * 64, "b" * 64])
+        expected = sorted(bindings, key=lambda item: item["artifact_id"])
+        self.assertEqual(payload["artifact_bindings"], expected)
+        self.assertEqual(payload["artifact_digests"], [item["sha256"] for item in expected])
         self.assertEqual(runtime.audit_state(completed), [])
         with self.assertRaises(runtime.RuntimeStateError):
             runtime.apply_event(
