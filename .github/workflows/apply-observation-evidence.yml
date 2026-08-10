@@ -1,0 +1,52 @@
+name: Apply Observation Evidence
+
+on:
+  push:
+    paths:
+      - ".github/workflows/apply-observation-evidence.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/company-os-outcome-control-plane
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Apply observation evidence acceptance
+        run: python3 scripts/apply_observation_evidence_acceptance.py
+      - name: Verify focused evidence gates
+        run: python3 -m unittest tests.test_outcome_scale_authorization tests.test_reality_acceptance tests.test_outcome_loop tests.test_outcome_control -v
+      - name: Refresh distribution manifest
+        run: python3 scripts/distribution.py write-manifest
+      - name: Verify repository suite
+        run: python3 -m unittest discover -s tests -v
+      - name: Verify controller suite
+        run: python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
+      - name: Verify control store
+        run: python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
+      - name: Verify runtime observations
+        run: python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
+      - name: Verify Python compilation
+        run: >-
+          python3 -m py_compile
+          skills/company-os/authorize-outcome-scale/scripts/authorize_outcome_scale.py
+          skills/company-os/accept-outcome-reality/scripts/accept_reality.py
+          skills/company-os/elastic-company-os/scripts/outcome_loop.py
+          skills/company-os/elastic-company-os/scripts/outcome_control.py
+          tests/test_outcome_scale_authorization.py
+          tests/test_reality_acceptance.py
+      - name: Commit verified observation evidence enforcement
+        run: |
+          rm scripts/apply_observation_evidence_acceptance.py
+          git config user.name "company-os-observation-evidence-bot"
+          git config user.email "company-os-observation-evidence-bot@users.noreply.github.com"
+          git add skills tests distribution-manifest.json scripts
+          git commit -m "feat(company-os): require experiential evidence for rich outcomes"
+          git push origin HEAD:codex/company-os-outcome-control-plane
