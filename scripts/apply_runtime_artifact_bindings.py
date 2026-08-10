@@ -101,7 +101,7 @@ def patch_tests() -> None:
             status="succeeded",
             artifact_bindings=list(reversed(bindings)),
         )
-        payload = completed["terminal"]
+        payload = completed["terminal"]["observation"]
         self.assertEqual(payload["artifact_bindings"], bindings)
         self.assertEqual(payload["artifact_digests"], ["a" * 64, "b" * 64])
         self.assertEqual(runtime.audit_state(completed), [])
