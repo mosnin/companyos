@@ -386,6 +386,11 @@
       "size": 24584
     },
     {
+      "path": "company-os/elastic-company-os/scripts/outcome_runtime_bridge.py",
+      "sha256": "31de0d6867d3244010bd43e48d65adda2909d505529e2360dca1d6696d4d486e",
+      "size": 12511
+    },
+    {
       "path": "company-os/elastic-company-os/scripts/runtime_gateway.py",
       "sha256": "9bde8786392ed0feec427c8eb5a584299e7937466620b8237c9eaeaf4c225d8e",
       "size": 30272
