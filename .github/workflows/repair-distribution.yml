@@ -1,0 +1,37 @@
+name: Repair Distribution Manifest
+
+on:
+  push:
+    paths:
+      - ".github/workflows/repair-distribution.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/company-os-outcome-control-plane
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Refresh distribution manifest
+        run: python3 scripts/distribution.py write-manifest
+      - name: Verify scale authorization
+        run: python3 -m unittest tests.test_outcome_scale_authorization -v
+      - name: Verify outcome loop
+        run: python3 -m unittest tests.test_outcome_loop tests.test_outcome_organization tests.test_outcome_control -v
+      - name: Verify repository suite
+        run: python3 -m unittest discover -s tests -v
+      - name: Commit repair
+        run: |
+          rm .github/workflows/repair-distribution.yml
+          git config user.name "company-os-repair-bot"
+          git config user.email "company-os-repair-bot@users.noreply.github.com"
+          git add distribution-manifest.json .github/workflows/repair-distribution.yml
+          git commit -m "chore(company-os): refresh distribution manifest"
+          git push origin HEAD:codex/company-os-outcome-control-plane
