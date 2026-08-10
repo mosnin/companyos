@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 import re
+import importlib.util
 from pathlib import Path, PurePosixPath
 from typing import Any, Mapping
 
@@ -183,6 +184,21 @@ def _budget(value: Any, manager_count: int) -> dict[str, Any]:
 def _child_budget(parent: Mapping[str, Any], manager_count: int) -> dict[str, Any]:
     return {"time_minutes": float(parent["time_minutes"]) / manager_count, "token_limit": max(1, int(parent["token_limit"]) // manager_count), "cost_usd": float(parent["cost_usd"]) / manager_count, "max_concurrency": 1, "max_retries": int(parent["max_retries"])}
 
+def _engineering_module():
+    path = Path(__file__).resolve().parents[2] / "engineering-execution-constitution/scripts/engineering_contract.py"
+    spec = importlib.util.spec_from_file_location("company_os_engineering_contract", path)
+    if spec is None or spec.loader is None:
+        raise OrganizationError("E_ENGINEERING", "engineering constitution is unavailable")
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module); return module
+
+def _engineering_root(objective_id: str, request: Mapping[str, Any]) -> dict[str, Any]:
+    module = _engineering_module()
+    raw = request.get("engineering_execution_contract")
+    if raw is None:
+        raw = {"contract_id": f"engineering:master:{objective_id}", "objective_id": objective_id, "engineering_rigor": 8, "security_verification": "static", "required_skills": ["repository-intelligence", "architecture", "testing", "runtime-observation"], "write_scopes": []}
+        return module.root(raw)
+    return module.verify(_object(raw, "engineering_execution_contract"))
+
 def _validate_outcome_control(control: Mapping[str, Any], *, project_id: str, program_version: int, work_id: str, governed_outcome: str, objective_id: str) -> dict[str, Any]:
     if set(control) != OUTCOME_CONTROL_FIELDS:
         raise OrganizationError("E_SCHEMA", "outcome_control fields are invalid")
@@ -226,6 +242,8 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
     constraints = _list(request.get("constraints"), "constraints")
     objective_id = _text(state.get("objective_id"), "state.objective_id")
     control = _validate_outcome_control(_object(request.get("outcome_control"), "outcome_control"), project_id=project_id, program_version=program_version, work_id=work_id, governed_outcome=governed_outcome, objective_id=objective_id)
+    engineering_module = _engineering_module()
+    master_engineering = _engineering_root(objective_id, request)
     if control["execution_lane"] == "pilot" and len(lanes) > 2:
         raise OrganizationError("E_SCALE", "the current organization exceeds pilot authority and requires production scale authorization")
     if len(lanes) > 256:
@@ -271,10 +289,14 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
         if state.get("phase") == "evaluate":
             outcome_context["evaluator_id"] = lane["evaluator_id"]
             outcome_context["score_dimensions"] = lane["score_dimensions"]
-        workers = [{"id": f"{manager_id}-worker-01", "model": "gpt-5.6-luna", "task": worker_task, "acceptance": acceptance, "write_scope": worker_write_scope, "risk": "medium", "budget": dict(manager_budget), "outcome_context": outcome_context, "stop_condition": stop_condition, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha}]
-        managers.append({"id": manager_id, "model": "gpt-5.6-sol", "outcome": lane["mandate"], "acceptance": acceptance, "phase_ids": PHASES, "budget": dict(manager_budget), "write_scope": [resource_scope], "artifact_classes": lane["artifact_classes"], "workers": workers, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha})
+        manager_engineering = engineering_module.derive(master_engineering, {"contract_id": f"engineering:{manager_id}", "objective_id": objective_id, "manager_level": "mid", "required_skills": list(master_engineering["required_skills"]), "write_scopes": [resource_scope]})
+        worker_engineering = engineering_module.derive(manager_engineering, {"contract_id": f"engineering:{manager_id}:worker-01", "objective_id": objective_id, "manager_level": "worker", "required_skills": list(manager_engineering["required_skills"]), "write_scopes": worker_write_scope})
+        outcome_context["engineering_execution_contract"] = worker_engineering
+        workers = [{"id": f"{manager_id}-worker-01", "model": "gpt-5.6-luna", "task": worker_task, "acceptance": acceptance, "write_scope": worker_write_scope, "risk": "medium", "budget": dict(manager_budget), "outcome_context": outcome_context, "engineering_execution_contract": worker_engineering, "stop_condition": stop_condition, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha}]
+        managers.append({"id": manager_id, "model": "gpt-5.6-sol", "outcome": lane["mandate"], "acceptance": acceptance, "phase_ids": PHASES, "budget": dict(manager_budget), "write_scope": [resource_scope], "artifact_classes": lane["artifact_classes"], "engineering_execution_contract": manager_engineering, "workers": workers, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha})
     loop_binding = {"$schema": BINDING_SCHEMA, "state_path": state_relative, "state_file_sha256": file_digest(state_path), "state_sha256": state["state_sha256"], "phase": state["phase"], "iteration": state["iteration"], "next_action": state["next_action"]["action"], "organization_sha256": digest(state["organization_plan"]), "lane_sha256s": lane_sha256s}
-    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "program_version": program_version, "outcome": governed_outcome, "acceptance": ["All required artifact classes are materialized as real inspectable artifacts", "All required independent evaluators execute against the current candidate", "The next outcome loop state is derived from evaluator evidence"], "program_contract": {"north_star": north_star, "user_value": user_value, "rationale": rationale, "architecture": architecture, "roadmap": PHASES, "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints}, "max_managers": len(managers), "max_manager_concurrency": min(len(managers), int(budget["max_concurrency"])), "max_workers_per_manager": 1, "max_total_workers": len(managers), "max_depth": 2, "max_worker_retries": 1, "max_manager_rework_rounds": 2, "budget": budget, "luna_token_share_target": 0.75, "external_effects_allowed": False, "managers": managers, "outcome_control": control, "outcome_loop": loop_binding}
+    engineering_module.assert_nonoverlap([manager["engineering_execution_contract"] for manager in managers])
+    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "engineering_execution_contract": master_engineering, "program_version": program_version, "outcome": governed_outcome, "acceptance": ["All required artifact classes are materialized as real inspectable artifacts", "All required independent evaluators execute against the current candidate", "The next outcome loop state is derived from evaluator evidence"], "program_contract": {"north_star": north_star, "user_value": user_value, "rationale": rationale, "architecture": architecture, "roadmap": PHASES, "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints}, "max_managers": len(managers), "max_manager_concurrency": min(len(managers), int(budget["max_concurrency"])), "max_workers_per_manager": 1, "max_total_workers": len(managers), "max_depth": 2, "max_worker_retries": 1, "max_manager_rework_rounds": 2, "budget": budget, "luna_token_share_target": 0.75, "external_effects_allowed": False, "managers": managers, "outcome_control": control, "outcome_loop": loop_binding}
 
 def validate_manifest_binding(project_root: Path, manifest: Mapping[str, Any]) -> dict[str, Any]:
     if manifest.get("topology_mode") != TOPOLOGY_MODE:

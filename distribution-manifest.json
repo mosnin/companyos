@@ -196,6 +196,11 @@
       "size": 2267
     },
     {
+      "path": "company-os/calibrate-outcome-stack/scripts/compile_calibration_fabric.py",
+      "sha256": "072f15d686f88d058c3bb24e01e7e15f4d09e15fb9e5ca177f84d0ccada85a32",
+      "size": 20875
+    },
+    {
       "path": "company-os/close-outcome-discovery/SKILL.md",
       "sha256": "441ca3415abd290c6b2580ff4d7550f2cc143e852fe0a175b9183800e3630d70",
       "size": 1756
@@ -312,8 +317,8 @@
     },
     {
       "path": "company-os/compile-outcome-organization/scripts/compile_outcome_organization.py",
-      "sha256": "798ffcfc79992207a7a59947b82136cfa1ef37633aa1c99d2039b425c034f468",
-      "size": 24386
+      "sha256": "dae09a83e6b08125fdf9891ff87e91052d5c7840b93b15d168c53e88a0fe3405",
+      "size": 26489
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",
@@ -464,6 +469,16 @@
       "path": "company-os/elastic-company-os/scripts/test_runtime_receipts.py",
       "sha256": "3ee00c9521ada8b6fa4ba93b4655a0a414ff3101b337148ef14f9572db2a1361",
       "size": 25873
+    },
+    {
+      "path": "company-os/engineering-execution-constitution/SKILL.md",
+      "sha256": "0eb561711eec0f68a1a811b8d0ab6824421ea671d538793be34e1fbd527d76e5",
+      "size": 5303
+    },
+    {
+      "path": "company-os/engineering-execution-constitution/scripts/engineering_contract.py",
+      "sha256": "42879f4bf11c7832db363400821d01a71db91c0a8ddc174fb4a7a5b57363b272",
+      "size": 6912
     },
     {
       "path": "company-os/execute-outcome-evaluator/SKILL.md",
