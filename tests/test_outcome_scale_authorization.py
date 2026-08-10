@@ -28,6 +28,7 @@ def stack() -> tuple[dict, dict, dict, dict, list[dict]]:
                 "artifact_class_id": "playable-build",
                 "required": True,
                 "rich": True,
+                "required_evidence": ["interaction_trace", "screenshot"],
             }
         ],
     }
@@ -40,6 +41,7 @@ def stack() -> tuple[dict, dict, dict, dict, list[dict]]:
                 "evaluator_id": "gameplay",
                 "required": True,
                 "artifact_classes": ["playable-build"],
+                "produces_evidence": ["interaction_trace", "screenshot"],
             }
         ],
     }
@@ -63,6 +65,10 @@ class OutcomeScaleAuthorizationTests(unittest.TestCase):
         receipt = MODULE.authorize(*stack())
         self.assertTrue(receipt["authorized"])
         self.assertEqual(receipt["blockers"], [])
+        self.assertEqual(
+            receipt["required_observation_evidence"]["playable-build"],
+            ["interaction_trace", "screenshot"],
+        )
 
     def test_failed_calibration_blocks_scale(self) -> None:
         outcome, artifacts, evaluators, benchmarks, calibrations = stack()
@@ -82,6 +88,20 @@ class OutcomeScaleAuthorizationTests(unittest.TestCase):
         self.assertIn(
             "ARTIFACT_WITHOUT_EVALUATOR",
             {item["code"] for item in receipt["blockers"]},
+        )
+
+    def test_rich_artifact_required_evidence_must_be_covered(self) -> None:
+        outcome, artifacts, evaluators, benchmarks, calibrations = stack()
+        evaluators["evaluators"][0]["produces_evidence"] = ["screenshot"]
+        receipt = MODULE.authorize(outcome, artifacts, evaluators, benchmarks, calibrations)
+        self.assertFalse(receipt["authorized"])
+        blockers = [
+            item for item in receipt["blockers"]
+            if item["code"] == "ARTIFACT_OBSERVATION_EVIDENCE_UNCOVERED"
+        ]
+        self.assertEqual(
+            blockers,
+            [{"code": "ARTIFACT_OBSERVATION_EVIDENCE_UNCOVERED", "detail": "playable-build:interaction_trace"}],
         )
 
     def test_objective_mismatch_rejects(self) -> None:
