@@ -1,0 +1,36 @@
+name: Verify Outcome Director Fast
+
+on:
+  push:
+    paths:
+      - ".github/workflows/verify-outcome-director-fast.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/company-os-outcome-control-plane
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: >-
+          python3 -m unittest
+          tests.test_outcome_director
+          tests.test_calibration_fabric
+          tests.test_outcome_stack
+          tests.test_evaluator_registry
+          tests.test_evaluator_build_fabric
+          tests.test_outcome_discovery_bootstrap
+          -v
+      - run: >-
+          python3 -m py_compile
+          skills/company-os/direct-outcome/scripts/direct_outcome.py
+          skills/company-os/calibrate-outcome-stack/scripts/compile_calibration_fabric.py
+          skills/company-os/materialize-outcome-stack/scripts/materialize_outcome_stack.py
+          skills/company-os/register-outcome-evaluators/scripts/register_outcome_evaluators.py
+          skills/company-os/build-outcome-evaluators/scripts/compile_evaluator_build_fabric.py
