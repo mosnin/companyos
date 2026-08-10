@@ -172,8 +172,8 @@
     },
     {
       "path": "company-os/build-outcome-evaluators/scripts/compile_evaluator_build_fabric.py",
-      "sha256": "df946d1aca8042c2c7808d7a6bd366a01dd5e04a559da74a55f0fe9fe8c4ecc5",
-      "size": 16346
+      "sha256": "2cc8417270ffdaff03682ed59d863ff7f13623601607958b8fea44a2ec4eb577",
+      "size": 16259
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/SKILL.md",
@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/compile-outcome-organization/scripts/compile_outcome_organization.py",
-      "sha256": "dca56e445bb67ee0c52f910f8989736a18572866a0a2935094156a984538be3f",
-      "size": 22087
+      "sha256": "798ffcfc79992207a7a59947b82136cfa1ef37633aa1c99d2039b425c034f468",
+      "size": 24386
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",
@@ -382,8 +382,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_loop.py",
-      "sha256": "74c5b0818ebc12e1df9c7445c3dd91d6ed234638bb67ec1e13f5b038bb1c1f66",
-      "size": 24584
+      "sha256": "296e44c1d059fdfe30997d2701682963cecc7f399a08689b8dde2a0ef22e0edb",
+      "size": 24883
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_runtime_bridge.py",

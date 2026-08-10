@@ -145,6 +145,45 @@ class OutcomeOrganizationTests(unittest.TestCase):
         self.assertTrue(any("Preserve independently passing quality dimension gameplay" == item for item in manager["acceptance"]))
         self.assertIn("Preserve already passing dimensions: gameplay.", manager["workers"][0]["task"])
 
+    def test_evaluation_phase_compiles_independent_read_only_evaluator_lane(self) -> None:
+        state = self.initial_state()
+        state["phase"] = "evaluate"
+        state["iteration"] = 1
+        state["required_evaluators"] = [{
+            "evaluator_id": "gameplay-evaluator",
+            "artifact_classes": ["playable_game"],
+            "score_dimensions": ["gameplay", "visual_quality"],
+        }]
+        state["organization_plan"] = {
+            "evaluation_lanes": [{
+                "lane_id": "evaluator:gameplay-evaluator",
+                "role": "independent_evaluator",
+                "evaluator_id": "gameplay-evaluator",
+                "artifact_classes": ["playable_game"],
+                "score_dimensions": ["gameplay", "visual_quality"],
+                "mandate": "Independently play and score the current game candidate.",
+            }]
+        }
+        state["next_action"] = {
+            "action": "execute_required_evaluators",
+            "candidate_id": "candidate:1",
+            "evaluator_ids": ["gameplay-evaluator"],
+        }
+        state["state_sha256"] = ORG.digest({**state, "state_sha256": None})
+        self.write_state(state)
+        manifest = self.compile()
+        self.assertEqual(manifest["outcome_loop"]["phase"], "evaluate")
+        self.assertEqual(len(manifest["managers"]), 1)
+        manager = manifest["managers"][0]
+        worker = manager["workers"][0]
+        self.assertEqual(manager["outcome_loop_lane_id"], "evaluator:gameplay-evaluator")
+        self.assertEqual(worker["outcome_context"]["evaluator_id"], "gameplay-evaluator")
+        self.assertEqual(worker["outcome_context"]["artifact_classes"], ["playable_game"])
+        self.assertEqual(worker["outcome_context"]["score_dimensions"], ["gameplay", "visual_quality"])
+        self.assertTrue(worker["write_scope"][0].endswith("/evaluation-receipt"))
+        self.assertTrue(any("Do not modify candidate artifacts" in item for item in manager["acceptance"]))
+        self.assertEqual(ORG.validate_manifest_binding(self.root, manifest)["phase"], "evaluate")
+
     def test_loop_state_drift_invalidates_existing_fabric(self) -> None:
         manifest = self.compile()
         state = self.initial_state()

@@ -111,9 +111,9 @@ def bind_control(project,raw_state,control):
  if not required_artifacts or not required_evaluators: raise OutcomeLoopError('E_CONTROL','real artifacts and evaluators are required')
  org={'mode':'initial_pilot','manager_lanes':[{'lane_id':'manager:outcome','role':'outcome_manager','mandate':'Own one real candidate through independent evaluation.'}],
  'production_lanes':[{'lane_id':f'artifact:{a}','role':'artifact_specialist','artifact_class_id':a,'artifact_classes':[a]} for a in required_artifacts],
- 'evaluation_lanes':[{'lane_id':f'evaluator:{e["evaluator_id"]}','role':'independent_evaluator','evaluator_id':e['evaluator_id']} for e in required_evaluators],
+ 'evaluation_lanes':[{'lane_id':f'evaluator:{e["evaluator_id"]}','role':'independent_evaluator','evaluator_id':e['evaluator_id'],'artifact_classes':e['artifact_classes'],'score_dimensions':e['score_dimensions'],'mandate':f'Independently evaluate the current candidate with {e["evaluator_id"]} against the bound artifact evidence and benchmarks.'} for e in required_evaluators],
  'specialist_lanes':[{'lane_id':f'artifact:{a}','role':'artifact_specialist','artifact_classes':[a]} for a in required_artifacts],
- 'independent_evaluators':[{'lane_id':f'evaluator:{e["evaluator_id"]}','role':'independent_evaluator','evaluator_id':e['evaluator_id']} for e in required_evaluators],
+ 'independent_evaluators':[{'lane_id':f'evaluator:{e["evaluator_id"]}','role':'independent_evaluator','evaluator_id':e['evaluator_id'],'artifact_classes':e['artifact_classes'],'score_dimensions':e['score_dimensions']} for e in required_evaluators],
  'instruction':'Use the smallest team that can materialize a real candidate. Do not expand concurrency before evaluation.'}
  next_state={**state,'phase':'build_candidate','control_state':{'state_sha256':observed,'outcome':dict(control['outcome']),'artifacts':dict(control['artifacts']),'evaluators':dict(control['evaluators']),'benchmarks':dict(control['benchmarks']),'calibrations':dict(control['calibrations'])},'outcome_claims':[dict(x) for x in outcome.get('outcome_claims',[]) if isinstance(x,Mapping)],'required_artifact_classes':required_artifacts,'required_evaluators':required_evaluators,'organization_plan':org,
  'next_action':{'action':'materialize_candidate','authority':'bounded_pilot','required_artifact_classes':required_artifacts,'organization_plan':org}}
