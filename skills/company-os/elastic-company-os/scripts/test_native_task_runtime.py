@@ -241,6 +241,34 @@ class NativeTaskRuntimeTests(unittest.TestCase):
                 artifact_bindings=duplicate,
             )
 
+    def test_terminal_evaluation_receipt_path_is_typed_and_relative(self):
+        completed = runtime.apply_event(
+            self.running(),
+            "terminal",
+            source="host_observation",
+            tool="read_task",
+            task_id="task-1",
+            thread_id="thread-1",
+            status="succeeded",
+            evaluation_receipt_path=".company-os/evaluations/gameplay.json",
+        )
+        self.assertEqual(
+            completed["terminal"]["observation"]["evaluation_receipt_path"],
+            ".company-os/evaluations/gameplay.json",
+        )
+        self.assertEqual(runtime.audit_state(completed), [])
+        with self.assertRaises(runtime.RuntimeStateError):
+            runtime.apply_event(
+                self.running(),
+                "terminal",
+                source="host_observation",
+                tool="read_task",
+                task_id="task-1",
+                thread_id="thread-1",
+                status="succeeded",
+                evaluation_receipt_path="/tmp/fake-evaluation.json",
+            )
+
     def test_cancellation_intent_is_separate_and_dominates_success(self):
         cancelled = runtime.request_cancellation(
             self.running(), reason="operator stop", requested_by="master"

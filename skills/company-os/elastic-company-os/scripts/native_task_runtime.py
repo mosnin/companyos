@@ -137,7 +137,7 @@ def _event_payload(state: Mapping[str, Any], event: str, payload: Mapping[str, A
             required.update({"hard_status", "acknowledgement_status"})
         elif event == "terminal":
             required.add("status")
-            optional.update({"terminal_message_digest", "artifact_digests", "artifact_bindings"})
+            optional.update({"terminal_message_digest", "artifact_digests", "artifact_bindings", "evaluation_receipt_path"})
         if not required.issubset(normalized) or set(normalized) - required - optional:
             raise RuntimeStateError(f"{event} host observation payload shape is invalid")
         if normalized.get("source") != "host_observation":
@@ -209,6 +209,14 @@ def _event_payload(state: Mapping[str, Any], event: str, payload: Mapping[str, A
                     raise RuntimeStateError("terminal artifact digests conflict with artifact bindings")
                 if artifact_digests is None:
                     normalized["artifact_digests"] = binding_digests
+            evaluation_receipt_path = normalized.get("evaluation_receipt_path")
+            if evaluation_receipt_path is not None:
+                evaluation_receipt_path = _text(evaluation_receipt_path, "evaluation_receipt_path")
+                if evaluation_receipt_path.startswith("/") or "\\" in evaluation_receipt_path or any(
+                    part in {"", ".", ".."} for part in evaluation_receipt_path.split("/")
+                ):
+                    raise RuntimeStateError("terminal evaluation receipt path is invalid")
+                normalized["evaluation_receipt_path"] = evaluation_receipt_path
     else:
         raise RuntimeStateError(f"unsupported native runtime event: {event}")
     canonical_digest(normalized)

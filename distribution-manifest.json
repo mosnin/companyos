@@ -367,8 +367,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
-      "sha256": "725794b80478970550893909b031ae417b3ebbc6e4428b3c489a10ddb9654b56",
-      "size": 41974
+      "sha256": "d1806ceef99f0a8744211d8cb1de18348703fc659d4fcb0f39f075132b936e84",
+      "size": 42616
     },
     {
       "path": "company-os/elastic-company-os/scripts/openai_responses_gateway.py",
@@ -432,8 +432,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",
-      "sha256": "8e283a27678d2c6f03dc5628c5af37f10ee39262c1cd18c604cea044fd937e9a",
-      "size": 23839
+      "sha256": "536635a73f6fe6f1a1b82738aa3c9a4e491f63fef62e83cf5c13eb8598705062",
+      "size": 24907
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_openai_responses_gateway_contract.py",
