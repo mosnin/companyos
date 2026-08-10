@@ -281,6 +281,16 @@
       "size": 4026
     },
     {
+      "path": "company-os/compile-outcome-organization/SKILL.md",
+      "sha256": "a248aadfc206857adc8a62866880deea8df32c396ee59d5d5cd7a9627657cfaf",
+      "size": 2081
+    },
+    {
+      "path": "company-os/compile-outcome-organization/scripts/compile_outcome_organization.py",
+      "sha256": "dca56e445bb67ee0c52f910f8989736a18572866a0a2935094156a984538be3f",
+      "size": 22087
+    },
+    {
       "path": "company-os/define-outcome-artifacts/SKILL.md",
       "sha256": "b2a680613998385506aa4a5628fb953eb3a8e17849685f37a644e6e1c0f889f1",
       "size": 944
@@ -312,8 +322,8 @@
     },
     {
       "path": "company-os/elastic-company-os/assets/instance-template.json",
-      "sha256": "fce1b99b2c856f486c003f8037e858df0d4ec798a742845678dace01e2055abf",
-      "size": 2620
+      "sha256": "1de3b0e96235f74a4df42f50064cbebcd9bf0d087a71940b080edb3af28b6ff4",
+      "size": 2646
     },
     {
       "path": "company-os/elastic-company-os/references/control-contract.md",
@@ -322,8 +332,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "45b2fb187e86c54d389165d3b056c6824d183fbf9a9c8b9ade76b1d28bf7caf3",
-      "size": 423102
+      "sha256": "9ace65084823118b94f36c98a8332ed4b55e286443369ef14597b7ebbd20c8b6",
+      "size": 425324
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
@@ -907,8 +917,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
-      "sha256": "e3a49fc646a5fe4bd5e2317c3d2010113284ec384bcd95ce2653ed7c8d9815dc",
-      "size": 14717
+      "sha256": "3dfc6a1dbf7f97a5c5f02a1d18e801e467bc2121f616acf88b84f38442772f89",
+      "size": 15074
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",
@@ -937,8 +947,8 @@
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py",
-      "sha256": "2ff664d6bd8c2ed7ed19507eebd9f59a2b2b6bacbe2c3332933086144d534fea",
-      "size": 29846
+      "sha256": "26fbb5e14b5e09e476c31f2beac2a3fa8960c6a4d6854ba9179bc97f0db290e5",
+      "size": 32419
     },
     {
       "path": "autonomy-suite/quality/verified-work-loop/SKILL.md",

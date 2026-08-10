@@ -287,6 +287,7 @@ _CONTROL_STORE_MODULE: Any | None = None
 _NATIVE_TASK_RUNTIME_MODULE: Any | None = None
 _OPERATOR_BRIEF_MODULE: Any | None = None
 _OUTCOME_CONTROL_MODULE: Any | None = None
+_OUTCOME_ORGANIZATION_MODULE: Any | None = None
 _ACTIVE_CONTROL_STORE_TRANSACTION: contextvars.ContextVar[Any | None] = contextvars.ContextVar(
     "company_os_control_store_transaction",
     default=None,
@@ -375,6 +376,26 @@ def outcome_control_module() -> Any:
     return module
 
 
+def outcome_organization_module() -> Any:
+    """Load the outcome organization compiler without relying on PYTHONPATH."""
+    global _OUTCOME_ORGANIZATION_MODULE
+    if _OUTCOME_ORGANIZATION_MODULE is not None:
+        return _OUTCOME_ORGANIZATION_MODULE
+    module_path = (
+        Path(__file__).resolve().parents[2]
+        / "compile-outcome-organization"
+        / "scripts"
+        / "compile_outcome_organization.py"
+    )
+    spec = importlib.util.spec_from_file_location("company_os_outcome_organization", module_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("outcome organization module could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _OUTCOME_ORGANIZATION_MODULE = module
+    return module
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -415,6 +436,7 @@ def empty_execution_fabric(program_version: int) -> dict[str, Any]:
         "manifest_digest": None,
         "configured_at": None,
         "outcome_control": None,
+        "outcome_loop": None,
         "managers": {},
         "decisions": [],
         "cancelled_at": None,
@@ -2342,7 +2364,7 @@ def validate_execution_fabric_state(
     if status == "unconfigured":
         if fabric.get("enabled"):
             errors.append("an unconfigured execution_fabric cannot be enabled")
-        for field in ("work_id", "cycle_id", "manifest", "manifest_digest", "configured_at", "outcome_control"):
+        for field in ("work_id", "cycle_id", "manifest", "manifest_digest", "configured_at", "outcome_control", "outcome_loop"):
             if fabric.get(field) is not None:
                 errors.append(f"unconfigured execution_fabric.{field} must be null")
         if fabric.get("managers") not in ({}, None):
@@ -2435,6 +2457,20 @@ def validate_execution_fabric_state(
                             else:
                                 if completion.get("reality_acceptance") != reality:
                                     errors.append("completed luna_fabric reality acceptance does not match evidence")
+
+    if manifest.get("topology_mode") == "outcome_closed_loop":
+        try:
+            current_outcome_loop = outcome_organization_module().validate_manifest_binding(
+                project_root,
+                manifest,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            errors.append(f"execution_fabric outcome loop: {exc}")
+        else:
+            if fabric.get("outcome_loop") != current_outcome_loop:
+                errors.append("execution_fabric.outcome_loop does not match current outcome loop state")
+    elif fabric.get("outcome_loop") is not None:
+        errors.append("non closed loop execution_fabric may not retain outcome loop state")
 
     if not fabric.get("configured_at"):
         errors.append("configured execution_fabric.configured_at is required")
@@ -6870,6 +6906,15 @@ def configure_execution_fabric(args: argparse.Namespace) -> int:
                     work_id=args.work_id,
                     governed_outcome=work["user_visible_outcome"],
                 )
+            if manifest.get("topology_mode") == "outcome_closed_loop":
+                outcome_loop_state = outcome_organization_module().validate_manifest_binding(
+                    project,
+                    manifest,
+                )
+                if outcome_loop_state.get("state_sha256") != manifest.get("outcome_loop", {}).get("state_sha256"):
+                    raise ValueError("outcome loop state binding is invalid")
+            else:
+                outcome_loop_state = None
             configured_at = utc_now()
             state["execution_fabric"] = {
                 "enabled": True,
@@ -6883,6 +6928,7 @@ def configure_execution_fabric(args: argparse.Namespace) -> int:
                 "manifest_sha256": sha256_file(manifest_path),
                 "configured_at": configured_at,
                 "outcome_control": outcome_control_state,
+                "outcome_loop": outcome_loop_state,
                 "managers": {
                     manager["id"]: {
                         "id": manager["id"],
@@ -6912,6 +6958,7 @@ def configure_execution_fabric(args: argparse.Namespace) -> int:
                 manifest_digest=state["execution_fabric"]["manifest_digest"],
                 execution_lane=(outcome_control_state or {}).get("execution_lane", "legacy_compatibility"),
                 outcome_control_digest=(outcome_control_state or {}).get("state_sha256"),
+                outcome_loop_digest=(outcome_loop_state or {}).get("state_sha256"),
             )
             manifest_digest = state["execution_fabric"]["manifest_digest"]
     except (OSError, ValueError, json.JSONDecodeError) as exc:

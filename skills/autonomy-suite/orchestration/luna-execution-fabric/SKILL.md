@@ -118,7 +118,8 @@ efficiency, or scaling proof. Requested Luna/max is intent until observed.
 - The program declares capacity from its accepted work graph. Manager count,
   workers per manager, and total workers are not fixed defaults. A large
   program may validly declare 30 Sol managers with 10 Luna tasks each.
-- New manifests declare `topology_mode: elastic_work_graph` and carry an exact portable outcome control binding. Manifests without it retain the frozen 2/3/6 Phase 1 limits solely for replay compatibility and cannot establish elastic scale evidence.
+- Outcome-owned manifests compile from the current `$run-outcome-loop` state and declare `topology_mode: outcome_closed_loop`. They carry both the portable outcome control binding and the exact current outcome loop state, organization, next action, and lane digests. If the bottleneck or loop state changes, the old fabric becomes stale and must be recompiled.
+- `topology_mode: elastic_work_graph` remains compatible for non-loop orchestration. Manifests without an outcome control binding retain the frozen 2/3/6 Phase 1 limits solely for replay compatibility and cannot establish elastic scale evidence.
 - The pilot lane may use no more than 2 managers, 3 workers per manager, and 6 total workers. Any larger organization is production scale and requires current outcome authorization before configuration.
 - Capacity is not concurrency. `max_managers`, `max_workers_per_manager`, and
   `max_total_workers` describe the admitted organization; optional

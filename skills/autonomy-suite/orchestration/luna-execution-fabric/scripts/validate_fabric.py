@@ -184,9 +184,9 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
         "max_manager_concurrency", derived_manager_concurrency
     )
     topology_mode = manifest.get("topology_mode")
-    if topology_mode not in {None, "elastic_work_graph"}:
-        errors.append("topology_mode must be 'elastic_work_graph' when provided")
-    if topology_mode == "elastic_work_graph":
+    if topology_mode not in {None, "elastic_work_graph", "outcome_closed_loop"}:
+        errors.append("topology_mode must be elastic_work_graph or outcome_closed_loop when provided")
+    if topology_mode in {"elastic_work_graph", "outcome_closed_loop"}:
         outcome_control = manifest.get("outcome_control")
         required_outcome_fields = {
             "$schema", "execution_lane", "project_id", "program_version", "work_id",
@@ -224,6 +224,46 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
                 for field, cap in LEGACY_HARD_CAPS.items():
                     if limits[field] > cap:
                         errors.append(f"pilot {field} cannot exceed {cap}")
+    if topology_mode == "outcome_closed_loop":
+        loop_binding = manifest.get("outcome_loop")
+        required_loop_fields = {
+            "$schema", "state_path", "state_file_sha256", "state_sha256", "phase",
+            "iteration", "next_action", "organization_sha256", "lane_sha256s",
+        }
+        if not isinstance(loop_binding, dict):
+            errors.append("outcome_closed_loop requires an outcome_loop binding")
+        else:
+            if set(loop_binding) != required_loop_fields:
+                errors.append("outcome_loop must define the exact portable binding fields")
+            if loop_binding.get("$schema") != "company-os.outcome-loop-fabric-binding.v1":
+                errors.append("outcome_loop uses an unsupported schema")
+            if not _nonempty(loop_binding.get("state_path")):
+                errors.append("outcome_loop.state_path must be non-empty")
+            for field in ("state_file_sha256", "state_sha256", "organization_sha256"):
+                value = loop_binding.get(field)
+                if not isinstance(value, str) or len(value) != 64 or any(
+                    character not in "0123456789abcdef" for character in value
+                ):
+                    errors.append(f"outcome_loop.{field} must be lowercase sha256")
+            if loop_binding.get("phase") not in {"build_candidate", "rework"}:
+                errors.append("outcome_loop.phase must be build_candidate or rework")
+            iteration = loop_binding.get("iteration")
+            if not isinstance(iteration, int) or isinstance(iteration, bool) or iteration < 0:
+                errors.append("outcome_loop.iteration must be a non-negative integer")
+            if loop_binding.get("next_action") not in {"materialize_candidate", "execute_intervention"}:
+                errors.append("outcome_loop.next_action does not authorize production execution")
+            lane_sha256s = loop_binding.get("lane_sha256s")
+            if not isinstance(lane_sha256s, dict) or not lane_sha256s:
+                errors.append("outcome_loop.lane_sha256s must bind at least one lane")
+            elif any(
+                not _nonempty(lane_id)
+                or not isinstance(value, str)
+                or len(value) != 64
+                or any(character not in "0123456789abcdef" for character in value)
+                for lane_id, value in lane_sha256s.items()
+            ):
+                errors.append("outcome_loop.lane_sha256s contains an invalid lane binding")
+
     if topology_mode is None:
         for key, cap in LEGACY_HARD_CAPS.items():
             if limits[key] > cap:
