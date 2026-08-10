@@ -191,6 +191,11 @@
       "size": 20199
     },
     {
+      "path": "company-os/calibrate-outcome-stack/SKILL.md",
+      "sha256": "8b8c87428d3b0b308281ca76c060b9118f38b1b2e784f7733e0882866520fb1a",
+      "size": 2267
+    },
+    {
       "path": "company-os/close-outcome-discovery/SKILL.md",
       "sha256": "441ca3415abd290c6b2580ff4d7550f2cc143e852fe0a175b9183800e3630d70",
       "size": 1756
@@ -379,6 +384,11 @@
       "path": "company-os/elastic-company-os/scripts/outcome_control.py",
       "sha256": "39d78a1927c465fc5e585cd2866de17ab48c2c9b84eb75c3c452d82e13e183cf",
       "size": 24179
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/outcome_evaluation_runtime_bridge.py",
+      "sha256": "6705413838aa1a8776eed7ca4f02411ba0df3efd4139292254c09455e666226e",
+      "size": 7347
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_loop.py",
@@ -847,8 +857,8 @@
     },
     {
       "path": "company-os/synthesize-outcome-model/scripts/synthesize_outcome_model.py",
-      "sha256": "ccb7532e2869b61d13ecb7660d2015be2ca633f5186669a4b74888b9bf11e9fc",
-      "size": 18241
+      "sha256": "96aec3bac8175fd4a22073539fafa58fe2842153249ff0c003b554ae37f1a16a",
+      "size": 18450
     },
     {
       "path": "company-os/ui-design-quality/LICENSE.upstream",

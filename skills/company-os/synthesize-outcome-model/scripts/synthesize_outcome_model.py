@@ -15,6 +15,7 @@ PROPOSAL_SCHEMA = "company-os.outcome-model-proposal.v1"
 REQUEST_SCHEMA = "company-os.outcome-request.v1"
 LOCATOR = re.compile(r"^(?:https?://|tool://|runtime://|module://|workspace://|reference://)[^\s]+$")
 RICH_MODALITIES = {"interactive", "visual", "audio", "executable", "service", "database", "model", "physical", "composite"}
+BENCHMARK_TIERS = {"negative", "baseline", "strong", "exemplar"}
 
 class SynthesisError(ValueError):
     def __init__(self, code: str, message: str) -> None:
@@ -167,6 +168,8 @@ def normalize_benchmark(item: Mapping[str, Any], label: str) -> dict[str, Any]:
         if LOCATOR.fullmatch(locator) is None:
             raise SynthesisError("E_SCHEMA", f"benchmark locator invalid: {locator}")
         tier = text(ref.get("quality_tier"), f"{label}.quality_tier")
+        if tier not in BENCHMARK_TIERS:
+            raise SynthesisError("E_BENCHMARK", f"{benchmark_id} uses unsupported quality tier {tier}")
         tiers.add(tier)
         normalized_refs.append(
             {

@@ -165,7 +165,7 @@ class OutcomeDiscoveryBootstrapTests(unittest.TestCase):
                     {
                         "reference_id": "weak-example",
                         "locator": "https://example.com/weak",
-                        "quality_tier": "weak",
+                        "quality_tier": "negative",
                         "provenance": "Observed weak comparison candidate",
                         "citations": ["https://example.com/weak"],
                     },
