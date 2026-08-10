@@ -55,6 +55,30 @@ def calibration_module() -> Any:
     return module
 
 
+_REALITY_MODULE: Any | None = None
+
+
+def reality_module() -> Any:
+    global _REALITY_MODULE
+    if _REALITY_MODULE is not None:
+        return _REALITY_MODULE
+    module_path = (
+        Path(__file__).resolve().parents[2]
+        / "accept-outcome-reality"
+        / "scripts"
+        / "accept_reality.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "company_os_accept_outcome_reality", module_path
+    )
+    if spec is None or spec.loader is None:
+        raise OutcomeControlError("E_RUNTIME", "reality acceptance runtime cannot be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _REALITY_MODULE = module
+    return module
+
+
 class OutcomeControlError(ValueError):
     def __init__(self, code: str, message: str) -> None:
         self.code = code
@@ -498,50 +522,52 @@ def validate_manifest_binding(
 
 
 def validate_reality_receipt(
+    project_root: Path,
     receipt: Mapping[str, Any],
     outcome_control: Mapping[str, Any],
 ) -> dict[str, Any]:
-    value = dict(receipt)
-    _require_schema(value, REALITY_SCHEMA, "reality acceptance receipt")
-    receipt_sha256 = _verify_self_digest(value, "receipt_sha256", "reality acceptance receipt")
-    if value.get("accepted") is not True:
+    try:
+        verified = reality_module().verify_receipt(project_root, receipt)
+    except Exception as exc:
+        code = getattr(exc, "code", "E_REALITY")
+        raise OutcomeControlError(
+            code,
+            f"reality receipt failed execution verification: {exc}",
+        ) from exc
+    if verified.get("accepted") is not True:
         raise OutcomeControlError("E_REALITY", "reality acceptance did not accept the outcome")
-    if value.get("blockers") not in ([], None):
-        raise OutcomeControlError("E_REALITY", "reality acceptance retains blockers")
-    if value.get("objective_id") != outcome_control.get("objective_id"):
+    if verified.get("execution_bound") is not True:
+        raise OutcomeControlError("E_REALITY", "reality acceptance is not execution bound")
+    if verified.get("objective_id") != outcome_control.get("objective_id"):
         raise OutcomeControlError("E_BINDING", "reality acceptance objective_id does not match")
-    original = _text(value.get("original_objective"), "reality original_objective")
-    if original != outcome_control.get("original_objective"):
+    if receipt.get("original_objective") != outcome_control.get("original_objective"):
         raise OutcomeControlError("E_BINDING", "reality acceptance does not bind the original objective")
-    if value.get("original_objective_sha256") != hashlib.sha256(original.encode("utf-8")).hexdigest():
-        raise OutcomeControlError("E_DIGEST", "reality original objective digest does not match")
-    decisions = _array(value.get("claim_decisions"), "reality claim_decisions")
-    if not decisions:
-        raise OutcomeControlError("E_REALITY", "reality acceptance requires claim decisions")
-    seen: set[str] = set()
-    for index, raw in enumerate(decisions):
-        decision = _object_value(raw, f"claim_decisions[{index}]")
-        claim_id = _text(decision.get("claim_id"), f"claim_decisions[{index}].claim_id")
-        if claim_id in seen:
-            raise OutcomeControlError("E_DUPLICATE", f"duplicate reality claim decision: {claim_id}")
-        seen.add(claim_id)
-        required = decision.get("required")
-        if not isinstance(required, bool):
-            raise OutcomeControlError("E_SCHEMA", f"claim {claim_id}.required must be boolean")
-        if required and decision.get("passed") is not True:
-            raise OutcomeControlError("E_REALITY", f"required reality claim failed: {claim_id}")
-        for field in ("artifact_evidence_count", "evaluator_receipt_count"):
-            count = decision.get(field)
-            if not isinstance(count, int) or isinstance(count, bool) or count < 0:
-                raise OutcomeControlError("E_SCHEMA", f"claim {claim_id}.{field} is invalid")
-            if required and count < 1:
-                raise OutcomeControlError("E_REALITY", f"required reality claim lacks {field}: {claim_id}")
-    return {
-        "objective_id": value["objective_id"],
-        "receipt_sha256": receipt_sha256,
-        "claim_count": len(decisions),
+    sources = _object_value(receipt.get("source_bindings"), "reality source_bindings")
+    expected_sources = {
+        "outcome_contract": _object_value(outcome_control.get("outcome"), "outcome control outcome"),
+        "artifact_contract": _object_value(outcome_control.get("artifacts"), "outcome control artifacts"),
+        "evaluator_contract": _object_value(outcome_control.get("evaluators"), "outcome control evaluators"),
+        "benchmark_contract": _object_value(outcome_control.get("benchmarks"), "outcome control benchmarks"),
+        "calibration_receipts": _object_value(outcome_control.get("calibrations"), "outcome control calibrations"),
     }
-
+    if set(sources) != set(expected_sources):
+        raise OutcomeControlError("E_BINDING", "reality acceptance source bindings are incomplete")
+    for source_name, expected in expected_sources.items():
+        observed = _object_value(sources.get(source_name), f"reality {source_name}")
+        if observed.get("file_sha256") != expected.get("file_sha256"):
+            raise OutcomeControlError(
+                "E_BINDING", f"reality acceptance does not bind current {source_name}"
+            )
+    claim_count = verified.get("claim_count")
+    if not isinstance(claim_count, int) or isinstance(claim_count, bool) or claim_count < 1:
+        raise OutcomeControlError("E_REALITY", "reality acceptance claim count is invalid")
+    return {
+        "objective_id": verified["objective_id"],
+        "receipt_sha256": _sha256(verified.get("receipt_sha256"), "reality receipt_sha256"),
+        "claim_count": claim_count,
+        "execution_bound": True,
+        "candidate_id": verified.get("candidate_id"),
+    }
 
 def find_reality_receipt(
     *,
@@ -563,7 +589,7 @@ def find_reality_receipt(
             continue
         if not isinstance(raw, Mapping) or raw.get("$schema") != REALITY_SCHEMA:
             continue
-        validated = validate_reality_receipt(raw, outcome_control)
+        validated = validate_reality_receipt(project_root, raw, outcome_control)
         matches.append({"evidence_id": evidence_id, **validated})
     if not matches:
         raise OutcomeControlError(

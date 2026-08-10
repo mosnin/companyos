@@ -32,6 +32,19 @@ CALIBRATION = load(
 )
 
 
+class FakeReality:
+    @staticmethod
+    def verify_receipt(project_root, receipt):
+        return {
+            "objective_id": receipt.get("objective_id"),
+            "candidate_id": receipt.get("candidate_id"),
+            "accepted": receipt.get("accepted") is True,
+            "execution_bound": receipt.get("execution_bound") is True,
+            "claim_count": len(receipt.get("claim_decisions", [])),
+            "receipt_sha256": receipt.get("receipt_sha256"),
+        }
+
+
 def seal(value: dict, field: str, module=CONTROL) -> dict:
     result = dict(value)
     result[field] = module.digest({**result, field: None})
@@ -71,9 +84,11 @@ class OutcomeControlTests(unittest.TestCase):
         self.work_id = "work-a"
         self.governed_outcome = "A player completes the core loop."
         self.objective_id = "viral-game"
+        CONTROL._REALITY_MODULE = FakeReality
         self.prepare_contracts_and_calibration()
 
     def tearDown(self) -> None:
+        CONTROL._REALITY_MODULE = None
         self.temporary.cleanup()
 
     def write(self, path: str, value: object) -> str:
@@ -327,13 +342,24 @@ class OutcomeControlTests(unittest.TestCase):
         with self.assertRaises(CONTROL.OutcomeControlError):
             self.validate(self.manifest("pilot"))
 
-    def reality_receipt(self) -> dict:
+    def reality_receipt(self, control: dict) -> dict:
         return seal({
             "$schema": CONTROL.REALITY_SCHEMA,
-            "schema_version": 1,
+            "schema_version": 2,
+            "execution_bound": True,
             "objective_id": self.objective_id,
             "original_objective": "Make a viral game.",
             "original_objective_sha256": hashlib.sha256(b"Make a viral game.").hexdigest(),
+            "candidate_id": "candidate-1",
+            "production_actor_ids": ["builder"],
+            "production_narrative_admissible": False,
+            "source_bindings": {
+                "outcome_contract": control["outcome"],
+                "artifact_contract": control["artifacts"],
+                "evaluator_contract": control["evaluators"],
+                "benchmark_contract": control["benchmarks"],
+                "calibration_receipts": control["calibrations"],
+            },
             "claim_decisions": [{
                 "claim_id": "playable",
                 "statement": self.governed_outcome,
@@ -349,7 +375,7 @@ class OutcomeControlTests(unittest.TestCase):
 
     def test_completion_requires_matching_reality_receipt(self) -> None:
         control = self.validate(self.manifest("pilot"))
-        receipt_path = self.write("reality.json", self.reality_receipt())
+        receipt_path = self.write("reality.json", self.reality_receipt(control))
         result = CONTROL.find_reality_receipt(
             project_root=self.root,
             evidence_by_id={"reality-evidence": {"id": "reality-evidence", "artifact_path": receipt_path}},
@@ -357,6 +383,22 @@ class OutcomeControlTests(unittest.TestCase):
             outcome_control=control,
         )
         self.assertEqual(result["evidence_id"], "reality-evidence")
+        self.assertTrue(result["execution_bound"])
+
+    def test_legacy_self_asserted_reality_receipt_is_rejected(self) -> None:
+        control = self.validate(self.manifest("pilot"))
+        legacy = self.reality_receipt(control)
+        legacy.pop("execution_bound")
+        legacy["receipt_sha256"] = CONTROL.digest({**legacy, "receipt_sha256": None})
+        receipt_path = self.write("legacy-reality.json", legacy)
+        with self.assertRaises(CONTROL.OutcomeControlError) as caught:
+            CONTROL.find_reality_receipt(
+                project_root=self.root,
+                evidence_by_id={"legacy": {"id": "legacy", "artifact_path": receipt_path}},
+                evidence_ids=["legacy"],
+                outcome_control=control,
+            )
+        self.assertEqual(caught.exception.code, "E_REALITY")
 
 
 if __name__ == "__main__":

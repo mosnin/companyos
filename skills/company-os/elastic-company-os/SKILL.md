@@ -83,6 +83,10 @@ exact no-op when repeated against a healthy store.
 
 Do not reverse this sequence because maintenance is easier to test. A genuine P0 may interrupt; record the interruption and resume the prior phase after containment.
 
+## Outcome feedback loop
+
+For outcome owned work, route the master through `$run-outcome-loop`. The original objective remains the authority throughout discovery and delivery. Materialize a real candidate before expanding production scale. Every required evaluator must execute against the current candidate, not its source tree or the production team's report. Use the resulting independent scores and findings to identify the dominant bottleneck. Preserve dimensions that already pass and rework only the dominant constraint plus directly coupled artifacts. When repeated iterations fail to move the bottleneck, change the organization, capability mix, benchmarks, or artifact approach instead of adding identical workers. Completion requires the loop's `accepted` state and an execution bound reality receipt for the current candidate.
+
 ## Controller rules
 
 Before every cycle, run:

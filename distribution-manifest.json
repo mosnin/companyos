@@ -12,8 +12,8 @@
     },
     {
       "path": "company-os/accept-outcome-reality/scripts/accept_reality.py",
-      "sha256": "945ea52c8aca0b310fdc1d7027f701f58b6eb554128f3bd4c494d228edc52dd8",
-      "size": 3722
+      "sha256": "5c1026676ac5bb35222bf1bdff455769cf1f9d38f4b9655b300a4fa97843fee5",
+      "size": 13398
     },
     {
       "path": "company-os/assign-capability-skills/SKILL.md",
@@ -302,8 +302,8 @@
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
-      "sha256": "2550174bbaa29eb4eb9f796f1683520a7df182f60e853443fbfa9fbae1387cd9",
-      "size": 17968
+      "sha256": "69de562da2f8654d5963a06f2a418e3ba05e2a6d662b7c68f9f06288273cf952",
+      "size": 18808
     },
     {
       "path": "company-os/elastic-company-os/agents/openai.yaml",
@@ -347,8 +347,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_control.py",
-      "sha256": "94ea22aef9f86d9f0b1b7b7499801104936dac839a6bdd4a33e77969124f74c5",
-      "size": 23405
+      "sha256": "39d78a1927c465fc5e585cd2866de17ab48c2c9b84eb75c3c452d82e13e183cf",
+      "size": 24179
+    },
+    {
+      "path": "company-os/elastic-company-os/scripts/outcome_loop.py",
+      "sha256": "74c5b0818ebc12e1df9c7445c3dd91d6ed234638bb67ec1e13f5b038bb1c1f66",
+      "size": 24584
     },
     {
       "path": "company-os/elastic-company-os/scripts/runtime_gateway.py",
@@ -744,6 +749,11 @@
       "path": "company-os/project-program-management/templates/frontier-product-program.md",
       "sha256": "c71f24c82ec6bcc2e79641a314f47cebf5a07b5f836ead55fd16240875fb69f6",
       "size": 2925
+    },
+    {
+      "path": "company-os/run-outcome-loop/SKILL.md",
+      "sha256": "7440452f005998ea2113e9cc9141e0ab86da4245283e55e2a8cd429b40e1764f",
+      "size": 3427
     },
     {
       "path": "company-os/select-execution-loop/SKILL.md",
