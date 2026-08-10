@@ -186,6 +186,61 @@ class NativeTaskRuntimeTests(unittest.TestCase):
         widened["invented_provider_model"] = "gpt-invented"
         self.assertIn("native runtime state fields are invalid", runtime.audit_state(widened))
 
+    def test_terminal_artifact_bindings_are_content_addressed_and_classified(self):
+        bindings = [
+            {
+                "artifact_id": "build",
+                "artifact_class_id": "interactive_experience",
+                "path": "dist/game/index.html",
+                "sha256": "a" * 64,
+            },
+            {
+                "artifact_id": "audio",
+                "artifact_class_id": "audio",
+                "path": "dist/game/audio.ogg",
+                "sha256": "b" * 64,
+            },
+        ]
+        completed = runtime.apply_event(
+            self.running(),
+            "terminal",
+            source="host_observation",
+            tool="read_task",
+            task_id="task-1",
+            thread_id="thread-1",
+            status="succeeded",
+            artifact_bindings=list(reversed(bindings)),
+        )
+        payload = completed["terminal"]["observation"]
+        expected = sorted(bindings, key=lambda item: item["artifact_id"])
+        self.assertEqual(payload["artifact_bindings"], expected)
+        self.assertEqual(payload["artifact_digests"], [item["sha256"] for item in expected])
+        self.assertEqual(runtime.audit_state(completed), [])
+        with self.assertRaises(runtime.RuntimeStateError):
+            runtime.apply_event(
+                self.running(),
+                "terminal",
+                source="host_observation",
+                tool="read_task",
+                task_id="task-1",
+                thread_id="thread-1",
+                status="succeeded",
+                artifact_digests=["c" * 64],
+                artifact_bindings=bindings,
+            )
+        duplicate = [dict(bindings[0]), dict(bindings[0])]
+        with self.assertRaises(runtime.RuntimeStateError):
+            runtime.apply_event(
+                self.running(),
+                "terminal",
+                source="host_observation",
+                tool="read_task",
+                task_id="task-1",
+                thread_id="thread-1",
+                status="succeeded",
+                artifact_bindings=duplicate,
+            )
+
     def test_cancellation_intent_is_separate_and_dominates_success(self):
         cancelled = runtime.request_cancellation(
             self.running(), reason="operator stop", requested_by="master"

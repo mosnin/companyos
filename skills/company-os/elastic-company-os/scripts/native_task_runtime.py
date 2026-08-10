@@ -137,7 +137,7 @@ def _event_payload(state: Mapping[str, Any], event: str, payload: Mapping[str, A
             required.update({"hard_status", "acknowledgement_status"})
         elif event == "terminal":
             required.add("status")
-            optional.update({"terminal_message_digest", "artifact_digests"})
+            optional.update({"terminal_message_digest", "artifact_digests", "artifact_bindings"})
         if not required.issubset(normalized) or set(normalized) - required - optional:
             raise RuntimeStateError(f"{event} host observation payload shape is invalid")
         if normalized.get("source") != "host_observation":
@@ -172,6 +172,43 @@ def _event_payload(state: Mapping[str, Any], event: str, payload: Mapping[str, A
                 or any(not isinstance(item, str) or not item for item in artifact_digests)
             ):
                 raise RuntimeStateError("terminal artifact digests are invalid")
+            artifact_bindings = normalized.get("artifact_bindings")
+            if artifact_bindings is not None:
+                if not isinstance(artifact_bindings, list) or not artifact_bindings:
+                    raise RuntimeStateError("terminal artifact bindings are invalid")
+                normalized_bindings = []
+                seen_ids = set()
+                for index, binding in enumerate(artifact_bindings):
+                    if not isinstance(binding, Mapping) or set(binding) != {
+                        "artifact_id", "artifact_class_id", "path", "sha256"
+                    }:
+                        raise RuntimeStateError("terminal artifact binding shape is invalid")
+                    artifact_id = _text(binding.get("artifact_id"), f"artifact_bindings[{index}].artifact_id")
+                    artifact_class_id = _text(binding.get("artifact_class_id"), f"artifact_bindings[{index}].artifact_class_id")
+                    artifact_path = _text(binding.get("path"), f"artifact_bindings[{index}].path")
+                    artifact_sha = _text(binding.get("sha256"), f"artifact_bindings[{index}].sha256")
+                    if artifact_id in seen_ids:
+                        raise RuntimeStateError("terminal artifact binding IDs must be unique")
+                    if len(artifact_sha) != 64 or any(ch not in "0123456789abcdef" for ch in artifact_sha):
+                        raise RuntimeStateError("terminal artifact binding sha256 is invalid")
+                    if artifact_path.startswith("/") or "\\" in artifact_path or any(
+                        part in {"", ".", ".."} for part in artifact_path.split("/")
+                    ):
+                        raise RuntimeStateError("terminal artifact binding path is invalid")
+                    seen_ids.add(artifact_id)
+                    normalized_bindings.append({
+                        "artifact_id": artifact_id,
+                        "artifact_class_id": artifact_class_id,
+                        "path": artifact_path,
+                        "sha256": artifact_sha,
+                    })
+                normalized_bindings.sort(key=lambda item: item["artifact_id"])
+                normalized["artifact_bindings"] = normalized_bindings
+                binding_digests = [item["sha256"] for item in normalized_bindings]
+                if artifact_digests is not None and sorted(artifact_digests) != sorted(binding_digests):
+                    raise RuntimeStateError("terminal artifact digests conflict with artifact bindings")
+                if artifact_digests is None:
+                    normalized["artifact_digests"] = binding_digests
     else:
         raise RuntimeStateError(f"unsupported native runtime event: {event}")
     canonical_digest(normalized)

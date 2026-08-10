@@ -146,6 +146,16 @@
       "size": 11214
     },
     {
+      "path": "company-os/bootstrap-outcome/SKILL.md",
+      "sha256": "866b8a58d8ed0b08607d461134609292ff5b82840f8245e3351a158a9410a107",
+      "size": 2448
+    },
+    {
+      "path": "company-os/bootstrap-outcome/scripts/bootstrap_outcome.py",
+      "sha256": "5f541c700d669252815de366fd3ac2622b3c7465170d4ef2ff46c8667f9af272",
+      "size": 16160
+    },
+    {
       "path": "company-os/brand-creative-system/SKILL.md",
       "sha256": "d202f89899a6597be1eb04c89f1648242628fcd627a9a1fff6f0b59550d818ca",
       "size": 2216
@@ -154,6 +164,16 @@
       "path": "company-os/brand-creative-system/agents/openai.yaml",
       "sha256": "586da8cfa61b91af6631105772291fe6fb788802bb96ff39b382711577abacdd",
       "size": 229
+    },
+    {
+      "path": "company-os/build-outcome-evaluators/SKILL.md",
+      "sha256": "5c0f3f8b2a29cd7752800f8881b16a57049f571c2257e2c19284befee95e2d1c",
+      "size": 2048
+    },
+    {
+      "path": "company-os/build-outcome-evaluators/scripts/compile_evaluator_build_fabric.py",
+      "sha256": "df946d1aca8042c2c7808d7a6bd366a01dd5e04a559da74a55f0fe9fe8c4ecc5",
+      "size": 16346
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/SKILL.md",
@@ -342,8 +362,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
-      "sha256": "c5b1cd8bd059462b98fd0901f895b45c84eaa88047cae527795f3cfc0dd70f80",
-      "size": 39295
+      "sha256": "725794b80478970550893909b031ae417b3ebbc6e4428b3c489a10ddb9654b56",
+      "size": 41974
     },
     {
       "path": "company-os/elastic-company-os/scripts/openai_responses_gateway.py",
@@ -397,8 +417,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",
-      "sha256": "f481d023263a56bcaef00a35eacf2a630e2d45c7b13e52115bce14e384fa7008",
-      "size": 21742
+      "sha256": "8e283a27678d2c6f03dc5628c5af37f10ee39262c1cd18c604cea044fd937e9a",
+      "size": 23839
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_openai_responses_gateway_contract.py",
@@ -736,6 +756,16 @@
       "size": 105788
     },
     {
+      "path": "company-os/materialize-outcome-stack/SKILL.md",
+      "sha256": "10495af9bb6d7fcfa10674c4ff854cfcdf0ecfabe0cb1fd14dddbc722ad7d4b9",
+      "size": 1835
+    },
+    {
+      "path": "company-os/materialize-outcome-stack/scripts/materialize_outcome_stack.py",
+      "sha256": "4be1bb34cea1e7d88a99ffcef1186b668f40c7b05e94069144380de834822839",
+      "size": 13338
+    },
+    {
       "path": "company-os/operational-control/SKILL.md",
       "sha256": "496e34d3b47621a88ad63a1d94ff0fe7383f0d849f1835a6a26f0a31ac3b4d9e",
       "size": 2048
@@ -761,9 +791,19 @@
       "size": 2925
     },
     {
+      "path": "company-os/register-outcome-evaluators/SKILL.md",
+      "sha256": "f94f034b5310ff707de6ff860567aca65c1a82fb815777899d956e6dee39a2ea",
+      "size": 1550
+    },
+    {
+      "path": "company-os/register-outcome-evaluators/scripts/register_outcome_evaluators.py",
+      "sha256": "538ccdb77870799594aa353501501c04de61b5122483344e2386d2d8a7ec891d",
+      "size": 9786
+    },
+    {
       "path": "company-os/run-outcome-loop/SKILL.md",
-      "sha256": "7440452f005998ea2113e9cc9141e0ab86da4245283e55e2a8cd429b40e1764f",
-      "size": 3427
+      "sha256": "f62e947f9aa8ea767597b2ba614788a3edbd60c05ab5b21586d9a67db7738ed2",
+      "size": 5002
     },
     {
       "path": "company-os/select-execution-loop/SKILL.md",
@@ -794,6 +834,16 @@
       "path": "company-os/select-execution-loop/scripts/select_execution_loop.py",
       "sha256": "2249fb66be779654ec556bf469dd3577f918c42b74598598a4fdb23c8f9b4512",
       "size": 13270
+    },
+    {
+      "path": "company-os/synthesize-outcome-model/SKILL.md",
+      "sha256": "3243e8aca2d6ecdc81d32805df4b88db4f1673a2f28599df7b57ec3810557938",
+      "size": 2227
+    },
+    {
+      "path": "company-os/synthesize-outcome-model/scripts/synthesize_outcome_model.py",
+      "sha256": "ccb7532e2869b61d13ecb7660d2015be2ca633f5186669a4b74888b9bf11e9fc",
+      "size": 18241
     },
     {
       "path": "company-os/ui-design-quality/LICENSE.upstream",
