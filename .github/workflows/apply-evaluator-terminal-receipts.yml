@@ -1,0 +1,45 @@
+name: Apply Evaluator Terminal Receipts
+
+on:
+  push:
+    paths:
+      - ".github/workflows/apply-evaluator-terminal-receipts.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/company-os-outcome-control-plane
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Apply evaluator terminal receipt type
+        run: python3 scripts/apply_evaluator_terminal_receipts.py
+      - name: Verify native receipt contract
+        run: python3 skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py -v
+      - name: Verify evaluation receipt bridge
+        run: python3 -m unittest tests.test_outcome_evaluation_runtime_bridge -v
+      - name: Refresh distribution manifest
+        run: python3 scripts/distribution.py write-manifest
+      - name: Commit verified evaluator receipt bridge
+        run: |
+          rm scripts/apply_evaluator_terminal_receipts.py
+          rm .github/workflows/apply-evaluator-terminal-receipts.yml
+          git config user.name "company-os-evaluator-receipt-bot"
+          git config user.email "company-os-evaluator-receipt-bot@users.noreply.github.com"
+          git add skills tests distribution-manifest.json scripts .github/workflows
+          git commit -m "feat(company-os): advance evaluator terminal receipts into diagnosis"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin codex/company-os-outcome-control-plane
+            git rebase origin/codex/company-os-outcome-control-plane
+            if git push origin HEAD:codex/company-os-outcome-control-plane; then
+              exit 0
+            fi
+          done
+          exit 1
