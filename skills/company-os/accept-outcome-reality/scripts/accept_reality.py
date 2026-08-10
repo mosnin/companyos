@@ -78,7 +78,16 @@ def load_sources(project,paths,objective_id,original):
   except Exception as e: raise RealityError(getattr(e,'code','E_CALIBRATION'),f'calibration invalid: {e}') from e
   if v.get('objective_id')!=objective_id or v.get('execution_bound') is not True or v.get('passed') is not True: raise RealityError('E_CALIBRATION','calibration not accepted for objective')
   cal.append({'evaluator_id':v['evaluator_id'],'receipt_sha256':sha(v['receipt_sha256'],'calibration receipt_sha256')})
- return {'outcome_contract':ob,'artifact_contract':ab,'evaluator_contract':eb,'benchmark_contract':bb,'calibration_receipts':{'path':crel,'file_sha256':file_digest(cp),'receipts_sha256':digest(sorted(cal,key=lambda x:x['evaluator_id']))}},outcome
+ return {'outcome_contract':ob,'artifact_contract':ab,'evaluator_contract':eb,'benchmark_contract':bb,'calibration_receipts':{'path':crel,'file_sha256':file_digest(cp),'receipts_sha256':digest(sorted(cal,key=lambda x:x['evaluator_id']))}},outcome,artifacts
+
+def required_observation_evidence(artifact_contract):
+ result={}
+ for item in artifact_contract.get('artifact_classes',[]):
+  if not isinstance(item,Mapping) or item.get('required') is not True: continue
+  aid=text(item.get('artifact_class_id'),'artifact_class_id'); evidence=item.get('required_evidence',[])
+  if not isinstance(evidence,list) or not all(isinstance(x,str) and x for x in evidence): raise RealityError('E_SCHEMA',f'{aid}.required_evidence invalid')
+  result[aid]=set(evidence)
+ return result
 
 def accept(project,req=None):
  if req is None:
@@ -89,10 +98,11 @@ def accept(project,req=None):
  if req.get('production_narrative_admissible') is not False: raise RealityError('E_AUTHORITY','production narrative is inadmissible')
  production=sorted(set(req.get('production_actor_ids',[])))
  if not production: raise RealityError('E_AUTHORITY','production actors required')
- sources,outcome=load_sources(project,obj(req.get('source_paths'),'source_paths'),oid,original)
+ sources,outcome,artifact_contract=load_sources(project,obj(req.get('source_paths'),'source_paths'),oid,original)
  claims=req.get('claims')
  if not isinstance(claims,list) or not claims: raise RealityError('E_SCHEMA','claims required')
  known_claims={x.get('claim_id'):x for x in outcome.get('outcome_claims',[]) if isinstance(x,Mapping)}
+ required_evidence_by_artifact=required_observation_evidence(artifact_contract)
  seen=set(); decisions=[]; blockers=[]
  for i,c in enumerate(claims):
   c=obj(c,f'claims[{i}]'); cid=text(c.get('claim_id'),'claim_id')
@@ -105,18 +115,25 @@ def accept(project,req=None):
    a=obj(a,f'artifact_evidence[{j}]'); p,rel=safe(project,a.get('path'),f'artifact_evidence[{j}].path'); actual=file_digest(p)
    if actual!=sha(a.get('sha256'),'artifact sha256'): raise RealityError('E_DIGEST',f'artifact evidence changed: {cid}')
    artifact_bindings.append({'artifact_id':text(a.get('artifact_id'),'artifact_id'),'artifact_class_id':text(a.get('artifact_class_id'),'artifact_class_id'),'path':rel,'sha256':actual,'size':p.stat().st_size})
-  eval_bindings=[]; eval_accept=True
+  artifact_classes={a['artifact_class_id'] for a in artifact_bindings}
+  required_evidence=set().union(*(required_evidence_by_artifact.get(aid,set()) for aid in artifact_classes)) if artifact_classes else set()
+  eval_bindings=[]; eval_accept=True; observed_evidence=set()
   for j,path_value in enumerate(c.get('evaluator_execution_receipt_paths',[])):
    p,rel=safe(project,path_value,f'evaluator_receipt[{j}]'); receipt=dict(obj(read(p,'evaluator receipt'),'evaluator receipt'))
    try: v=dict(execution_module().verify_receipt(project,receipt))
    except Exception as e: raise RealityError(getattr(e,'code','E_EVALUATOR'),f'evaluator receipt invalid: {e}') from e
    if v.get('objective_id')!=oid or sorted(receipt.get('production_actor_ids',[]))!=production or receipt.get('independent_role') is not True: raise RealityError('E_BINDING','evaluator receipt authority or objective mismatch')
    eval_accept=eval_accept and receipt.get('accepted') is True
+   for evidence in receipt.get('evidence_bindings',[]):
+    if isinstance(evidence,Mapping) and isinstance(evidence.get('evidence_type'),str) and evidence.get('evidence_type'):
+     observed_evidence.add(evidence['evidence_type'])
    eval_bindings.append({'evaluator_id':v['evaluator_id'],'path':rel,'file_sha256':file_digest(p),'receipt_sha256':sha(v['receipt_sha256'],'execution receipt_sha256'),'accepted':receipt.get('accepted') is True})
-  evidence_ok=bool(artifact_bindings); independent_ok=bool(eval_bindings) and eval_accept; passed=evidence_ok and independent_ok
+  missing_observation=sorted(required_evidence-observed_evidence)
+  evidence_ok=bool(artifact_bindings); independent_ok=bool(eval_bindings) and eval_accept; observation_ok=not missing_observation; passed=evidence_ok and independent_ok and observation_ok
   if required and not evidence_ok: blockers.append({'claim_id':cid,'code':'NO_ARTIFACT_EVIDENCE'})
   if required and not independent_ok: blockers.append({'claim_id':cid,'code':'INDEPENDENT_EVALUATION_FAILED'})
-  decisions.append({'claim_id':cid,'statement':statement,'required':required,'passed':passed,'artifact_evidence':artifact_bindings,'evaluator_execution_receipts':eval_bindings,'artifact_evidence_count':len(artifact_bindings),'evaluator_receipt_count':len(eval_bindings)})
+  if required and not observation_ok: blockers.append({'claim_id':cid,'code':'REQUIRED_OBSERVATION_EVIDENCE_MISSING','missing':missing_observation})
+  decisions.append({'claim_id':cid,'statement':statement,'required':required,'passed':passed,'artifact_evidence':artifact_bindings,'evaluator_execution_receipts':eval_bindings,'required_observation_evidence':sorted(required_evidence),'observed_evidence_types':sorted(observed_evidence),'artifact_evidence_count':len(artifact_bindings),'evaluator_receipt_count':len(eval_bindings)})
  blockers.sort(key=lambda x:(x['claim_id'],x['code'])); accepted=not blockers and all((not d['required']) or d['passed'] for d in decisions)
  out={'$schema':RECEIPT_SCHEMA,'schema_version':2,'execution_bound':True,'objective_id':oid,'original_objective':original,'original_objective_sha256':hashlib.sha256(original.encode()).hexdigest(),'candidate_id':candidate_id,'production_actor_ids':production,'production_narrative_admissible':False,'source_bindings':sources,'claim_decisions':sorted(decisions,key=lambda x:x['claim_id']),'blockers':blockers,'accepted':accepted,'receipt_sha256':None}
  out['receipt_sha256']=digest(out); return out
@@ -126,31 +143,45 @@ def verify_receipt(project,receipt):
  receipt_sha=verify_self(receipt,'receipt_sha256','reality receipt'); oid=text(receipt.get('objective_id'),'objective_id'); original=text(receipt.get('original_objective'),'original_objective')
  if receipt.get('production_narrative_admissible') is not False: raise RealityError('E_AUTHORITY','production narrative became admissible')
  bindings=obj(receipt.get('source_bindings'),'source_bindings'); paths={k:obj(v,f'source_bindings.{k}').get('path') for k,v in bindings.items()}
- sources,outcome=load_sources(project,paths,oid,original)
+ sources,outcome,artifact_contract=load_sources(project,paths,oid,original)
  for k,v in sources.items():
   observed=obj(bindings.get(k),k)
   if observed.get('file_sha256')!=v.get('file_sha256'): raise RealityError('E_DIGEST',f'source drift: {k}')
  production=sorted(set(receipt.get('production_actor_ids',[]))); blockers=[]; count=0
+ required_evidence_by_artifact=required_observation_evidence(artifact_contract)
  known={x.get('claim_id'):x for x in outcome.get('outcome_claims',[]) if isinstance(x,Mapping)}
  for d in receipt.get('claim_decisions',[]):
   d=obj(d,'claim decision'); cid=text(d.get('claim_id'),'claim_id')
   if cid not in known or known[cid].get('statement')!=d.get('statement'): raise RealityError('E_BINDING',f'claim drift: {cid}')
   artifacts=d.get('artifact_evidence',[]); evals=d.get('evaluator_execution_receipts',[])
+  artifact_classes=set()
   for a in artifacts:
    a=obj(a,'artifact evidence'); p,_=safe(project,a.get('path'),'artifact path')
    if file_digest(p)!=sha(a.get('sha256'),'artifact sha256'): raise RealityError('E_DIGEST',f'artifact drift: {cid}')
-  eval_accept=True
+   artifact_classes.add(text(a.get('artifact_class_id'),'artifact_class_id'))
+  required_evidence=set().union(*(required_evidence_by_artifact.get(aid,set()) for aid in artifact_classes)) if artifact_classes else set()
+  eval_accept=True; observed_evidence=set()
   for e in evals:
    e=obj(e,'evaluator execution'); p,_=safe(project,e.get('path'),'execution receipt path'); raw=dict(obj(read(p,'execution receipt'),'execution receipt'))
    try: v=dict(execution_module().verify_receipt(project,raw))
    except Exception as ex: raise RealityError(getattr(ex,'code','E_EVALUATOR'),f'evaluator receipt drift: {ex}') from ex
    if v.get('receipt_sha256')!=e.get('receipt_sha256') or sorted(raw.get('production_actor_ids',[]))!=production: raise RealityError('E_DIGEST',f'evaluator drift: {cid}')
    eval_accept=eval_accept and raw.get('accepted') is True
-  passed=bool(artifacts) and bool(evals) and eval_accept
-  if d.get('required') is True and not passed: blockers.append(cid)
+   for evidence in raw.get('evidence_bindings',[]):
+    if isinstance(evidence,Mapping) and isinstance(evidence.get('evidence_type'),str) and evidence.get('evidence_type'):
+     observed_evidence.add(evidence['evidence_type'])
+  missing_observation=sorted(required_evidence-observed_evidence)
+  passed=bool(artifacts) and bool(evals) and eval_accept and not missing_observation
+  if d.get('required') is True and not artifacts: blockers.append({'claim_id':cid,'code':'NO_ARTIFACT_EVIDENCE'})
+  if d.get('required') is True and (not evals or not eval_accept): blockers.append({'claim_id':cid,'code':'INDEPENDENT_EVALUATION_FAILED'})
+  if d.get('required') is True and missing_observation: blockers.append({'claim_id':cid,'code':'REQUIRED_OBSERVATION_EVIDENCE_MISSING','missing':missing_observation})
+  if d.get('passed') is not passed: raise RealityError('E_REALITY',f'stored claim decision drift: {cid}')
+  if d.get('required_observation_evidence',[]) != sorted(required_evidence): raise RealityError('E_REALITY',f'stored observation requirement drift: {cid}')
+  if d.get('observed_evidence_types',[]) != sorted(observed_evidence): raise RealityError('E_REALITY',f'stored observation evidence drift: {cid}')
   count+=1
+ blockers=sorted(blockers,key=lambda x:(x['claim_id'],x['code']))
  accepted=not blockers and receipt.get('accepted') is True
- if bool(receipt.get('blockers')) != bool(blockers): raise RealityError('E_REALITY','stored blocker state no longer matches reality')
+ if receipt.get('blockers') != blockers: raise RealityError('E_REALITY','stored blocker state no longer matches reality')
  return {'objective_id':oid,'candidate_id':text(receipt.get('candidate_id'),'candidate_id'),'receipt_sha256':receipt_sha,'accepted':accepted,'execution_bound':True,'claim_count':count}
 def main():
  p=argparse.ArgumentParser(); p.add_argument('--project-root',type=Path,required=True); p.add_argument('--request',type=Path,required=True); p.add_argument('--output',type=Path,required=True); a=p.parse_args()

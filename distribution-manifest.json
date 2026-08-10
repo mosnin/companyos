@@ -12,8 +12,8 @@
     },
     {
       "path": "company-os/accept-outcome-reality/scripts/accept_reality.py",
-      "sha256": "5c1026676ac5bb35222bf1bdff455769cf1f9d38f4b9655b300a4fa97843fee5",
-      "size": 13398
+      "sha256": "041bacf5b3b88f685a72e5fb9d7a1f5a887c082a6afb75383bd2013a3c52f549",
+      "size": 16369
     },
     {
       "path": "company-os/assign-capability-skills/SKILL.md",
@@ -142,8 +142,8 @@
     },
     {
       "path": "company-os/authorize-outcome-scale/scripts/authorize_outcome_scale.py",
-      "sha256": "4898b8c6786d2487548f28c67228699f03d099716d404283495dd0543edb4454",
-      "size": 9050
+      "sha256": "09529007c2aecd57b8b498a4756c0c9edfba01029a06da15721478c2ac7241b7",
+      "size": 11214
     },
     {
       "path": "company-os/brand-creative-system/SKILL.md",
