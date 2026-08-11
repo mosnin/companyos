@@ -19,6 +19,7 @@ EVENT_SCHEMA = "company-os.mission-execution-event.v1"
 ADMISSION_SCHEMA = "company-os.work-admission-request.v1"
 ADMISSION_RECEIPT_SCHEMA = "company-os.work-admission-receipt.v1"
 WAKE_SCHEMA = "company-os.scheduler-wake.v1"
+REALITY_SPIKE_SCHEMA = "company-os.reality-spike-receipt.v1"
 CHECKPOINT_SCHEMA = "company-os.product-checkpoint-request.v1"
 
 MISSION_CLASSES = {
@@ -698,6 +699,113 @@ def refresh_governor(raw_state: Mapping[str, Any], *, now: datetime | None = Non
     return seal(state)
 
 
+def verify_reality_spike(
+    project_root: Path,
+    raw: Mapping[str, Any],
+    *,
+    objective_id: str | None = None,
+) -> dict[str, Any]:
+    value = deepcopy(dict(raw))
+    if value.get("$schema") != REALITY_SPIKE_SCHEMA:
+        raise MissionControlError("E_SCHEMA", "reality spike receipt schema is invalid")
+    if objective_id is not None and value.get("objective_id") != objective_id:
+        raise MissionControlError("E_BINDING", "reality spike objective is incorrect")
+    observed = sha256(value.get("receipt_sha256"), "receipt_sha256")
+    unsigned = deepcopy(value)
+    unsigned["receipt_sha256"] = None
+    if digest(unsigned) != observed:
+        raise MissionControlError("E_DIGEST", "reality spike receipt changed")
+    root = project_root.resolve()
+    artifacts = value.get("artifacts")
+    observations = value.get("observations")
+    commands = value.get("commands")
+    blockers = value.get("blockers")
+    if not isinstance(artifacts, list) or not artifacts:
+        raise MissionControlError("E_SPIKE", "reality spike contains no product artifacts")
+    if not isinstance(observations, list) or not observations:
+        raise MissionControlError("E_SPIKE", "reality spike contains no runtime observations")
+    if not isinstance(commands, list) or not commands:
+        raise MissionControlError("E_SPIKE", "reality spike contains no executed commands")
+    if not isinstance(blockers, list):
+        raise MissionControlError("E_SPIKE", "reality spike blockers must be an array")
+    for collection_name, records in (("artifacts", artifacts), ("observations", observations)):
+        for index, record in enumerate(records):
+            if not isinstance(record, Mapping):
+                raise MissionControlError("E_SPIKE", f"{collection_name}[{index}] is invalid")
+            capability_id = text(record.get("capability_id"), f"{collection_name}[{index}].capability_id")
+            relative = safe_relative(record.get("path"), f"{collection_name}[{index}].path")
+            expected = sha256(record.get("sha256"), f"{collection_name}[{index}].sha256")
+            resolved = (root / Path(*PurePosixPath(relative).parts)).resolve(strict=True)
+            if (resolved != root and root not in resolved.parents) or not resolved.is_file() or resolved.is_symlink():
+                raise MissionControlError("E_PATH", f"{collection_name}[{index}] is not a regular project file")
+            if file_digest(resolved) != expected:
+                raise MissionControlError("E_DIGEST", f"{collection_name}[{index}] bytes changed")
+            if collection_name == "observations" and record.get("kind") not in {"runtime_observed", "journey_connected"}:
+                raise MissionControlError("E_SPIKE", f"unsupported spike observation kind for {capability_id}")
+    for index, command in enumerate(commands):
+        if not isinstance(command, Mapping):
+            raise MissionControlError("E_SPIKE", f"commands[{index}] is invalid")
+        text(command.get("command"), f"commands[{index}].command")
+        integer(command.get("exit_code"), f"commands[{index}].exit_code", minimum=0)
+    return value
+
+
+def ingest_reality_spike(
+    raw_state: Mapping[str, Any],
+    project_root: Path,
+    raw_receipt: Mapping[str, Any],
+) -> dict[str, Any]:
+    state = verify_state(raw_state)
+    receipt = verify_reality_spike(project_root, raw_receipt, objective_id=state["objective_id"])
+    stamp = text(receipt.get("completed_at"), "completed_at")
+    parse_time(stamp, "completed_at")
+    receipt_id = receipt["receipt_sha256"][:16]
+    known = {item["capability_id"] for item in state["capabilities"]}
+    for index, artifact in enumerate(receipt["artifacts"]):
+        capability_id = artifact["capability_id"]
+        if capability_id not in known:
+            continue
+        current = next(item for item in state["capabilities"] if item["capability_id"] == capability_id)
+        if current["state"] != "missing":
+            continue
+        state = record_event(
+            state,
+            make_event(
+                f"spike:{receipt_id}:artifact:{index}",
+                "artifact_materialized",
+                occurred_at=stamp,
+                work_class="implementation",
+                capability_id=capability_id,
+                evidence={"kind": "reality_spike_artifact", "path": artifact["path"], "sha256": artifact["sha256"], "capability_id": capability_id},
+            ),
+        )
+    ordered = sorted(
+        receipt["observations"],
+        key=lambda item: (0 if item.get("kind") == "runtime_observed" else 1, str(item.get("capability_id")), str(item.get("path"))),
+    )
+    for index, observation in enumerate(ordered):
+        capability_id = observation["capability_id"]
+        if capability_id not in known:
+            continue
+        current = next(item for item in state["capabilities"] if item["capability_id"] == capability_id)
+        expected = "partial" if observation["kind"] == "runtime_observed" else "runnable"
+        if current["state"] != expected:
+            continue
+        state = record_event(
+            state,
+            make_event(
+                f"spike:{receipt_id}:observation:{index}",
+                observation["kind"],
+                occurred_at=stamp,
+                work_class="runtime" if observation["kind"] == "runtime_observed" else "integration",
+                capability_id=capability_id,
+                evidence={"kind": observation.get("observation_kind") or observation["kind"], "path": observation["path"], "sha256": observation["sha256"], "capability_id": capability_id},
+                observation_kind=observation.get("observation_kind") or observation["kind"],
+            ),
+        )
+    return state
+
+
 def update_scope(
     raw_state: Mapping[str, Any],
     artifact_contract: Mapping[str, Any],
@@ -721,6 +829,27 @@ def update_scope(
             capability["evidence"] = deepcopy(prior.get("evidence", []))
             if prior.get("existing_implementation"):
                 capability["existing_implementation"] = prior["existing_implementation"]
+    selected_ids = list(first.get("required_capability_ids", []))
+    selected = {item["capability_id"]: item for item in capabilities if item["capability_id"] in selected_ids}
+    provisional = old.get("first_real_artifact")
+    if provisional and selected_ids:
+        target = selected[selected_ids[0]]
+        if CAPABILITY_ORDER.get(provisional.get("state"), 0) > CAPABILITY_ORDER.get(target.get("state"), 0):
+            target["state"] = provisional["state"]
+            target["evidence"] = deepcopy(provisional.get("evidence", []))
+    rendered = old.get("rendered_user_path")
+    if rendered and selected:
+        ui_targets = [
+            item for item in selected.values()
+            if any(marker in (item.get("label") or "").casefold() for marker in ("browser", "ui", "interface", "app", "widget", "game"))
+        ]
+        target = ui_targets[0] if ui_targets else selected[selected_ids[0]]
+        if CAPABILITY_ORDER.get(rendered.get("state"), 0) > CAPABILITY_ORDER.get(target.get("state"), 0):
+            target["state"] = rendered["state"]
+            target["evidence"] = deepcopy(rendered.get("evidence", []))
+    supplied = old.get("supplied_implementation_integration")
+    if supplied and selected_ids:
+        selected[selected_ids[0]]["existing_implementation"] = supplied.get("existing_implementation")
     state["first_reality"] = first
     state["capabilities"] = capabilities
     return refresh_governor(seal(state))
@@ -1085,6 +1214,18 @@ def main() -> int:
     admit.add_argument("--request", type=Path, required=True)
     admit.add_argument("--output", type=Path, required=True)
 
+    wake_create = sub.add_parser("make-wake")
+    wake_create.add_argument("--state", type=Path, required=True)
+    wake_create.add_argument("--wake-id", required=True)
+    wake_create.add_argument("--not-before", required=True)
+    wake_create.add_argument("--reason", required=True)
+    wake_create.add_argument("--output", type=Path, required=True)
+
+    wake_admit = sub.add_parser("admit-wake")
+    wake_admit.add_argument("--state", type=Path, required=True)
+    wake_admit.add_argument("--wake", type=Path, required=True)
+    wake_admit.add_argument("--output", type=Path, required=True)
+
     check = sub.add_parser("verify")
     check.add_argument("--state", type=Path, required=True)
 
@@ -1111,6 +1252,19 @@ def main() -> int:
             save(args.output, result)
         elif args.command == "admit-work":
             result = admit_work(load(args.state), json.loads(args.request.read_text(encoding="utf-8")))
+            save(args.output, result)
+        elif args.command == "make-wake":
+            current = load(args.state)
+            result = make_wake(
+                current,
+                wake_id=args.wake_id,
+                not_before=args.not_before,
+                reason=args.reason,
+                expected_state_sha256=current["state_sha256"],
+            )
+            save(args.output, result)
+        elif args.command == "admit-wake":
+            result = admit_wake(load(args.state), json.loads(args.wake.read_text(encoding="utf-8")))
             save(args.output, result)
         else:
             result = load(args.state)

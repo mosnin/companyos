@@ -172,8 +172,8 @@
     },
     {
       "path": "company-os/bootstrap-outcome/scripts/bootstrap_outcome.py",
-      "sha256": "c44dc4d5a152ceaced331855fdd329c323f0aa25caff2433cadd5c87f459ba78",
-      "size": 19137
+      "sha256": "e7ee25a655d3e98a9bdd2e337cfe517567beb40eab2d78beb5b3fc9c7b0bc031",
+      "size": 19447
     },
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -367,8 +367,8 @@
     },
     {
       "path": "company-os/direct-outcome/scripts/direct_outcome.py",
-      "sha256": "36ca50651a54de2d46de4ee7df41e4b56def9883f563cee4f4d624150415fb34",
-      "size": 52956
+      "sha256": "66d8e91777b7c24cec4d784d2df2b2be37a2b0f3032d2c894eb264adfa8615da",
+      "size": 55894
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
@@ -1042,8 +1042,8 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/mission_control.py",
-      "sha256": "e5c090c0d90497c4ab4545da5223b42b456b3c41a7118a93cc89dae32a2a1372",
-      "size": 47703
+      "sha256": "4f55fca8003ae0c07ce0152e39ce926f1c6b3290163846851746052cafb592a0",
+      "size": 55976
     },
     {
       "path": "company-os/operational-control/SKILL.md",

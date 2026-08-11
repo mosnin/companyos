@@ -7,6 +7,7 @@ import hashlib
 import importlib.util
 import json
 import re
+from datetime import timedelta
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -222,6 +223,14 @@ def admit_mission_work(
 ) -> dict[str, Any]:
     module = mission_control_module()
     state = refresh_mission_state(project_root, objective_id)
+    dispatch_event = module.make_event(
+        f"dispatch:{task_id}:{state['generation']}",
+        "work_recorded",
+        work_class=work_class,
+        units=1.0,
+    )
+    state = module.record_event(state, dispatch_event)
+    save_mission_state(project_root, state)
     request = {
         "$schema": module.ADMISSION_SCHEMA,
         "request_id": f"admit:{task_id}:{state['generation']}",
@@ -394,8 +403,46 @@ def load_state(project_root: Path, objective_id: str) -> dict[str, Any]:
     return verify_state(obj(read_json(path, "director state"), "director state"))
 
 
+def _attach_scheduler_wake(project_root: Path, state: Mapping[str, Any]) -> dict[str, Any]:
+    candidate = dict(state)
+    next_action = candidate.get("next_action")
+    mission_path = mission_state_path(project_root, candidate["objective_id"])
+    if not isinstance(next_action, Mapping) or next_action.get("action") != "execute_fabric" or not mission_path.is_file():
+        return candidate
+    mission = refresh_mission_state(project_root, candidate["objective_id"])
+    if mission.get("status") != "active":
+        return candidate
+    decision = obj(mission.get("governor_decision"), "governor decision")
+    interval = {"normal": 8, "compression": 4, "critical_path": 3, "reality_closure": 2}.get(decision.get("mode"), 5)
+    if next_action.get("stage") in {"loop", "build_candidate", "rework", "evaluate"}:
+        interval = min(interval, 5)
+    not_before = mission_control_module().now_utc() + timedelta(minutes=interval)
+    wake_id = f"{candidate['objective_id']}:{candidate.get('stage')}:{len(candidate.get('history', []))}:{mission['generation']}"
+    wake = mission_control_module().make_wake(
+        mission,
+        wake_id=wake_id,
+        not_before=mission_control_module().format_time(not_before),
+        reason=str(next_action.get("reason") or "Continue the current Company OS critical path."),
+        expected_state_sha256=mission["state_sha256"],
+    )
+    wake_path = workspace(project_root, candidate["objective_id"]) / "scheduler" / f"wake-{slug(wake_id)}.json"
+    write_json(wake_path, wake)
+    updated_action = dict(next_action)
+    updated_action["scheduler_wake"] = {
+        "path": relative(project_root, wake_path),
+        "file_sha256": file_digest(wake_path),
+        "wake_sha256": wake["wake_sha256"],
+        "not_before": wake["not_before"],
+        "expires_at": wake["expires_at"],
+        "generation": wake["generation"],
+        "idempotency_key": wake["idempotency_key"],
+    }
+    candidate["next_action"] = updated_action
+    return candidate
+
+
 def save_state(project_root: Path, state: Mapping[str, Any]) -> dict[str, Any]:
-    result = seal(state)
+    result = seal(_attach_scheduler_wake(project_root, state))
     write_json(state_path(project_root, result["objective_id"]), result)
     return result
 
@@ -458,6 +505,16 @@ def start(project_root: Path, objective_id: str, objective: str) -> dict[str, An
     saved = save_state(project_root, state)
     saved["next_action"]["mission_control"] = mission_binding(project_root, objective_id)
     return save_state(project_root, saved)
+
+
+def ingest_reality_spike_if_present(project_root: Path, objective_id: str) -> None:
+    receipt_path = workspace(project_root, objective_id) / "reality-spike/reality-spike-receipt.json"
+    if not receipt_path.is_file():
+        return
+    mission = load_mission_state(project_root, objective_id)
+    receipt = obj(read_json(receipt_path, "reality spike receipt"), "reality spike receipt")
+    updated = mission_control_module().ingest_reality_spike(mission, project_root, receipt)
+    save_mission_state(project_root, updated)
 
 
 def proposal_paths(base: Path) -> list[Path]:
@@ -634,6 +691,7 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
     project_root = project_root.resolve()
     state = load_state(project_root, objective_id)
     base = workspace(project_root, objective_id)
+    ingest_reality_spike_if_present(project_root, objective_id)
     stage = state["stage"]
 
     if stage == "discovery":

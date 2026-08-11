@@ -248,7 +248,7 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
             f"Start a reversible reality spike for the exact objective {objective!r} immediately while discovery runs. "
             "Inspect the repository, identify the task archetype, make the smallest real product mutation, run or render it, and observe actual behavior. "
             "Prefer supplied repositories, SDKs, frameworks, and existing project structure. Do not replace a supplied implementation without a failed integration attempt. "
-            f"Write a receipt at {spike_scope}/reality-spike-receipt.json with schema company-os.reality-spike-receipt.v1, exact product artifact paths and sha256 values, commands executed, runtime result, observation evidence paths and sha256 values, and unresolved blockers. "
+            f"Write a receipt at {spike_scope}/reality-spike-receipt.json with schema company-os.reality-spike-receipt.v1. It must contain objective_id {objective_id!r}, completed_at RFC3339 UTC, artifacts with capability_id first_real_artifact or rendered_user_path plus exact project-relative path and sha256, commands with exact command and nonnegative exit_code, observations with capability_id, kind runtime_observed or journey_connected, observation_kind, exact evidence path and sha256, blockers as an array, and receipt_sha256 over the canonical object with receipt_sha256 null. "
             "Research only a live implementation blocker. A plan or report without product mutation and runtime evidence fails this lane."
         ),
         "acceptance": [
