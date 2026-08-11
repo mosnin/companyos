@@ -257,11 +257,11 @@ def compile_first_reality_artifact_contract(
         records.append(
             {
                 "artifact_class_id": raw["artifact_class_id"],
-                "label": raw["label"],
+                "label": raw.get("label") or raw["artifact_class_id"],
                 "required": True,
-                "modalities": list(raw.get("modalities", [])),
-                "observation_methods": list(raw.get("observation_methods", [])),
-                "required_evidence": list(raw.get("required_evidence", [])),
+                "modalities": list(raw.get("modalities") or ["executable"]),
+                "observation_methods": list(raw.get("observation_methods") or ["runtime"]),
+                "required_evidence": list(raw.get("required_evidence") or ["runtime_receipt"]),
             }
         )
     request = {
@@ -296,8 +296,12 @@ def record_candidate_mission_evidence(
                 evidence={"kind": "candidate_artifact", "path": artifact["path"], "sha256": artifact["sha256"], "capability_id": capability_id},
             )
             state = module.record_event(state, event)
-    for observation in candidate.get("observations", []):
-        if not isinstance(observation, Mapping) or observation.get("capability_id") not in known:
+    observations = sorted(
+        (item for item in candidate.get("observations", []) if isinstance(item, Mapping)),
+        key=lambda item: (0 if item.get("kind") == "runtime_observed" else 1, str(item.get("capability_id")), str(item.get("path"))),
+    )
+    for observation in observations:
+        if observation.get("capability_id") not in known:
             continue
         capability_id = observation["capability_id"]
         kind = observation.get("kind")
@@ -840,6 +844,15 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
         # organization spends its scarce budget on product reality, not on building
         # and auditing hypothetical judges.
         if phase == "evaluate":
+            control_state = obj(read_json(base / "runtime/outcome-control-state.json", "outcome control state"), "outcome control state")
+            if control_state.get("execution_lane") == "pilot":
+                mission = refresh_mission_state(project_root, objective_id)
+                if not mission_control_module().reality_signals(mission)["connected_vertical_slice"]:
+                    raise DirectorError("E_FIRST_REALITY", "pilot candidate reached evaluation without connected First Reality evidence")
+                state["stage"] = "control"
+                state["history"].append({"event": "first_reality_connected", "mission_state_sha256": mission["state_sha256"]})
+                state = save_state(project_root, state)
+                return advance(project_root, objective_id)
             evaluator_contract = obj(read_json(base / "runtime/evaluator-contract.json", "evaluator contract"), "evaluator contract")
             registry_path = base / "runtime/evaluator-adapter-registry.json"
             try:

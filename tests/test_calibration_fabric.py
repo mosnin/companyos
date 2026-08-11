@@ -163,13 +163,14 @@ class CalibrationFabricTests(unittest.TestCase):
         self.assertIn("rank 3", workers[2]["task"])
         self.assertIn("expected ranks 1, 2, 3", fabric["managers"][0]["acceptance"][-1])
 
-    def test_two_evaluators_are_maximum_batch(self) -> None:
+    def test_one_evaluator_is_maximum_economic_batch(self) -> None:
         self.write_contracts(3)
         result = self.compile()
-        self.assertEqual(result["calibration_evaluator_ids"], ["eval-0", "eval-1"])
-        self.assertEqual(result["remaining_evaluator_ids"], ["eval-2"])
-        self.assertEqual(len(result["fabric"]["managers"]), 2)
-        self.assertEqual(sum(len(manager["workers"]) for manager in result["fabric"]["managers"]), 6)
+        self.assertEqual(result["calibration_evaluator_ids"], ["eval-0"])
+        self.assertEqual(result["remaining_evaluator_ids"], ["eval-1", "eval-2"])
+        self.assertEqual(len(result["fabric"]["managers"]), 1)
+        self.assertEqual(sum(len(manager["workers"]) for manager in result["fabric"]["managers"]), 3)
+        self.assertLessEqual(result["fabric"]["budget"]["time_minutes"], 30.0)
         self.assertTrue(MODULE.fabric_module().validate(result["fabric"])["valid"])
 
     def test_already_calibrated_evaluator_is_skipped(self) -> None:

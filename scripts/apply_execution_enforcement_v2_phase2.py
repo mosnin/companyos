@@ -136,8 +136,6 @@ def patch_bootstrap() -> None:
 
 def patch_tests() -> None:
     path = ROOT / "tests/test_calibration_fabric.py"
-    replace_once(path, '    def test_two_evaluators_are_maximum_batch(self):\n', '    def test_one_evaluator_is_maximum_economic_batch(self):\n')
-    replace_once(path, '        self.assertEqual(result["calibration_evaluator_ids"], ["eval-0", "eval-1"])\n        self.assertEqual(result["remaining_evaluator_ids"], ["eval-2"])\n', '        self.assertEqual(result["calibration_evaluator_ids"], ["eval-0"])\n        self.assertEqual(result["remaining_evaluator_ids"], ["eval-1", "eval-2"])\n        self.assertLessEqual(result["fabric"]["budget"]["time_minutes"], 30.0)\n')
 
     path = ROOT / "tests/test_outcome_discovery_bootstrap.py"
     replace_once(path, '    def test_bootstrap_compiles_two_manager_research_fabric(self) -> None:\n', '    def test_bootstrap_compiles_two_managers_with_concurrent_reality_spike(self) -> None:\n')

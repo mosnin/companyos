@@ -193,7 +193,7 @@ class OutcomeDiscoveryBootstrapTests(unittest.TestCase):
         self.assertTrue(all(item["blocking"] for item in self.base["unknowns"]))
         self.assertEqual(self.contract["state"], "discovery_required")
 
-    def test_bootstrap_compiles_two_manager_research_fabric(self) -> None:
+    def test_bootstrap_compiles_two_managers_with_concurrent_reality_spike(self) -> None:
         manifest = BOOT.discovery_manifest(
             self.state,
             self.base,
@@ -203,9 +203,11 @@ class OutcomeDiscoveryBootstrapTests(unittest.TestCase):
         result = FABRIC.validate(manifest)
         self.assertTrue(result["valid"], result["errors"])
         self.assertEqual(len(manifest["managers"]), 2)
-        tasks = [manager["workers"][0]["task"] for manager in manifest["managers"]]
+        tasks = [worker["task"] for manager in manifest["managers"] for worker in manager["workers"]]
+        self.assertEqual(sum(len(manager["workers"]) for manager in manifest["managers"]), 3)
         self.assertTrue(any("success and domain truth" in task for task in tasks))
         self.assertTrue(any("artifact and quality system" in task for task in tasks))
+        self.assertTrue(any("reversible reality spike" in task for task in tasks))
 
     def test_complete_cited_proposals_synthesize_measurable_outcome(self) -> None:
         request, contract = SYN.synthesize(self.base, self.complete_proposals())

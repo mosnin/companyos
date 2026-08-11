@@ -60,6 +60,39 @@ class OutcomeOrganizationTests(unittest.TestCase):
             "non_goals": ["production deployment"],
             "constraints": ["no consequential external effects"],
             "outcome_control": self.control,
+            "mission_control": {
+                "$schema": "company-os.mission-execution-binding.v1",
+                "state_path": ".company-os/mission.json",
+                "state_sha256": "a" * 64,
+                "mission_id": "viral-game",
+                "generation": 1,
+                "status": "active",
+                "mission_class": "company_mission",
+                "governor_decision_sha256": "b" * 64,
+                "governor_mode": "normal",
+                "allowed_work_classes": ["implementation", "repair", "evaluation"],
+                "paused_work_classes": [],
+                "dominant_bottleneck": {"capability_id": "playable_game", "state": "missing"},
+                "first_reality": None,
+                "first_reality_required": False,
+                "replacement_orders": [],
+            },
+            "work_admission": {
+                "$schema": "company-os.work-admission-receipt.v1",
+                "request_id": "request",
+                "task_id": "task",
+                "manager_id": "manager",
+                "work_class": "implementation",
+                "admitted": True,
+                "blockers": [],
+                "mission_state_sha256": "a" * 64,
+                "governor_decision_sha256": "b" * 64,
+                "governor_mode": "normal",
+                "dominant_bottleneck": {"capability_id": "playable_game", "state": "missing"},
+                "allowed_work_classes": ["implementation", "repair", "evaluation"],
+                "replacement_orders": [],
+                "receipt_sha256": "c" * 64,
+            },
         }
         self.write_state(self.initial_state())
 
@@ -105,6 +138,12 @@ class OutcomeOrganizationTests(unittest.TestCase):
         path.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     def compile(self) -> dict:
+        state = json.loads((self.root / ".company-os/outcome-loop.json").read_text(encoding="utf-8"))
+        self.request["work_admission"]["work_class"] = {
+            "build_candidate": "implementation",
+            "rework": "repair",
+            "evaluate": "evaluation",
+        }[state["phase"]]
         return ORG.compile_manifest(self.root, ".company-os/outcome-loop.json", self.request)
 
     def test_initial_candidate_compiles_smallest_bound_fabric(self) -> None:

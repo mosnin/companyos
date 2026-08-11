@@ -172,8 +172,8 @@
     },
     {
       "path": "company-os/bootstrap-outcome/scripts/bootstrap_outcome.py",
-      "sha256": "49bcfb29e486def1f17f0c19d62e345f073d445b8b3f9d8b7a5ec466cc31e4c1",
-      "size": 18914
+      "sha256": "c44dc4d5a152ceaced331855fdd329c323f0aa25caff2433cadd5c87f459ba78",
+      "size": 19137
     },
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -367,8 +367,8 @@
     },
     {
       "path": "company-os/direct-outcome/scripts/direct_outcome.py",
-      "sha256": "2383226c4ea8b5818b5e2f3972b1549b93c77a6eff7bf7cefd5c2f40b1480070",
-      "size": 51881
+      "sha256": "36ca50651a54de2d46de4ee7df41e4b56def9883f563cee4f4d624150415fb34",
+      "size": 52956
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
@@ -427,8 +427,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_loop.py",
-      "sha256": "eb8d54b0f9da3ec2c27fe51a794f9eb06fb2cfc55134bf70e97c60173f07ce58",
-      "size": 27731
+      "sha256": "6c742d3fe5bacd28bf92f677f254358ff2117e269a0994e2e2c815d3aa42d1a3",
+      "size": 30314
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_runtime_bridge.py",

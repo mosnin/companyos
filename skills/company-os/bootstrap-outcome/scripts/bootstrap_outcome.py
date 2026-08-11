@@ -264,17 +264,14 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
         "outcome_context": worker_context(state, objective, "Create the first running artifact while focused discovery proceeds", constraints, non_goals),
         "stop_condition": "A real artifact runs or renders with exact evidence, or a concrete environment blocker is proven.",
     }
-    managers.append({
-        "id": "outcome-reality-spike-manager",
-        "model": "gpt-5.6-sol",
-        "outcome": "Create the first reversible running artifact in parallel with discovery.",
-        "acceptance": spike_worker["acceptance"],
-        "phase_ids": PHASES,
-        "budget": dict(spike_worker["budget"]),
-        "work_class": "implementation",
-        "write_scope": list(spike_worker["write_scope"]),
-        "workers": [spike_worker],
-    })
+    first_manager = managers[0]
+    first_manager["outcome"] = "Discover domain truth while creating the first reversible running artifact."
+    first_manager["budget"] = {"time_minutes": 30.0, "token_limit": 9000, "cost_usd": 9.0, "max_concurrency": 2, "max_retries": 1}
+    first_manager["write_scope"] = list(dict.fromkeys([*first_manager["write_scope"], *spike_worker["write_scope"]]))
+    first_manager["acceptance"].extend(spike_worker["acceptance"])
+    first_manager["workers"][0]["outcome_context"]["manager_outcome"] = first_manager["outcome"]
+    spike_worker["outcome_context"]["manager_outcome"] = first_manager["outcome"]
+    first_manager["workers"].append(spike_worker)
     manifest = {
         "program_id": project_id,
         "program_version": program_version,
@@ -294,14 +291,14 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
             "non_goals": non_goals or ["Production deployment during discovery"],
             "constraints": constraints or ["No consequential external effects during discovery"],
         },
-        "max_managers": 3,
-        "max_manager_concurrency": 3,
-        "max_workers_per_manager": 1,
+        "max_managers": 2,
+        "max_manager_concurrency": 2,
+        "max_workers_per_manager": 2,
         "max_total_workers": 3,
         "max_depth": 2,
         "max_worker_retries": 1,
         "max_manager_rework_rounds": 2,
-        "budget": {"time_minutes": 40.0, "token_limit": 12000, "cost_usd": 12.0, "max_concurrency": 3, "max_retries": 1},
+        "budget": {"time_minutes": 40.0, "token_limit": 12000, "cost_usd": 12.0, "max_concurrency": 2, "max_retries": 1},
         "luna_token_share_target": 0.75,
         "external_effects_allowed": False,
         "managers": managers,
