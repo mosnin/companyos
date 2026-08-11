@@ -18,3 +18,11 @@ for old, new in replacements.items():
     text = text.replace(old, new, 1)
 phase.write_text(text, encoding="utf-8")
 runpy.run_path(str(phase), run_name="__main__")
+
+mission = Path("skills/company-os/mission-execution-control/scripts/mission_control.py")
+mission_text = mission.read_text(encoding="utf-8")
+old = "    state = refresh_governor(reconcile_deadlines(raw_state, now=now), now=now)\n"
+new = "    del now\n    state = verify_state(raw_state)\n"
+if mission_text.count(old) != 1:
+    raise SystemExit(f"admission state anchor expected once, found {mission_text.count(old)}")
+mission.write_text(mission_text.replace(old, new, 1), encoding="utf-8")
