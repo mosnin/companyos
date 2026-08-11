@@ -20,6 +20,7 @@ jobs:
         run: |
           python3 scripts/apply_execution_governor_integration.py
           python3 scripts/apply_execution_manager_policy.py
+          python3 scripts/apply_execution_test_compat.py
       - name: Verify focused execution regressions
         run: |
           python3 -m unittest tests.test_outcome_executive_governor tests.test_outcome_loop_execution_order tests.test_outcome_director tests.test_outcome_organization -v
@@ -42,6 +43,7 @@ jobs:
           rm -f scripts/apply_outcome_handoff_integration.py
           rm -f scripts/apply_execution_governor_integration.py
           rm -f scripts/apply_execution_manager_policy.py
+          rm -f scripts/apply_execution_test_compat.py
           rm -f .github/workflows/apply-reality-first-execution.yml
           git config user.name 'company-os-execution-governor-bot'
           git config user.email 'company-os-execution-governor-bot@users.noreply.github.com'
