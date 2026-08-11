@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/apply-navigation-control-loop.yml"
       - "scripts/apply_navigation_control_loop.py"
+      - "scripts/repair_navigation_patch.py"
       - "skills/company-os/navigation-control/**"
       - "tests/test_navigation_control.py"
       - "tests/test_navigation_mission_integration.py"
@@ -26,7 +27,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Apply navigation integration
-        run: python3 scripts/apply_navigation_control_loop.py
+        run: python3 scripts/repair_navigation_patch.py
       - name: Refresh distribution manifest
         run: python3 scripts/distribution.py write-manifest
       - name: Verify navigation control
