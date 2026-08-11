@@ -1,121 +1,88 @@
 ---
 name: force-first-execution
-description: Drive a bounded Company OS task from accepted outcome to materialized artifact, runnable candidate, verified evidence, and a prompt decision. Use when a Sol manager supervises Luna work and must prevent planning, narration, or receipt ceremony from replacing real delivery.
+description: Drive a bounded Company OS task from objective to materialized artifact, runnable candidate, observed behavior, verified evidence, and prompt decision. Use when a Sol manager supervises Luna work and must prevent planning, research, documentation, or receipt ceremony from replacing real delivery.
 ---
 
 # Force-First Execution
 
-Use this skill after a program direction and design are accepted. It does not
-replace authority, scope, safety, or quality gates. It makes useful work flow
-through them.
+Use this skill as soon as the objective is concrete enough to attempt a **bounded reversible real-artifact slice**. A complete product design is not a prerequisite for local source edits, builds, tests, browser/simulator runs, disposable services, or sandbox execution.
+
+This skill does not weaken authority. It distinguishes low-consequence learning-by-doing from customer-facing, financial, privileged, irreversible, destructive, or production-impacting effects that still require explicit authority.
+
+## First reality sequence
+
+The preferred sequence is:
+
+`task_started -> artifact_materialized -> candidate_runnable -> behavior_observed -> verification_passed -> manager_inspection_passed -> receipt_materialized -> manager_decision`
+
+A plan, architecture, schema, fixture corpus, benchmark policy, test suite, manager report, or audit is not a substitute for `artifact_materialized`, `candidate_runnable`, or `behavior_observed` unless that item is itself the requested artifact.
 
 ## Run the force loop
 
-1. Create one manager-owned force contract from
-   [assets/force-contract.v1.json](assets/force-contract.v1.json). Set explicit
-   soft SLOs for first artifact, runnable candidate, verification, and the short
-   acceptance-to-receipt and receipt-to-decision transitions.
-   Put its project-relative path in the worker packet's existing
-   `task_local_context.artifact_paths`; this does not change packet authority.
-2. Keep the force event log manager-owned. Workers report compact observations;
-   they never share-write the manager log. Credit only events backed by an
-   artifact path and digest, a runnable candidate, a check result, direct
-   inspection, a receipt, or a decision. Commentary and repeated planning earn
-   no progress credit.
-3. Evaluate the contract and JSONL log with
-   [scripts/force_loop_controller.py](scripts/force_loop_controller.py) at each
-   checkpoint, always passing the exact project `--artifact-root`. Materialized
-   and receipt paths are immutable, versioned evidence paths; the controller
-   rejects missing, symlinked, digest-mismatched, unmaterialized, or partially
-   inspected candidate bytes. Follow its single `next_action`; do not reopen
-   discovery when the accepted outcome and scope are unchanged.
-   Use [assets/force-events.example.jsonl](assets/force-events.example.jsonl) as
-   the initial log shape and [schemas/force-contract.schema.json](schemas/force-contract.schema.json)
-   for editor/schema validation.
-4. Treat authority loss, cancellation, scope violation, collision, prohibited
-   side effects, and exhausted hard budgets as hard stops. Treat missed delivery
-   SLOs as scored performance variance. A soft miss cannot silently discard
-   useful work or weaken a hard stop.
-5. On a soft miss, continue only when a fresh, observable operation is in
-   flight. Otherwise send one precise intervention naming the missing artifact
-   or check. If late output arrives, quarantine it, inspect it independently,
-   and record `late_output_reviewed` before using it in a candidate. Accept,
-   rework, or reject it on quality—not punctuality alone.
-6. Once verification and manager inspection pass, freeze renewed analysis and
-   materialize the receipt immediately. Once the receipt verifies, make the
-   manager decision immediately. Preserve first-pass failure and every rework;
-   never rewrite history to make the final score look cleaner.
-7. After the terminal manager decision, seal the event log with
-   [scripts/seal_force_snapshot.py](scripts/seal_force_snapshot.py). Bind
-   integration evidence to the immutable snapshot receipt, never to a live log
-   that can append later. Verify the snapshot again before integration.
-8. Before worker dispatch, classify each promised release deliverable as
-   `required` or `optional` in
-   [assets/release-scope.v1.json](assets/release-scope.v1.json). Classification,
-   manager ownership, manager public keys, and exact manager charters are
-   immutable for the cycle. Sign the design decision and typed scope admission
-   with the external RSA-3072 master key. Run `release_scope_controller.py
-   admit` with the host-controlled public trust anchor and admission registry
-   before dispatch; it create-only materializes the admission verification at
-   the path already named in every admitted manager charter. Never place the
-   trust anchor or registry under the project artifact root. A failed required
-   deliverable blocks release. A failed
-   optional enhancement becomes eligible for omission only after every
-   predeclared recovery chain ends in a typed terminal rejection receipt. Never
-   transfer a failed score to the released scope or create another recovery lane
-   without a new master decision. Evaluate the result with
-   [scripts/release_scope_controller.py](scripts/release_scope_controller.py)
-   using its `evaluate` command and the same external trust inputs,
-   using [assets/release-status.v1.json](assets/release-status.v1.json) for the
-   exact accepted/rejected evidence envelope and
-   [assets/release-deliverable-receipt.v1.json](assets/release-deliverable-receipt.v1.json)
-   for each attempt chain. The controller returns eligibility; integration still
-   requires an authenticated master scope decision.
+1. Create one manager-owned force contract from [assets/force-contract.v1.json](assets/force-contract.v1.json). Set explicit soft SLOs for first artifact, runnable candidate, direct observation, verification, receipt, and decision.
+2. For a build mission, target a connected real-artifact path before roughly 25% of the mission budget is consumed. Within each implementation lane, target first runnable bytes inside the first third of the lane budget.
+3. Keep the force event log manager-owned. Workers report compact observations; they never share-write the manager log. Credit only events backed by artifact paths/digests, runnable candidates, runtime/browser/API observations, check results, receipts, or decisions. Commentary and repeated planning earn no progress credit.
+4. Evaluate the force contract and JSONL log with [scripts/force_loop_controller.py](scripts/force_loop_controller.py) at each checkpoint. Follow its single next action. Do not reopen broad discovery when the existing scope is sufficiently known to execute.
+5. If an artifact does not exist by its SLO, intervene on the missing artifact. Do **not** respond by requesting another general plan, research report, architecture packet, or audit unless a concrete blocker proves that information is necessary.
+6. If the candidate does not run, move directly into runtime diagnosis and repair. Runtime failure is higher-value evidence than speculative architecture review.
+7. On a soft miss, continue only when a fresh observable operation is in flight. Otherwise send one precise intervention naming the missing artifact or runtime check. Preserve late output and inspect it independently before use.
+8. Once verification and manager inspection pass, materialize the receipt and make the manager decision promptly. Preserve first-pass failure and rework history; never rewrite history to improve the score.
+9. Checkpoint or commit accepted product bytes promptly. Product durability has priority over committing only governance metadata.
 
-## Evidence sequence
+## Existing capability preference
 
-The normal sequence is:
+When the task has a supplied repository, SDK, provider, framework, or other authoritative implementation that already provides the needed capability:
 
-`task_started -> artifact_materialized -> candidate_runnable -> verification_passed -> manager_inspection_passed -> receipt_materialized -> manager_accept`
+1. inspect it;
+2. integrate it;
+3. run it;
+4. observe it;
+5. record specific blocker evidence if it cannot satisfy the objective;
+6. only then build a replacement.
 
-Exact rework is represented by `manager_inspection_failed -> rework_started`,
-followed by fresh materialization, verification, and inspection events. See
-[references/force-contract.md](references/force-contract.md) for event evidence
-requirements and state transitions.
+Agents may not reimplement a provider merely because new code is easier than integration.
+
+## Research and evaluator timing
+
+Research is initially bounded by what blocks the first artifact. Once execution begins, research is pull-based from live defects or implementation uncertainty.
+
+Evaluator construction is just in time. Unless execution would be unsafe without it, produce a candidate before spending substantial resources building and auditing the evaluator that will judge it.
+
+## Execution incident
+
+If the mission has consumed roughly 25% of its resource budget without a connected vertical slice, the manager records an execution incident and redirects work toward:
+
+- implementation;
+- integration;
+- runtime;
+- repair;
+- direct verification.
+
+Broad research, speculative architecture, benchmark expansion, documentation, and governance refinement lose priority until connected behavior exists.
+
+## Hard stops
+
+Authority loss, cancellation, scope escape, ownership collision, prohibited side effects, or exhausted hard budgets remain hard stops.
+
+A hard stop should stop the specific unsafe effect, not automatically forbid unrelated safe local work. If production deployment is unauthorized, continue building/testing locally when the charter permits it.
+
+## Release authority
+
+Before consequential release or external effects, classify promised release deliverables as `required` or `optional` in [assets/release-scope.v1.json](assets/release-scope.v1.json) and run the existing release-scope admission/verification chain with the required external trust anchor and authenticated master decision.
+
+That release ceremony belongs at the release boundary. Do not require an RSA-backed production release admission merely to create the first local reversible candidate.
 
 ## What to measure
 
-- time to first materialized artifact;
-- time to runnable candidate;
-- time to verification and direct inspection;
-- acceptance-to-receipt and receipt-to-decision latency;
-- first-pass acceptance, rework count, and manager interventions;
-- collisions, hard stops, and soft SLO variance;
-- accepted customer-facing output, not task activity.
+- Reality Level reached;
+- time and resource fraction to first materialized artifact;
+- time and resource fraction to runnable candidate;
+- time to connected vertical behavior;
+- time to direct observation and verification;
+- product execution ratio;
+- research, governance, and documentation tax;
+- first-pass acceptance and targeted rework count;
+- global bottleneck changes;
+- accepted customer-facing or user-usable output.
 
-This skill is used by `$manage-company-program` and `$execute-bounded-task`.
-The manager owns control and acceptance; the worker owns only its bounded
-deliverable scope.
-
-Terminal logs are not integrated directly. `seal_force_snapshot.py seal`
-creates a canonical JSONL snapshot and content-addressed receipt with
-create-only, exact-replay-idempotent semantics. `verify` proves the contract, terminal sequence,
-artifact set, snapshot bytes, and receipt again. Later writes to the live log
-cannot change the accepted snapshot.
-
-Graceful degradation is not a quality exception. Release scope is declared
-before dispatch, bound to the external master design decision and admission,
-and recorded in a host-controlled create-only version lineage. A changed scope
-must advance exactly one definition version from the registered predecessor;
-same-version replacement fails even if newly signed. The controller only
-marks a reduced release eligible when every required deliverable is accepted,
-every optional recovery chain has a typed rejected terminal force snapshot, and
-the failed score and defects are retained. It never infers master acceptance.
-Each manager signs its terminal receipt with the public key and exact charter
-frozen into the admitted scope. Each terminal receipt also binds the exact force contract and the sealer
-replays the underlying snapshot before the receipt is credited. Claimed release
-artifacts must exactly equal the manager-inspected terminal candidate. The JSON assets
-are templates: replace every zero digest and signature with values computed
-from the exact bytes. Release-scope identity uses external RSA-3072 trust;
-repository fixture authentication used by other role contracts is not release
-authority. Final integration remains a separate authenticated master decision.
+The manager owns control and acceptance; the worker owns its bounded deliverable. Final integration still requires the authority reserved by the program contract.
