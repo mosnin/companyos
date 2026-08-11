@@ -212,6 +212,7 @@ def mission_binding_from_state(project_root: Path, state: Mapping[str, Any]) -> 
         "first_reality": state.get("first_reality"),
         "first_reality_required": state.get("first_reality") is not None and not mission_control_module().reality_signals(state)["connected_vertical_slice"],
         "replacement_orders": list(state.get("replacement_orders", [])),
+        "navigation": state.get("navigation"),
     }
 
 
@@ -235,7 +236,7 @@ def bind_discovery_fabric(project_root: Path, objective_id: str, fabric_relative
                 "work_recorded",
                 occurred_at=stamp,
                 work_class=work_class,
-                units=1.0,
+                units=0.25 if work_class == "research" else 1.0,
             ),
         )
     save_mission_state(project_root, state)
@@ -355,6 +356,16 @@ def admit_mission_work(
     }
     if justification is not None:
         request["justification"] = dict(justification)
+    elif work_class in {"research", "architecture", "governance", "documentation", "evaluation"} and not bootstrap:
+        navigation = state.get("navigation") or {}
+        route = navigation.get("next_action") if isinstance(navigation, Mapping) else {}
+        request["justification"] = {
+            "consumer_task_id": task_id,
+            "blocker_id": route.get("capability_id") or "route-action",
+            "decision_dependency": "Resolve only the uncertainty that blocks or materially changes the active navigation action.",
+            "deadline_minutes": 15,
+            "expected_action_change": True,
+        }
     receipt = module.admit_work(state, request)
     admission_path = _admission_receipt_path(project_root, objective_id, task_id)
     write_json(admission_path, receipt)

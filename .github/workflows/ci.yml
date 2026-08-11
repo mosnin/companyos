@@ -38,6 +38,7 @@ jobs:
       - name: Verify Python compilation
         run: >-
           python3 -m py_compile
+          skills/company-os/navigation-control/scripts/navigation_control.py
           skills/company-os/mission-execution-control/scripts/mission_control.py
           skills/company-os/mission-execution-control/scripts/checkpoint_product.py
           skills/company-os/mission-execution-control/scripts/execution_regression_lab.py

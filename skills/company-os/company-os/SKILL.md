@@ -24,6 +24,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
 | Executive execution governor | Measure distance from the original objective, identify the global bottleneck, allocate scarce time/tokens/cost toward reality, and trigger compression/critical-path modes when execution lags | `$govern-outcome-execution` |
 | Mission execution control | Enforce First Reality scope, work admission, hard deadlines, scheduler leases, evidence-bound capability state, replacement, and product checkpoints at controller boundaries | `$mission-execution-control` |
+| Navigation control | Treat the original objective as the destination; continuously observe, act, verify, measure objective distance/velocity, and replan while keeping research/audits as subordinate sensors | `$navigation-control` |
 | Execution | Deliver work through Sol manager tasks and bounded Luna labor with early real artifacts, runtime observation, targeted rework, verification, and decisions | `$manage-company-program`, `$execute-bounded-task`, `$force-first-execution`, `$autonomy-suite`, `$luna-execution-fabric` |
 | Elastic control | Create an isolated project operating model and improve it through independently reviewed feedback | `$elastic-company-os` |
 
@@ -43,7 +44,7 @@ An instance may adapt its operating method through evidence-backed, reversible e
 
 ## Outcome executive governor
 
-For every autonomous build mission, the controller runs `$mission-execution-control` and `$govern-outcome-execution` at dispatch, retry, wake, evidence, expansion, evaluation, and packaging boundaries. These decisions are enforced state, not optional manager advice. The governor is the mission-level CEO/COO/CFO function above local managers.
+For every autonomous build mission, the controller runs `$mission-execution-control`, `$navigation-control`, and `$govern-outcome-execution` at dispatch, retry, wake, evidence, expansion, evaluation, and packaging boundaries. These decisions are enforced state, not optional manager advice. The original objective is the destination; research, audits, tests, browser/runtime observations, and reports are sensors; implementation, integration, runtime execution, repair, checkpointing, and packaging are actuators. The governor is the mission-level CEO/COO/CFO function above local managers.
 
 Maintain an explicit **Reality Map** from the original user objective to observable capabilities. Classify the strongest state reached as R0 research/design, R1 internal primitives, R2 isolated runnable capability, R3 connected vertical behavior, R4 fresh-user usable outcome, or R5 independently accepted outcome.
 

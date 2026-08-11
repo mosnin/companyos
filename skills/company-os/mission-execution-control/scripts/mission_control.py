@@ -178,6 +178,13 @@ def governor_module():
     )
 
 
+def navigation_module():
+    return load_module(
+        "navigation-control/scripts/navigation_control.py",
+        "company_os_mission_navigation_control",
+    )
+
+
 def classify_mission(objective: str, override: str | None = None) -> str:
     if override is not None:
         if override not in MISSION_CLASSES:
@@ -489,6 +496,7 @@ def initialize_state(
             "wake_count": 0,
             "status": "active",
         },
+        "navigation": None,
         "governor_decision": None,
         "checkpoint": None,
         "state_sha256": None,
@@ -508,6 +516,11 @@ def verify_state(raw: Mapping[str, Any]) -> dict[str, Any]:
     parse_time(value.get("expires_at"), "expires_at")
     if not isinstance(value.get("capabilities"), list) or not value["capabilities"]:
         raise MissionControlError("E_SCHEMA", "mission capabilities are missing")
+    if value.get("navigation") is not None:
+        try:
+            navigation_module().verify(value["navigation"])
+        except Exception as exc:
+            raise MissionControlError("E_NAVIGATION", f"navigation state is invalid: {exc}") from exc
     return value
 
 
@@ -594,6 +607,73 @@ def _governor_input(state: Mapping[str, Any], now: datetime) -> dict[str, Any]:
         ],
         "allocation": _allocation(state),
     }
+
+
+def _navigation_input(state: Mapping[str, Any], now: datetime) -> dict[str, Any]:
+    return {
+        "$schema": navigation_module().INPUT_SCHEMA,
+        "objective_id": state["objective_id"],
+        "objective": state["objective"],
+        "now": format_time(now),
+        "mission_class": state["mission_class"],
+        "capabilities": [
+            {
+                "capability_id": item["capability_id"],
+                "label": item.get("label") or item["capability_id"],
+                "state": item["state"],
+                "critical": item.get("critical") is True,
+                "priority": int(item.get("priority", 50)),
+                "first_reality": item.get("first_reality") is True,
+                "final_required": item.get("final_required") is not False,
+                "existing_implementation": item.get("existing_implementation"),
+            }
+            for item in state["capabilities"]
+        ],
+        "reality": reality_signals(state),
+        "checkpointed": bool(state.get("checkpoint")),
+        "allocation": _allocation(state),
+        "events": [dict(item) for item in state.get("events", []) if isinstance(item, Mapping)],
+        "previous_navigation": state.get("navigation"),
+    }
+
+
+def _apply_navigation_to_governor(decision: Mapping[str, Any], navigation: Mapping[str, Any]) -> dict[str, Any]:
+    result = deepcopy(dict(decision))
+    nav = navigation_module().verify(navigation)
+    next_action = dict(nav.get("next_action") or {})
+    target_id = next_action.get("capability_id")
+    if target_id is not None:
+        match = next((item for item in result.get("required_capabilities", []) if item.get("capability_id") == target_id), None)
+        if match is not None:
+            result["dominant_bottleneck"] = match
+    result["navigation_decision_sha256"] = nav["decision_sha256"]
+    result["navigation_mode"] = nav["mode"]
+    result["waypoint"] = nav["waypoint"]
+    result["destination_distance"] = nav["position"]["destination_distance"]
+    result["waypoint_distance"] = nav["position"]["waypoint_distance"]
+    result["objective_velocity"] = nav["velocity"]
+    result["next_action"] = next_action
+    result["sensor_posture"] = nav["sensor_posture"]
+    result["actuation_policy"] = nav["actuation_policy"]
+    result["manager_orders"] = list(dict.fromkeys([*nav.get("orders", []), *result.get("manager_orders", [])]))
+
+    should_tighten = nav["mode"] == "stalled_replan" or nav["sensor_posture"].get("overrun") is True
+    if should_tighten and result.get("mode") != "accepted":
+        next_work = next_action.get("work_class")
+        allowed = set(result.get("allowed_work_classes", []))
+        sensor_classes = set(navigation_module().SENSOR_CLASSES)
+        keep_sensors = {"evaluation"}
+        allowed -= sensor_classes - keep_sensors
+        if next_work in WORK_CLASSES:
+            allowed.add(next_work)
+        allowed.update({"implementation", "integration", "runtime", "repair", "checkpoint", "packaging"} & set(WORK_CLASSES))
+        result["allowed_work_classes"] = [name for name in sorted(WORK_CLASSES) if name in allowed]
+        result["paused_work_classes"] = [name for name in sorted(WORK_CLASSES) if name not in allowed]
+        if result.get("mode") == "normal":
+            result["mode"] = "compression"
+    result["decision_sha256"] = None
+    result["decision_sha256"] = governor_module().digest(result)
+    return result
 
 
 def _deadline_evidence(state: Mapping[str, Any]) -> dict[str, bool]:
@@ -700,7 +780,9 @@ def refresh_governor(raw_state: Mapping[str, Any], *, now: datetime | None = Non
         state["scheduler"] = {**state["scheduler"], "status": "revoked", "generation": int(state["generation"]) + 1}
         state["generation"] = int(state["generation"]) + 1
     decision = governor_module().evaluate(_governor_input(state, current))
-    state["governor_decision"] = decision
+    navigation = navigation_module().evaluate(_navigation_input(state, current))
+    state["navigation"] = navigation
+    state["governor_decision"] = _apply_navigation_to_governor(decision, navigation)
     return seal(state)
 
 
@@ -989,25 +1071,34 @@ def admit_work(raw_state: Mapping[str, Any], raw_request: Mapping[str, Any], *, 
         allowed = work_class in allowed_classes and work_class not in paused_classes
         blockers = [] if allowed else [f"work class {work_class} is paused by governor mode {decision.get('mode')}"]
     justification = request.get("justification")
-    if work_class in {"research", "documentation"} and request.get("bootstrap") is not True:
-        if not isinstance(justification, Mapping):
-            allowed = False
-            blockers.append("research or documentation requires consumer-bound justification")
-        else:
-            for key in ("consumer_task_id", "blocker_id", "decision_dependency"):
+    navigation = state.get("navigation") or {}
+    if work_class in navigation_module().SENSOR_CLASSES and request.get("bootstrap") is not True:
+        route_action = navigation.get("next_action") if isinstance(navigation, Mapping) else {}
+        active_verification = work_class == "evaluation" and isinstance(route_action, Mapping) and route_action.get("work_class") == "evaluation"
+        if not active_verification:
+            if not isinstance(justification, Mapping):
+                allowed = False
+                blockers.append("sensor work requires a consumer-bound value-of-information justification")
+            else:
+                for key in ("consumer_task_id", "blocker_id", "decision_dependency"):
+                    try:
+                        text(justification.get(key), f"justification.{key}")
+                    except MissionControlError as exc:
+                        allowed = False
+                        blockers.append(exc.message)
                 try:
-                    text(justification.get(key), f"justification.{key}")
+                    deadline = integer(justification.get("deadline_minutes"), "justification.deadline_minutes", minimum=1)
+                    if deadline > 45:
+                        allowed = False
+                        blockers.append("sensor work deadline exceeds 45 minutes")
                 except MissionControlError as exc:
                     allowed = False
                     blockers.append(exc.message)
-            try:
-                deadline = integer(justification.get("deadline_minutes"), "justification.deadline_minutes", minimum=1)
-                if deadline > 45:
-                    allowed = False
-                    blockers.append("research or documentation deadline exceeds 45 minutes")
-            except MissionControlError as exc:
-                allowed = False
-                blockers.append(exc.message)
+                if allowed:
+                    useful, reason = navigation_module().sensor_request_is_useful(navigation, justification)
+                    if not useful:
+                        allowed = False
+                        blockers.append(reason)
     if request.get("replaces_existing_implementation") is True:
         receipt = request.get("integration_spike_receipt")
         if not isinstance(receipt, Mapping):
@@ -1039,6 +1130,9 @@ def admit_work(raw_state: Mapping[str, Any], raw_request: Mapping[str, Any], *, 
         "dominant_bottleneck": decision.get("dominant_bottleneck"),
         "allowed_work_classes": decision.get("allowed_work_classes", []),
         "replacement_orders": state.get("replacement_orders", []),
+        "navigation_decision_sha256": navigation.get("decision_sha256") if isinstance(navigation, Mapping) else None,
+        "navigation_mode": navigation.get("mode") if isinstance(navigation, Mapping) else None,
+        "next_action": navigation.get("next_action") if isinstance(navigation, Mapping) else None,
         "receipt_sha256": None,
     }
     receipt["receipt_sha256"] = _admission_digest(receipt)
