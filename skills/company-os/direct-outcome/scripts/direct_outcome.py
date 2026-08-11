@@ -115,6 +115,14 @@ def organization_module():
     return load_module("compile-outcome-organization/scripts/compile_outcome_organization.py", "company_os_director_organization")
 
 
+def candidate_assembler_module():
+    return load_module("assemble-outcome-candidate/scripts/assemble_candidate.py", "company_os_director_candidate_assembler")
+
+
+def evaluation_assembler_module():
+    return load_module("assemble-outcome-evaluations/scripts/assemble_evaluations.py", "company_os_director_evaluation_assembler")
+
+
 def reality_module():
     return load_module("accept-outcome-reality/scripts/accept_reality.py", "company_os_director_reality")
 
@@ -287,17 +295,23 @@ def build_outcome_control(
     evaluators: Mapping[str, Any],
     benchmarks: Mapping[str, Any],
     calibrations: list[dict[str, Any]],
+    *,
+    force_lane: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     base = workspace(project_root, state["objective_id"])
     runtime = base / "runtime"
-    scale = scale_module().authorize(outcome, artifacts, evaluators, benchmarks, calibrations)
-    if scale.get("authorized") is not True:
-        raise DirectorError(
-            "E_SCALE",
-            "outcome stack is not scale authorized: " + json.dumps(scale.get("blockers", []), sort_keys=True),
-        )
+    required_artifact_count = sum(1 for item in artifacts.get("artifact_classes", []) if isinstance(item, Mapping) and item.get("required") is True)
+    if required_artifact_count < 1:
+        raise DirectorError("E_ARTIFACT", "outcome requires at least one real artifact class")
+    lane = force_lane or ("pilot" if required_artifact_count <= 2 else "production_scale")
+    if lane not in {"pilot", "production_scale"}:
+        raise DirectorError("E_SCHEMA", "force_lane must be pilot or production_scale")
     scale_path = runtime / "scale-authorization.json"
-    write_json(scale_path, scale)
+    if lane == "production_scale":
+        scale = scale_module().authorize(outcome, artifacts, evaluators, benchmarks, calibrations)
+        if scale.get("authorized") is not True:
+            raise DirectorError("E_SCALE", "outcome stack is not scale authorized: " + json.dumps(scale.get("blockers", []), sort_keys=True))
+        write_json(scale_path, scale)
     try:
         _, control_state = control_store_module().load(project_root)
     except Exception as exc:
@@ -307,12 +321,6 @@ def build_outcome_control(
     program_version = strategy.get("program_version")
     if not isinstance(program_version, int) or isinstance(program_version, bool) or program_version < 1:
         raise DirectorError("E_STATE", "strategy.program_version is invalid")
-    required_artifact_count = sum(
-        1
-        for item in artifacts.get("artifact_classes", [])
-        if isinstance(item, Mapping) and item.get("required") is True
-    )
-    lane = "pilot" if 1 <= required_artifact_count <= 2 else "production_scale"
     work_id = f"outcome-delivery-{slug(state['objective_id'])}"
     calibrations_path = runtime / "calibrations.json"
     write_json(calibrations_path, calibrations)
@@ -329,36 +337,19 @@ def build_outcome_control(
         "evaluator_contract_path": relative(project_root, runtime / "evaluator-contract.json"),
         "benchmark_contract_path": relative(project_root, runtime / "benchmark-contract.json"),
         "calibration_receipts_path": relative(project_root, calibrations_path),
-        "scale_authorization_path": (
-            None
-            if lane == "pilot"
-            else relative(project_root, scale_path)
-        ),
+        "scale_authorization_path": None if lane == "pilot" else relative(project_root, scale_path),
     }
-    manager_count = max(1, min(required_artifact_count, 2))
-    probe_manifest = {
-        "outcome": state["original_objective"],
-        "max_managers": manager_count,
-        "max_manager_concurrency": manager_count,
-        "max_workers_per_manager": 1,
-        "max_total_workers": manager_count,
-        "managers": [{"workers": [{}]} for _ in range(manager_count)],
-        "outcome_control": binding,
-    }
+    # Initial pilots stay inside the legacy two-manager ceiling even when the final
+    # product has many required artifact classes. outcome_loop bundles classes into
+    # those lanes; the candidate must still cover every required class.
+    manager_count = min(2, required_artifact_count) if lane == "pilot" else max(1, min(required_artifact_count, 2))
+    probe_manifest = {"outcome": state["original_objective"], "max_managers": manager_count, "max_manager_concurrency": manager_count, "max_workers_per_manager": 1, "max_total_workers": manager_count, "managers": [{"workers": [{}]} for _ in range(manager_count)], "outcome_control": binding}
     try:
-        portable = outcome_control_module().validate_manifest_binding(
-            project_root=project_root,
-            manifest=probe_manifest,
-            project_id=project_id,
-            program_version=program_version,
-            work_id=work_id,
-            governed_outcome=state["original_objective"],
-        )
+        portable = outcome_control_module().validate_manifest_binding(project_root=project_root, manifest=probe_manifest, project_id=project_id, program_version=program_version, work_id=work_id, governed_outcome=state["original_objective"])
     except Exception as exc:
         raise DirectorError(getattr(exc, "code", "E_CONTROL"), f"outcome control binding failed: {exc}") from exc
     write_json(runtime / "outcome-control-state.json", portable)
     return binding, portable
-
 
 def organization_request(
     project_root: Path,
@@ -439,7 +430,7 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
             base / "measurable-outcome-request.json",
             base / "runtime",
         )
-        state["stage"] = "evaluator_capability"
+        state["stage"] = "control"
         state["artifacts"].update(
             {
                 "measurable_outcome_request": relative(project_root, base / "measurable-outcome-request.json"),
@@ -524,35 +515,39 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
 
     if stage == "control":
         outcome, artifacts, evaluators, benchmarks = load_contracts(base)
-        calibrations, calibrated = verified_calibrations(project_root, base, evaluators)
-        required = {
-            item["evaluator_id"]
-            for item in evaluators.get("evaluators", [])
-            if isinstance(item, Mapping) and item.get("required") is True
-        }
-        if not required.issubset(calibrated):
-            state["stage"] = "calibration"
-            return save_state(project_root, state)
-        binding, portable = build_outcome_control(
-            project_root,
-            state,
-            outcome,
-            artifacts,
-            evaluators,
-            benchmarks,
-            calibrations,
-        )
         loop_path = base / "outcome-loop.json"
         loop = obj(read_json(loop_path, "outcome loop"), "outcome loop")
-        try:
-            bound_loop = outcome_loop_module().bind_control(project_root, loop, portable)
-        except Exception as exc:
-            raise DirectorError(getattr(exc, "code", "E_LOOP"), f"outcome loop control binding failed: {exc}") from exc
-        write_json(loop_path, bound_loop)
+        phase = loop.get("phase")
+        if phase == "discovery":
+            # Build the first real candidate before spending the mission on evaluator
+            # construction/calibration. Empty calibration bindings are valid for a
+            # bounded, reversible pilot.
+            binding, portable = build_outcome_control(project_root, state, outcome, artifacts, evaluators, benchmarks, [], force_lane="pilot")
+            try:
+                bound_loop = outcome_loop_module().bind_control(project_root, loop, portable)
+            except Exception as exc:
+                raise DirectorError(getattr(exc, "code", "E_LOOP"), f"outcome loop pilot binding failed: {exc}") from exc
+            write_json(loop_path, bound_loop)
+            state["history"].append({"event": "first_reality_pilot_bound", "execution_lane": "pilot"})
+        elif phase == "evaluate":
+            calibrations, calibrated = verified_calibrations(project_root, base, evaluators)
+            required = {item["evaluator_id"] for item in evaluators.get("evaluators", []) if isinstance(item, Mapping) and item.get("required") is True}
+            if not required.issubset(calibrated):
+                state["stage"] = "calibration"
+                return save_state(project_root, state)
+            binding, portable = build_outcome_control(project_root, state, outcome, artifacts, evaluators, benchmarks, calibrations, force_lane="production_scale")
+            try:
+                refreshed = outcome_loop_module().refresh_control(project_root, loop, portable)
+            except Exception as exc:
+                raise DirectorError(getattr(exc, "code", "E_LOOP"), f"outcome loop control refresh failed: {exc}") from exc
+            write_json(loop_path, refreshed)
+            state["history"].append({"event": "outcome_control_promoted_after_candidate", "execution_lane": "production_scale"})
+        else:
+            raise DirectorError("E_PHASE", f"control stage cannot bind loop phase {phase!r}")
         state["stage"] = "loop"
         state["artifacts"]["outcome_control_state"] = relative(project_root, base / "runtime/outcome-control-state.json")
-        state["artifacts"]["scale_authorization"] = relative(project_root, base / "runtime/scale-authorization.json")
-        state["history"].append({"event": "outcome_control_bound", "execution_lane": portable["execution_lane"]})
+        if portable["execution_lane"] == "production_scale":
+            state["artifacts"]["scale_authorization"] = relative(project_root, base / "runtime/scale-authorization.json")
         state = save_state(project_root, state)
         return advance(project_root, objective_id)
 
@@ -562,65 +557,89 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
         phase = loop.get("phase")
         if phase == "accepted":
             state["stage"] = "accepted"
-            state["next_action"] = {
-                "action": "complete",
-                "stage": "accepted",
-                "candidate_id": loop.get("acceptance", {}).get("candidate_id"),
-                "receipt_sha256": loop.get("acceptance", {}).get("receipt_sha256"),
-            }
+            state["next_action"] = {"action": "complete", "stage": "accepted", "candidate_id": loop.get("acceptance", {}).get("candidate_id"), "receipt_sha256": loop.get("acceptance", {}).get("receipt_sha256")}
             state["history"].append({"event": "objective_accepted"})
             return save_state(project_root, state)
         if phase == "reality":
             template = obj(obj(loop.get("next_action"), "loop.next_action").get("request_template"), "reality request template")
-            request_path = base / "runtime/reality-request.json"
-            receipt_path = base / "runtime/reality-receipt.json"
+            request_path = base / "runtime/reality-request.json"; receipt_path = base / "runtime/reality-receipt.json"
             write_json(request_path, template)
-            try:
-                receipt = reality_module().accept(project_root, template)
-            except Exception as exc:
-                raise DirectorError(getattr(exc, "code", "E_REALITY"), f"reality acceptance failed: {exc}") from exc
+            try: receipt = reality_module().accept(project_root, template)
+            except Exception as exc: raise DirectorError(getattr(exc, "code", "E_REALITY"), f"reality acceptance failed: {exc}") from exc
             write_json(receipt_path, receipt)
-            try:
-                updated_loop = outcome_loop_module().record_reality(
-                    project_root,
-                    loop,
-                    relative(project_root, receipt_path),
-                )
-            except Exception as exc:
-                raise DirectorError(getattr(exc, "code", "E_LOOP"), f"outcome loop rejected reality receipt: {exc}") from exc
+            try: updated_loop = outcome_loop_module().record_reality(project_root, loop, relative(project_root, receipt_path))
+            except Exception as exc: raise DirectorError(getattr(exc, "code", "E_LOOP"), f"outcome loop rejected reality receipt: {exc}") from exc
             write_json(loop_path, updated_loop)
             return advance(project_root, objective_id)
-        if phase in {"build_candidate", "rework", "evaluate"}:
-            control_state = obj(
-                read_json(base / "runtime/outcome-control-state.json", "outcome control state"),
-                "outcome control state",
-            )
-            binding = {
-                "$schema": "company-os.outcome-control-binding.v1",
-                "execution_lane": control_state["execution_lane"],
-                "project_id": control_state["project_id"],
-                "program_version": control_state["program_version"],
-                "work_id": control_state["work_id"],
-                "governed_outcome": control_state["governed_outcome"],
-                "objective_id": control_state["objective_id"],
-                "outcome_contract_path": control_state["outcome"]["path"],
-                "artifact_contract_path": control_state["artifacts"]["path"],
-                "evaluator_contract_path": control_state["evaluators"]["path"],
-                "benchmark_contract_path": control_state["benchmarks"]["path"],
-                "calibration_receipts_path": control_state["calibrations"]["path"],
-                "scale_authorization_path": control_state["scale_authorization"]["path"],
-            }
-            manifest_path = compile_current_fabric(project_root, state, binding)
-            state["next_action"] = next_execute_fabric(
-                phase,
-                manifest_path,
-                reason=f"The outcome loop is waiting for real {phase} work against the current content bound state.",
-            )
-            state["next_action"]["loop_state_path"] = relative(project_root, loop_path)
-            state["next_action"]["loop_phase"] = phase
-            state["next_action"]["loop_next_action"] = loop.get("next_action")
-            return save_state(project_root, state)
-        raise DirectorError("E_PHASE", f"unsupported outcome loop phase: {phase}")
+        if phase not in {"build_candidate", "rework", "evaluate"}:
+            raise DirectorError("E_PHASE", f"unsupported outcome loop phase: {phase}")
+
+        # Evaluator capability is just-in-time. Until a real candidate exists the
+        # organization spends its scarce budget on product reality, not on building
+        # and auditing hypothetical judges.
+        if phase == "evaluate":
+            evaluator_contract = obj(read_json(base / "runtime/evaluator-contract.json", "evaluator contract"), "evaluator contract")
+            registry_path = base / "runtime/evaluator-adapter-registry.json"
+            try:
+                registry = registry_module().build_registry(project_root, evaluator_contract)
+            except Exception as exc:
+                if getattr(exc, "code", None) != "E_ADAPTER_MISSING":
+                    raise DirectorError(getattr(exc, "code", "E_ADAPTER"), f"evaluator registration failed: {exc}") from exc
+                state["stage"] = "evaluator_capability"
+                state["history"].append({"event": "evaluator_capability_deferred_until_candidate"})
+                state = save_state(project_root, state)
+                return advance(project_root, objective_id)
+            write_json(registry_path, registry)
+            state["artifacts"]["evaluator_adapter_registry"] = relative(project_root, registry_path)
+            receipts, calibrated = verified_calibrations(project_root, base, evaluator_contract)
+            required = {item["evaluator_id"] for item in evaluator_contract.get("evaluators", []) if isinstance(item, Mapping) and item.get("required") is True}
+            if not required.issubset(calibrated):
+                state["stage"] = "calibration"
+                state = save_state(project_root, state)
+                return advance(project_root, objective_id)
+            control_state = obj(read_json(base / "runtime/outcome-control-state.json", "outcome control state"), "outcome control state")
+            if control_state.get("execution_lane") == "pilot":
+                state["stage"] = "control"
+                state = save_state(project_root, state)
+                return advance(project_root, objective_id)
+
+        control_state = obj(read_json(base / "runtime/outcome-control-state.json", "outcome control state"), "outcome control state")
+        binding = {"$schema": "company-os.outcome-control-binding.v1", "execution_lane": control_state["execution_lane"], "project_id": control_state["project_id"], "program_version": control_state["program_version"], "work_id": control_state["work_id"], "governed_outcome": control_state["governed_outcome"], "objective_id": control_state["objective_id"], "outcome_contract_path": control_state["outcome"]["path"], "artifact_contract_path": control_state["artifacts"]["path"], "evaluator_contract_path": control_state["evaluators"]["path"], "benchmark_contract_path": control_state["benchmarks"]["path"], "calibration_receipts_path": control_state["calibrations"]["path"], "scale_authorization_path": control_state["scale_authorization"]["path"]}
+        manifest_path = compile_current_fabric(project_root, state, binding)
+        fabric = obj(read_json(project_root / Path(*manifest_path.split("/")), "outcome fabric"), "outcome fabric")
+
+        if phase in {"build_candidate", "rework"}:
+            candidate_id = f"candidate-{int(loop.get('iteration', 0)) + 1:03d}"
+            try: candidate = candidate_assembler_module().assemble(project_root, fabric, candidate_id)
+            except Exception as exc:
+                if getattr(exc, "code", None) != "E_MANIFEST_MISSING": raise DirectorError(getattr(exc, "code", "E_CANDIDATE_HANDOFF"), f"production artifact handoff is invalid: {exc}") from exc
+            else:
+                candidate_path = base / f"runtime/{candidate_id}.json"; write_json(candidate_path, candidate)
+                try: updated_loop = outcome_loop_module().record_candidate(project_root, loop, candidate)
+                except Exception as exc: raise DirectorError(getattr(exc, "code", "E_CANDIDATE"), f"assembled candidate was rejected by outcome loop: {exc}") from exc
+                write_json(loop_path, updated_loop)
+                state["history"].append({"event": "candidate_auto_assembled", "candidate_id": candidate_id, "candidate_path": relative(project_root, candidate_path)})
+                save_state(project_root, state); return advance(project_root, objective_id)
+
+        if phase == "evaluate":
+            candidates = loop.get("candidates")
+            if not isinstance(candidates, list) or not candidates: raise DirectorError("E_EVALUATION", "evaluate phase has no current candidate")
+            candidate_id = text(candidates[-1].get("candidate_id"), "current candidate_id")
+            try: batch = evaluation_assembler_module().assemble(project_root, fabric, candidate_id)
+            except Exception as exc:
+                if getattr(exc, "code", None) != "E_RECEIPT_MISSING": raise DirectorError(getattr(exc, "code", "E_EVALUATION_HANDOFF"), f"independent evaluation handoff is invalid: {exc}") from exc
+            else:
+                batch_path = base / f"runtime/{candidate_id}-evaluations.json"; write_json(batch_path, batch)
+                try: updated_loop = outcome_loop_module().record_evaluations(project_root, loop, batch)
+                except Exception as exc: raise DirectorError(getattr(exc, "code", "E_EVALUATION"), f"assembled evaluation batch was rejected by outcome loop: {exc}") from exc
+                write_json(loop_path, updated_loop)
+                state["history"].append({"event": "evaluations_auto_assembled", "candidate_id": candidate_id, "batch_path": relative(project_root, batch_path)})
+                save_state(project_root, state); return advance(project_root, objective_id)
+
+        state["next_action"] = next_execute_fabric(phase, manifest_path, reason=f"The outcome loop is waiting for real {phase} work against the current content bound state.")
+        state["next_action"]["loop_state_path"] = relative(project_root, loop_path); state["next_action"]["loop_phase"] = phase; state["next_action"]["loop_next_action"] = loop.get("next_action")
+        state["next_action"]["required_handoff"] = "Each production worker must write artifact-manifest.json in its exact write scope." if phase in {"build_candidate", "rework"} else "Each independent evaluator worker must write execution-receipt.json in its exact write scope."
+        return save_state(project_root, state)
 
     if stage == "accepted":
         return state

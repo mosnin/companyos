@@ -93,6 +93,24 @@ def load_contract(project,binding,label):
  if binding.get('file_sha256')!=file_digest(p): raise OutcomeLoopError('E_DIGEST',f'{label} file changed')
  return v,rel
 
+def _production_lanes(required_artifacts, execution_lane):
+ if execution_lane=='pilot':
+  lane_count=min(2,len(required_artifacts)); groups=[[] for _ in range(lane_count)]
+  for index,artifact_class in enumerate(required_artifacts): groups[index%lane_count].append(artifact_class)
+  return [
+   {'lane_id':f'pilot:artifact-bundle:{index+1:02d}','role':'artifact_specialist','artifact_classes':group,**({'artifact_class_id':group[0]} if len(group)==1 else {}),
+    'mandate':'Materialize and run the smallest connected candidate covering these required artifact classes: '+', '.join(group)+'. Plans, schemas, reports, tests, and completion narratives do not substitute for the actual artifact unless explicitly required as an artifact class.'}
+   for index,group in enumerate(groups)
+  ]
+ return [
+  {'lane_id':f'artifact:{artifact_class}','role':'artifact_specialist','artifact_class_id':artifact_class,'artifact_classes':[artifact_class],
+   'mandate':f'Materialize, run, and observe the required {artifact_class} artifact against the original objective.'}
+  for artifact_class in required_artifacts
+ ]
+
+def _loop_control_projection(control):
+ return {'state_sha256':control['state_sha256'],'execution_lane':control['execution_lane'],'outcome':dict(control['outcome']),'artifacts':dict(control['artifacts']),'evaluators':dict(control['evaluators']),'benchmarks':dict(control['benchmarks']),'calibrations':dict(control['calibrations']),'scale_authorization':dict(control['scale_authorization'])}
+
 def bind_control(project,raw_state,control):
  state=verify_state(raw_state)
  if state['phase']!='discovery': raise OutcomeLoopError('E_PHASE','control can only bind from discovery')
@@ -109,15 +127,30 @@ def bind_control(project,raw_state,control):
   if isinstance(x,Mapping) and x.get('required') is True:
    required_evaluators.append({'evaluator_id':text(x.get('evaluator_id'),'evaluator_id'),'artifact_classes':sorted(x.get('artifact_classes',[])),'score_dimensions':sorted(x.get('score_dimensions',[]))})
  if not required_artifacts or not required_evaluators: raise OutcomeLoopError('E_CONTROL','real artifacts and evaluators are required')
- org={'mode':'initial_pilot','manager_lanes':[{'lane_id':'manager:outcome','role':'outcome_manager','mandate':'Own one real candidate through independent evaluation.'}],
- 'production_lanes':[{'lane_id':f'artifact:{a}','role':'artifact_specialist','artifact_class_id':a,'artifact_classes':[a]} for a in required_artifacts],
+ production_lanes=_production_lanes(required_artifacts,control.get('execution_lane'))
+ org={'mode':'initial_reality_pilot' if control.get('execution_lane')=='pilot' else 'production_scale',
+ 'manager_lanes':[{'lane_id':'manager:outcome','role':'outcome_manager','mandate':'Own the shortest executable path from the original objective to a real candidate.'}],
+ 'production_lanes':production_lanes,
  'evaluation_lanes':[{'lane_id':f'evaluator:{e["evaluator_id"]}','role':'independent_evaluator','evaluator_id':e['evaluator_id'],'artifact_classes':e['artifact_classes'],'score_dimensions':e['score_dimensions'],'mandate':f'Independently evaluate the current candidate with {e["evaluator_id"]} against the bound artifact evidence and benchmarks.'} for e in required_evaluators],
  'specialist_lanes':[{'lane_id':f'artifact:{a}','role':'artifact_specialist','artifact_classes':[a]} for a in required_artifacts],
  'independent_evaluators':[{'lane_id':f'evaluator:{e["evaluator_id"]}','role':'independent_evaluator','evaluator_id':e['evaluator_id'],'artifact_classes':e['artifact_classes'],'score_dimensions':e['score_dimensions']} for e in required_evaluators],
- 'instruction':'Use the smallest team that can materialize a real candidate. Do not expand concurrency before evaluation.'}
- next_state={**state,'phase':'build_candidate','control_state':{'state_sha256':observed,'outcome':dict(control['outcome']),'artifacts':dict(control['artifacts']),'evaluators':dict(control['evaluators']),'benchmarks':dict(control['benchmarks']),'calibrations':dict(control['calibrations'])},'outcome_claims':[dict(x) for x in outcome.get('outcome_claims',[]) if isinstance(x,Mapping)],'required_artifact_classes':required_artifacts,'required_evaluators':required_evaluators,'organization_plan':org,
- 'next_action':{'action':'materialize_candidate','authority':'bounded_pilot','required_artifact_classes':required_artifacts,'organization_plan':org}}
+ 'instruction':'Reach connected artifact reality before expanding organization. Production work must create and exercise the real artifact; documentation and governance are support work, not the mission.'}
+ next_state={**state,'phase':'build_candidate','control_state':_loop_control_projection(control),'outcome_claims':[dict(x) for x in outcome.get('outcome_claims',[]) if isinstance(x,Mapping)],'required_artifact_classes':required_artifacts,'required_evaluators':required_evaluators,'organization_plan':org,
+ 'next_action':{'action':'materialize_candidate','authority':'bounded_reversible_pilot','required_artifact_classes':required_artifacts,'organization_plan':org,'first_reality_target':'R3'}}
  return seal(next_state)
+
+def refresh_control(project,raw_state,control):
+ state=verify_state(raw_state)
+ if state['phase'] not in {'evaluate','rework'}: raise OutcomeLoopError('E_PHASE','control refresh is allowed only after a real candidate exists')
+ if control.get('$schema')!=CONTROL_SCHEMA: raise OutcomeLoopError('E_SCHEMA','bad control schema')
+ observed=sha(control.get('state_sha256'),'control.state_sha256')
+ if observed!=digest({**control,'state_sha256':None}): raise OutcomeLoopError('E_DIGEST','control state changed')
+ if control.get('objective_id')!=state['objective_id'] or control.get('original_objective')!=state['original_objective']: raise OutcomeLoopError('E_BINDING','refreshed control does not bind original objective')
+ current=obj(state.get('control_state'),'state.control_state')
+ for field in ('outcome','artifacts','evaluators','benchmarks'):
+  if dict(obj(control.get(field),f'control.{field}'))!=dict(obj(current.get(field),f'state.control_state.{field}')): raise OutcomeLoopError('E_BINDING',f'control refresh changed bound {field} contract')
+ history=[*state.get('history',[]),{'event':'outcome_control_refreshed','from_execution_lane':current.get('execution_lane'),'to_execution_lane':control.get('execution_lane'),'control_state_sha256':observed}]
+ return seal({**state,'control_state':_loop_control_projection(control),'history':history})
 
 def record_candidate(project,raw_state,candidate):
  state=verify_state(raw_state)

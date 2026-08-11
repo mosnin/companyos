@@ -277,15 +277,28 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
                 "Evaluation must emit the observation evidence required by the artifact contract",
             ]
         else:
-            acceptance = ["Materialize a real candidate artifact for the assigned artifact classes", "Return exact artifact paths and SHA256 digests", "Do not use source code, tests, or completion narrative as product acceptance"]
+            acceptance = [
+                "Materialize and execute a real candidate artifact for every assigned artifact class",
+                "Reach the smallest connected end-to-end behavior before spending the lane on refinement",
+                "Return exact artifact paths and SHA256 digests",
+                "Do not use source code, tests, plans, schemas, reports, or completion narrative as product acceptance unless the artifact contract explicitly requires that class",
+            ]
             acceptance.extend(f"Preserve independently passing quality dimension {dimension}" for dimension in preserve_dimensions)
-            worker_task = lane["mandate"]
+            worker_task = lane["mandate"] + " Within the first third of this lane budget, create and run the smallest real end-to-end artifact path. Stop broad research and speculative architecture once enough is known to execute. If the user supplied a provider, repository, SDK, or framework that already implements a required capability, integrate and exercise it before building a replacement; replacement requires concrete blocker evidence."
             if preserve_dimensions:
                 worker_task += " Preserve already passing dimensions: " + ", ".join(preserve_dimensions) + "."
             worker_write_scope = [f"{resource_scope}/artifact"]
-            stop_condition = "A real artifact is materialized with exact evidence, or a blocking constraint is proven"
-            extra_constraints = ["Materialize a real candidate before independent evaluation", "Production actors cannot perform final independent evaluation"]
-        outcome_context = {"program_version": program_version, "north_star": north_star, "user_value": user_value, "program_outcome": governed_outcome, "manager_outcome": lane["mandate"], "roadmap_position": "evaluation" if state.get("phase") == "evaluate" else "execution", "artifact_classes": lane["artifact_classes"], "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints + extra_constraints}
+            artifact_manifest_path = f"{resource_scope}/artifact/artifact-manifest.json"
+            artifact_manifest_binding = {"$schema": "company-os.outcome-lane-artifact-manifest.v1", "schema_version": 1, "objective_id": state["objective_id"], "outcome_loop_state_sha256": state["state_sha256"], "organization_sha256": digest(state["organization_plan"]), "lane_id": lane["lane_id"], "lane_sha256": lane_sha, "production_actor_id": f"{manager_id}-worker-01"}
+            worker_task += " When materialized, write the canonical artifact handoff at " + artifact_manifest_path + ". Preserve these exact immutable bindings: " + json.dumps(artifact_manifest_binding, sort_keys=True) + ". Add an artifacts array containing each actual artifact_id, artifact_class_id, project-relative path, and exact sha256. A prose report is not a handoff."
+            stop_condition = "A real connected artifact is materialized and executed with exact evidence, or a blocking constraint is proven"
+            extra_constraints = [
+                "Materialize a real candidate before independent evaluation",
+                "Plans, research, schemas, and governance are support work and cannot replace execution",
+                "Integrate supplied capabilities before reimplementing them unless blocker evidence proves integration cannot satisfy the requirement",
+                "Production actors cannot perform final independent evaluation",
+            ]
+        outcome_context = {"program_version": program_version, "north_star": north_star, "user_value": user_value, "program_outcome": governed_outcome, "manager_outcome": lane["mandate"], "roadmap_position": "evaluation" if state.get("phase") == "evaluate" else "execution", "artifact_classes": lane["artifact_classes"], "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints + extra_constraints, "execution_policy": {"first_reality_target": "R3", "first_reality_budget_fraction": 0.25, "global_bottleneck": lane["mandate"], "documentation_is_not_progress": True, "prefer_existing_capabilities": True}}
         if state.get("phase") == "evaluate":
             outcome_context["evaluator_id"] = lane["evaluator_id"]
             outcome_context["score_dimensions"] = lane["score_dimensions"]

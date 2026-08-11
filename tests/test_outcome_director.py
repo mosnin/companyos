@@ -22,7 +22,7 @@ class FakeBootstrap:
         request = {"$schema": "company-os.outcome-request.v1", "objective_id": objective_id, "objective": objective}
         (base / "outcome-request.json").write_text(json.dumps(request) + "\n")
         (base / "outcome-contract.json").write_text("{}\n")
-        (base / "outcome-loop.json").write_text(json.dumps({"$schema": "company-os.outcome-loop-state.v1"}) + "\n")
+        (base / "outcome-loop.json").write_text(json.dumps({"$schema": "company-os.outcome-loop-state.v1", "phase": "discovery"}) + "\n")
         (base / "discovery-fabric.json").write_text("{}\n")
         receipt_path = base / "bootstrap-receipt.json"
         receipt_path.write_text("{}\n")
@@ -165,25 +165,39 @@ class OutcomeDirectorTests(unittest.TestCase):
         self.assertEqual(result["stage"], "discovery")
         self.assertIn("proposal.json", result["next_action"]["reason"])
 
-    def test_completed_discovery_advances_until_real_missing_adapter_boundary(self) -> None:
+    def test_completed_discovery_enters_control_before_evaluator_construction(self) -> None:
+        self.write_proposals()
+        state = MODULE.load_state(self.project, "viral-game")
+        # Stop the deterministic recursion at the control boundary so this unit test
+        # proves sequencing without constructing a full project control store.
+        original = MODULE.build_outcome_control
+        def stop_at_control(*args, **kwargs):
+            raise MODULE.DirectorError("E_TEST_CONTROL", "reached first reality control")
+        MODULE.build_outcome_control = stop_at_control
+        try:
+            with self.assertRaises(MODULE.DirectorError) as caught:
+                MODULE.advance(self.project, "viral-game")
+            self.assertEqual(caught.exception.code, "E_TEST_CONTROL")
+            persisted = MODULE.load_state(self.project, "viral-game")
+            self.assertEqual(persisted["stage"], "control")
+            self.assertTrue((MODULE.workspace(self.project, "viral-game") / "measurable-outcome-request.json").is_file())
+        finally:
+            MODULE.build_outcome_control = original
+
+    def test_evaluators_are_not_requested_before_candidate_phase(self) -> None:
         self.write_proposals()
         MODULE.registry_module = lambda: FakeMissingRegistry
-        result = MODULE.advance(self.project, "viral-game")
-        self.assertEqual(result["stage"], "evaluator_capability")
-        self.assertEqual(result["next_action"]["stage"], "evaluator_capability")
-        fabric = MODULE.workspace(self.project, "viral-game") / "runtime/evaluator-build-fabric.json"
-        self.assertEqual(json.loads(fabric.read_text())["kind"], "evaluator-build")
-        self.assertTrue((MODULE.workspace(self.project, "viral-game") / "measurable-outcome-request.json").is_file())
-
-    def test_ready_adapters_advance_to_calibration_boundary(self) -> None:
-        self.write_proposals()
-        MODULE.registry_module = lambda: FakeReadyRegistry
-        result = MODULE.advance(self.project, "viral-game")
-        self.assertEqual(result["stage"], "calibration")
-        self.assertEqual(result["next_action"]["stage"], "calibration")
-        fabric = MODULE.workspace(self.project, "viral-game") / "runtime/calibration-fabric.json"
-        self.assertEqual(json.loads(fabric.read_text())["kind"], "calibration")
-        self.assertTrue((MODULE.workspace(self.project, "viral-game") / "runtime/evaluator-adapter-registry.json").is_file())
+        original = MODULE.build_outcome_control
+        def stop_at_control(*args, **kwargs):
+            raise MODULE.DirectorError("E_TEST_CONTROL", "reached first reality control")
+        MODULE.build_outcome_control = stop_at_control
+        try:
+            with self.assertRaises(MODULE.DirectorError):
+                MODULE.advance(self.project, "viral-game")
+            self.assertFalse((MODULE.workspace(self.project, "viral-game") / "runtime/evaluator-build-fabric.json").exists())
+            self.assertFalse((MODULE.workspace(self.project, "viral-game") / "runtime/calibration-fabric.json").exists())
+        finally:
+            MODULE.build_outcome_control = original
 
     def test_director_state_tampering_is_rejected(self) -> None:
         path = MODULE.state_path(self.project, "viral-game")

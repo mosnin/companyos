@@ -16,6 +16,26 @@
       "size": 16369
     },
     {
+      "path": "company-os/assemble-outcome-candidate/SKILL.md",
+      "sha256": "baefb7d00296dd2298f1fc75ce5dfc6ef9ea9c948603bd2498f4b875f5c19b96",
+      "size": 1484
+    },
+    {
+      "path": "company-os/assemble-outcome-candidate/scripts/assemble_candidate.py",
+      "sha256": "0566b7e218169e74db3cd80924e8cbd5e68e1aa223f3209710276a6ef6cbbcad",
+      "size": 14134
+    },
+    {
+      "path": "company-os/assemble-outcome-evaluations/SKILL.md",
+      "sha256": "46f19d7ff189a4f7652e63de58cdd69e2c82419b22821fa5d779a854c00dae79",
+      "size": 1396
+    },
+    {
+      "path": "company-os/assemble-outcome-evaluations/scripts/assemble_evaluations.py",
+      "sha256": "fc3182b7d24df8bf12e8747ba9fed443aadb033ad505aa942b2aee0d36f3d54c",
+      "size": 10224
+    },
+    {
       "path": "company-os/assign-capability-skills/SKILL.md",
       "sha256": "c4dd263604102b3a2619ffcb6df7dd765228a1afa5f356220f67df9602971197",
       "size": 5932
@@ -152,8 +172,8 @@
     },
     {
       "path": "company-os/bootstrap-outcome/scripts/bootstrap_outcome.py",
-      "sha256": "5f541c700d669252815de366fd3ac2622b3c7465170d4ef2ff46c8667f9af272",
-      "size": 16160
+      "sha256": "573dfa92c865414ee838e27748bd88975e9031996c627651fb7c5752b5a60736",
+      "size": 16446
     },
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -267,8 +287,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "6cd65d2c7f169b69b49ff4d9ca73d529214cb05991e6a97c9efb106f2648938f",
-      "size": 12847
+      "sha256": "55cd8713fb6e66776cf8c1d4de9438fc3bbc61554221698f8a7f0a016d7c37ce",
+      "size": 15390
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -317,8 +337,8 @@
     },
     {
       "path": "company-os/compile-outcome-organization/scripts/compile_outcome_organization.py",
-      "sha256": "dae09a83e6b08125fdf9891ff87e91052d5c7840b93b15d168c53e88a0fe3405",
-      "size": 26489
+      "sha256": "001239abdda31aad9715cf7fa427549e951ba411ff3415e743b56c0c70b0fef4",
+      "size": 28535
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",
@@ -342,13 +362,13 @@
     },
     {
       "path": "company-os/direct-outcome/SKILL.md",
-      "sha256": "375c2b627e8119e2d23ee028bca49c2bd051bed4a3eeac881581d363ce0e5ce1",
-      "size": 2376
+      "sha256": "4c60feff5d03bb3dead28dd3ff5aa34cb882141cf6b311ab6be9e52ff2bdad60",
+      "size": 3817
     },
     {
       "path": "company-os/direct-outcome/scripts/direct_outcome.py",
-      "sha256": "86aa1363c5003e4f0c6a538b0022ec85c19c32f9a7109702c04e5875ba543508",
-      "size": 33026
+      "sha256": "5324e177d6520f500439b46fa84cb46dc0be097d1cfdc91959b87d4db238e748",
+      "size": 39132
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
@@ -407,8 +427,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_loop.py",
-      "sha256": "296e44c1d059fdfe30997d2701682963cecc7f399a08689b8dde2a0ef22e0edb",
-      "size": 24883
+      "sha256": "eb8d54b0f9da3ec2c27fe51a794f9eb06fb2cfc55134bf70e97c60173f07ce58",
+      "size": 27731
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_runtime_bridge.py",
@@ -512,8 +532,8 @@
     },
     {
       "path": "company-os/force-first-execution/SKILL.md",
-      "sha256": "cdc45a1e8ba084e56aee9011b98cae84acce5b607bc399af8cc485cac949a8fe",
-      "size": 7428
+      "sha256": "8576deb7a090dc7b576bdc9fc18422aecbc652c62187c83d8d20b52dddac3b0a",
+      "size": 6136
     },
     {
       "path": "company-os/force-first-execution/agents/openai.yaml",
@@ -626,6 +646,16 @@
       "size": 16630
     },
     {
+      "path": "company-os/govern-outcome-execution/SKILL.md",
+      "sha256": "43f3d555893f16e4641ade74f523f8c57e6ef3e16b1af1f61204c265ac35176a",
+      "size": 5280
+    },
+    {
+      "path": "company-os/govern-outcome-execution/scripts/executive_governor.py",
+      "sha256": "dc2b7503af027895d71b401b3b7facea1760ce74bb5ea2468ae055c7ae2d2f93",
+      "size": 12261
+    },
+    {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",
       "sha256": "a88f429bfaffd2639edc5ddafa09c549a06c4a0dfb5699a517daa0cb921de52e",
       "size": 5459
@@ -722,8 +752,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "92b1dccfd5b88117e48abeee3c2570fdf5febcc3ef319c7c0585805ff07a34b6",
-      "size": 5094
+      "sha256": "8c37b689b7e324eb05ed12f6420061c79888e6655e032e11a1e2e2de281d2943",
+      "size": 4498
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",

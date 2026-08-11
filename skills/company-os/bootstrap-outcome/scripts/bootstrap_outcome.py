@@ -152,7 +152,7 @@ def agenda_groups(contract: Mapping[str, Any]) -> tuple[list[dict[str, Any]], li
     return truth, quality
 
 def manager_budget() -> dict[str, Any]:
-    return {"time_minutes": 45.0, "token_limit": 12000, "cost_usd": 12.0, "max_concurrency": 1, "max_retries": 1}
+    return {"time_minutes": 22.5, "token_limit": 6000, "cost_usd": 6.0, "max_concurrency": 1, "max_retries": 1}
 
 def worker_context(state: Mapping[str, Any], objective: str, manager_outcome: str, constraints: list[str], non_goals: list[str]) -> dict[str, Any]:
     strategy = state.get("strategy", {})
@@ -174,7 +174,7 @@ def proposal_task(objective_id: str, objective: str, proposal_id: str, agenda: l
         f"You own the {section} research lane. Resolve the assigned discovery agenda with citations to authoritative or primary sources where available, actively search for counterevidence, and reconcile contradictions. "
         f"Assigned agenda: {agenda_json}. "
         f"Write one JSON proposal at {output_path} using schema company-os.outcome-model-proposal.v1, objective_id {objective_id!r}, proposal_id {proposal_id!r}, and the exact request_sha256 supplied in the manager packet. "
-        "Every conclusion and every proposed outcome claim, artifact, evaluator, benchmark, or final acceptance policy must carry citations. Unknown means research until measurable. Do not ask the operator to provide domain vocabulary."
+        "Every conclusion and every proposed outcome claim, artifact, evaluator, benchmark, or final acceptance policy must carry citations. Research only until the first real vertical slice is executable; defer nonblocking corpus expansion. Unknown means research until measurable enough to act. Do not ask the operator to provide domain vocabulary."
     )
 def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], contract: Mapping[str, Any], base: str) -> dict[str, Any]:
     truth_agenda, quality_agenda = agenda_groups(contract)
@@ -232,6 +232,7 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
                     "Worker proposal is independently checked against the assigned agenda",
                     "Unsupported certainty is rejected",
                     "Research output is integrated only as a proposal, not product acceptance",
+                    "Stop discovery when enough evidence exists to execute the first reversible real-artifact slice",
                 ],
                 "phase_ids": PHASES,
                 "budget": dict(budget),
@@ -251,7 +252,7 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
         "program_contract": {
             "north_star": strategy.get("north_star") or objective,
             "user_value": objective,
-            "rationale": "Resolve domain uncertainty before expensive production.",
+            "rationale": "Resolve only the uncertainty blocking the first real vertical slice, then execute and learn from the artifact.",
             "architecture": "Two independent research managers produce structured outcome model proposals for deterministic synthesis.",
             "roadmap": PHASES,
             "dependencies": ["Authoritative or primary domain sources", "Current project repository"],
@@ -265,7 +266,7 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
         "max_depth": 2,
         "max_worker_retries": 1,
         "max_manager_rework_rounds": 2,
-        "budget": {"time_minutes": 90.0, "token_limit": 24000, "cost_usd": 24.0, "max_concurrency": 2, "max_retries": 1},
+        "budget": {"time_minutes": 45.0, "token_limit": 12000, "cost_usd": 12.0, "max_concurrency": 2, "max_retries": 1},
         "luna_token_share_target": 0.75,
         "external_effects_allowed": False,
         "managers": managers,
