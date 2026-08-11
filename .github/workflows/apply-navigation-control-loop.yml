@@ -11,6 +11,8 @@ on:
       - "skills/company-os/navigation-control/**"
       - "tests/test_navigation_control.py"
       - "tests/test_navigation_mission_integration.py"
+      - "tests/test_navigation_safety_interrupt.py"
+      - "tests/test_outcome_organization.py"
 
 permissions:
   contents: write
@@ -32,7 +34,7 @@ jobs:
         run: python3 scripts/distribution.py write-manifest
       - name: Verify navigation control
         run: |
-          python3 -m unittest tests.test_navigation_control tests.test_navigation_mission_integration -v
+          python3 -m unittest tests.test_navigation_control tests.test_navigation_mission_integration tests.test_navigation_safety_interrupt tests.test_outcome_organization -v
           python3 -m py_compile skills/company-os/navigation-control/scripts/navigation_control.py skills/company-os/mission-execution-control/scripts/mission_control.py skills/company-os/direct-outcome/scripts/direct_outcome.py skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py
       - name: Verify full Company OS
         run: |
