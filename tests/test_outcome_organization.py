@@ -327,7 +327,7 @@ class OutcomeOrganizationTests(unittest.TestCase):
         self.write_state(state)
         with self.assertRaises(ORG.OrganizationError) as caught:
             ORG.validate_manifest_binding(self.root, manifest)
-        self.assertEqual(caught.exception.code, "E_BINDING")
+        self.assertEqual(caught.exception.code, "E_DIGEST")
 
     def test_manager_lane_tampering_is_rejected(self) -> None:
         manifest = self.compile()
