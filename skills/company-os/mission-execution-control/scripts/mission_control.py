@@ -662,7 +662,7 @@ def _apply_navigation_to_governor(decision: Mapping[str, Any], navigation: Mappi
         next_work = next_action.get("work_class")
         allowed = set(result.get("allowed_work_classes", []))
         sensor_classes = set(navigation_module().SENSOR_CLASSES)
-        keep_sensors = {"evaluation"} if next_work == "evaluation" else set()
+        keep_sensors = {"evaluation"}
         allowed -= sensor_classes - keep_sensors
         if next_work in WORK_CLASSES:
             allowed.add(next_work)

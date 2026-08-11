@@ -356,7 +356,7 @@ def admit_mission_work(
     }
     if justification is not None:
         request["justification"] = dict(justification)
-    elif work_class in {"research", "architecture", "governance", "documentation"} and not bootstrap:
+    elif work_class in {"research", "architecture", "governance", "documentation", "evaluation"} and not bootstrap:
         navigation = state.get("navigation") or {}
         route = navigation.get("next_action") if isinstance(navigation, Mapping) else {}
         request["justification"] = {
