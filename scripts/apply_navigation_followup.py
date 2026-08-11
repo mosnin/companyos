@@ -17,6 +17,13 @@ replace_once(
     '    elif work_class in {"research", "architecture", "governance", "documentation", "evaluation"} and not bootstrap:\n',
 )
 
+mission = Path("skills/company-os/mission-execution-control/scripts/mission_control.py")
+replace_once(
+    mission,
+    '        keep_sensors = {"evaluation"} if next_work == "evaluation" else set()\n',
+    '        keep_sensors = {"evaluation"}\n',
+)
+
 org = Path("skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py")
 replace_once(
     org,
