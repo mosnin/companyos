@@ -28,6 +28,7 @@ SENSOR_CLASSES = {"research", "architecture", "governance", "evaluation", "docum
 ACTUATOR_CLASSES = {"implementation", "integration", "runtime", "repair", "checkpoint", "packaging"}
 EXECUTION_CLASSES = {"implementation", "integration", "runtime", "repair"}
 PROGRESS_EVENT_KINDS = {"artifact_materialized", "runtime_observed", "journey_connected", "independent_accepted", "checkpoint_recorded"}
+ACTUATION_ATTEMPT_EVENT_KINDS = {"task_completed", "task_failed"}
 
 
 class NavigationError(ValueError):
@@ -93,18 +94,16 @@ def _capabilities(raw: Any) -> list[dict[str, Any]]:
         existing = item.get("existing_implementation")
         if existing is not None:
             existing = _text(existing, f"{capability_id}.existing_implementation")
-        result.append(
-            {
-                "capability_id": capability_id,
-                "label": str(item.get("label") or capability_id),
-                "state": state,
-                "critical": item.get("critical") is True,
-                "priority": priority,
-                "first_reality": item.get("first_reality") is True,
-                "final_required": item.get("final_required") is not False,
-                "existing_implementation": existing,
-            }
-        )
+        result.append({
+            "capability_id": capability_id,
+            "label": str(item.get("label") or capability_id),
+            "state": state,
+            "critical": item.get("critical") is True,
+            "priority": priority,
+            "first_reality": item.get("first_reality") is True,
+            "final_required": item.get("final_required") is not False,
+            "existing_implementation": existing,
+        })
     return result
 
 
@@ -179,82 +178,37 @@ def _relevant_for_waypoint(item: Mapping[str, Any], waypoint: str) -> bool:
 
 
 def _next_capability(capabilities: list[dict[str, Any]], waypoint: str, target: int) -> dict[str, Any] | None:
-    unresolved = [
-        item for item in capabilities
-        if _relevant_for_waypoint(item, waypoint) and CAPABILITY_ORDER[item["state"]] < target
-    ]
+    unresolved = [item for item in capabilities if _relevant_for_waypoint(item, waypoint) and CAPABILITY_ORDER[item["state"]] < target]
     if not unresolved:
         return None
-    unresolved.sort(
-        key=lambda item: (
-            CAPABILITY_ORDER[item["state"]],
-            0 if item["critical"] else 1,
-            -item["priority"],
-            item["capability_id"],
-        )
-    )
+    unresolved.sort(key=lambda item: (
+        CAPABILITY_ORDER[item["state"]],
+        0 if item["critical"] else 1,
+        -item["priority"],
+        item["capability_id"],
+    ))
     return unresolved[0]
 
 
 def _action_for(capability: Mapping[str, Any] | None, *, waypoint: str, checkpointed: bool) -> dict[str, Any]:
     if waypoint == "ARRIVED":
-        return {
-            "action_kind": "hold_destination",
-            "work_class": "checkpoint",
-            "capability_id": None,
-            "instruction": "Destination reached. Preserve the accepted state and do not invent new work.",
-        }
+        return {"action_kind": "hold_destination", "work_class": "checkpoint", "capability_id": None, "instruction": "Destination reached. Preserve the accepted state and do not invent new work."}
     if capability is None:
         if waypoint == "R4_USER_USABLE" and not checkpointed:
-            return {
-                "action_kind": "checkpoint",
-                "work_class": "checkpoint",
-                "capability_id": None,
-                "instruction": "Checkpoint the connected product bytes so the fresh-user outcome becomes durable.",
-            }
-        return {
-            "action_kind": "verify",
-            "work_class": "evaluation",
-            "capability_id": None,
-            "instruction": "Run the minimum independent verification needed to advance the current waypoint.",
-        }
+            return {"action_kind": "checkpoint", "work_class": "checkpoint", "capability_id": None, "instruction": "Checkpoint the connected product bytes so the fresh-user outcome becomes durable."}
+        return {"action_kind": "verify", "work_class": "evaluation", "capability_id": None, "instruction": "Run the minimum independent verification needed to advance the current waypoint."}
     capability_id = capability["capability_id"]
     state = capability["state"]
     existing = capability.get("existing_implementation")
     if state == "missing":
         if existing:
-            return {
-                "action_kind": "integrate_existing",
-                "work_class": "integration",
-                "capability_id": capability_id,
-                "instruction": f"Exercise and integrate the supplied implementation for {capability_id} before writing a replacement.",
-            }
-        return {
-            "action_kind": "materialize",
-            "work_class": "implementation",
-            "capability_id": capability_id,
-            "instruction": f"Materialize the smallest real {capability_id} artifact that changes objective reality.",
-        }
+            return {"action_kind": "integrate_existing", "work_class": "integration", "capability_id": capability_id, "instruction": f"Exercise and integrate the supplied implementation for {capability_id} before writing a replacement."}
+        return {"action_kind": "materialize", "work_class": "implementation", "capability_id": capability_id, "instruction": f"Materialize the smallest real {capability_id} artifact that changes objective reality."}
     if state == "partial":
-        return {
-            "action_kind": "run",
-            "work_class": "runtime",
-            "capability_id": capability_id,
-            "instruction": f"Run the real {capability_id} capability and observe its behavior; do not add supporting prose instead.",
-        }
+        return {"action_kind": "run", "work_class": "runtime", "capability_id": capability_id, "instruction": f"Run the real {capability_id} capability and observe its behavior; do not add supporting prose instead."}
     if state == "runnable":
-        return {
-            "action_kind": "connect",
-            "work_class": "integration",
-            "capability_id": capability_id,
-            "instruction": f"Connect {capability_id} into the active end-to-end user journey and observe the resulting state transition.",
-        }
-    return {
-        "action_kind": "verify",
-        "work_class": "evaluation",
-        "capability_id": capability_id,
-        "instruction": f"Independently verify the connected {capability_id} behavior against the original objective.",
-    }
+        return {"action_kind": "connect", "work_class": "integration", "capability_id": capability_id, "instruction": f"Connect {capability_id} into the active end-to-end user journey and observe the resulting state transition."}
+    return {"action_kind": "verify", "work_class": "evaluation", "capability_id": capability_id, "instruction": f"Independently verify the connected {capability_id} behavior against the original objective."}
 
 
 def _events(raw: Any) -> list[dict[str, Any]]:
@@ -294,7 +248,6 @@ def _velocity(previous: Mapping[str, Any] | None, *, now: datetime, destination_
             except NavigationError:
                 previous_at = None
     delta = 0.0 if previous_distance is None else round(previous_distance - destination_distance, 6)
-    elapsed_minutes = None
     per_minute = None
     if previous_at is not None and now > previous_at:
         elapsed_minutes = max((now - previous_at).total_seconds() / 60.0, 1e-6)
@@ -306,7 +259,9 @@ def _velocity(previous: Mapping[str, Any] | None, *, now: datetime, destination_
             last_progress = event["occurred_at"]
     action_events = [
         event for event in events
-        if event.get("work_class") in ACTUATOR_CLASSES and (last_progress is None or event["occurred_at"] > last_progress)
+        if event["kind"] in ACTUATION_ATTEMPT_EVENT_KINDS
+        and event.get("work_class") in ACTUATOR_CLASSES
+        and (last_progress is None or event["occurred_at"] > last_progress)
     ]
     thresholds = {"quick_build": 10.0, "bounded_feature": 20.0, "company_mission": 30.0, "long_running_company": 60.0}
     threshold = thresholds.get(mission_class, 30.0)
@@ -380,13 +335,7 @@ def evaluate(payload: Mapping[str, Any]) -> dict[str, Any]:
     previous = payload.get("previous_navigation") if isinstance(payload.get("previous_navigation"), Mapping) else None
 
     waypoint = _waypoint(signals)
-    destination_distance = _distance(
-        capabilities,
-        4,
-        lambda item: item.get("final_required") is True,
-        checkpoint_required=True,
-        checkpointed=checkpointed,
-    )
+    destination_distance = _distance(capabilities, 4, lambda item: item.get("final_required") is True, checkpoint_required=True, checkpointed=checkpointed)
     waypoint_target = 3 if waypoint in {"R3_FIRST_REALITY", "R4_USER_USABLE"} else 4
     waypoint_distance = 0.0 if waypoint == "ARRIVED" else _distance(
         capabilities,
@@ -442,20 +391,10 @@ def evaluate(payload: Mapping[str, Any]) -> dict[str, Any]:
         "objective": objective,
         "mode": mode,
         "waypoint": waypoint,
-        "position": {
-            "destination_distance": destination_distance,
-            "waypoint_distance": waypoint_distance,
-            "reality": signals,
-            "checkpointed": checkpointed,
-        },
+        "position": {"destination_distance": destination_distance, "waypoint_distance": waypoint_distance, "reality": signals, "checkpointed": checkpointed},
         "velocity": velocity,
         "next_action": next_action,
-        "sensor_posture": {
-            "sensor_fraction": round(sensor_fraction, 6),
-            "sensor_fraction_ceiling": sensor_ceiling,
-            "overrun": sensor_overrun,
-            "principle": "Sense only enough to improve or safely constrain the next action.",
-        },
+        "sensor_posture": {"sensor_fraction": round(sensor_fraction, 6), "sensor_fraction_ceiling": sensor_ceiling, "overrun": sensor_overrun, "principle": "Sense only enough to improve or safely constrain the next action."},
         "actuation_policy": _minimum_sufficient_actuation(),
         "orders": orders,
         "trajectory": trajectory,
