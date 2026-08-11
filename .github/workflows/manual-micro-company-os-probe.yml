@@ -1,0 +1,39 @@
+name: Manual Micro Company OS Probe
+
+on:
+  push:
+    branches:
+      - test/micro-company-os-20260811
+    paths:
+      - "tests/manual_micro_execution_probe.py"
+      - ".github/workflows/manual-micro-company-os-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: test/micro-company-os-20260811
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify Company OS parent version
+        run: |
+          git merge-base --is-ancestor 8ef43175321fbdc76446dcb4820a3b46f94a6e61 HEAD
+          git show -s --format=%H 8ef43175321fbdc76446dcb4820a3b46f94a6e61
+      - name: Run micro execution probe
+        run: python3 tests/manual_micro_execution_probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: micro-company-os-report
+          path: micro-execution-report.json
+          if-no-files-found: warn
