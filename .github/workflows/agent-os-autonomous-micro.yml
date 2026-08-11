@@ -1,0 +1,102 @@
+name: Autonomous Agent OS Micro Test
+
+on:
+  push:
+    branches:
+      - test/agent-os-autonomous-micro-20260811
+    paths:
+      - ".github/workflows/agent-os-autonomous-micro.yml"
+      - "tests/agent_os_autonomous_micro/**"
+      - "skills/company-os/**"
+      - "skills/autonomy-suite/**"
+      - "scripts/distribution.py"
+
+permissions:
+  contents: read
+
+jobs:
+  autonomous-micro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      WORKSPACE: ${{ github.workspace }}/agent-os-micro-workspace
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: test/agent-os-autonomous-micro-20260811
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install independent browser evaluator
+        run: |
+          python3 -m pip install --disable-pip-version-check playwright
+          python3 -m playwright install chromium --with-deps
+
+      - name: Prepare isolated Company OS workspace
+        run: |
+          rm -rf "$WORKSPACE"
+          mkdir -p "$WORKSPACE/.company-os-test"
+          cp tests/agent_os_autonomous_micro/OBJECTIVE.md "$WORKSPACE/OBJECTIVE.md"
+          cp tests/agent_os_autonomous_micro/WORKSPACE_AGENTS.md "$WORKSPACE/AGENTS.md"
+          python3 scripts/distribution.py install --target "$WORKSPACE/.codex/skills"
+          git -C "$WORKSPACE" init -q
+          git -C "$WORKSPACE" config user.name "Agent OS Autonomous Test"
+          git -C "$WORKSPACE" config user.email "agent-os-test@example.invalid"
+          git -C "$WORKSPACE" add -A
+          git -C "$WORKSPACE" commit -q -m "test baseline"
+
+      - name: Verify agent provider credential exists
+        env:
+          CODEX_TEST_KEY: ${{ secrets.OPENAI_API_KEY || secrets.CODEX_API_KEY }}
+        run: |
+          if [ -z "$CODEX_TEST_KEY" ]; then
+            echo "::error::Autonomous agent test requires an OPENAI_API_KEY or CODEX_API_KEY repository secret."
+            exit 78
+          fi
+
+      - name: Run Company OS without human steering
+        id: codex
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY || secrets.CODEX_API_KEY }}
+          prompt-file: tests/agent_os_autonomous_micro/ROOT_PROMPT.md
+          working-directory: agent-os-micro-workspace
+          output-file: agent-os-micro-workspace/.company-os-test/codex-final-message.txt
+          sandbox: workspace-write
+          effort: high
+          codex-args: '["--enable", "multi_agent", "--json"]'
+          safety-strategy: drop-sudo
+
+      - name: Preserve autonomous execution metadata
+        if: always()
+        run: |
+          mkdir -p "$WORKSPACE/.company-os-test"
+          git -C "$WORKSPACE" status --short > "$WORKSPACE/.company-os-test/git-status.txt" || true
+          git -C "$WORKSPACE" log --oneline --decorate --all > "$WORKSPACE/.company-os-test/git-log.txt" || true
+          find "$WORKSPACE" -maxdepth 8 -type f -not -path '*/.git/*' | sort > "$WORKSPACE/.company-os-test/file-inventory.txt" || true
+
+      - name: Independently evaluate Company OS and product reality
+        if: always()
+        run: |
+          python3 tests/agent_os_autonomous_micro/evaluate.py \
+            --workspace "$WORKSPACE" \
+            --report "$GITHUB_WORKSPACE/agent-os-autonomous-micro-report.json"
+
+      - name: Upload complete autonomous evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-os-autonomous-micro-evidence
+          path: |
+            agent-os-autonomous-micro-report.json
+            agent-os-micro-workspace
+          if-no-files-found: warn
+          retention-days: 14
