@@ -21,15 +21,19 @@ jobs:
           python3 -m unittest
           tests.test_mission_execution_control
           tests.test_product_checkpoint
+          tests.test_director_product_checkpoint
           tests.test_reality_spike_ingestion
           tests.test_first_reality_scope_promotion
           tests.test_first_reality_candidate_observations
+          tests.test_discovery_mission_binding
+          tests.test_execution_enforcement_regression_lab
           -v
       - name: Verify Python compilation
         run: >-
           python3 -m py_compile
           skills/company-os/mission-execution-control/scripts/mission_control.py
           skills/company-os/mission-execution-control/scripts/checkpoint_product.py
+          skills/company-os/mission-execution-control/scripts/execution_regression_lab.py
           skills/company-os/govern-outcome-execution/scripts/executive_governor.py
           skills/company-os/direct-outcome/scripts/direct_outcome.py
           skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py
