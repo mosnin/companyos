@@ -145,11 +145,11 @@ class NavigationControlTests(unittest.TestCase):
         self.assertLess(second["position"]["destination_distance"], first["position"]["destination_distance"])
         self.assertGreater(second["velocity"]["distance_delta"], 0)
 
-    def test_three_actuation_attempts_without_progress_trigger_replan(self):
+    def test_three_completed_actuation_attempts_without_progress_trigger_replan(self):
         events = [
-            {"kind": "work_recorded", "occurred_at": "2026-08-11T12:01:00Z", "work_class": "implementation"},
-            {"kind": "work_recorded", "occurred_at": "2026-08-11T12:03:00Z", "work_class": "implementation"},
-            {"kind": "work_recorded", "occurred_at": "2026-08-11T12:05:00Z", "work_class": "repair"},
+            {"kind": "task_completed", "occurred_at": "2026-08-11T12:01:00Z", "work_class": "implementation"},
+            {"kind": "task_failed", "occurred_at": "2026-08-11T12:03:00Z", "work_class": "implementation"},
+            {"kind": "task_completed", "occurred_at": "2026-08-11T12:05:00Z", "work_class": "repair"},
         ]
         decision = NAV.evaluate(payload([
             capability("browser_path", "missing")
@@ -157,6 +157,16 @@ class NavigationControlTests(unittest.TestCase):
         self.assertEqual(decision["mode"], "stalled_replan")
         self.assertTrue(decision["velocity"]["stalled"])
         self.assertLessEqual(decision["sensor_posture"]["sensor_fraction_ceiling"], 0.15)
+
+    def test_parallel_dispatch_alone_does_not_fake_stagnation(self):
+        events = [
+            {"kind": "work_recorded", "occurred_at": "2026-08-11T12:01:00Z", "work_class": "implementation"},
+            {"kind": "work_recorded", "occurred_at": "2026-08-11T12:01:10Z", "work_class": "implementation"},
+            {"kind": "work_recorded", "occurred_at": "2026-08-11T12:01:20Z", "work_class": "integration"},
+        ]
+        decision = NAV.evaluate(payload([capability("browser_path", "missing")], events=events, now="2026-08-11T12:02:00Z"))
+        self.assertFalse(decision["velocity"]["stalled"])
+        self.assertEqual(decision["velocity"]["actuation_attempts_since_progress"], 0)
 
     def test_sensor_overrun_is_detected_before_r3(self):
         decision = NAV.evaluate(payload([
