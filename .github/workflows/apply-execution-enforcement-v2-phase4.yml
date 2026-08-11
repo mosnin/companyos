@@ -1,0 +1,37 @@
+name: Apply Execution Enforcement V2 Phase 4
+
+on:
+  push:
+    paths:
+      - ".github/workflows/apply-execution-enforcement-v2-phase4.yml"
+      - "scripts/apply_execution_enforcement_v2_phase4.py"
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/execution-enforcement-v2
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Apply phase 4
+        run: python3 scripts/apply_execution_enforcement_v2_phase4.py
+      - name: Refresh manifest
+        run: python3 scripts/distribution.py write-manifest
+      - name: Verify focused changes
+        run: |
+          python3 -m unittest tests.test_outcome_organization tests.test_mission_execution_control -v
+          python3 -m py_compile skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py skills/company-os/mission-execution-control/scripts/mission_control.py
+      - name: Commit phase 4
+        run: |
+          git config user.name "company-os-execution-enforcement-bot"
+          git config user.email "company-os-execution-enforcement-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(company-os): reject stale mission fabrics and replace failed managers"
+          git push origin HEAD:codex/execution-enforcement-v2
