@@ -21,9 +21,12 @@ packet; do not request the root transcript or repeat the Company OS manual.
    narrow the accepted parent manager envelope. Never wait on or contact the
    master; report only to `task:<parent_manager_task_id>`.
 2. Stop before work when a dependency is absent, malformed, stale, foreign, or
-   unaccepted. Verify the bound `$mission-execution-control` state and work admission;
-   stop when the mission generation changed, the work class is paused, the receipt is
-   stale, or this worker was replaced. Do not start downstream work speculatively.
+   unaccepted. Verify the bound `$mission-execution-control`, `$navigation-control`, and
+   work admission; stop when the mission generation changed, the work class is paused,
+   the receipt is stale, or this worker was replaced. Execute the navigation `next_action`
+   before optional support work. Use minimum-sufficient actuation: reuse existing code or
+   integrations, then native/stdlib, then installed dependencies, then the smallest new
+   code that changes objective reality. Never cut explicit requirements or safety guards.
 3. Perform only the named task inside the exact scope. Do not spawn children,
    delegate, approve, deploy, publish, message externally, change authority, or
    widen access. Use `$force-first-execution`: materialize the smallest real

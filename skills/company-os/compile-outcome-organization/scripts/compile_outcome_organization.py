@@ -279,6 +279,9 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
     managers = []
     lane_sha256s: dict[str, str] = {}
     replacement_orders = [item for item in mission_control.get("replacement_orders", []) if isinstance(item, Mapping)]
+    navigation = mission_control.get("navigation") if isinstance(mission_control.get("navigation"), Mapping) else {}
+    route_action = navigation.get("next_action") if isinstance(navigation.get("next_action"), Mapping) else {}
+    route_policy = navigation.get("actuation_policy") if isinstance(navigation.get("actuation_policy"), Mapping) else {}
     replace_manager = any(item.get("kind") == "replace_manager" for item in replacement_orders)
     replace_worker = any(item.get("kind") == "replace_worker" for item in replacement_orders)
     replacement_generation = len(replacement_orders)
@@ -298,7 +301,7 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
                 "Produce an evaluator execution receipt with required scores, findings, and observation evidence",
                 "Do not modify candidate artifacts or inherit the production team's completion narrative",
             ]
-            worker_task = lane["mandate"] + " Score only the bound dimensions: " + ", ".join(lane["score_dimensions"]) + "."
+            worker_task = lane["mandate"] + " Navigation route action: " + json.dumps(route_action, sort_keys=True) + ". Evaluate only because verification is the current route action or a safety interrupt requires it. Score only the bound dimensions: " + ", ".join(lane["score_dimensions"]) + "."
             worker_write_scope = [f"{resource_scope}/evaluation-receipt"]
             stop_condition = "A verified evaluator execution receipt is materialized, or evaluator execution fails closed"
             extra_constraints = [
@@ -314,7 +317,7 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
                 "Do not use source code, tests, plans, schemas, reports, or completion narrative as product acceptance unless the artifact contract explicitly requires that class",
             ]
             acceptance.extend(f"Preserve independently passing quality dimension {dimension}" for dimension in preserve_dimensions)
-            worker_task = lane["mandate"] + " Within the first third of this lane budget, create and run the smallest real end-to-end artifact path. Stop broad research and speculative architecture once enough is known to execute. If the user supplied a provider, repository, SDK, or framework that already implements a required capability, integrate and exercise it before building a replacement; replacement requires concrete blocker evidence."
+            worker_task = lane["mandate"] + " Navigation route action: " + json.dumps(route_action, sort_keys=True) + ". Execute that state-changing action first, then observe the environment and replan. Within the first third of this lane budget, create and run the smallest real end-to-end artifact path. Stop broad research and speculative architecture once enough is known to execute. Use the minimum-sufficient-actuation policy: " + json.dumps(route_policy, sort_keys=True) + ". If the user supplied a provider, repository, SDK, or framework that already implements a required capability, integrate and exercise it before building a replacement; replacement requires concrete blocker evidence."
             if preserve_dimensions:
                 worker_task += " Preserve already passing dimensions: " + ", ".join(preserve_dimensions) + "."
             worker_write_scope = [f"{resource_scope}/artifact"]
@@ -328,7 +331,7 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
                 "Integrate supplied capabilities before reimplementing them unless blocker evidence proves integration cannot satisfy the requirement",
                 "Production actors cannot perform final independent evaluation",
             ]
-        outcome_context = {"program_version": program_version, "north_star": north_star, "user_value": user_value, "program_outcome": governed_outcome, "manager_outcome": lane["mandate"], "roadmap_position": "evaluation" if state.get("phase") == "evaluate" else "execution", "artifact_classes": lane["artifact_classes"], "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints + extra_constraints, "execution_policy": {"first_reality_target": "R3", "first_reality_budget_fraction": 0.25, "global_bottleneck": lane["mandate"], "documentation_is_not_progress": True, "prefer_existing_capabilities": True}}
+        outcome_context = {"program_version": program_version, "north_star": north_star, "user_value": user_value, "program_outcome": governed_outcome, "manager_outcome": lane["mandate"], "roadmap_position": "evaluation" if state.get("phase") == "evaluate" else "execution", "artifact_classes": lane["artifact_classes"], "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints + extra_constraints, "navigation": navigation, "execution_policy": {"first_reality_target": "R3", "first_reality_budget_fraction": 0.25, "global_bottleneck": route_action.get("capability_id") or lane["mandate"], "documentation_is_not_progress": True, "prefer_existing_capabilities": True, "destination_distance": navigation.get("position", {}).get("destination_distance") if isinstance(navigation.get("position"), Mapping) else None, "waypoint": navigation.get("waypoint"), "objective_velocity": navigation.get("velocity")}}
         if state.get("phase") == "evaluate":
             outcome_context["evaluator_id"] = lane["evaluator_id"]
             outcome_context["score_dimensions"] = lane["score_dimensions"]
