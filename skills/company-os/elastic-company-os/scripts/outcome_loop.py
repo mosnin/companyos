@@ -139,6 +139,9 @@ def bind_control(project,raw_state,control):
  'next_action':{'action':'materialize_candidate','authority':'bounded_reversible_pilot','required_artifact_classes':required_artifacts,'organization_plan':org,'first_reality_target':'R3'}}
  return seal(next_state)
 
+def _required_artifact_ids(contract):
+ return sorted({text(item.get('artifact_class_id'),'artifact_class_id') for item in contract.get('artifact_classes',[]) if isinstance(item,Mapping) and item.get('required') is True})
+
 def refresh_control(project,raw_state,control):
  state=verify_state(raw_state)
  if state['phase'] not in {'evaluate','rework'}: raise OutcomeLoopError('E_PHASE','control refresh is allowed only after a real candidate exists')
@@ -147,9 +150,31 @@ def refresh_control(project,raw_state,control):
  if observed!=digest({**control,'state_sha256':None}): raise OutcomeLoopError('E_DIGEST','control state changed')
  if control.get('objective_id')!=state['objective_id'] or control.get('original_objective')!=state['original_objective']: raise OutcomeLoopError('E_BINDING','refreshed control does not bind original objective')
  current=obj(state.get('control_state'),'state.control_state')
- for field in ('outcome','artifacts','evaluators','benchmarks'):
+ promotion=current.get('execution_lane')=='pilot' and control.get('execution_lane')=='production_scale'
+ for field in ('outcome','evaluators','benchmarks'):
   if dict(obj(control.get(field),f'control.{field}'))!=dict(obj(current.get(field),f'state.control_state.{field}')): raise OutcomeLoopError('E_BINDING',f'control refresh changed bound {field} contract')
+ old_artifacts,_=load_contract(project,obj(current.get('artifacts'),'state.control_state.artifacts'),'current artifact contract')
+ new_artifacts,_=load_contract(project,obj(control.get('artifacts'),'control.artifacts'),'refreshed artifact contract')
+ old_required=_required_artifact_ids(old_artifacts); new_required=_required_artifact_ids(new_artifacts)
+ if promotion:
+  if not set(old_required).issubset(new_required): raise OutcomeLoopError('E_BINDING','production scope removed a First Reality artifact class')
+ else:
+  if dict(obj(control.get('artifacts'),'control.artifacts'))!=dict(obj(current.get('artifacts'),'state.control_state.artifacts')): raise OutcomeLoopError('E_BINDING','control refresh changed bound artifacts contract')
  history=[*state.get('history',[]),{'event':'outcome_control_refreshed','from_execution_lane':current.get('execution_lane'),'to_execution_lane':control.get('execution_lane'),'control_state_sha256':observed}]
+ if promotion and set(new_required)!=set(old_required):
+  production_lanes=_production_lanes(new_required,'production_scale')
+  org={
+   'mode':'production_scale_after_first_reality',
+   'manager_lanes':[{'lane_id':'manager:outcome','role':'outcome_manager','mandate':'Expand the proven First Reality path to the complete final product scope.'}],
+   'production_lanes':production_lanes,
+   'evaluation_lanes':state['organization_plan'].get('evaluation_lanes',[]) if isinstance(state.get('organization_plan'),Mapping) else [],
+   'specialist_lanes':[{'lane_id':f'artifact:{artifact}','role':'artifact_specialist','artifact_classes':[artifact]} for artifact in new_required],
+   'independent_evaluators':state['organization_plan'].get('independent_evaluators',[]) if isinstance(state.get('organization_plan'),Mapping) else [],
+   'instruction':'Preserve the connected First Reality journey while materializing every deferred final capability.'
+  }
+  history.append({'event':'first_reality_scope_expanded','from_artifact_classes':old_required,'to_artifact_classes':new_required})
+  return seal({**state,'phase':'build_candidate','control_state':_loop_control_projection(control),'required_artifact_classes':new_required,'organization_plan':org,'history':history,
+   'next_action':{'action':'materialize_candidate','authority':'scope_expansion_after_first_reality','required_artifact_classes':new_required,'organization_plan':org,'preserve_candidate_id':state['candidates'][-1]['candidate_id'] if state.get('candidates') else None}})
  return seal({**state,'control_state':_loop_control_projection(control),'history':history})
 
 def record_candidate(project,raw_state,candidate):

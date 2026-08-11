@@ -25,6 +25,10 @@ FABRIC = load(
     "fabric_validator_for_outcome_organization",
     ROOT / "skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py",
 )
+MISSION = load(
+    "mission_control_for_outcome_organization",
+    ROOT / "skills/company-os/mission-execution-control/scripts/mission_control.py",
+)
 
 
 class OutcomeOrganizationTests(unittest.TestCase):
@@ -60,8 +64,42 @@ class OutcomeOrganizationTests(unittest.TestCase):
             "non_goals": ["production deployment"],
             "constraints": ["no consequential external effects"],
             "outcome_control": self.control,
+            "mission_control": {
+                "$schema": "company-os.mission-execution-binding.v1",
+                "state_path": ".company-os/mission.json",
+                "state_sha256": "a" * 64,
+                "mission_id": "viral-game",
+                "generation": 1,
+                "status": "active",
+                "mission_class": "company_mission",
+                "governor_decision_sha256": "b" * 64,
+                "governor_mode": "normal",
+                "allowed_work_classes": ["implementation", "repair", "evaluation"],
+                "paused_work_classes": [],
+                "dominant_bottleneck": {"capability_id": "playable_game", "state": "missing"},
+                "first_reality": None,
+                "first_reality_required": False,
+                "replacement_orders": [],
+            },
+            "work_admission": {
+                "$schema": "company-os.work-admission-receipt.v1",
+                "request_id": "request",
+                "task_id": "task",
+                "manager_id": "manager",
+                "work_class": "implementation",
+                "admitted": True,
+                "blockers": [],
+                "mission_state_sha256": "a" * 64,
+                "governor_decision_sha256": "b" * 64,
+                "governor_mode": "normal",
+                "dominant_bottleneck": {"capability_id": "playable_game", "state": "missing"},
+                "allowed_work_classes": ["implementation", "repair", "evaluation"],
+                "replacement_orders": [],
+                "receipt_sha256": "c" * 64,
+            },
         }
         self.write_state(self.initial_state())
+        self.write_mission()
 
     def tearDown(self) -> None:
         self.temp.cleanup()
@@ -99,12 +137,60 @@ class OutcomeOrganizationTests(unittest.TestCase):
         state["state_sha256"] = ORG.digest({**state, "state_sha256": None})
         return state
 
+    def write_mission(self, *, replacement_orders=None) -> dict:
+        mission = MISSION.initialize_state(
+            "viral-game",
+            "Make a viral game.",
+            started_at="2026-08-11T12:00:00Z",
+            mission_class="company_mission",
+            duration_minutes=420,
+        )
+        if replacement_orders is not None:
+            mission["replacement_orders"] = replacement_orders
+            mission = MISSION.refresh_governor(MISSION.seal(mission), now=MISSION.parse_time("2026-08-11T12:01:00Z", "now"))
+        path = self.root / ".company-os/mission.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(mission, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return mission
+
     def write_state(self, state: dict) -> None:
         path = self.root / ".company-os/outcome-loop.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     def compile(self) -> dict:
+        state = json.loads((self.root / ".company-os/outcome-loop.json").read_text(encoding="utf-8"))
+        mission = MISSION.verify_state(json.loads((self.root / ".company-os/mission.json").read_text(encoding="utf-8")))
+        decision = mission["governor_decision"]
+        self.request["mission_control"].update({
+            "state_sha256": mission["state_sha256"],
+            "generation": mission["generation"],
+            "status": mission["status"],
+            "mission_class": mission["mission_class"],
+            "governor_decision_sha256": decision["decision_sha256"],
+            "governor_mode": decision["mode"],
+            "allowed_work_classes": decision["allowed_work_classes"],
+            "paused_work_classes": decision["paused_work_classes"],
+            "dominant_bottleneck": decision["dominant_bottleneck"],
+            "replacement_orders": mission["replacement_orders"],
+        })
+        work_class = {
+            "build_candidate": "implementation",
+            "rework": "repair",
+            "evaluate": "evaluation",
+        }[state["phase"]]
+        self.request["work_admission"] = MISSION.admit_work(
+            mission,
+            {
+                "$schema": MISSION.ADMISSION_SCHEMA,
+                "request_id": f"request:{state['phase']}",
+                "task_id": f"task:{state['phase']}",
+                "manager_id": "manager",
+                "work_class": work_class,
+                "bootstrap": False,
+            },
+            now=MISSION.parse_time("2026-08-11T12:01:00Z", "now"),
+        )
         return ORG.compile_manifest(self.root, ".company-os/outcome-loop.json", self.request)
 
     def test_initial_candidate_compiles_smallest_bound_fabric(self) -> None:
@@ -183,6 +269,37 @@ class OutcomeOrganizationTests(unittest.TestCase):
         self.assertTrue(worker["write_scope"][0].endswith("/evaluation-receipt"))
         self.assertTrue(any("Do not modify candidate artifacts" in item for item in manager["acceptance"]))
         self.assertEqual(ORG.validate_manifest_binding(self.root, manifest)["phase"], "evaluate")
+
+    def test_stale_mission_state_invalidates_existing_fabric(self) -> None:
+        manifest = self.compile()
+        mission = MISSION.verify_state(json.loads((self.root / ".company-os/mission.json").read_text(encoding="utf-8")))
+        mission = MISSION.record_event(
+            mission,
+            MISSION.make_event(
+                "after-fabric",
+                "work_recorded",
+                occurred_at="2026-08-11T12:02:00Z",
+                work_class="implementation",
+            ),
+        )
+        (self.root / ".company-os/mission.json").write_text(json.dumps(mission, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        with self.assertRaises(ORG.OrganizationError) as caught:
+            ORG.validate_manifest_binding(self.root, manifest)
+        self.assertEqual(caught.exception.code, "E_GOVERNOR")
+
+    def test_replacement_order_compiles_fresh_manager_and_worker_identities(self) -> None:
+        self.write_mission(
+            replacement_orders=[
+                {"order_id": "replace-manager", "kind": "replace_manager", "manager_id": "current-bottleneck-manager", "reason": "deadline", "issued_at": "2026-08-11T12:01:00Z"},
+                {"order_id": "replace-worker", "kind": "replace_worker", "worker_id": "current-bottleneck-worker", "reason": "deadline", "issued_at": "2026-08-11T12:01:00Z"},
+            ]
+        )
+        manifest = self.compile()
+        manager = manifest["managers"][0]
+        worker = manager["workers"][0]
+        self.assertIn("replacement-2", manager["id"])
+        self.assertIn("replacement-2", worker["id"])
+        self.assertIn("replacement context", worker["task"])
 
     def test_loop_state_drift_invalidates_existing_fabric(self) -> None:
         manifest = self.compile()

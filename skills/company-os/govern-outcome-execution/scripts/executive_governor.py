@@ -169,7 +169,7 @@ def evaluate(payload: Mapping[str, Any]) -> dict[str, Any]:
         mode = "reality_closure"
     elif budget_fraction >= 0.70 and reality_level < 4:
         mode = "critical_path"
-    elif budget_fraction >= 0.40 and reality_level < 3:
+    elif first_reality_incident or (budget_fraction >= 0.40 and reality_level < 3):
         mode = "compression"
     else:
         mode = "normal"

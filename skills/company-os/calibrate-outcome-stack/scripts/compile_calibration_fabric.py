@@ -13,7 +13,7 @@ ARTIFACT_SCHEMA = "company-os.artifact-observation-contract.v1"
 BENCHMARK_SCHEMA = "company-os.benchmark-contract.v1"
 REGISTRY_SCHEMA = "company-os.evaluator-adapter-registry.v1"
 PHASES = ["charter", "discovery", "design", "execution", "verification", "integration"]
-MAX_EVALUATORS_PER_BATCH = 2
+MAX_EVALUATORS_PER_BATCH = 1
 
 
 class CalibrationFabricError(ValueError):
@@ -362,6 +362,35 @@ def compile_manifest(
             }
         )
     worker_count = sum(len(manager["workers"]) for manager in managers)
+    mission_path = project_root / ".company-os" / "outcomes" / objective_id / "mission-execution-state.json"
+    remaining_minutes = 60.0
+    if mission_path.is_file():
+        try:
+            mission = read_json(mission_path, "mission execution state")
+            from datetime import datetime, timezone
+            expires_at = datetime.fromisoformat(str(mission["expires_at"]).replace("Z", "+00:00"))
+            remaining_minutes = max(10.0, (expires_at - datetime.now(timezone.utc)).total_seconds() / 60.0)
+        except Exception:
+            remaining_minutes = 60.0
+    calibration_budget_minutes = max(10.0, min(30.0, remaining_minutes * 0.10))
+    per_manager_minutes = calibration_budget_minutes / max(1, len(managers))
+    per_manager_tokens = max(3000, int(18000 / max(1, len(managers))))
+    for manager in managers:
+        manager["budget"] = {
+            "time_minutes": per_manager_minutes,
+            "token_limit": per_manager_tokens,
+            "cost_usd": max(3.0, 18.0 / max(1, len(managers))),
+            "max_concurrency": 1,
+            "max_retries": 1,
+        }
+        for worker in manager["workers"]:
+            worker["budget"] = {
+                "time_minutes": per_manager_minutes / 3.0,
+                "token_limit": max(1000, per_manager_tokens // 3),
+                "cost_usd": max(1.0, 6.0 / max(1, len(managers))),
+                "max_concurrency": 1,
+                "max_retries": 0,
+            }
     fabric = {
         "program_id": project_id,
         "program_version": program_version,
@@ -394,9 +423,9 @@ def compile_manifest(
         "max_worker_retries": 1,
         "max_manager_rework_rounds": 2,
         "budget": {
-            "time_minutes": 360.0,
-            "token_limit": 90000,
-            "cost_usd": 90.0,
+            "time_minutes": calibration_budget_minutes,
+            "token_limit": 18000,
+            "cost_usd": 18.0,
             "max_concurrency": len(managers),
             "max_retries": 1,
         },

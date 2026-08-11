@@ -152,7 +152,7 @@ def agenda_groups(contract: Mapping[str, Any]) -> tuple[list[dict[str, Any]], li
     return truth, quality
 
 def manager_budget() -> dict[str, Any]:
-    return {"time_minutes": 22.5, "token_limit": 6000, "cost_usd": 6.0, "max_concurrency": 1, "max_retries": 1}
+    return {"time_minutes": 10.0, "token_limit": 3000, "cost_usd": 3.0, "max_concurrency": 1, "max_retries": 1}
 
 def worker_context(state: Mapping[str, Any], objective: str, manager_outcome: str, constraints: list[str], non_goals: list[str]) -> dict[str, Any]:
     strategy = state.get("strategy", {})
@@ -240,6 +240,38 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
                 "workers": [worker],
             }
         )
+    spike_scope = f"{base}/reality-spike"
+    spike_worker = {
+        "id": "outcome-reality-spike-manager-worker-01",
+        "model": "gpt-5.6-luna",
+        "task": (
+            f"Start a reversible reality spike for the exact objective {objective!r} immediately while discovery runs. "
+            "Inspect the repository, identify the task archetype, make the smallest real product mutation, run or render it, and observe actual behavior. "
+            "Prefer supplied repositories, SDKs, frameworks, and existing project structure. Do not replace a supplied implementation without a failed integration attempt. "
+            f"Write a receipt at {spike_scope}/reality-spike-receipt.json with schema company-os.reality-spike-receipt.v1. It must contain objective_id {objective_id!r}, completed_at RFC3339 UTC, artifacts with capability_id first_real_artifact or rendered_user_path plus exact project-relative path and sha256, commands with exact command and nonnegative exit_code, observations with capability_id, kind runtime_observed or journey_connected, observation_kind, exact evidence path and sha256, blockers as an array, and receipt_sha256 over the canonical object with receipt_sha256 null. "
+            "Research only a live implementation blocker. A plan or report without product mutation and runtime evidence fails this lane."
+        ),
+        "acceptance": [
+            "At least one real product file is created or changed",
+            "At least one build, runtime, browser, simulator, workflow, or equivalent execution command is run",
+            "The exact artifact and observation evidence is content addressed",
+            f"The receipt exists at {spike_scope}/reality-spike-receipt.json",
+        ],
+        "write_scope": ["app", "src", "public", "tests", "scripts", "prisma", "package.json", spike_scope],
+        "risk": "low",
+        "budget": {"time_minutes": 20.0, "token_limit": 6000, "cost_usd": 6.0, "max_concurrency": 1, "max_retries": 1},
+        "work_class": "implementation",
+        "outcome_context": worker_context(state, objective, "Create the first running artifact while focused discovery proceeds", constraints, non_goals),
+        "stop_condition": "A real artifact runs or renders with exact evidence, or a concrete environment blocker is proven.",
+    }
+    first_manager = managers[0]
+    first_manager["outcome"] = "Discover domain truth while creating the first reversible running artifact."
+    first_manager["budget"] = {"time_minutes": 30.0, "token_limit": 9000, "cost_usd": 9.0, "max_concurrency": 2, "max_retries": 1}
+    first_manager["write_scope"] = list(dict.fromkeys([*first_manager["write_scope"], *spike_worker["write_scope"]]))
+    first_manager["acceptance"].extend(spike_worker["acceptance"])
+    first_manager["workers"][0]["outcome_context"]["manager_outcome"] = first_manager["outcome"]
+    spike_worker["outcome_context"]["manager_outcome"] = first_manager["outcome"]
+    first_manager["workers"].append(spike_worker)
     manifest = {
         "program_id": project_id,
         "program_version": program_version,
@@ -261,12 +293,12 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
         },
         "max_managers": 2,
         "max_manager_concurrency": 2,
-        "max_workers_per_manager": 1,
-        "max_total_workers": 2,
+        "max_workers_per_manager": 2,
+        "max_total_workers": 3,
         "max_depth": 2,
         "max_worker_retries": 1,
         "max_manager_rework_rounds": 2,
-        "budget": {"time_minutes": 45.0, "token_limit": 12000, "cost_usd": 12.0, "max_concurrency": 2, "max_retries": 1},
+        "budget": {"time_minutes": 40.0, "token_limit": 12000, "cost_usd": 12.0, "max_concurrency": 2, "max_retries": 1},
         "luna_token_share_target": 0.75,
         "external_effects_allowed": False,
         "managers": managers,

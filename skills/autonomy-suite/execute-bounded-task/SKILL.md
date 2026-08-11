@@ -21,7 +21,9 @@ packet; do not request the root transcript or repeat the Company OS manual.
    narrow the accepted parent manager envelope. Never wait on or contact the
    master; report only to `task:<parent_manager_task_id>`.
 2. Stop before work when a dependency is absent, malformed, stale, foreign, or
-   unaccepted. Do not start downstream work speculatively.
+   unaccepted. Verify the bound `$mission-execution-control` state and work admission;
+   stop when the mission generation changed, the work class is paused, the receipt is
+   stale, or this worker was replaced. Do not start downstream work speculatively.
 3. Perform only the named task inside the exact scope. Do not spawn children,
    delegate, approve, deploy, publish, message externally, change authority, or
    widen access. Use `$force-first-execution`: materialize the smallest real
