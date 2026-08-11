@@ -71,6 +71,7 @@ def bind_discovery_fabric(project_root: Path, objective_id: str, fabric_relative
         )
     save_mission_state(project_root, state)
     admissions: dict[str, dict[str, Any]] = {}
+    admission_refs: dict[str, dict[str, Any]] = {}
     for work_class in ("research", "implementation"):
         task_id = f"outcome-discovery-{work_class}"
         receipt = module.admit_work(
@@ -88,10 +89,11 @@ def bind_discovery_fabric(project_root: Path, objective_id: str, fabric_relative
             raise DirectorError("E_GOVERNOR", "; ".join(receipt.get("blockers", [])))
         receipt_path = _admission_receipt_path(project_root, objective_id, task_id)
         write_json(receipt_path, receipt)
-        admissions[work_class] = {
-            **receipt,
+        admissions[work_class] = receipt
+        admission_refs[work_class] = {
             "receipt_path": relative(project_root, receipt_path),
             "receipt_file_sha256": file_digest(receipt_path),
+            "receipt_sha256": receipt["receipt_sha256"],
         }
     binding = mission_binding_from_state(project_root, state)
     fabric_path = project_root / Path(*fabric_relative.split("/"))
@@ -99,6 +101,7 @@ def bind_discovery_fabric(project_root: Path, objective_id: str, fabric_relative
     bound = dict(fabric)
     bound["mission_control"] = binding
     bound["work_admissions"] = admissions
+    bound["work_admission_refs"] = admission_refs
     managers = []
     for manager_raw in fabric.get("managers", []):
         manager = dict(obj(manager_raw, "discovery manager"))
@@ -128,6 +131,7 @@ def bind_discovery_fabric(project_root: Path, objective_id: str, fabric_relative
     return {
         "mission_control": binding,
         "work_admissions": admissions,
+        "work_admission_refs": admission_refs,
         "fabric_path": fabric_relative,
         "fabric_file_sha256": file_digest(fabric_path),
     }

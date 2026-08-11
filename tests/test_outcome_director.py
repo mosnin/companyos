@@ -144,6 +144,14 @@ class OutcomeDirectorTests(unittest.TestCase):
         MODULE.stack_module = lambda: FakeStack
         MODULE.evaluator_build_module = lambda: FakeEvaluatorBuild
         MODULE.calibration_fabric_module = lambda: FakeCalibrationFabric
+        MODULE.bind_discovery_fabric = lambda project_root, objective_id, fabric_relative: {
+            "mission_control": MODULE.mission_binding(project_root, objective_id),
+            "work_admissions": {},
+            "work_admission_refs": {},
+            "fabric_path": fabric_relative,
+            "fabric_file_sha256": MODULE.file_digest(project_root / Path(*fabric_relative.split("/"))),
+        }
+        MODULE.verify_bound_discovery_fabric = lambda *args, **kwargs: {}
         self.state = MODULE.start(self.project, "viral-game", "Make a viral game.")
 
     def tearDown(self) -> None:

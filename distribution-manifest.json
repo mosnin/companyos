@@ -367,8 +367,8 @@
     },
     {
       "path": "company-os/direct-outcome/scripts/direct_outcome.py",
-      "sha256": "66d8e91777b7c24cec4d784d2df2b2be37a2b0f3032d2c894eb264adfa8615da",
-      "size": 55894
+      "sha256": "3535bc60fed43cac36c11c400bd744dc1c113b8f6a9e27ffa5b35aab0224d0db",
+      "size": 61457
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
