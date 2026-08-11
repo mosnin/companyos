@@ -1,0 +1,35 @@
+name: Verify Execution Enforcement V2
+
+on:
+  push:
+    branches:
+      - codex/execution-enforcement-v2
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify mission execution control
+        run: python3 -m unittest tests.test_mission_execution_control -v
+      - name: Verify Python compilation
+        run: >-
+          python3 -m py_compile
+          skills/company-os/mission-execution-control/scripts/mission_control.py
+          skills/company-os/govern-outcome-execution/scripts/executive_governor.py
+      - name: Verify repository suite
+        run: python3 -m unittest discover -s tests -v
+      - name: Verify controller suite
+        run: python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
+      - name: Verify control store
+        run: python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
+      - name: Verify fabric
+        run: python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
+      - name: Verify distribution manifest
+        run: python3 scripts/distribution.py verify-manifest
