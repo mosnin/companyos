@@ -12,6 +12,7 @@ on:
       - "tests/test_navigation_mission_integration.py"
       - "tests/test_navigation_safety_interrupt.py"
       - "tests/test_navigation_bounded_evaluation.py"
+      - "tests/test_navigation_trace.py"
       - "tests/test_outcome_organization.py"
 
 permissions:
@@ -34,7 +35,7 @@ jobs:
         run: python3 scripts/distribution.py write-manifest
       - name: Verify navigation control
         run: |
-          python3 -m unittest tests.test_navigation_control tests.test_navigation_mission_integration tests.test_navigation_safety_interrupt tests.test_navigation_bounded_evaluation tests.test_outcome_organization -v
+          python3 -m unittest tests.test_navigation_control tests.test_navigation_mission_integration tests.test_navigation_safety_interrupt tests.test_navigation_bounded_evaluation tests.test_navigation_trace tests.test_outcome_organization -v
           python3 -m py_compile skills/company-os/navigation-control/scripts/navigation_control.py skills/company-os/mission-execution-control/scripts/mission_control.py skills/company-os/direct-outcome/scripts/direct_outcome.py skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py
       - name: Verify full Company OS
         run: |
