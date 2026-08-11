@@ -9,6 +9,7 @@ import tempfile
 import time
 
 REPO = Path(__file__).resolve().parents[1]
+CONTROLLER = REPO / "skills/company-os/elastic-company-os/scripts/company_os_controller.py"
 DIRECTOR = REPO / "skills/company-os/direct-outcome/scripts/direct_outcome.py"
 MISSION = REPO / "skills/company-os/mission-execution-control/scripts/mission_control.py"
 OBJECTIVE_ID = "tip-calculator-micro"
@@ -42,6 +43,14 @@ def main() -> int:
         run("git", "init", "-q", cwd=project)
         run("git", "config", "user.name", "Company OS Micro Test", cwd=project)
         run("git", "config", "user.email", "micro@example.invalid", cwd=project)
+        init = run(
+            "python3", str(CONTROLLER), "init",
+            "--project", str(project),
+            "--name", "Tip Calculator Micro",
+            "--project-type", "general",
+            "--north-star", OBJECTIVE,
+        )
+        init_payload = json.loads(init.stdout.strip().splitlines()[-1])
 
         start = run(
             "python3", str(DIRECTOR), "start",
@@ -120,6 +129,7 @@ if (typeof document !== 'undefined') document.getElementById('calculate').addEve
         product_files = [str(p.relative_to(project)) for p in product.rglob("*") if p.is_file()]
         checks = {
             "exact_company_os_commit": "8ef43175321fbdc76446dcb4820a3b46f94a6e61",
+            "controller_initialized": init_payload.get("ok") is True,
             "start_stage_is_discovery": start_payload["stage"] == "discovery",
             "implementation_dispatched_during_discovery": "implementation" in worker_classes,
             "research_dispatched_during_discovery": "research" in worker_classes,
@@ -137,7 +147,7 @@ if (typeof document !== 'undefined') document.getElementById('calculate').addEve
             "reality": reality,
         }
         required = [
-            checks["start_stage_is_discovery"], checks["implementation_dispatched_during_discovery"], checks["research_dispatched_during_discovery"],
+            checks["controller_initialized"], checks["start_stage_is_discovery"], checks["implementation_dispatched_during_discovery"], checks["research_dispatched_during_discovery"],
             checks["reality_spike_instruction_present"], checks["product_artifact_created"], checks["real_runtime_executed"], checks["connected_journey_observed"], checks["documentation_spiral_absent"],
         ]
         report = {"objective": OBJECTIVE, "passed": all(required), "checks": checks, "start_output": start_payload, "advance_output": json.loads(advance.stdout.strip().splitlines()[-1]), "status_output": status_payload}
