@@ -78,14 +78,14 @@ class NavigationMissionIntegrationTests(unittest.TestCase):
         self.assertEqual(receipt["navigation_decision_sha256"], state["navigation"]["decision_sha256"])
         self.assertEqual(receipt["next_action"], state["navigation"]["next_action"])
 
-    def test_three_actuation_dispatches_without_reality_progress_tighten_route(self):
+    def test_three_completed_actuation_attempts_without_reality_progress_tighten_route(self):
         state = self.state()
         for index, minute in enumerate((1, 2, 3), 1):
             state = MISSION.record_event(
                 state,
                 MISSION.make_event(
-                    f"dispatch-{index}",
-                    "work_recorded",
+                    f"attempt-{index}",
+                    "task_completed" if index != 2 else "task_failed",
                     occurred_at=f"2026-08-11T12:0{minute}:00Z",
                     work_class="implementation" if index < 3 else "repair",
                 ),
@@ -96,6 +96,21 @@ class NavigationMissionIntegrationTests(unittest.TestCase):
         self.assertIn("documentation", state["governor_decision"]["paused_work_classes"])
         self.assertIn("implementation", state["governor_decision"]["allowed_work_classes"])
         self.assertTrue(any("Trajectory is stalled" in order for order in state["governor_decision"]["manager_orders"]))
+
+    def test_parallel_dispatches_do_not_trigger_replacement_or_stall(self):
+        state = self.state()
+        for index in range(3):
+            state = MISSION.record_event(
+                state,
+                MISSION.make_event(
+                    f"dispatch-{index}",
+                    "work_recorded",
+                    occurred_at=f"2026-08-11T12:00:0{index + 1}Z",
+                    work_class="implementation",
+                ),
+            )
+        self.assertNotEqual(state["navigation"]["mode"], "stalled_replan")
+        self.assertEqual(state["navigation"]["velocity"]["actuation_attempts_since_progress"], 0)
 
     def test_reality_progress_reduces_distance_and_reprioritizes_route(self):
         state = self.state()
