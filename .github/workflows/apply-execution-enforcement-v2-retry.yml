@@ -1,0 +1,91 @@
+name: Apply Execution Enforcement V2 Retry
+
+on:
+  push:
+    paths:
+      - ".github/workflows/apply-execution-enforcement-v2-retry.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/execution-enforcement-v2
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Repair migration anchor
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("scripts/apply_execution_enforcement_v2.py")
+          text = path.read_text(encoding="utf-8")
+          old = """        '''    return {\"program_id\": project_id, \"topology_mode\": TOPOLOGY_MODE, \"engineering_execution_contract\": master_engineering,\n''',
+        '''    return {\"program_id\": project_id, \"topology_mode\": TOPOLOGY_MODE, \"mission_control\": mission_control, \"work_admission\": admission, \"engineering_execution_contract\": master_engineering,\n''',
+"""
+          new = """        '''    return {\"program_id\": project_id, \"topology_mode\": TOPOLOGY_MODE, \"engineering_execution_contract\": master_engineering, \"program_version\":''',
+        '''    return {\"program_id\": project_id, \"topology_mode\": TOPOLOGY_MODE, \"mission_control\": mission_control, \"work_admission\": admission, \"engineering_execution_contract\": master_engineering, \"program_version\":''',
+"""
+          if text.count(old) != 1:
+              raise SystemExit(f"migration anchor repair expected one match, found {text.count(old)}")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
+      - name: Apply controller integration
+        run: python3 scripts/apply_execution_enforcement_v2.py
+      - name: Remove migration-only files
+        run: |
+          rm -f scripts/apply_execution_enforcement_v2.py
+          rm -f .github/workflows/apply-execution-enforcement-v2.yml
+          rm -f .github/workflows/apply-execution-enforcement-v2-retry.yml
+      - name: Refresh final distribution manifest
+        run: python3 scripts/distribution.py write-manifest
+      - name: Verify focused execution enforcement
+        run: >-
+          python3 -m unittest
+          tests.test_mission_execution_control
+          tests.test_product_checkpoint
+          tests.test_outcome_director
+          tests.test_outcome_organization
+          tests.test_candidate_assembly
+          tests.test_outcome_discovery_bootstrap
+          tests.test_calibration_fabric
+          -v
+      - name: Verify Python compilation
+        run: >-
+          python3 -m py_compile
+          skills/company-os/mission-execution-control/scripts/mission_control.py
+          skills/company-os/mission-execution-control/scripts/checkpoint_product.py
+          skills/company-os/direct-outcome/scripts/direct_outcome.py
+          skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py
+          skills/company-os/assemble-outcome-candidate/scripts/assemble_candidate.py
+          skills/company-os/bootstrap-outcome/scripts/bootstrap_outcome.py
+          skills/company-os/calibrate-outcome-stack/scripts/compile_calibration_fabric.py
+      - name: Verify repository suite
+        run: python3 -m unittest discover -s tests -v
+      - name: Verify controller and fabric
+        run: |
+          python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
+          python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
+          python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
+          python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
+          python3 scripts/distribution.py verify-manifest
+      - name: Commit verified integration
+        run: |
+          git config user.name "company-os-execution-enforcement-bot"
+          git config user.email "company-os-execution-enforcement-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(company-os): enforce mission execution end to end"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin codex/execution-enforcement-v2
+            git rebase origin/codex/execution-enforcement-v2
+            python3 scripts/distribution.py write-manifest
+            git add distribution-manifest.json
+            git commit --amend --no-edit
+            if git push origin HEAD:codex/execution-enforcement-v2; then exit 0; fi
+          done
+          exit 1
