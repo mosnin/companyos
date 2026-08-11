@@ -35,7 +35,14 @@ director_text = director_text.replace(old_units, new_units, 1)
 
 # Route-bound sensor work must stand on its blocker/decision binding; the
 # director may not self-assert that an action is blocked merely to admit more
-# research or documentation.
+# research or documentation. Evaluation is included here so an outcome-loop
+# sensor pass can briefly inspect a candidate even when navigation's primary
+# route action remains implementation or integration.
+old_sensor_set = '    elif work_class in {"research", "architecture", "governance", "documentation"} and not bootstrap:\n'
+new_sensor_set = '    elif work_class in {"research", "architecture", "governance", "documentation", "evaluation"} and not bootstrap:\n'
+if director_text.count(old_sensor_set) != 1:
+    raise SystemExit(f"director sensor set anchor expected once, found {director_text.count(old_sensor_set)}")
+director_text = director_text.replace(old_sensor_set, new_sensor_set, 1)
 old_auto = '''            "decision_dependency": "Resolve only the uncertainty that blocks or materially changes the active navigation action.",
             "deadline_minutes": 15,
             "current_action_blocked": True,
@@ -77,6 +84,47 @@ new_sensor = '''    target = next_action.get("capability_id")
 if nav_text.count(old_sensor) != 1:
     raise SystemExit(f"sensor policy anchor expected once, found {nav_text.count(old_sensor)}")
 nav.write_text(nav_text.replace(old_sensor, new_sensor, 1), encoding="utf-8")
+
+# When evaluation is not itself the active route action, it is a bounded sensor
+# interrupt rather than a full phase-sized activity. This prevents the old
+# behavior where a useful early candidate immediately triggered a large audit
+# program before the destination path was finished.
+org = Path("skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py")
+org_text = org.read_text(encoding="utf-8")
+old_budget = '''    budget = _budget(request.get("budget"), len(lanes))
+    manager_budget = _child_budget(budget, len(lanes))
+    preserve_dimensions: list[str] = []
+'''
+new_budget = '''    budget = _budget(request.get("budget"), len(lanes))
+    manager_budget = _child_budget(budget, len(lanes))
+    navigation = mission_control.get("navigation") if isinstance(mission_control.get("navigation"), Mapping) else {}
+    route_action = navigation.get("next_action") if isinstance(navigation.get("next_action"), Mapping) else {}
+    route_policy = navigation.get("actuation_policy") if isinstance(navigation.get("actuation_policy"), Mapping) else {}
+    if state.get("phase") == "evaluate" and route_action.get("work_class") != "evaluation":
+        manager_budget = {
+            **manager_budget,
+            "time_minutes": min(float(manager_budget["time_minutes"]), 10.0),
+            "token_limit": min(int(manager_budget["token_limit"]), 3000),
+            "cost_usd": min(float(manager_budget["cost_usd"]), 3.0),
+            "max_concurrency": 1,
+            "max_retries": 0,
+        }
+    preserve_dimensions: list[str] = []
+'''
+if org_text.count(old_budget) != 1:
+    raise SystemExit(f"organization budget anchor expected once, found {org_text.count(old_budget)}")
+org_text = org_text.replace(old_budget, new_budget, 1)
+# The primary integration patch also introduces these navigation locals later.
+old_duplicate = '''    navigation = mission_control.get("navigation") if isinstance(mission_control.get("navigation"), Mapping) else {}
+    route_action = navigation.get("next_action") if isinstance(navigation.get("next_action"), Mapping) else {}
+    route_policy = navigation.get("actuation_policy") if isinstance(navigation.get("actuation_policy"), Mapping) else {}
+    replace_manager = any(item.get("kind") == "replace_manager" for item in replacement_orders)
+'''
+new_duplicate = '''    replace_manager = any(item.get("kind") == "replace_manager" for item in replacement_orders)
+'''
+if org_text.count(old_duplicate) != 1:
+    raise SystemExit(f"duplicate navigation locals expected once, found {org_text.count(old_duplicate)}")
+org.write_text(org_text.replace(old_duplicate, new_duplicate, 1), encoding="utf-8")
 
 # This temporary migration script is intentionally rerunnable only against the
 # unintegrated branch tree; permanent runtime files remain the source of truth.
