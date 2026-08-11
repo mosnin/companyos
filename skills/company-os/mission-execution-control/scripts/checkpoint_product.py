@@ -91,6 +91,13 @@ def checkpoint(
     commit_sha = None
     if commit:
         run_git(project_root, "rev-parse", "--is-inside-work-tree")
+        staged_before = run_git(project_root, "diff", "--cached", "--name-only").stdout.splitlines()
+        if staged_before:
+            raise CheckpointError("refusing product checkpoint while unrelated staged files exist")
+        if run_git(project_root, "config", "--get", "user.name", check=False).returncode != 0:
+            run_git(project_root, "config", "user.name", "company-os-product-checkpoint-bot")
+        if run_git(project_root, "config", "--get", "user.email", check=False).returncode != 0:
+            run_git(project_root, "config", "user.email", "company-os-product-checkpoint-bot@users.noreply.github.com")
         run_git(project_root, "add", "--", *paths)
         diff = run_git(project_root, "diff", "--cached", "--quiet", check=False)
         if diff.returncode not in {0, 1}:

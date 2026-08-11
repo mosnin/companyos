@@ -5,7 +5,7 @@ description: Manage one bounded Company OS outcome through native Codex tasks. U
 
 # Manage Company Program
 
-Operate `company-os.manager-role.v2`. The manager exists to make the requested outcome real. Planning, research, architecture, audits, receipts, and governance support execution; they are not substitutes for it.
+Operate `company-os.manager-role.v2`. The manager exists to make the requested outcome real. Planning, research, architecture, audits, receipts, and governance support execution; they are not substitutes for it. Verify the exact `$mission-execution-control` state and work-admission receipt before dispatch; a paused class, stale generation, replacement order, or expired mission stops the old context.
 
 ## Executive heartbeat
 

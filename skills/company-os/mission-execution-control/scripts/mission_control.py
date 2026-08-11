@@ -374,12 +374,13 @@ def provisional_capabilities(objective: str) -> list[dict[str, Any]]:
     ]
     supplied = re.findall(r"https://github\.com/[^\s)]+", objective)
     if supplied:
+        result[0]["priority"] = 90
         result.append(
             {
                 "capability_id": "supplied_implementation_integration",
                 "label": "Supplied implementation integration",
                 "critical": True,
-                "priority": 95,
+                "priority": 100,
                 "first_reality": True,
                 "final_required": True,
                 "existing_implementation": ", ".join(sorted(set(supplied))),

@@ -128,6 +128,10 @@ def reality_module():
     return load_module("accept-outcome-reality/scripts/accept_reality.py", "company_os_director_reality")
 
 
+def checkpoint_product_module():
+    return load_module("mission-execution-control/scripts/checkpoint_product.py", "company_os_director_checkpoint_product")
+
+
 def artifact_observation_module():
     return load_module("define-outcome-artifacts/scripts/compile_artifact_observations.py", "company_os_director_artifacts")
 
@@ -441,6 +445,51 @@ def record_candidate_mission_evidence(
         )
         state = module.record_event(state, event)
     save_mission_state(project_root, state)
+
+
+def checkpoint_candidate(
+    project_root: Path,
+    objective_id: str,
+    candidate: Mapping[str, Any],
+) -> dict[str, Any]:
+    mission_module = mission_control_module()
+    mission = load_mission_state(project_root, objective_id)
+    verification_receipts = [
+        {"path": item["path"], "sha256": item["sha256"]}
+        for item in candidate.get("observations", [])
+        if isinstance(item, Mapping) and isinstance(item.get("path"), str) and isinstance(item.get("sha256"), str)
+    ]
+    try:
+        checkpoint = checkpoint_product_module().checkpoint(
+            project_root,
+            mission,
+            candidate,
+            verification_receipts,
+            commit=(project_root / ".git").is_dir(),
+            message=f"checkpoint(company-os): {candidate['candidate_id']}",
+        )
+    except Exception as exc:
+        raise DirectorError("E_CHECKPOINT", f"product checkpoint failed: {exc}") from exc
+    checkpoint_path = workspace(project_root, objective_id) / "runtime" / f"{candidate['candidate_id']}-checkpoint.json"
+    write_json(checkpoint_path, checkpoint)
+    stamp = mission_module.format_time(mission_module.now_utc())
+    mission = mission_module.record_event(
+        mission,
+        mission_module.make_event(
+            f"{candidate['candidate_id']}:checkpoint",
+            "checkpoint_recorded",
+            occurred_at=stamp,
+            work_class="checkpoint",
+            checkpoint=checkpoint,
+        ),
+    )
+    save_mission_state(project_root, mission)
+    return {
+        "path": relative(project_root, checkpoint_path),
+        "file_sha256": file_digest(checkpoint_path),
+        "checkpoint_sha256": checkpoint["checkpoint_sha256"],
+        "git_commit": checkpoint.get("git_commit"),
+    }
 
 
 def finalize_mission_acceptance(
@@ -1052,10 +1101,11 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
             else:
                 candidate_path = base / f"runtime/{candidate_id}.json"; write_json(candidate_path, candidate)
                 record_candidate_mission_evidence(project_root, objective_id, candidate)
+                checkpoint = checkpoint_candidate(project_root, objective_id, candidate)
                 try: updated_loop = outcome_loop_module().record_candidate(project_root, loop, candidate)
                 except Exception as exc: raise DirectorError(getattr(exc, "code", "E_CANDIDATE"), f"assembled candidate was rejected by outcome loop: {exc}") from exc
                 write_json(loop_path, updated_loop)
-                state["history"].append({"event": "candidate_auto_assembled", "candidate_id": candidate_id, "candidate_path": relative(project_root, candidate_path)})
+                state["history"].append({"event": "candidate_auto_assembled", "candidate_id": candidate_id, "candidate_path": relative(project_root, candidate_path), "checkpoint": checkpoint})
                 save_state(project_root, state); return advance(project_root, objective_id)
 
         if phase == "evaluate":

@@ -287,8 +287,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "55cd8713fb6e66776cf8c1d4de9438fc3bbc61554221698f8a7f0a016d7c37ce",
-      "size": 15390
+      "sha256": "2b56d6b9daf09bd633b4f584804a343184500906ab8c4d03cc46700efcc2056b",
+      "size": 15784
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -367,8 +367,8 @@
     },
     {
       "path": "company-os/direct-outcome/scripts/direct_outcome.py",
-      "sha256": "3535bc60fed43cac36c11c400bd744dc1c113b8f6a9e27ffa5b35aab0224d0db",
-      "size": 61457
+      "sha256": "33518db2beb4efbf34dd5faa5f72d19c0ab707839730fcaa5b88b2fabaa11432",
+      "size": 63487
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
@@ -752,8 +752,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "8c37b689b7e324eb05ed12f6420061c79888e6655e032e11a1e2e2de281d2943",
-      "size": 4498
+      "sha256": "5c66385f07e83985f2275f9508bd8caea8f8a7c715564800d9c67739e68c7996",
+      "size": 4689
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
@@ -1037,13 +1037,18 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/checkpoint_product.py",
-      "sha256": "d789f82adbd7c2102c7b5567314ef0dd54334772a6eef240ec3e30db84f48f0b",
-      "size": 6239
+      "sha256": "f25d2c71142849a5e845d283199f041f7ab8259eb222999119fd09b4646fb7a8",
+      "size": 6871
+    },
+    {
+      "path": "company-os/mission-execution-control/scripts/execution_regression_lab.py",
+      "sha256": "b55d507042a645532284277c598555fca0865b8bf5921b829a3308966b5b4c0d",
+      "size": 8430
     },
     {
       "path": "company-os/mission-execution-control/scripts/mission_control.py",
-      "sha256": "adc98e7f90049ce28dcf156936af20fed7756b89a0076277d8310af4c6f402be",
-      "size": 56200
+      "sha256": "2e132d37f56d87923bddd1ebf0ae8a80658d21c7cbce4e4ab63cec88a73adee0",
+      "size": 56236
     },
     {
       "path": "company-os/operational-control/SKILL.md",
@@ -1222,8 +1227,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/SKILL.md",
-      "sha256": "b2998785b04176b254f532aed2ee8a21868b5d5c300e0dda6e860b7c5b1d4820",
-      "size": 3643
+      "sha256": "8938c5209773a9e0082c1797bd4b99e4e248be8e0c35e79899938eb6e8bf9abe",
+      "size": 3840
     },
     {
       "path": "autonomy-suite/execute-bounded-task/agents/openai.yaml",
