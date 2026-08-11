@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/apply-execution-enforcement-v2-phase2.yml"
       - "scripts/apply_execution_enforcement_v2_phase2.py"
+      - "scripts/repair_phase2_and_apply.py"
 
 permissions:
   contents: write
@@ -21,7 +22,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Apply phase 2
-        run: python3 scripts/apply_execution_enforcement_v2_phase2.py
+        run: python3 scripts/repair_phase2_and_apply.py
       - name: Refresh manifest
         run: python3 scripts/distribution.py write-manifest
       - name: Verify focused changes
