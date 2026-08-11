@@ -337,8 +337,8 @@
     },
     {
       "path": "company-os/compile-outcome-organization/scripts/compile_outcome_organization.py",
-      "sha256": "a21d6faaaab09f6abe8fc76919946f401647009f7911e3c36a03e92446bf7e9c",
-      "size": 30367
+      "sha256": "762d0f958b169d88d114392e9722d579226ddfcd0afa95a51f3089f9405cc65d",
+      "size": 33794
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",
@@ -1042,8 +1042,8 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/mission_control.py",
-      "sha256": "4f55fca8003ae0c07ce0152e39ce926f1c6b3290163846851746052cafb592a0",
-      "size": 55976
+      "sha256": "adc98e7f90049ce28dcf156936af20fed7756b89a0076277d8310af4c6f402be",
+      "size": 56200
     },
     {
       "path": "company-os/operational-control/SKILL.md",

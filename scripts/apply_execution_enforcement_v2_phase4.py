@@ -252,7 +252,7 @@ MISSION = load(
             mission = MISSION.refresh_governor(MISSION.seal(mission), now=MISSION.parse_time("2026-08-11T12:01:00Z", "now"))
         path = self.root / ".company-os/mission.json"
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(mission, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(mission, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
         return mission
 
     def write_state(self, state: dict) -> None:
@@ -321,7 +321,7 @@ MISSION = load(
                 work_class="implementation",
             ),
         )
-        (self.root / ".company-os/mission.json").write_text(json.dumps(mission, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        (self.root / ".company-os/mission.json").write_text(json.dumps(mission, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
         with self.assertRaises(ORG.OrganizationError) as caught:
             ORG.validate_manifest_binding(self.root, manifest)
         self.assertEqual(caught.exception.code, "E_GOVERNOR")

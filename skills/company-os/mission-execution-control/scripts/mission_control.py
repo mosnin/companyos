@@ -651,30 +651,34 @@ def reconcile_deadlines(raw_state: Mapping[str, Any], *, now: datetime | None = 
             )
         elif miss_count == 2:
             active_workers = sorted(key for key, item in workers.items() if isinstance(item, Mapping) and item.get("status") == "active")
-            for worker_id in active_workers[:1]:
-                replacements.append(
-                    {
-                        "order_id": f"replace-worker:{worker_id}:{name}",
-                        "kind": "replace_worker",
-                        "worker_id": worker_id,
-                        "reason": f"second miss of {name}",
-                        "issued_at": format_time(current),
-                    }
-                )
-                workers[worker_id] = {**workers[worker_id], "status": "replace"}
+            targets = active_workers[:1] or ["current-bottleneck-worker"]
+            for worker_id in targets:
+                order = {
+                    "order_id": f"replace-worker:{worker_id}:{name}",
+                    "kind": "replace_worker",
+                    "worker_id": worker_id,
+                    "reason": f"second miss of {name}",
+                    "issued_at": format_time(current),
+                }
+                if order not in replacements:
+                    replacements.append(order)
+                if worker_id in workers:
+                    workers[worker_id] = {**workers[worker_id], "status": "replace"}
         elif miss_count >= 3:
             active_managers = sorted(key for key, item in managers.items() if isinstance(item, Mapping) and item.get("status") == "active")
-            for manager_id in active_managers[:1]:
-                replacements.append(
-                    {
-                        "order_id": f"replace-manager:{manager_id}:{name}",
-                        "kind": "replace_manager",
-                        "manager_id": manager_id,
-                        "reason": f"repeated mission deadline failure: {name}",
-                        "issued_at": format_time(current),
-                    }
-                )
-                managers[manager_id] = {**managers[manager_id], "status": "replace"}
+            targets = active_managers[:1] or ["current-bottleneck-manager"]
+            for manager_id in targets:
+                order = {
+                    "order_id": f"replace-manager:{manager_id}:{name}",
+                    "kind": "replace_manager",
+                    "manager_id": manager_id,
+                    "reason": f"repeated mission deadline failure: {name}",
+                    "issued_at": format_time(current),
+                }
+                if order not in replacements:
+                    replacements.append(order)
+                if manager_id in managers:
+                    managers[manager_id] = {**managers[manager_id], "status": "replace"}
     updated = {
         **state,
         "deadline_status": status,
@@ -963,7 +967,8 @@ def _admission_digest(value: Mapping[str, Any]) -> str:
 
 
 def admit_work(raw_state: Mapping[str, Any], raw_request: Mapping[str, Any], *, now: datetime | None = None) -> dict[str, Any]:
-    state = refresh_governor(reconcile_deadlines(raw_state, now=now), now=now)
+    del now
+    state = verify_state(raw_state)
     request = deepcopy(dict(raw_request))
     if request.get("$schema") != ADMISSION_SCHEMA:
         raise MissionControlError("E_SCHEMA", "work admission schema is invalid")
