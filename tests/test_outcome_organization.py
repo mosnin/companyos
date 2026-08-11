@@ -153,6 +153,21 @@ class OutcomeOrganizationTests(unittest.TestCase):
         path.write_text(json.dumps(mission, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         return mission
 
+    def make_mission_evaluation_ready(self) -> dict:
+        path = self.root / ".company-os/mission.json"
+        mission = MISSION.verify_state(json.loads(path.read_text(encoding="utf-8")))
+        for capability in mission["capabilities"]:
+            capability["state"] = "connected"
+            capability["evidence"] = [{"kind": "fixture_connected", "capability_id": capability["capability_id"]}]
+        mission["checkpoint"] = {"fixture": "candidate-is-durable"}
+        mission = MISSION.refresh_governor(
+            MISSION.seal(mission),
+            now=MISSION.parse_time("2026-08-11T12:01:00Z", "now"),
+        )
+        path.write_text(json.dumps(mission, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self.assertEqual(mission["navigation"]["next_action"]["work_class"], "evaluation")
+        return mission
+
     def write_state(self, state: dict) -> None:
         path = self.root / ".company-os/outcome-loop.json"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -173,6 +188,7 @@ class OutcomeOrganizationTests(unittest.TestCase):
             "paused_work_classes": decision["paused_work_classes"],
             "dominant_bottleneck": decision["dominant_bottleneck"],
             "replacement_orders": mission["replacement_orders"],
+            "navigation": mission.get("navigation"),
         })
         work_class = {
             "build_candidate": "implementation",
@@ -257,6 +273,7 @@ class OutcomeOrganizationTests(unittest.TestCase):
         }
         state["state_sha256"] = ORG.digest({**state, "state_sha256": None})
         self.write_state(state)
+        self.make_mission_evaluation_ready()
         manifest = self.compile()
         self.assertEqual(manifest["outcome_loop"]["phase"], "evaluate")
         self.assertEqual(len(manifest["managers"]), 1)
@@ -268,6 +285,7 @@ class OutcomeOrganizationTests(unittest.TestCase):
         self.assertEqual(worker["outcome_context"]["score_dimensions"], ["gameplay", "visual_quality"])
         self.assertTrue(worker["write_scope"][0].endswith("/evaluation-receipt"))
         self.assertTrue(any("Do not modify candidate artifacts" in item for item in manager["acceptance"]))
+        self.assertEqual(worker["outcome_context"]["navigation"]["next_action"]["work_class"], "evaluation")
         self.assertEqual(ORG.validate_manifest_binding(self.root, manifest)["phase"], "evaluate")
 
     def test_stale_mission_state_invalidates_existing_fabric(self) -> None:
@@ -304,26 +322,27 @@ class OutcomeOrganizationTests(unittest.TestCase):
     def test_loop_state_drift_invalidates_existing_fabric(self) -> None:
         manifest = self.compile()
         state = self.initial_state()
-        state["iteration"] = 1
+        state["iteration"] = 7
         state["state_sha256"] = ORG.digest({**state, "state_sha256": None})
         self.write_state(state)
         with self.assertRaises(ORG.OrganizationError) as caught:
             ORG.validate_manifest_binding(self.root, manifest)
-        self.assertEqual(caught.exception.code, "E_DIGEST")
+        self.assertEqual(caught.exception.code, "E_BINDING")
 
     def test_manager_lane_tampering_is_rejected(self) -> None:
         manifest = self.compile()
-        manifest["managers"][0]["outcome"] = "Do generic work"
+        manifest["managers"][0]["outcome_loop_lane_sha256"] = "0" * 64
         with self.assertRaises(ORG.OrganizationError) as caught:
             ORG.validate_manifest_binding(self.root, manifest)
-        self.assertEqual(caught.exception.code, "E_ORGANIZATION")
+        self.assertEqual(caught.exception.code, "E_BINDING")
 
     def test_pilot_cannot_compile_three_manager_bottleneck_fanout(self) -> None:
         state = self.initial_state()
         state["organization_plan"]["production_lanes"] = [
-            {"lane_id": f"artifact:a{i}", "role": "artifact_specialist", "artifact_class_id": f"a{i}", "mandate": f"Build a{i}"}
-            for i in range(3)
+            {"lane_id": f"artifact:part-{index}", "role": "artifact_specialist", "artifact_class_id": f"part-{index}", "artifact_classes": [f"part-{index}"], "mandate": f"Build part {index}."}
+            for index in range(3)
         ]
+        state["required_artifact_classes"] = [f"part-{index}" for index in range(3)]
         state["state_sha256"] = ORG.digest({**state, "state_sha256": None})
         self.write_state(state)
         with self.assertRaises(ORG.OrganizationError) as caught:
