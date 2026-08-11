@@ -1,83 +1,115 @@
 ---
 name: manage-company-program
-description: Manage one bounded Company OS outcome through native Codex tasks. Use when a Sol manager must supervise Luna work, enforce gates, inspect evidence, rework defects, and integrate accepted artifacts.
+description: Manage one bounded Company OS outcome through native Codex tasks. Use when a Sol manager must turn an objective into real artifacts, supervise Luna work, identify the global bottleneck, enforce only the governance needed for the current risk, inspect runtime evidence, rework defects, and integrate accepted product bytes.
 ---
 
 # Manage Company Program
 
-Operate contract version `company-os.manager-role.v2`. Receive a compact mission
-charter; never require the root transcript or a repeated Company OS manual.
+Operate contract version `company-os.manager-role.v2`. Receive a compact mission charter; never require the root transcript or a repeated Company OS manual.
+
+The manager's job is to **make the requested outcome exist**. Planning, research, architecture, audits, receipts, and governance are support systems. They do not become the mission.
+
+## Executive responsibility
+
+At every manager heartbeat:
+
+1. Restate the exact original outcome and mandatory requirements.
+2. Classify current Reality Level using `$govern-outcome-execution`.
+3. Maintain a capability map from the original objective to observable product behavior.
+4. Identify the single global bottleneck that most prevents the outcome from becoming user-usable.
+5. Allocate active workers to that bottleneck and pause technically interesting work that does not shorten objective distance.
+6. Recompute after every material artifact, runtime observation, failed check, or major budget change.
+
+A local manager may optimize its lane. The master manager must optimize the whole company.
+
+## First-reality execution
+
+Do **not** require a complete design system, exhaustive research corpus, evaluator suite, benchmark constitution, or enterprise architecture before reversible execution.
+
+For local source edits, builds, tests, browser/simulator runs, disposable local services, and sandboxed staging:
+
+1. Freeze mandatory user requirements and the minimum safety/authority boundary.
+2. Resolve only the specialized capabilities needed for the first slice.
+3. Compile the smallest packet that can create a real artifact.
+4. Dispatch implementation immediately.
+5. Require the artifact to run or render.
+6. Observe actual behavior.
+7. Let observed failures determine the next research, architecture, or governance work.
+
+Target a connected R3 vertical slice before roughly 25% of the mission budget is consumed. The first slice may be narrow and visually weak. It may not be fake.
+
+If the first-reality boundary is missed, declare an **execution incident**. Freeze broad research, speculative architecture, benchmark expansion, noncritical documentation, and governance refinement. Redirect capacity to implementation, integration, runtime, and repair until connected behavior exists.
 
 ## Run the outcome
 
-1. Validate the charter against [references/manager-contract.md](references/manager-contract.md).
-   Verify local authorization digests and fixture signature. Fixture integrity
-   is not live identity.
-2. Freeze mandatory user requirements separately from recommendations. Bind
-   each artifact to requirement IDs, acceptance authority, and capability
-   classes. Resolve exact current host skills, then use
-   `$assign-capability-skills` for governed external additions. Verify all
-   bindings. Zero skills is valid only without specialized requirements.
-   Otherwise stop with `E_REQUIRED_CAPABILITY_UNAVAILABLE`; never silently
-   substitute an MVP or reference-only instructions.
-3. Run the Program Preflight Compiler in
-   [scripts/compile_program_preflight.py](scripts/compile_program_preflight.py)
-   against semantics, host capabilities, and work definitions. Compile and
-   `verify` from identical sources. Bind skills only to their exact packet.
-   `ui_design` work must pass `$ui-design-quality`.
-4. Before dispatch, acknowledge versions, IDs, outcome digest, references,
-   requested model, permissions, budgets, reviews, barriers, and destination.
-5. Decompose only after design acceptance and verified preflight. Give each Luna
-   task one compact packet using `$execute-bounded-task` and its
-   `assets/work-packet.json`; include its reference and digest, not a manual.
-   Bind the accepted charter, parent destination, budget, and narrower authority.
-   The manager's own input uses
-   [assets/mission-charter.json](assets/mission-charter.json).
-6. Before each worker launch, use `$force-first-execution` to create one
-   force contract and event log. Set artifact, candidate, verification, receipt,
-   and decision SLOs. Credit only artifacts and checks. On a soft miss, continue
-   observable work or intervene once. Freeze required/optional scope and the
-   optional recovery cap. After each decision, seal and verify the force log.
-7. Use native Codex task creation, waiting, reading, listing, and messaging only
-   from the interactive host. Repository code does not call those app tools.
-8. Keep at most three Luna workers active, one task per worker, no worker child
-   delegation, and one writer per ownership scope.
-9. Inspect every artifact, check, scope, dependency, and receipt. Reject stale,
-   weak, failed, refused, scope-drifted, cross-project, or side-effecting work.
-   Resolve only exact versioned local references; reject absolute, escaped, or
-   symlinked targets. Inspect UI under `$ui-design-quality`. Reconcile mandatory
-   requirements and applied-capability receipts. Any omission is zero accepted
-   throughput and returns `REWORK`.
-10. Report upward at charter, discovery, design, execution, verification, and
-   integration. Require authenticated master decisions at charter, design,
-   verification, and integration. Never infer consent from silence. Only a
-   routine execution subphase after accepted design and before verification may
-   auto-continue while every bound constraint remains valid and visible.
-11. Integrate only accepted worker artifacts and sealed force snapshots. An
-   optional failure becomes eligible for omission only through the predeclared,
-   design-bound graceful-degradation policy and typed terminal receipts;
-   integration still waits for the authenticated master decision. Required
-   failures block release. Escalate authority, cancellation, budget, model
-   availability, or evidence gaps instead of widening the charter.
+1. Validate the charter against [references/manager-contract.md](references/manager-contract.md). Preserve mandatory user requirements separately from recommendations.
+2. Use `$govern-outcome-execution` to establish current Reality Level, global bottleneck, operating mode, and allocation incidents.
+3. Resolve exact current host skills for the active bottleneck. Use `$assign-capability-skills` only for genuinely missing specialized capabilities. Do not load unrelated skill libraries.
+4. Prefer supplied repositories, providers, SDKs, frameworks, and existing implementations. Inspect, integrate, and exercise them before authorizing a replacement. Reimplementation requires concrete blocker evidence.
+5. For reversible local work, compile Program Preflight only for the current execution slice. Preflight is a dispatch safety/ownership check, not permission to spend hours proving hypothetical future layers.
+6. Give each Luna worker one bounded packet using `$execute-bounded-task`. Bind exact write ownership, artifact classes, required skills, runtime checks, and the original objective. One writer owns each resource boundary.
+7. Use `$force-first-execution` to set first-artifact, runnable-candidate, verification, and decision SLOs. Credit only actual artifacts, actual runtime observations, and independent checks. Commentary and repeated planning earn zero execution credit.
+8. Keep active concurrency bounded by integration capacity. More agents do not equal more progress. Increase or decrease workers from collision rate, bottleneck state, runtime throughput, and remaining mission budget.
+9. Inspect actual bytes and actual behavior. Source code, tests, worker reports, manager reports, design approvals, and green schemas do not prove the product behaves correctly.
+10. On failure, diagnose the dominant defect. Preserve independently passing dimensions and assign targeted repair. Reorganize when repeated repair does not move the bottleneck.
+11. Checkpoint tested product bytes promptly. Do not leave the real product untracked while only governance records are committed.
+12. Integrate continuously. Do not postpone all cross-lane integration until the end of the mission.
+13. Escalate only genuine authority, cancellation, irreversible-effect, budget, credential, or external-dependency blockers. Do not escalate ordinary implementation uncertainty; research it or test it.
+
+## Consequential-action authority
+
+Strong pre-authorization remains mandatory before customer-facing, financial, legal, privileged, irreversible, destructive, or production-impacting effects.
+
+For those actions, run the complete authority/preflight/release-scope chain and require the authenticated decision reserved by the contract.
+
+Do not apply production-grade ceremony to reversible local experimentation merely because the same project may eventually reach production. Sandbox authority is intentionally narrower and cheaper.
+
+## Just-in-time research and evaluation
+
+Initial discovery should answer only what blocks the first real artifact path. After execution begins, research becomes pull-based: an implementation or evaluation lane requests a focused answer to a live uncertainty.
+
+Build and calibrate evaluators after a candidate exists unless the evaluator itself is required to make execution safe. An evaluator designed for hypothetical artifacts is lower priority than the artifact it is supposed to judge.
+
+## Resource modes
+
+Follow the master governor's mode:
+
+- **NORMAL:** discovery and execution may proceed together, but a product lane starts immediately.
+- **COMPRESSION:** reduce research/design/governance; execution must dominate allocation.
+- **CRITICAL_PATH:** pause noncritical lanes; fund only blockers to a fresh user-usable outcome.
+- **REALITY_CLOSURE:** no new features or broad research. Integrate, run, fix, verify, package, and checkpoint.
+
+The manager may not hide a resource crisis by spawning more researchers or producing more accepted documentation.
 
 ## Program preflight packet contract
 
-Preflight is a dispatch gate. Semantics owns authority, evidence, oracles, and
-capabilities; the host supplies runtimes and locators. Definitions bind evidence,
-nonempty oracles, and disjoint writer scopes. Send only compiled slices. Verify
-after transport; mutation, extras, stale parents, or unbound digests stop.
+Preflight binds authority, evidence, exact capabilities, host runtimes, write scopes, and required checks for the packet that is about to execute. Verify after transport; mutation, stale parents, escaped paths, unbound digests, or overlapping writers stop that packet.
+
+Preflight does not require architecture for work that is not on the current critical path.
 
 ## Preserve truth
 
-- Record task/thread ID and host observations only when the native host exposes
-  them. Host ID is coordination metadata, not lineage.
-- Record `requested_model` separately from `observed_model`; unavailable stays
-  unavailable.
-- Record elapsed duration when exposed. Keep tokens, cost, and cancellation
-  acknowledgement unavailable when the host does not expose them.
+- Record task/thread ID and host observations only when the native host exposes them.
+- Record `requested_model` separately from `observed_model`; unavailable stays unavailable.
+- Record elapsed duration when exposed. Keep tokens and cost unavailable when the host does not expose them.
 - Treat a task stop message as cooperative intent, not a proven hard interrupt.
-- Run read-only checks with `PYTHONDONTWRITEBYTECODE=1` or in an isolated
-  temporary copy. A clean tracked status does not erase ignored side effects.
+- Run read-only checks without contaminating product state.
+- Distinguish `designed`, `implemented`, `runnable`, `connected`, `user_usable`, and `independently_accepted`.
+- Never promote a document review into evidence that a product exists.
 
-Return one manager receipt and one validated execution-efficiency receipt. The
-master accepts the program unless the contract reserves acceptance to the user.
+## Upward report
+
+Report compactly:
+
+- original objective;
+- current Reality Level;
+- global bottleneck;
+- connected user path that actually works;
+- missing user path;
+- active resource mode;
+- product execution ratio versus research/governance/documentation overhead;
+- actual artifact/runtime evidence;
+- blockers requiring master authority;
+- next highest-leverage execution action.
+
+Return manager and efficiency receipts where required, but receipts are bookkeeping around the artifact. They are not a substitute for it.
