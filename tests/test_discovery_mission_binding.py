@@ -44,7 +44,7 @@ def worker(worker_id, manager_outcome, work_class):
         "model": "gpt-5.6-luna",
         "task": "Create evidence for the current execution path.",
         "acceptance": ["Exact evidence exists"],
-        "write_scope": [f".company-os/work/{worker_id}"],
+        "write_scope": [f".company-os/work/{work_class}/worker"],
         "risk": "low",
         "budget": budget(),
         "work_class": work_class,
