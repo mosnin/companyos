@@ -97,8 +97,9 @@ class NavigationMissionIntegrationTests(unittest.TestCase):
         self.assertIn("implementation", state["governor_decision"]["allowed_work_classes"])
         self.assertTrue(any("Trajectory is stalled" in order for order in state["governor_decision"]["manager_orders"]))
 
-    def test_reality_progress_changes_position_and_route(self):
+    def test_reality_progress_reduces_distance_and_reprioritizes_route(self):
         state = self.state()
+        before_distance = state["navigation"]["position"]["destination_distance"]
         target = state["navigation"]["next_action"]["capability_id"]
         state = MISSION.record_event(
             state,
@@ -111,9 +112,11 @@ class NavigationMissionIntegrationTests(unittest.TestCase):
                 evidence={"kind": "artifact", "path": "src/app.txt", "sha256": "a" * 64, "capability_id": target},
             ),
         )
-        self.assertEqual(state["navigation"]["next_action"]["action_kind"], "run")
-        self.assertEqual(state["navigation"]["next_action"]["work_class"], "runtime")
-        self.assertLess(state["navigation"]["position"]["destination_distance"], 1.0)
+        by_id = {item["capability_id"]: item for item in state["capabilities"]}
+        self.assertEqual(by_id[target]["state"], "partial")
+        self.assertLess(state["navigation"]["position"]["destination_distance"], before_distance)
+        self.assertNotEqual(state["navigation"]["next_action"]["capability_id"], target)
+        self.assertEqual(state["navigation"]["next_action"]["action_kind"], "materialize")
 
 
 if __name__ == "__main__":
