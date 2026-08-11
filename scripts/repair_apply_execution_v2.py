@@ -19,4 +19,13 @@ new = (
 if text.count(old) != 1:
     raise SystemExit(f"migration anchor repair expected one match, found {text.count(old)}")
 path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+governor = Path("skills/company-os/govern-outcome-execution/scripts/executive_governor.py")
+governor_text = governor.read_text(encoding="utf-8")
+governor_old = "    elif budget_fraction >= 0.40 and reality_level < 3:\n        mode = \"compression\"\n"
+governor_new = "    elif first_reality_incident or (budget_fraction >= 0.40 and reality_level < 3):\n        mode = \"compression\"\n"
+if governor_text.count(governor_old) != 1:
+    raise SystemExit(f"governor mode repair expected one match, found {governor_text.count(governor_old)}")
+governor.write_text(governor_text.replace(governor_old, governor_new, 1), encoding="utf-8")
+
 runpy.run_path(str(path), run_name="__main__")
