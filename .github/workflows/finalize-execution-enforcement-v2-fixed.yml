@@ -1,0 +1,51 @@
+name: Finalize Execution Enforcement V2 Fixed
+
+on:
+  push:
+    paths:
+      - ".github/workflows/finalize-execution-enforcement-v2-fixed.yml"
+      - "scripts/finalize_execution_enforcement_v2_fixed.py"
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/execution-enforcement-v2
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Prepare permanent tree
+        run: python3 scripts/finalize_execution_enforcement_v2_fixed.py
+      - name: Remove finalization files
+        run: |
+          rm .github/workflows/finalize-execution-enforcement-v2-fixed.yml
+          rm scripts/finalize_execution_enforcement_v2_fixed.py
+      - name: Refresh and verify distribution manifest
+        run: |
+          python3 scripts/distribution.py write-manifest
+          python3 scripts/distribution.py verify-manifest
+      - name: Verify permanent tree
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 skills/company-os/mission-execution-control/scripts/execution_regression_lab.py --json
+          python3 scripts/verify_operator_command_center_surface.py
+          python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
+          python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
+          python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
+          python3 skills/company-os/elastic-company-os/scripts/test_operator_brief.py -v
+          python3 -m unittest discover -s programs/company-os-self-hosting/reference -v
+          python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
+          python3 -m py_compile skills/company-os/mission-execution-control/scripts/mission_control.py skills/company-os/mission-execution-control/scripts/checkpoint_product.py skills/company-os/mission-execution-control/scripts/execution_regression_lab.py skills/company-os/govern-outcome-execution/scripts/executive_governor.py skills/company-os/direct-outcome/scripts/direct_outcome.py skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py skills/company-os/assemble-outcome-candidate/scripts/assemble_candidate.py skills/company-os/bootstrap-outcome/scripts/bootstrap_outcome.py skills/company-os/calibrate-outcome-stack/scripts/compile_calibration_fabric.py skills/company-os/elastic-company-os/scripts/company_os_controller.py skills/company-os/elastic-company-os/scripts/control_store.py skills/company-os/elastic-company-os/scripts/runtime_observations.py skills/company-os/elastic-company-os/scripts/operator_brief.py scripts/distribution.py
+      - name: Commit permanent tree
+        run: |
+          git config user.name "company-os-execution-enforcement-bot"
+          git config user.email "company-os-execution-enforcement-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(company-os): finalize enforced execution runtime"
+          git push origin HEAD:codex/execution-enforcement-v2
