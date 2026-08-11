@@ -2,25 +2,12 @@
 from pathlib import Path
 import runpy
 
-patch = Path("scripts/apply_navigation_control_loop.py")
-text = patch.read_text(encoding="utf-8")
-old = "For every autonomous build mission, the controller runs `$mission-execution-control` and `$govern-outcome-execution` at dispatch, retry, wake, rework, evaluation, scope expansion, and packaging boundaries. These decisions are enforced state, not optional manager advice. The governor is the mission-level CEO/COO/CFO function above local managers."
-new = "For every autonomous build mission, the controller runs `$mission-execution-control` and `$govern-outcome-execution` at dispatch, retry, wake, evidence, expansion, evaluation, and packaging boundaries. These decisions are enforced state, not optional manager advice. The governor is the mission-level CEO/COO/CFO function above local managers."
-replacement = "For every autonomous build mission, the controller runs `$mission-execution-control`, `$navigation-control`, and `$govern-outcome-execution` at dispatch, retry, wake, evidence, expansion, evaluation, and packaging boundaries. These decisions are enforced state, not optional manager advice. The original objective is the destination; research, audits, tests, browser/runtime observations, and reports are sensors; implementation, integration, runtime execution, repair, checkpointing, and packaging are actuators. The governor is the mission-level CEO/COO/CFO function above local managers."
-if old not in text:
-    raise SystemExit("old navigation skill anchor missing")
-text = text.replace(old, new, 1)
-text = text.replace(
-    "For every autonomous build mission, the controller runs `$mission-execution-control`, `$navigation-control`, and `$govern-outcome-execution` at dispatch, retry, wake, rework, evaluation, scope expansion, and packaging boundaries. These decisions are enforced state, not optional manager advice. The original objective is the destination; research, audits, tests, browser/runtime observations, and reports are sensors; implementation, integration, runtime execution, repair, checkpointing, and packaging are actuators. The governor is the mission-level CEO/COO/CFO function above local managers.",
-    replacement,
-    1,
-)
-patch.write_text(text, encoding="utf-8")
-runpy.run_path(str(patch), run_name="__main__")
+# Apply the primary closed-loop integration against the clean branch source.
+runpy.run_path("scripts/apply_navigation_control_loop.py", run_name="__main__")
 
 # Initial discovery is a sensor+actuator pair. Charge the sensor at a bounded
-# fraction so the act of starting one research lane cannot immediately pause
-# itself before the reality spike gets a chance to move the mission.
+# fraction so starting focused research cannot immediately pause itself before
+# the reality spike gets a chance to move the mission.
 director = Path("skills/company-os/direct-outcome/scripts/direct_outcome.py")
 director_text = director.read_text(encoding="utf-8")
 old_units = '''                work_class=work_class,
@@ -35,9 +22,8 @@ director_text = director_text.replace(old_units, new_units, 1)
 
 # Route-bound sensor work must stand on its blocker/decision binding; the
 # director may not self-assert that an action is blocked merely to admit more
-# research or documentation. Evaluation is included here so an outcome-loop
-# sensor pass can briefly inspect a candidate even when navigation's primary
-# route action remains implementation or integration.
+# research. Evaluation is included so the outcome loop can run a short sensor
+# pass without pretending that evaluation is the destination.
 old_sensor_set = '    elif work_class in {"research", "architecture", "governance", "documentation"} and not bootstrap:\n'
 new_sensor_set = '    elif work_class in {"research", "architecture", "governance", "documentation", "evaluation"} and not bootstrap:\n'
 if director_text.count(old_sensor_set) != 1:
@@ -86,9 +72,7 @@ if nav_text.count(old_sensor) != 1:
 nav.write_text(nav_text.replace(old_sensor, new_sensor, 1), encoding="utf-8")
 
 # When evaluation is not itself the active route action, it is a bounded sensor
-# interrupt rather than a full phase-sized activity. This prevents the old
-# behavior where a useful early candidate immediately triggered a large audit
-# program before the destination path was finished.
+# interrupt rather than a full phase-sized activity.
 org = Path("skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py")
 org_text = org.read_text(encoding="utf-8")
 old_budget = '''    budget = _budget(request.get("budget"), len(lanes))
@@ -114,7 +98,6 @@ new_budget = '''    budget = _budget(request.get("budget"), len(lanes))
 if org_text.count(old_budget) != 1:
     raise SystemExit(f"organization budget anchor expected once, found {org_text.count(old_budget)}")
 org_text = org_text.replace(old_budget, new_budget, 1)
-# The primary integration patch also introduces these navigation locals later.
 old_duplicate = '''    navigation = mission_control.get("navigation") if isinstance(mission_control.get("navigation"), Mapping) else {}
     route_action = navigation.get("next_action") if isinstance(navigation.get("next_action"), Mapping) else {}
     route_policy = navigation.get("actuation_policy") if isinstance(navigation.get("actuation_policy"), Mapping) else {}
@@ -126,5 +109,4 @@ if org_text.count(old_duplicate) != 1:
     raise SystemExit(f"duplicate navigation locals expected once, found {org_text.count(old_duplicate)}")
 org.write_text(org_text.replace(old_duplicate, new_duplicate, 1), encoding="utf-8")
 
-# This temporary migration script is intentionally rerunnable only against the
-# unintegrated branch tree; permanent runtime files remain the source of truth.
+print("navigation control loop integration repaired and applied")
