@@ -40,3 +40,16 @@ if calibration_text.count(old) != 1:
 calibration.write_text(calibration_text.replace(old, new, 1), encoding="utf-8")
 
 runpy.run_path(str(phase2), run_name="__main__")
+
+director = Path("skills/company-os/direct-outcome/scripts/direct_outcome.py")
+director_text = director.read_text(encoding="utf-8")
+replacements = {
+    '                "modalities": list(raw.get("modalities", [])),\n': '                "modalities": list(raw.get("modalities") or ["executable"]),\n',
+    '                "observation_methods": list(raw.get("observation_methods", [])),\n': '                "observation_methods": list(raw.get("observation_methods") or ["runtime"]),\n',
+    '                "required_evidence": list(raw.get("required_evidence", [])),\n': '                "required_evidence": list(raw.get("required_evidence") or ["runtime_receipt"]),\n',
+}
+for source, target in replacements.items():
+    if director_text.count(source) != 1:
+        raise SystemExit(f"director default anchor expected once, found {director_text.count(source)}")
+    director_text = director_text.replace(source, target, 1)
+director.write_text(director_text, encoding="utf-8")
