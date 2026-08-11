@@ -17,7 +17,14 @@ jobs:
         with:
           python-version: "3.11"
       - name: Verify mission execution control
-        run: python3 -m unittest tests.test_mission_execution_control tests.test_product_checkpoint -v
+        run: >-
+          python3 -m unittest
+          tests.test_mission_execution_control
+          tests.test_product_checkpoint
+          tests.test_reality_spike_ingestion
+          tests.test_first_reality_scope_promotion
+          tests.test_first_reality_candidate_observations
+          -v
       - name: Verify Python compilation
         run: >-
           python3 -m py_compile
