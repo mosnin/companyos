@@ -530,10 +530,8 @@ def patch_organization() -> None:
     )
     replace_once(
         path,
-        '''    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "engineering_execution_contract": master_engineering,
-''',
-        '''    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "mission_control": mission_control, "work_admission": admission, "engineering_execution_contract": master_engineering,
-''',
+        '''    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "engineering_execution_contract": master_engineering, "program_version":''',
+        '''    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "mission_control": mission_control, "work_admission": admission, "engineering_execution_contract": master_engineering, "program_version":''',
     )
 
 

@@ -242,6 +242,19 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
     constraints = _list(request.get("constraints"), "constraints")
     objective_id = _text(state.get("objective_id"), "state.objective_id")
     control = _validate_outcome_control(_object(request.get("outcome_control"), "outcome_control"), project_id=project_id, program_version=program_version, work_id=work_id, governed_outcome=governed_outcome, objective_id=objective_id)
+    mission_control = dict(_object(request.get("mission_control"), "mission_control"))
+    admission = dict(_object(request.get("work_admission"), "work_admission"))
+    if admission.get("admitted") is not True:
+        raise OrganizationError("E_GOVERNOR", "current work admission is not accepted")
+    if admission.get("mission_state_sha256") != mission_control.get("state_sha256"):
+        raise OrganizationError("E_GOVERNOR", "work admission binds a stale mission state")
+    if admission.get("governor_decision_sha256") != mission_control.get("governor_decision_sha256"):
+        raise OrganizationError("E_GOVERNOR", "work admission binds a stale governor decision")
+    expected_work_class = "evaluation" if state.get("phase") == "evaluate" else "repair" if state.get("phase") == "rework" else "implementation"
+    if admission.get("work_class") != expected_work_class:
+        raise OrganizationError("E_GOVERNOR", f"{state.get('phase')} requires work class {expected_work_class}")
+    if expected_work_class in set(mission_control.get("paused_work_classes", [])):
+        raise OrganizationError("E_GOVERNOR", f"work class {expected_work_class} is paused")
     engineering_module = _engineering_module()
     master_engineering = _engineering_root(objective_id, request)
     if control["execution_lane"] == "pilot" and len(lanes) > 2:
@@ -290,7 +303,7 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
             worker_write_scope = [f"{resource_scope}/artifact"]
             artifact_manifest_path = f"{resource_scope}/artifact/artifact-manifest.json"
             artifact_manifest_binding = {"$schema": "company-os.outcome-lane-artifact-manifest.v1", "schema_version": 1, "objective_id": state["objective_id"], "outcome_loop_state_sha256": state["state_sha256"], "organization_sha256": digest(state["organization_plan"]), "lane_id": lane["lane_id"], "lane_sha256": lane_sha, "production_actor_id": f"{manager_id}-worker-01"}
-            worker_task += " When materialized, write the canonical artifact handoff at " + artifact_manifest_path + ". Preserve these exact immutable bindings: " + json.dumps(artifact_manifest_binding, sort_keys=True) + ". Add an artifacts array containing each actual artifact_id, artifact_class_id, project-relative path, and exact sha256. A prose report is not a handoff."
+            worker_task += " When materialized, write the canonical artifact handoff at " + artifact_manifest_path + ". Preserve these exact immutable bindings: " + json.dumps(artifact_manifest_binding, sort_keys=True) + ". Add an artifacts array containing each actual artifact_id, artifact_class_id, project-relative path, and exact sha256. Also add an observations array with runtime_observed and journey_connected receipts containing capability_id, project-relative evidence path, exact sha256, and observation_kind. The first-reality candidate is incomplete until the real artifact runs and one connected user journey is observed. A prose report is not a handoff."
             stop_condition = "A real connected artifact is materialized and executed with exact evidence, or a blocking constraint is proven"
             extra_constraints = [
                 "Materialize a real candidate before independent evaluation",
@@ -305,11 +318,14 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
         manager_engineering = engineering_module.derive(master_engineering, {"contract_id": f"engineering:{manager_id}", "objective_id": objective_id, "manager_level": "mid", "required_skills": list(master_engineering["required_skills"]), "write_scopes": [resource_scope]})
         worker_engineering = engineering_module.derive(manager_engineering, {"contract_id": f"engineering:{manager_id}:worker-01", "objective_id": objective_id, "manager_level": "worker", "required_skills": list(manager_engineering["required_skills"]), "write_scopes": worker_write_scope})
         outcome_context["engineering_execution_contract"] = worker_engineering
-        workers = [{"id": f"{manager_id}-worker-01", "model": "gpt-5.6-luna", "task": worker_task, "acceptance": acceptance, "write_scope": worker_write_scope, "risk": "medium", "budget": dict(manager_budget), "outcome_context": outcome_context, "engineering_execution_contract": worker_engineering, "stop_condition": stop_condition, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha}]
-        managers.append({"id": manager_id, "model": "gpt-5.6-sol", "outcome": lane["mandate"], "acceptance": acceptance, "phase_ids": PHASES, "budget": dict(manager_budget), "write_scope": [resource_scope], "artifact_classes": lane["artifact_classes"], "engineering_execution_contract": manager_engineering, "workers": workers, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha})
+        work_class = "evaluation" if state.get("phase") == "evaluate" else "repair" if state.get("phase") == "rework" else "implementation"
+        outcome_context["mission_control"] = mission_control
+        outcome_context["work_admission"] = admission
+        workers = [{"id": f"{manager_id}-worker-01", "model": "gpt-5.6-luna", "task": worker_task, "acceptance": acceptance, "write_scope": worker_write_scope, "risk": "medium", "budget": dict(manager_budget), "work_class": work_class, "outcome_context": outcome_context, "engineering_execution_contract": worker_engineering, "stop_condition": stop_condition, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha}]
+        managers.append({"id": manager_id, "model": "gpt-5.6-sol", "outcome": lane["mandate"], "acceptance": acceptance, "phase_ids": PHASES, "budget": dict(manager_budget), "work_class": work_class, "write_scope": [resource_scope], "artifact_classes": lane["artifact_classes"], "engineering_execution_contract": manager_engineering, "workers": workers, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha})
     loop_binding = {"$schema": BINDING_SCHEMA, "state_path": state_relative, "state_file_sha256": file_digest(state_path), "state_sha256": state["state_sha256"], "phase": state["phase"], "iteration": state["iteration"], "next_action": state["next_action"]["action"], "organization_sha256": digest(state["organization_plan"]), "lane_sha256s": lane_sha256s}
     engineering_module.assert_nonoverlap([manager["engineering_execution_contract"] for manager in managers])
-    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "engineering_execution_contract": master_engineering, "program_version": program_version, "outcome": governed_outcome, "acceptance": ["All required artifact classes are materialized as real inspectable artifacts", "All required independent evaluators execute against the current candidate", "The next outcome loop state is derived from evaluator evidence"], "program_contract": {"north_star": north_star, "user_value": user_value, "rationale": rationale, "architecture": architecture, "roadmap": PHASES, "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints}, "max_managers": len(managers), "max_manager_concurrency": min(len(managers), int(budget["max_concurrency"])), "max_workers_per_manager": 1, "max_total_workers": len(managers), "max_depth": 2, "max_worker_retries": 1, "max_manager_rework_rounds": 2, "budget": budget, "luna_token_share_target": 0.75, "external_effects_allowed": False, "managers": managers, "outcome_control": control, "outcome_loop": loop_binding}
+    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "mission_control": mission_control, "work_admission": admission, "engineering_execution_contract": master_engineering, "program_version": program_version, "outcome": governed_outcome, "acceptance": ["All required artifact classes are materialized as real inspectable artifacts", "All required independent evaluators execute against the current candidate", "The next outcome loop state is derived from evaluator evidence"], "program_contract": {"north_star": north_star, "user_value": user_value, "rationale": rationale, "architecture": architecture, "roadmap": PHASES, "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints}, "max_managers": len(managers), "max_manager_concurrency": min(len(managers), int(budget["max_concurrency"])), "max_workers_per_manager": 1, "max_total_workers": len(managers), "max_depth": 2, "max_worker_retries": 1, "max_manager_rework_rounds": 2, "budget": budget, "luna_token_share_target": 0.75, "external_effects_allowed": False, "managers": managers, "outcome_control": control, "outcome_loop": loop_binding}
 
 def validate_manifest_binding(project_root: Path, manifest: Mapping[str, Any]) -> dict[str, Any]:
     if manifest.get("topology_mode") != TOPOLOGY_MODE:

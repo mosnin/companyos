@@ -22,8 +22,8 @@
     },
     {
       "path": "company-os/assemble-outcome-candidate/scripts/assemble_candidate.py",
-      "sha256": "0566b7e218169e74db3cd80924e8cbd5e68e1aa223f3209710276a6ef6cbbcad",
-      "size": 14134
+      "sha256": "594af184e809d33e2bf8665144aee70b8f7076e6cacf2ee7f35c288e69bd860d",
+      "size": 16814
     },
     {
       "path": "company-os/assemble-outcome-evaluations/SKILL.md",
@@ -172,8 +172,8 @@
     },
     {
       "path": "company-os/bootstrap-outcome/scripts/bootstrap_outcome.py",
-      "sha256": "573dfa92c865414ee838e27748bd88975e9031996c627651fb7c5752b5a60736",
-      "size": 16446
+      "sha256": "49bcfb29e486def1f17f0c19d62e345f073d445b8b3f9d8b7a5ec466cc31e4c1",
+      "size": 18914
     },
     {
       "path": "company-os/brand-creative-system/SKILL.md",
@@ -217,8 +217,8 @@
     },
     {
       "path": "company-os/calibrate-outcome-stack/scripts/compile_calibration_fabric.py",
-      "sha256": "072f15d686f88d058c3bb24e01e7e15f4d09e15fb9e5ca177f84d0ccada85a32",
-      "size": 20875
+      "sha256": "2ab83032137dca4fb9bc89ee3c2af8dfcd88b8a84455ca211e3d8599c79eb370",
+      "size": 22348
     },
     {
       "path": "company-os/close-outcome-discovery/SKILL.md",
@@ -337,8 +337,8 @@
     },
     {
       "path": "company-os/compile-outcome-organization/scripts/compile_outcome_organization.py",
-      "sha256": "001239abdda31aad9715cf7fa427549e951ba411ff3415e743b56c0c70b0fef4",
-      "size": 28535
+      "sha256": "a21d6faaaab09f6abe8fc76919946f401647009f7911e3c36a03e92446bf7e9c",
+      "size": 30367
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",
@@ -367,8 +367,8 @@
     },
     {
       "path": "company-os/direct-outcome/scripts/direct_outcome.py",
-      "sha256": "5324e177d6520f500439b46fa84cb46dc0be097d1cfdc91959b87d4db238e748",
-      "size": 39132
+      "sha256": "2383226c4ea8b5818b5e2f3972b1549b93c77a6eff7bf7cefd5c2f40b1480070",
+      "size": 51881
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
@@ -652,8 +652,8 @@
     },
     {
       "path": "company-os/govern-outcome-execution/scripts/executive_governor.py",
-      "sha256": "dc2b7503af027895d71b401b3b7facea1760ce74bb5ea2468ae055c7ae2d2f93",
-      "size": 12261
+      "sha256": "f331d864261691a9884bb680340a812059d30391fd8e69113b060cbf060232ed",
+      "size": 12289
     },
     {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",
@@ -834,6 +834,216 @@
       "path": "company-os/materialize-outcome-stack/scripts/materialize_outcome_stack.py",
       "sha256": "4be1bb34cea1e7d88a99ffcef1186b668f40c7b05e94069144380de834822839",
       "size": 13338
+    },
+    {
+      "path": "company-os/mission-execution-control/SKILL.md",
+      "sha256": "19bd467ea8adbc31831be8e6947edf6a156deff4a6c8025d3fa1ccb8df85ecac",
+      "size": 2406
+    },
+    {
+      "path": "company-os/mission-execution-control/agents/openai.yaml",
+      "sha256": "7d5bdc3fc16baf09c5f1ad394863be5464af095f431d4aed76af74195ce28e86",
+      "size": 353
+    },
+    {
+      "path": "company-os/mission-execution-control/references/.keep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "company-os/mission-execution-control/references/_end",
+      "sha256": "dbe8c2073d668f62df3e4c90eb0aaa338cefa2f2a9c1e798bf9fd0b0bee8b984",
+      "size": 24
+    },
+    {
+      "path": "company-os/mission-execution-control/references/acceptance-benchmarks.md",
+      "sha256": "e204d5e617fe339d72a5ff85ef30f66fdd3e37acdd5a58b63842002cb355c7b4",
+      "size": 1250
+    },
+    {
+      "path": "company-os/mission-execution-control/references/actual-end.md",
+      "sha256": "a20a31f3bad3046e15a12da44251cbaeb876ecaa82bcdecdc2418e368a790ebf",
+      "size": 95
+    },
+    {
+      "path": "company-os/mission-execution-control/references/authority-policy.md",
+      "sha256": "2258f122cecc5f004a403e83836a22ef24026538844e60c12d6af58a1cd1c5a7",
+      "size": 491
+    },
+    {
+      "path": "company-os/mission-execution-control/references/build-vs-integrate.md",
+      "sha256": "a2490a89deb8ed422f50d0fde8901d53d73287da82b009322f1e5c785a1d671e",
+      "size": 579
+    },
+    {
+      "path": "company-os/mission-execution-control/references/capability-evidence.md",
+      "sha256": "0c01c4cc546ee995cb7be3becbc9518456bd2b8325c6360ed2e65b416deafc52",
+      "size": 779
+    },
+    {
+      "path": "company-os/mission-execution-control/references/checkpoint-contract.md",
+      "sha256": "004a0c7dab1943fd026864480732aef6a31e78fd2fe8a351676631b35321e6d5",
+      "size": 680
+    },
+    {
+      "path": "company-os/mission-execution-control/references/ci-policy.md",
+      "sha256": "0e1aaa007297d4ef20935ae77eddcb0bb34959c2c1a57288a0521963a9a2af1a",
+      "size": 510
+    },
+    {
+      "path": "company-os/mission-execution-control/references/concurrency.md",
+      "sha256": "b825e4905feaf25165f6c01dfb866ee9a473719b9b060378840f32946ecee0a3",
+      "size": 361
+    },
+    {
+      "path": "company-os/mission-execution-control/references/director-integration.md",
+      "sha256": "65c4017595b7802ecafe546ef1efe3be24cefbb8838d5613b78b6d1c644e8c7c",
+      "size": 686
+    },
+    {
+      "path": "company-os/mission-execution-control/references/evaluator-economics.md",
+      "sha256": "e15c7df1c3b16a84dcce131e81fa672413fe29162386dd09a52055c6dea23d90",
+      "size": 947
+    },
+    {
+      "path": "company-os/mission-execution-control/references/failure-handling.md",
+      "sha256": "94fe932ca10a3c6f16e7e93b24648e654f12039213ee7da4a08cfe4863ce29da",
+      "size": 581
+    },
+    {
+      "path": "company-os/mission-execution-control/references/finalization.md",
+      "sha256": "0c10cbaee5529a301124d476696d24fe9511da85df3c66fc66e1ede70eebead1",
+      "size": 454
+    },
+    {
+      "path": "company-os/mission-execution-control/references/first-reality-contract.md",
+      "sha256": "5f1aa1d053be6f152631eadd2702c0a4f0a4e48e9cceac3f7b7f510f114639d9",
+      "size": 957
+    },
+    {
+      "path": "company-os/mission-execution-control/references/implementation-status.md",
+      "sha256": "0bc87c9c95762ea7aaa5e35c80879fb53f80d4784c58fdb40b152bbf37dd85b5",
+      "size": 748
+    },
+    {
+      "path": "company-os/mission-execution-control/references/integration-policy.md",
+      "sha256": "2df8c0a4e7d2c9735641b7b12de83b581a0688c8b39164a5a5fde2360550eda7",
+      "size": 462
+    },
+    {
+      "path": "company-os/mission-execution-control/references/manager-performance.md",
+      "sha256": "5eb57de90f8f07d6fd38af17c392da7f43e94292149a4619fd6b278eef3198cf",
+      "size": 962
+    },
+    {
+      "path": "company-os/mission-execution-control/references/migration-note.md",
+      "sha256": "6cae96fc9ac6bf31b644c47da28ea4f98f9f54536d32bc17b174e8011006b724",
+      "size": 199
+    },
+    {
+      "path": "company-os/mission-execution-control/references/mission-classes.md",
+      "sha256": "07870abc50cbb23b63601f010c9b61ce7203aac75f6ccfaf2eebad15d8ce0379",
+      "size": 768
+    },
+    {
+      "path": "company-os/mission-execution-control/references/mission-contract.md",
+      "sha256": "29560a4a531c984e4f4f7d5ff12ace93053d70fbbf28fbca0464f675c3571e62",
+      "size": 1933
+    },
+    {
+      "path": "company-os/mission-execution-control/references/next.md",
+      "sha256": "de7d682b89df157856430746bbf7b61a01a1b0eecd1268cf615d323ddbac5849",
+      "size": 248
+    },
+    {
+      "path": "company-os/mission-execution-control/references/no-document-spiral.md",
+      "sha256": "f9b9d9703282711544343dd869ee49eaa75ed8d050bb954e24a1a02594b16ff8",
+      "size": 634
+    },
+    {
+      "path": "company-os/mission-execution-control/references/no-more-docs.md",
+      "sha256": "28332e92d79ae6b528ba2a11d5edc4ae074c4048510e94dd8d1c20837fe2552d",
+      "size": 167
+    },
+    {
+      "path": "company-os/mission-execution-control/references/operating-modes.md",
+      "sha256": "1e93a3d30a3a5b5aba14e2c660c4f2814706536290c12e07b6bbe943754b439b",
+      "size": 737
+    },
+    {
+      "path": "company-os/mission-execution-control/references/operator-report.md",
+      "sha256": "d7fb85773a0c882622a6fb9d108139aa7cddf06743612afc6a3d159a3ed42aad",
+      "size": 513
+    },
+    {
+      "path": "company-os/mission-execution-control/references/reality-levels.md",
+      "sha256": "76fffad2da76e1b51d6f167ce2eb0da066081dfb8388dedef36aa90bbc77f3cd",
+      "size": 511
+    },
+    {
+      "path": "company-os/mission-execution-control/references/reality-spike.md",
+      "sha256": "6a30f7b7ed786543ab4351b680233c0c2243e33ae43ca27d3638283d9165ba6e",
+      "size": 780
+    },
+    {
+      "path": "company-os/mission-execution-control/references/resource-accounting.md",
+      "sha256": "0a35284bc367c79d322f9c5b7ee0455d90a1192478564c3f8c37ba78af5001fa",
+      "size": 803
+    },
+    {
+      "path": "company-os/mission-execution-control/references/scheduler-contract.md",
+      "sha256": "484c3628c07452b0fdde4b885c1e184254b71da407758a1e01610b4b148d350f",
+      "size": 761
+    },
+    {
+      "path": "company-os/mission-execution-control/references/security-boundary.md",
+      "sha256": "1c38798fb5095d3a71c82e672c3742b02bc60f360f136611f9a3da3fe4c73d8c",
+      "size": 587
+    },
+    {
+      "path": "company-os/mission-execution-control/references/state-storage.md",
+      "sha256": "027d963df014ff6102e4281be67f23f148099717ec09670b75194af38a46815d",
+      "size": 621
+    },
+    {
+      "path": "company-os/mission-execution-control/references/status.md",
+      "sha256": "176699cfdb55ba5769509861560ba1c44f13973d25ca5b265b98bbcd8d1d4719",
+      "size": 326
+    },
+    {
+      "path": "company-os/mission-execution-control/references/stop.txt",
+      "sha256": "a11c3d917a2149a4b548217038bc8f2dd2130a1966e0c7af5c4225d81f25a8c3",
+      "size": 5
+    },
+    {
+      "path": "company-os/mission-execution-control/references/temporary.md",
+      "sha256": "ded08d3fc5672cd9b3f3af0ea8130e25ffcc98b5d9053097e7b44d1d25be5a72",
+      "size": 122
+    },
+    {
+      "path": "company-os/mission-execution-control/references/testing-policy.md",
+      "sha256": "edfa41675ee6467a73ed47740f0bdfc4600ca2df88add8e01ef6fdfc8e4157fd",
+      "size": 572
+    },
+    {
+      "path": "company-os/mission-execution-control/references/why-this-exists.md",
+      "sha256": "de3dab4f8b397c72f98ed7af369412e2e9d91faa64b36b618e0a8722a15d1b92",
+      "size": 506
+    },
+    {
+      "path": "company-os/mission-execution-control/references/work-admission.md",
+      "sha256": "28c8a4dae7d69a26790da8af2dde1a9c078eaa652222c63a4ce2e86aeb222526",
+      "size": 1065
+    },
+    {
+      "path": "company-os/mission-execution-control/scripts/checkpoint_product.py",
+      "sha256": "d789f82adbd7c2102c7b5567314ef0dd54334772a6eef240ec3e30db84f48f0b",
+      "size": 6239
+    },
+    {
+      "path": "company-os/mission-execution-control/scripts/mission_control.py",
+      "sha256": "e5c090c0d90497c4ab4545da5223b42b456b3c41a7118a93cc89dae32a2a1372",
+      "size": 47703
     },
     {
       "path": "company-os/operational-control/SKILL.md",

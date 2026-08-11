@@ -224,12 +224,36 @@ def validate_lane_manifest(
                 "sha256": actual_sha,
             }
         )
+    observations = []
+    observations_raw = manifest.get("observations", [])
+    if observations_raw is not None and not isinstance(observations_raw, list):
+        raise CandidateAssemblyError("E_OBSERVATION", "lane observations must be an array")
+    for index, raw in enumerate(observations_raw or []):
+        observation = obj(raw, f"observation[{index}]")
+        kind = text(observation.get("kind"), f"observation[{index}].kind")
+        if kind not in {"runtime_observed", "journey_connected"}:
+            raise CandidateAssemblyError("E_OBSERVATION", f"unsupported observation kind {kind}")
+        capability_id = text(observation.get("capability_id"), f"observation[{index}].capability_id")
+        evidence_path, relative_path = resolve_file(project_root, observation.get("path"), f"observation[{index}].path")
+        if not inside_scope(relative_path, worker["write_scope"]):
+            raise CandidateAssemblyError("E_SCOPE", f"observation evidence is outside worker write scope {worker['write_scope']}")
+        observed_sha = sha(observation.get("sha256"), f"observation[{index}].sha256")
+        actual_sha = file_digest(evidence_path)
+        if observed_sha != actual_sha:
+            raise CandidateAssemblyError("E_DIGEST", f"observation evidence changed: {relative_path}")
+        observations.append({
+            "kind": kind,
+            "capability_id": capability_id,
+            "path": relative_path,
+            "sha256": actual_sha,
+            "observation_kind": text(observation.get("observation_kind", kind), f"observation[{index}].observation_kind"),
+        })
     return sorted(artifacts, key=lambda item: item["artifact_id"]), {
         "path": worker["manifest_path"],
         "file_sha256": digest(manifest),
         "lane_id": worker["lane_id"],
         "production_actor_id": worker["worker_id"],
-    }
+    }, sorted(observations, key=lambda item: (item["capability_id"], item["kind"], item["path"]))
 
 
 def assemble(
@@ -253,10 +277,11 @@ def assemble(
     seen_artifact_ids: set[str] = set()
     seen_paths: set[str] = set()
     source_manifests = []
+    all_observations = []
     for worker in production_workers(fabric):
         manifest_path = project_root / Path(*PurePosixPath(worker["manifest_path"]).parts)
         manifest_raw = obj(read_json(manifest_path, f"lane artifact manifest for {worker['lane_id']}"), "lane manifest")
-        artifacts, manifest_binding = validate_lane_manifest(
+        artifacts, manifest_binding, observations = validate_lane_manifest(
             project_root,
             manifest_raw,
             worker,
@@ -265,6 +290,7 @@ def assemble(
         )
         production_actor_ids.append(worker["worker_id"])
         source_manifests.append(manifest_binding)
+        all_observations.extend(observations)
         for artifact in artifacts:
             if artifact["artifact_id"] in seen_artifact_ids:
                 raise CandidateAssemblyError("E_DUPLICATE", f"artifact_id reused across lanes: {artifact['artifact_id']}")
@@ -280,12 +306,22 @@ def assemble(
             "E_ARTIFACT",
             "candidate is missing required artifact classes: " + ", ".join(missing),
         )
+    mission = fabric.get("mission_control")
+    if isinstance(mission, Mapping) and mission.get("first_reality_required") is True:
+        runtime_classes = {item["capability_id"] for item in all_observations if item["kind"] == "runtime_observed"}
+        connected_classes = {item["capability_id"] for item in all_observations if item["kind"] == "journey_connected"}
+        missing_runtime = sorted(required - runtime_classes)
+        if missing_runtime:
+            raise CandidateAssemblyError("E_OBSERVATION", "first reality candidate lacks runtime observations: " + ", ".join(missing_runtime))
+        if not connected_classes.intersection(required):
+            raise CandidateAssemblyError("E_OBSERVATION", "first reality candidate lacks a connected journey observation")
     return {
         "$schema": CANDIDATE_SCHEMA,
         "candidate_id": candidate_id,
         "objective_id": objective_id,
         "production_actor_ids": sorted(set(production_actor_ids)),
         "artifacts": sorted(all_artifacts, key=lambda item: item["artifact_id"]),
+        "observations": sorted(all_observations, key=lambda item: (item["capability_id"], item["kind"], item["path"])),
     }
 
 

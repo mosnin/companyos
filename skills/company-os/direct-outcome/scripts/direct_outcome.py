@@ -127,6 +127,14 @@ def reality_module():
     return load_module("accept-outcome-reality/scripts/accept_reality.py", "company_os_director_reality")
 
 
+def artifact_observation_module():
+    return load_module("define-outcome-artifacts/scripts/compile_artifact_observations.py", "company_os_director_artifacts")
+
+
+def mission_control_module():
+    return load_module("mission-execution-control/scripts/mission_control.py", "company_os_director_mission_control")
+
+
 def control_store_module():
     return load_module("elastic-company-os/scripts/control_store.py", "company_os_director_store")
 
@@ -156,6 +164,208 @@ def workspace(project_root: Path, objective_id: str) -> Path:
 
 def state_path(project_root: Path, objective_id: str) -> Path:
     return workspace(project_root, objective_id) / "director-state.json"
+
+
+def mission_state_path(project_root: Path, objective_id: str) -> Path:
+    return workspace(project_root, objective_id) / "mission-execution-state.json"
+
+
+def load_mission_state(project_root: Path, objective_id: str) -> dict[str, Any]:
+    return mission_control_module().verify_state(
+        obj(read_json(mission_state_path(project_root, objective_id), "mission execution state"), "mission execution state")
+    )
+
+
+def save_mission_state(project_root: Path, state: Mapping[str, Any]) -> dict[str, Any]:
+    verified = mission_control_module().verify_state(state)
+    write_json(mission_state_path(project_root, verified["objective_id"]), verified)
+    return verified
+
+
+def refresh_mission_state(project_root: Path, objective_id: str) -> dict[str, Any]:
+    module = mission_control_module()
+    refreshed = module.refresh_governor(module.reconcile_deadlines(load_mission_state(project_root, objective_id)))
+    return save_mission_state(project_root, refreshed)
+
+
+def mission_binding(project_root: Path, objective_id: str) -> dict[str, Any]:
+    state = refresh_mission_state(project_root, objective_id)
+    decision = obj(state.get("governor_decision"), "governor decision")
+    return {
+        "$schema": "company-os.mission-execution-binding.v1",
+        "state_path": relative(project_root, mission_state_path(project_root, objective_id)),
+        "state_sha256": state["state_sha256"],
+        "mission_id": state["mission_id"],
+        "generation": state["generation"],
+        "status": state["status"],
+        "mission_class": state["mission_class"],
+        "governor_decision_sha256": decision["decision_sha256"],
+        "governor_mode": decision["mode"],
+        "allowed_work_classes": list(decision["allowed_work_classes"]),
+        "paused_work_classes": list(decision["paused_work_classes"]),
+        "dominant_bottleneck": decision.get("dominant_bottleneck"),
+        "first_reality": state.get("first_reality"),
+        "first_reality_required": state.get("first_reality") is not None and not mission_control_module().reality_signals(state)["connected_vertical_slice"],
+        "replacement_orders": list(state.get("replacement_orders", [])),
+    }
+
+
+def admit_mission_work(
+    project_root: Path,
+    objective_id: str,
+    *,
+    work_class: str,
+    task_id: str,
+    manager_id: str,
+    bootstrap: bool = False,
+    justification: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    module = mission_control_module()
+    state = refresh_mission_state(project_root, objective_id)
+    request = {
+        "$schema": module.ADMISSION_SCHEMA,
+        "request_id": f"admit:{task_id}:{state['generation']}",
+        "task_id": task_id,
+        "manager_id": manager_id,
+        "work_class": work_class,
+        "bootstrap": bootstrap,
+    }
+    if justification is not None:
+        request["justification"] = dict(justification)
+    receipt = module.admit_work(state, request)
+    admission_root = workspace(project_root, objective_id) / "runtime/work-admissions"
+    admission_path = admission_root / f"{slug(task_id)}.json"
+    write_json(admission_path, receipt)
+    if receipt.get("admitted") is not True:
+        raise DirectorError("E_GOVERNOR", "; ".join(receipt.get("blockers", [])))
+    return {
+        **receipt,
+        "receipt_path": relative(project_root, admission_path),
+        "receipt_file_sha256": file_digest(admission_path),
+    }
+
+
+def compile_first_reality_artifact_contract(
+    artifact_contract: Mapping[str, Any],
+    first_reality: Mapping[str, Any],
+) -> dict[str, Any]:
+    selected = set(first_reality.get("required_artifact_class_ids", []))
+    records = []
+    for raw in artifact_contract.get("artifact_classes", []):
+        if not isinstance(raw, Mapping) or raw.get("artifact_class_id") not in selected:
+            continue
+        records.append(
+            {
+                "artifact_class_id": raw["artifact_class_id"],
+                "label": raw["label"],
+                "required": True,
+                "modalities": list(raw.get("modalities", [])),
+                "observation_methods": list(raw.get("observation_methods", [])),
+                "required_evidence": list(raw.get("required_evidence", [])),
+            }
+        )
+    request = {
+        "$schema": "company-os.artifact-observation-request.v1",
+        "objective_id": first_reality["objective_id"],
+        "artifact_classes": records,
+    }
+    return artifact_observation_module().compile_contract(request)
+
+
+def record_candidate_mission_evidence(
+    project_root: Path,
+    objective_id: str,
+    candidate: Mapping[str, Any],
+) -> None:
+    module = mission_control_module()
+    state = load_mission_state(project_root, objective_id)
+    known = {item["capability_id"] for item in state["capabilities"]}
+    stamp = module.format_time(module.now_utc())
+    for artifact in candidate.get("artifacts", []):
+        if not isinstance(artifact, Mapping) or artifact.get("artifact_class_id") not in known:
+            continue
+        capability_id = artifact["artifact_class_id"]
+        current = next(item for item in state["capabilities"] if item["capability_id"] == capability_id)
+        if current["state"] == "missing":
+            event = module.make_event(
+                f"{candidate['candidate_id']}:{capability_id}:artifact",
+                "artifact_materialized",
+                occurred_at=stamp,
+                work_class="implementation",
+                capability_id=capability_id,
+                evidence={"kind": "candidate_artifact", "path": artifact["path"], "sha256": artifact["sha256"], "capability_id": capability_id},
+            )
+            state = module.record_event(state, event)
+    for observation in candidate.get("observations", []):
+        if not isinstance(observation, Mapping) or observation.get("capability_id") not in known:
+            continue
+        capability_id = observation["capability_id"]
+        kind = observation.get("kind")
+        event_kind = "runtime_observed" if kind == "runtime_observed" else "journey_connected" if kind == "journey_connected" else None
+        if event_kind is None:
+            continue
+        current = next(item for item in state["capabilities"] if item["capability_id"] == capability_id)
+        expected = "partial" if event_kind == "runtime_observed" else "runnable"
+        if current["state"] != expected:
+            continue
+        event = module.make_event(
+            f"{candidate['candidate_id']}:{capability_id}:{event_kind}",
+            event_kind,
+            occurred_at=stamp,
+            work_class="runtime" if event_kind == "runtime_observed" else "integration",
+            capability_id=capability_id,
+            evidence={"kind": observation.get("observation_kind") or event_kind, "path": observation["path"], "sha256": observation["sha256"], "capability_id": capability_id},
+            observation_kind=observation.get("observation_kind"),
+        )
+        state = module.record_event(state, event)
+    save_mission_state(project_root, state)
+
+
+def finalize_mission_acceptance(
+    project_root: Path,
+    objective_id: str,
+    loop: Mapping[str, Any],
+    receipt_path: Path,
+    receipt: Mapping[str, Any],
+) -> None:
+    if receipt.get("accepted") is not True:
+        return
+    module = mission_control_module()
+    state = load_mission_state(project_root, objective_id)
+    candidate = loop.get("candidates", [])[-1]
+    stamp = module.format_time(module.now_utc())
+    for capability in list(state["capabilities"]):
+        if capability["state"] != "connected":
+            continue
+        state = module.record_event(
+            state,
+            module.make_event(
+                f"{candidate['candidate_id']}:{capability['capability_id']}:accepted",
+                "independent_accepted",
+                occurred_at=stamp,
+                work_class="evaluation",
+                capability_id=capability["capability_id"],
+                evidence={"kind": "reality_acceptance", "path": relative(project_root, receipt_path), "sha256": file_digest(receipt_path), "capability_id": capability["capability_id"]},
+            ),
+        )
+    checkpoint = module.create_checkpoint(
+        state,
+        candidate_id=candidate["candidate_id"],
+        capability_ids=[item["capability_id"] for item in state["capabilities"]],
+        artifacts=[{"path": item["path"], "sha256": item["sha256"]} for item in candidate.get("artifact_bindings", candidate.get("artifacts", []))],
+        verification_receipts=[{"path": relative(project_root, receipt_path), "sha256": file_digest(receipt_path)}],
+    )
+    state = module.record_event(
+        state,
+        module.make_event(
+            f"{candidate['candidate_id']}:checkpoint",
+            "checkpoint_recorded",
+            occurred_at=stamp,
+            work_class="checkpoint",
+            checkpoint=checkpoint,
+        ),
+    )
+    save_mission_state(project_root, state)
 
 
 def seal(state: Mapping[str, Any]) -> dict[str, Any]:
@@ -211,6 +421,8 @@ def start(project_root: Path, objective_id: str, objective: str) -> dict[str, An
     except Exception as exc:
         raise DirectorError(getattr(exc, "code", "E_BOOTSTRAP"), f"outcome bootstrap failed: {exc}") from exc
     discovery_fabric = receipt["paths"]["discovery_fabric"]
+    mission = mission_control_module().initialize_state(objective_id, objective)
+    save_mission_state(project_root, mission)
     state = {
         "$schema": STATE_SCHEMA,
         "schema_version": 1,
@@ -224,6 +436,7 @@ def start(project_root: Path, objective_id: str, objective: str) -> dict[str, An
             "discovery_contract": receipt["paths"]["contract"],
             "outcome_loop": receipt["paths"]["loop_state"],
             "discovery_fabric": discovery_fabric,
+            "mission_execution_state": relative(project_root, mission_state_path(project_root, objective_id)),
         },
         "next_action": next_execute_fabric(
             "discovery",
@@ -238,7 +451,9 @@ def start(project_root: Path, objective_id: str, objective: str) -> dict[str, An
         ],
         "director_sha256": None,
     }
-    return save_state(project_root, state)
+    saved = save_state(project_root, state)
+    saved["next_action"]["mission_control"] = mission_binding(project_root, objective_id)
+    return save_state(project_root, saved)
 
 
 def proposal_paths(base: Path) -> list[Path]:
@@ -297,6 +512,7 @@ def build_outcome_control(
     calibrations: list[dict[str, Any]],
     *,
     force_lane: str | None = None,
+    artifact_contract_file: Path | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     base = workspace(project_root, state["objective_id"])
     runtime = base / "runtime"
@@ -324,6 +540,7 @@ def build_outcome_control(
     work_id = f"outcome-delivery-{slug(state['objective_id'])}"
     calibrations_path = runtime / "calibrations.json"
     write_json(calibrations_path, calibrations)
+    active_artifact_contract = artifact_contract_file or (runtime / "artifact-contract.json")
     binding = {
         "$schema": "company-os.outcome-control-binding.v1",
         "execution_lane": lane,
@@ -333,7 +550,7 @@ def build_outcome_control(
         "governed_outcome": state["original_objective"],
         "objective_id": state["objective_id"],
         "outcome_contract_path": relative(project_root, base / "measurable-outcome-contract.json"),
-        "artifact_contract_path": relative(project_root, runtime / "artifact-contract.json"),
+        "artifact_contract_path": relative(project_root, active_artifact_contract),
         "evaluator_contract_path": relative(project_root, runtime / "evaluator-contract.json"),
         "benchmark_contract_path": relative(project_root, runtime / "benchmark-contract.json"),
         "calibration_receipts_path": relative(project_root, calibrations_path),
@@ -361,6 +578,7 @@ def organization_request(
     instance = obj(control_state.get("instance"), "instance")
     return {
         "$schema": "company-os.outcome-organization-request.v1",
+        "mission_control": mission_binding(project_root, state["objective_id"]),
         "project_id": text(instance.get("project_id"), "project_id"),
         "program_version": strategy["program_version"],
         "work_id": binding["work_id"],
@@ -379,7 +597,19 @@ def organization_request(
 def compile_current_fabric(project_root: Path, state: Mapping[str, Any], binding: Mapping[str, Any]) -> str:
     base = workspace(project_root, state["objective_id"])
     loop_path = base / "outcome-loop.json"
+    phase = read_json(loop_path, "outcome loop").get("phase")
+    work_class = {"build_candidate": "implementation", "rework": "repair", "evaluate": "evaluation"}.get(phase)
+    if work_class is None:
+        raise DirectorError("E_PHASE", f"cannot compile execution fabric for phase {phase!r}")
+    admission = admit_mission_work(
+        project_root,
+        state["objective_id"],
+        work_class=work_class,
+        task_id=f"outcome-{phase}",
+        manager_id="outcome-director",
+    )
     request = organization_request(project_root, state, binding)
+    request["work_admission"] = admission
     request_path = base / "runtime/outcome-organization-request.json"
     write_json(request_path, request)
     try:
@@ -406,11 +636,21 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
         proposals = proposal_paths(base)
         missing = [relative(project_root, path) for path in proposals if not path.is_file()]
         if missing:
+            admission = admit_mission_work(
+                project_root,
+                objective_id,
+                work_class="research",
+                task_id="outcome-discovery",
+                manager_id="outcome-director",
+                bootstrap=True,
+            )
             state["next_action"] = next_execute_fabric(
                 "discovery",
                 state["artifacts"]["discovery_fabric"],
                 reason="Discovery proposals are still missing: " + ", ".join(missing),
             )
+            state["next_action"]["mission_control"] = mission_binding(project_root, objective_id)
+            state["next_action"]["work_admission"] = admission
             return save_state(project_root, state)
         base_request = obj(
             read_json(base / "outcome-request.json", "outcome request"),
@@ -430,6 +670,14 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
             base / "measurable-outcome-request.json",
             base / "runtime",
         )
+        final_artifact_contract = obj(read_json(base / "runtime/artifact-contract.json", "artifact contract"), "artifact contract")
+        mission = mission_control_module().update_scope(load_mission_state(project_root, objective_id), final_artifact_contract)
+        save_mission_state(project_root, mission)
+        first_reality_path = base / "first-reality-contract.json"
+        write_json(first_reality_path, mission["first_reality"])
+        first_artifact_contract = compile_first_reality_artifact_contract(final_artifact_contract, mission["first_reality"])
+        first_artifact_path = base / "runtime/first-reality-artifact-contract.json"
+        write_json(first_artifact_path, first_artifact_contract)
         state["stage"] = "control"
         state["artifacts"].update(
             {
@@ -438,6 +686,8 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
                 "artifact_contract": relative(project_root, base / "runtime/artifact-contract.json"),
                 "evaluator_contract": relative(project_root, base / "runtime/evaluator-contract.json"),
                 "benchmark_contract": relative(project_root, base / "runtime/benchmark-contract.json"),
+                "first_reality_contract": relative(project_root, first_reality_path),
+                "first_reality_artifact_contract": relative(project_root, first_artifact_path),
             }
         )
         state["history"].append({"event": "discovery_synthesized"})
@@ -522,7 +772,18 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
             # Build the first real candidate before spending the mission on evaluator
             # construction/calibration. Empty calibration bindings are valid for a
             # bounded, reversible pilot.
-            binding, portable = build_outcome_control(project_root, state, outcome, artifacts, evaluators, benchmarks, [], force_lane="pilot")
+            pilot_artifacts = obj(read_json(base / "runtime/first-reality-artifact-contract.json", "first reality artifact contract"), "first reality artifact contract")
+            binding, portable = build_outcome_control(
+                project_root,
+                state,
+                outcome,
+                pilot_artifacts,
+                evaluators,
+                benchmarks,
+                [],
+                force_lane="pilot",
+                artifact_contract_file=base / "runtime/first-reality-artifact-contract.json",
+            )
             try:
                 bound_loop = outcome_loop_module().bind_control(project_root, loop, portable)
             except Exception as exc:
@@ -570,6 +831,7 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
             try: updated_loop = outcome_loop_module().record_reality(project_root, loop, relative(project_root, receipt_path))
             except Exception as exc: raise DirectorError(getattr(exc, "code", "E_LOOP"), f"outcome loop rejected reality receipt: {exc}") from exc
             write_json(loop_path, updated_loop)
+            finalize_mission_acceptance(project_root, objective_id, updated_loop, receipt_path, receipt)
             return advance(project_root, objective_id)
         if phase not in {"build_candidate", "rework", "evaluate"}:
             raise DirectorError("E_PHASE", f"unsupported outcome loop phase: {phase}")
@@ -615,6 +877,7 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
                 if getattr(exc, "code", None) != "E_MANIFEST_MISSING": raise DirectorError(getattr(exc, "code", "E_CANDIDATE_HANDOFF"), f"production artifact handoff is invalid: {exc}") from exc
             else:
                 candidate_path = base / f"runtime/{candidate_id}.json"; write_json(candidate_path, candidate)
+                record_candidate_mission_evidence(project_root, objective_id, candidate)
                 try: updated_loop = outcome_loop_module().record_candidate(project_root, loop, candidate)
                 except Exception as exc: raise DirectorError(getattr(exc, "code", "E_CANDIDATE"), f"assembled candidate was rejected by outcome loop: {exc}") from exc
                 write_json(loop_path, updated_loop)
@@ -685,12 +948,21 @@ def record_evaluations(project_root: Path, objective_id: str, batch_path: Path) 
 
 def status(project_root: Path, objective_id: str) -> dict[str, Any]:
     state = load_state(project_root, objective_id)
+    mission = load_mission_state(project_root, objective_id)
     return {
         "objective_id": state["objective_id"],
         "original_objective": state["original_objective"],
         "stage": state["stage"],
         "next_action": state["next_action"],
         "director_sha256": state["director_sha256"],
+        "mission_execution": {
+            "status": mission["status"],
+            "mission_class": mission["mission_class"],
+            "reality": mission_control_module().reality_signals(mission),
+            "governor_decision": mission["governor_decision"],
+            "deadline_status": mission["deadline_status"],
+            "checkpoint": mission.get("checkpoint"),
+        },
     }
 
 
