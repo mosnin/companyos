@@ -32,3 +32,6 @@ new_units = '''                work_class=work_class,
 if director_text.count(old_units) != 1:
     raise SystemExit(f"discovery unit anchor expected once, found {director_text.count(old_units)}")
 director.write_text(director_text.replace(old_units, new_units, 1), encoding="utf-8")
+
+# This temporary migration script is intentionally rerunnable only against the
+# unintegrated branch tree; permanent runtime files remain the source of truth.
