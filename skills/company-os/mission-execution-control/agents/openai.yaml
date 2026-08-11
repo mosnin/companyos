@@ -1,0 +1,6 @@
+interface:
+  display_name: Mission Execution Control
+  short_description: Enforce reality-first execution, deadlines, budgets, leases, and checkpointing.
+  default_prompt: Use $mission-execution-control through the Company OS director to enforce the current mission state and governor decision before dispatch.
+policy:
+  allow_implicit_invocation: true
