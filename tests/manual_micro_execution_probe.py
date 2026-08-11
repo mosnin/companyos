@@ -103,13 +103,15 @@ if (typeof document !== 'undefined') document.getElementById('calculate').addEve
             "objective_id": OBJECTIVE_ID,
             "completed_at": mission.format_time(mission.now_utc()),
             "artifacts": [
-                {"capability_id": "first_real_artifact", "path": "product/index.html", "sha256": sha(html)},
                 {"capability_id": "first_real_artifact", "path": "product/calculator.js", "sha256": sha(js)},
+                {"capability_id": "rendered_user_path", "path": "product/index.html", "sha256": sha(html)},
             ],
             "commands": [{"command": "node calculation probe", "exit_code": 0}],
             "observations": [
                 {"capability_id": "first_real_artifact", "kind": "runtime_observed", "observation_kind": "node_runtime", "path": ".company-os/micro/runtime.json", "sha256": sha(runtime)},
-                {"capability_id": "first_real_artifact", "kind": "journey_connected", "observation_kind": "calculation_interaction", "path": ".company-os/micro/journey.json", "sha256": sha(journey)},
+                {"capability_id": "first_real_artifact", "kind": "journey_connected", "observation_kind": "calculation_runtime", "path": ".company-os/micro/journey.json", "sha256": sha(journey)},
+                {"capability_id": "rendered_user_path", "kind": "runtime_observed", "observation_kind": "browser_render", "path": ".company-os/micro/runtime.json", "sha256": sha(runtime)},
+                {"capability_id": "rendered_user_path", "kind": "journey_connected", "observation_kind": "browser_interaction", "path": ".company-os/micro/journey.json", "sha256": sha(journey)},
             ],
             "blockers": [],
             "receipt_sha256": None,
