@@ -36,7 +36,11 @@ jobs:
           python-version: "3.11"
 
       - name: Verify local runtime syntax
-        run: python3 -m py_compile tests/agent_os_autonomous_micro/local_agent_runtime.py tests/agent_os_autonomous_micro/evaluate.py
+        run: >-
+          python3 -m py_compile
+          tests/agent_os_autonomous_micro/local_agent_runtime.py
+          tests/agent_os_autonomous_micro/local_agent_runtime_v2.py
+          tests/agent_os_autonomous_micro/evaluate.py
 
       - name: Install independent browser evaluator
         run: |
@@ -46,7 +50,9 @@ jobs:
       - name: Start local model provider
         run: |
           curl -fsSL https://ollama.com/install.sh | sh
-          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 nohup ollama serve > /tmp/ollama.log 2>&1 &
+          sudo systemctl stop ollama || true
+          sudo pkill -f "ollama serve" || true
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_CONTEXT_LENGTH=8192 OLLAMA_NUM_PARALLEL=1 nohup ollama serve > /tmp/ollama.log 2>&1 &
           for attempt in $(seq 1 60); do
             curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
             sleep 1
@@ -70,7 +76,7 @@ jobs:
       - name: Run Company OS without human steering
         run: |
           set -o pipefail
-          python3 tests/agent_os_autonomous_micro/local_agent_runtime.py \
+          python3 tests/agent_os_autonomous_micro/local_agent_runtime_v2.py \
             --workspace "$WORKSPACE" \
             --objective-file "$WORKSPACE/OBJECTIVE.md" \
             --model "$AGENT_MODEL" \
