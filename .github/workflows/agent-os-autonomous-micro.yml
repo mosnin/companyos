@@ -17,9 +17,13 @@ permissions:
 jobs:
   autonomous-micro:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 90
     env:
       WORKSPACE: ${{ github.workspace }}/agent-os-micro-workspace
+      AGENT_MODEL: qwen2.5-coder:3b
+      OLLAMA_URL: http://127.0.0.1:11434
+      MAX_AGENT_TURNS: "16"
+      MAX_MISSION_CYCLES: "12"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,14 +35,24 @@ jobs:
         with:
           python-version: "3.11"
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
+      - name: Verify local runtime syntax
+        run: python3 -m py_compile tests/agent_os_autonomous_micro/local_agent_runtime.py tests/agent_os_autonomous_micro/evaluate.py
 
       - name: Install independent browser evaluator
         run: |
           python3 -m pip install --disable-pip-version-check playwright
           python3 -m playwright install chromium --with-deps
+
+      - name: Start local model provider
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NUM_PARALLEL=1 nohup ollama serve > /tmp/ollama.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$AGENT_MODEL"
 
       - name: Prepare isolated Company OS workspace
         run: |
@@ -53,27 +67,14 @@ jobs:
           git -C "$WORKSPACE" add -A
           git -C "$WORKSPACE" commit -q -m "test baseline"
 
-      - name: Verify agent provider credential exists
-        env:
-          CODEX_TEST_KEY: ${{ secrets.OPENAI_API_KEY || secrets.CODEX_API_KEY }}
-        run: |
-          if [ -z "$CODEX_TEST_KEY" ]; then
-            echo "::error::Autonomous agent test requires an OPENAI_API_KEY or CODEX_API_KEY repository secret."
-            exit 78
-          fi
-
       - name: Run Company OS without human steering
-        id: codex
-        uses: openai/codex-action@v1
-        with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY || secrets.CODEX_API_KEY }}
-          prompt-file: tests/agent_os_autonomous_micro/ROOT_PROMPT.md
-          working-directory: agent-os-micro-workspace
-          output-file: agent-os-micro-workspace/.company-os-test/codex-final-message.txt
-          sandbox: workspace-write
-          effort: high
-          codex-args: '["--enable", "multi_agent", "--json"]'
-          safety-strategy: drop-sudo
+        run: |
+          set -o pipefail
+          python3 tests/agent_os_autonomous_micro/local_agent_runtime.py \
+            --workspace "$WORKSPACE" \
+            --objective-file "$WORKSPACE/OBJECTIVE.md" \
+            --model "$AGENT_MODEL" \
+            2>&1 | tee "$WORKSPACE/.company-os-test/local-agent-runtime.log"
 
       - name: Preserve autonomous execution metadata
         if: always()
@@ -81,7 +82,8 @@ jobs:
           mkdir -p "$WORKSPACE/.company-os-test"
           git -C "$WORKSPACE" status --short > "$WORKSPACE/.company-os-test/git-status.txt" || true
           git -C "$WORKSPACE" log --oneline --decorate --all > "$WORKSPACE/.company-os-test/git-log.txt" || true
-          find "$WORKSPACE" -maxdepth 8 -type f -not -path '*/.git/*' | sort > "$WORKSPACE/.company-os-test/file-inventory.txt" || true
+          find "$WORKSPACE" -maxdepth 10 -type f -not -path '*/.git/*' | sort > "$WORKSPACE/.company-os-test/file-inventory.txt" || true
+          cp /tmp/ollama.log "$WORKSPACE/.company-os-test/ollama.log" || true
 
       - name: Independently evaluate Company OS and product reality
         if: always()
@@ -99,4 +101,5 @@ jobs:
             agent-os-autonomous-micro-report.json
             agent-os-micro-workspace
           if-no-files-found: warn
+          include-hidden-files: true
           retention-days: 14
