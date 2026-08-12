@@ -1,0 +1,90 @@
+name: Agent OS Local Model Preflight
+
+on:
+  push:
+    branches:
+      - test/agent-os-autonomous-micro-20260811
+    paths:
+      - ".github/workflows/agent-os-local-model-preflight.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install and start Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          OLLAMA_HOST=127.0.0.1:11434 OLLAMA_CONTEXT_LENGTH=8192 OLLAMA_NUM_PARALLEL=1 nohup ollama serve > /tmp/ollama.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:11434/api/tags >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/ollama.log
+          exit 1
+
+      - name: Pull bounded coding model
+        run: ollama pull qwen2.5-coder:3b
+
+      - name: Verify model initiated the tool call itself
+        run: |
+          python3 - <<'PY'
+          import json
+          import urllib.request
+
+          payload = {
+              "model": "qwen2.5-coder:3b",
+              "messages": [
+                  {
+                      "role": "system",
+                      "content": "You are in a tool-use loop. Use the available function instead of calculating in prose.",
+                  },
+                  {
+                      "role": "user",
+                      "content": "Use the tool to add 7 and 11.",
+                  },
+              ],
+              "stream": False,
+              "options": {"temperature": 0, "num_ctx": 8192},
+              "tools": [
+                  {
+                      "type": "function",
+                      "function": {
+                          "name": "add_numbers",
+                          "description": "Add exactly two integers.",
+                          "parameters": {
+                              "type": "object",
+                              "required": ["a", "b"],
+                              "properties": {
+                                  "a": {"type": "integer"},
+                                  "b": {"type": "integer"},
+                              },
+                          },
+                      },
+                  }
+              ],
+          }
+          request = urllib.request.Request(
+              "http://127.0.0.1:11434/api/chat",
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json"},
+          )
+          with urllib.request.urlopen(request, timeout=180) as response:
+              body = json.load(response)
+          calls = body.get("message", {}).get("tool_calls") or []
+          assert calls, body
+          call = calls[0].get("function", {})
+          assert call.get("name") == "add_numbers", body
+          arguments = call.get("arguments") or {}
+          assert int(arguments.get("a")) == 7 and int(arguments.get("b")) == 11, body
+          print(json.dumps({"ok": True, "tool_call": call}, sort_keys=True))
+          PY
