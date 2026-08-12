@@ -1,0 +1,36 @@
+name: Agent OS Models Preflight
+
+on:
+  push:
+    branches:
+      - test/agent-os-autonomous-micro-20260811
+    paths:
+      - ".github/workflows/agent-os-models-preflight.yml"
+
+permissions:
+  contents: read
+  models: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Call GitHub Models with the job token
+        id: inference
+        uses: actions/ai-inference@v1
+        with:
+          model: openai/gpt-4.1
+          system-prompt: Return only the exact word READY.
+          prompt: Confirm that model inference is available.
+          max-completion-tokens: 20
+          temperature: 0
+
+      - name: Verify deterministic response
+        env:
+          RESPONSE_FILE: ${{ steps.inference.outputs.response-file }}
+        run: |
+          cat "$RESPONSE_FILE"
+          test "$(tr -d '\r\n ' < "$RESPONSE_FILE")" = "READY"
