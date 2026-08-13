@@ -1,0 +1,72 @@
+name: Merge Recursive Skill Foundry After Acceptance
+
+on:
+  push:
+    branches:
+      - codex/recursive-skill-foundry
+    paths:
+      - "artifacts/recursive-skill-foundry/merge-ready.json"
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/recursive-skill-foundry
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify merge readiness and permanent tree
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          ready = json.loads(Path('artifacts/recursive-skill-foundry/merge-ready.json').read_text())
+          assert ready['focused_suite'] == 'pass', ready
+          assert ready['full_repository_suite'] == 'pass', ready
+          assert ready['simulation'] == 'pass', ready
+          assert ready['temporary_machinery_removed'] is True, ready
+          assert Path(ready['permanent_workflow']).is_file(), ready
+          temporary = [
+              '.github/workflows/apply-recursive-skill-foundry.yml',
+              '.github/workflows/repair-recursive-skill-foundry-phase1.yml',
+              '.github/workflows/repair-recursive-skill-foundry-phase2.yml',
+              '.github/workflows/repair-recursive-skill-foundry-phase3.yml',
+              '.github/workflows/finalize-recursive-skill-foundry.yml',
+              '.github/workflows/verify-recursive-skill-foundry-phase4.yml',
+              '.github/workflows/cleanup-recursive-skill-foundry.yml',
+              '.github/workflows/cleanup-recursive-skill-foundry-v2.yml',
+          ]
+          assert not [item for item in temporary if Path(item).exists()], temporary
+          PY
+          python3 scripts/validate_role_skills.py
+          python3 scripts/distribution.py verify-manifest
+          python3 -m unittest discover -s tests -v
+          python3 skills/company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py \
+            --output /tmp/merge-gate-foundry-simulation.json
+      - name: Create or locate pull request
+        id: pr
+        run: |
+          pr_url="$(gh pr list --repo "$GITHUB_REPOSITORY" --head codex/recursive-skill-foundry --base main --state open --json url --jq '.[0].url')"
+          if [ -z "$pr_url" ]; then
+            pr_url="$(gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --head codex/recursive-skill-foundry \
+              --base main \
+              --title "feat(company-os): add recursive reusable skill foundry" \
+              --body "Adds a project isolated recursive skill foundry adapted selectively from Beem. Includes deterministic creation, validation, held out simulation, regression based iteration, bounded recursive systems, field evidence promotion gates, content addressed project installation, automatic outcome worker assignment, and permanent CI verification.")"
+          fi
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+      - name: Wait for pull request checks
+        run: gh pr checks "${{ steps.pr.outputs.url }}" --repo "$GITHUB_REPOSITORY" --watch --interval 15
+      - name: Squash merge accepted pull request
+        run: gh pr merge "${{ steps.pr.outputs.url }}" --repo "$GITHUB_REPOSITORY" --squash --delete-branch
