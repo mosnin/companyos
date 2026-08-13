@@ -1,0 +1,70 @@
+name: Verify Recursive Skill Foundry Phase 4
+
+on:
+  push:
+    branches:
+      - codex/recursive-skill-foundry
+    paths:
+      - ".github/workflows/verify-recursive-skill-foundry-phase4.yml"
+      - "tests/test_recursive_skill_foundry_safety.py"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/recursive-skill-foundry
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Apply complete idempotent integration
+        run: |
+          python3 scripts/apply_recursive_skill_foundry_integration.py
+          python3 scripts/finalize_recursive_skill_foundry_v2.py
+          python3 scripts/distribution.py write-manifest
+      - name: Run focused lifecycle, safety, and assignment tests
+        run: |
+          python3 scripts/validate_role_skills.py
+          python3 scripts/distribution.py verify-manifest
+          python3 -m unittest \
+            tests.test_recursive_skill_foundry \
+            tests.test_recursive_skill_foundry_safety \
+            tests.test_recursive_skill_foundry_organization \
+            tests.test_outcome_organization \
+            tests.test_role_skills \
+            -v
+      - name: Run complete repository suite
+        run: python3 -m unittest discover -s tests -v
+      - name: Run works versus blocks simulation
+        run: |
+          mkdir -p artifacts/recursive-skill-foundry
+          python3 skills/company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py \
+            --output artifacts/recursive-skill-foundry/simulation-report.json
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path('artifacts/recursive-skill-foundry/simulation-report.json').read_text())
+          receipt = {
+              '$schema': 'company-os.recursive-skill-foundry-verification.v1',
+              'source_sha': os.environ['GITHUB_SHA'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'simulation_status': report['status'],
+              'works_passed': report['summary']['works_passed'],
+              'expected_blocks_passed': report['summary']['expected_blocks_passed'],
+              'unexpected_failures': report['summary']['unexpected_failures'],
+              'full_repository_suite': 'pass',
+          }
+          Path('artifacts/recursive-skill-foundry/verification.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          PY
+      - name: Commit verified state and evidence
+        run: |
+          git config user.name "company-os-skill-foundry-bot"
+          git config user.email "company-os-skill-foundry-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "test(company-os): verify recursive skill foundry safety and simulation"
+          git push origin HEAD:codex/recursive-skill-foundry
