@@ -1,0 +1,6 @@
+interface:
+  display_name: "Recursive Skill Foundry"
+  short_description: "Forge and evolve reusable project skills"
+  default_prompt: "Use $recursive-skill-foundry to create or evolve this bounded reusable capability inside Company OS."
+policy:
+  allow_implicit_invocation: false
