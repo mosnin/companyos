@@ -1,0 +1,117 @@
+name: Clean Recursive Skill Foundry Integration
+
+on:
+  push:
+    branches:
+      - codex/recursive-skill-foundry
+    paths:
+      - "artifacts/recursive-skill-foundry/simulation-report.json"
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/recursive-skill-foundry
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Confirm accepted simulation evidence
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/recursive-skill-foundry/simulation-report.json').read_text())
+          assert report['status'] == 'pass', report
+          assert report['summary']['unexpected_failures'] == 0, report
+          assert report['summary']['total_cases'] >= 10, report
+          PY
+      - name: Verify final product tree before cleanup
+        run: |
+          python3 scripts/validate_role_skills.py
+          python3 scripts/distribution.py verify-manifest
+          python3 -m unittest discover -s tests -v
+          python3 skills/company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py --output /tmp/foundry-simulation.json
+      - name: Install permanent read only verification workflow
+        run: |
+          cat > .github/workflows/verify-recursive-skill-foundry.yml <<'YAML'
+          name: Verify Recursive Skill Foundry
+
+          on:
+            push:
+              paths:
+                - "skills/company-os/recursive-skill-foundry/**"
+                - "skills/company-os/compile-outcome-organization/**"
+                - "skills/company-os/company-os/SKILL.md"
+                - "skills/company-os/manage-company-program/SKILL.md"
+                - "skills/company-os/assign-capability-skills/SKILL.md"
+                - "skills/company-os/navigation-control/SKILL.md"
+                - "skills/autonomy-suite/execute-bounded-task/SKILL.md"
+                - "tests/test_recursive_skill_foundry.py"
+                - "tests/test_recursive_skill_foundry_organization.py"
+                - ".github/workflows/verify-recursive-skill-foundry.yml"
+            pull_request:
+              paths:
+                - "skills/company-os/recursive-skill-foundry/**"
+                - "skills/company-os/compile-outcome-organization/**"
+                - "tests/test_recursive_skill_foundry.py"
+                - "tests/test_recursive_skill_foundry_organization.py"
+                - ".github/workflows/verify-recursive-skill-foundry.yml"
+
+          permissions:
+            contents: read
+
+          jobs:
+            verify:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                - uses: actions/setup-python@v5
+                  with:
+                    python-version: "3.11"
+                - name: Verify role and distribution contracts
+                  run: |
+                    python3 scripts/validate_role_skills.py
+                    python3 scripts/distribution.py verify-manifest
+                - name: Verify recursive skill lifecycle and automatic assignment
+                  run: |
+                    python3 -m unittest \
+                      tests.test_recursive_skill_foundry \
+                      tests.test_recursive_skill_foundry_organization \
+                      tests.test_outcome_organization \
+                      tests.test_role_skills \
+                      -v
+                - name: Run disposable works versus blocks simulation
+                  run: |
+                    python3 skills/company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py \
+                      --output /tmp/recursive-skill-foundry-simulation.json
+          YAML
+      - name: Remove temporary integration machinery
+        run: |
+          rm -f \
+            .github/workflows/apply-recursive-skill-foundry.yml \
+            .github/workflows/repair-recursive-skill-foundry-phase1.yml \
+            .github/workflows/repair-recursive-skill-foundry-phase2.yml \
+            .github/workflows/repair-recursive-skill-foundry-phase3.yml \
+            .github/workflows/finalize-recursive-skill-foundry.yml \
+            .github/workflows/cleanup-recursive-skill-foundry.yml \
+            scripts/apply_recursive_skill_foundry_integration.py \
+            scripts/repair_recursive_skill_foundry_phase1.py \
+            scripts/repair_recursive_skill_foundry_phase2.py \
+            scripts/repair_recursive_skill_foundry_phase3.py \
+            scripts/finalize_recursive_skill_foundry.py \
+            scripts/finalize_recursive_skill_foundry_v2.py
+          python3 scripts/distribution.py write-manifest
+          python3 scripts/distribution.py verify-manifest
+      - name: Commit clean verified product tree
+        run: |
+          git config user.name "company-os-skill-foundry-bot"
+          git config user.email "company-os-skill-foundry-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(company-os): finalize recursive skill foundry product tree"
+          git push origin HEAD:codex/recursive-skill-foundry
