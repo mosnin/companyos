@@ -1,0 +1,49 @@
+name: Apply Goal Route Operating System
+
+on:
+  push:
+    branches:
+      - codex/goal-route-operating-system
+    paths:
+      - ".github/workflows/apply-goal-route-operating-system.yml"
+      - "scripts/goal-route-bundle/**"
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/goal-route-operating-system
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Materialize goal route implementation
+        run: |
+          cat scripts/goal-route-bundle/part-* | base64 --decode > /tmp/goal-route.tar.gz
+          tar -tzf /tmp/goal-route.tar.gz
+          tar -xzf /tmp/goal-route.tar.gz
+          rm -rf scripts/goal-route-bundle
+      - name: Refresh distribution manifest
+        run: python3 scripts/distribution.py write-manifest
+      - name: Verify focused goal route behavior
+        run: |
+          python3 -m unittest discover -s tests -p 'test_goal_route*.py' -v
+          python3 -m unittest discover -s tests -p 'test_recursive_skill_foundry*.py' -v
+      - name: Verify complete repository
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 scripts/distribution.py verify-manifest
+          python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
+      - name: Commit integrated implementation
+        run: |
+          git config user.name "company-os-goal-route-bot"
+          git config user.email "company-os-goal-route-bot@users.noreply.github.com"
+          git add -A ':!.github/workflows/apply-goal-route-operating-system.yml'
+          git commit -m "feat(company-os): add goal route operating system"
+          git push origin HEAD:codex/goal-route-operating-system
