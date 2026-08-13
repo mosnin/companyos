@@ -1,0 +1,51 @@
+name: Apply Recursive Skill Foundry
+
+on:
+  push:
+    branches:
+      - codex/recursive-skill-foundry
+    paths:
+      - ".github/workflows/apply-recursive-skill-foundry.yml"
+      - "scripts/apply_recursive_skill_foundry.py"
+      - "scripts/recursive-skill-foundry-bundle/**"
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/recursive-skill-foundry
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Apply implementation
+        run: python3 scripts/apply_recursive_skill_foundry.py
+      - name: Remove staging files
+        run: |
+          rm -rf scripts/recursive-skill-foundry-bundle
+          rm scripts/apply_recursive_skill_foundry.py
+      - name: Refresh distribution manifest
+        run: python3 scripts/distribution.py write-manifest
+      - name: Verify focused integration
+        run: |
+          python3 -m unittest tests.test_recursive_skill_foundry tests.test_recursive_skill_foundry_simulation tests.test_outcome_director tests.test_role_skills -v
+          python3 skills/company-os/recursive-skill-foundry/scripts/simulate_recursive_skill_foundry.py --output /tmp/recursive-skill-foundry-simulation.json
+          python3 skills/company-os/assign-capability-skills/scripts/capability_catalog.py validate --catalog skills/company-os/assign-capability-skills/references/capability-catalog.json --skill-root skills/company-os/assign-capability-skills
+          python3 -m py_compile skills/company-os/recursive-skill-foundry/scripts/recursive_skill_foundry.py skills/company-os/recursive-skill-foundry/scripts/simulate_recursive_skill_foundry.py skills/company-os/direct-outcome/scripts/direct_outcome.py
+      - name: Verify repository suite
+        run: python3 -m unittest discover -s tests -v
+      - name: Verify distribution manifest
+        run: python3 scripts/distribution.py verify-manifest
+      - name: Commit integrated implementation
+        run: |
+          git config user.name "company-os-recursive-skill-foundry-bot"
+          git config user.email "company-os-recursive-skill-foundry-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(company-os): add recursive skill foundry"
+          git push origin HEAD:codex/recursive-skill-foundry
