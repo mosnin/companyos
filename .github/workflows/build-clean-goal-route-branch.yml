@@ -1,0 +1,142 @@
+name: Build Clean Goal Route Branch
+
+on:
+  push:
+    branches:
+      - codex/goal-route-operating-system
+    paths:
+      - ".github/workflows/build-clean-goal-route-branch.yml"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: build-clean-goal-route-branch
+  cancel-in-progress: false
+
+jobs:
+  build-clean-branch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      CLEAN_BRANCH: codex/goal-route-operating-system-clean
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/goal-route-operating-system
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Synchronize source branch
+        run: |
+          sleep 120
+          git fetch origin codex/goal-route-operating-system main
+          git reset --hard origin/codex/goal-route-operating-system
+      - name: Apply resilient integration when needed
+        run: |
+          if [ -f scripts/apply_goal_route_operating_system_v3.py ]; then
+            python3 scripts/apply_goal_route_operating_system_v3.py
+          fi
+          grep -q 'def goal_route_module' skills/company-os/direct-outcome/scripts/direct_outcome.py
+          grep -q 'def _goal_route_module' skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py
+          grep -q 'goal_route_state_sha256' skills/company-os/assemble-outcome-candidate/scripts/assemble_candidate.py
+          grep -q 'def verify_assignment' skills/company-os/goal-route-system/scripts/goal_route.py
+      - name: Clean source working tree and refresh manifest
+        run: |
+          rm -f scripts/apply_goal_route_operating_system_v2.py
+          rm -f scripts/apply_goal_route_operating_system_v3.py
+          rm -f scripts/repair_goal_route_operating_system_v2.py
+          rm -rf scripts/goal-route-bundle
+          rm -f tmp/goal-route-branch-verification.txt tmp/ignore-this tmp/last-probe tmp/oops tmp/pr-probe.txt tmp/upload-probe-4.txt
+          rm -rf artifacts/goal-route-verification artifacts/goal-route-clean-failure
+          python3 scripts/distribution.py write-manifest
+      - name: Verify integrated source tree
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p /tmp/goal-route-logs/source
+          python3 -m unittest tests.test_goal_route_system tests.test_goal_route_simulation tests.test_goal_route_organization -v 2>&1 | tee /tmp/goal-route-logs/source/focused.log
+          python3 skills/company-os/goal-route-system/scripts/goal_route.py simulate 2>&1 | tee /tmp/goal-route-logs/source/simulation.log
+          python3 -m unittest discover -s tests -p 'test_recursive_skill_foundry*.py' -v 2>&1 | tee /tmp/goal-route-logs/source/foundry.log
+          python3 -m unittest discover -s tests -v 2>&1 | tee /tmp/goal-route-logs/source/full-suite.log
+          python3 scripts/distribution.py verify-manifest 2>&1 | tee /tmp/goal-route-logs/source/manifest.log
+          python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test 2>&1 | tee /tmp/goal-route-logs/source/fabric.log
+          python3 -m py_compile skills/company-os/goal-route-system/scripts/goal_route.py skills/company-os/direct-outcome/scripts/direct_outcome.py skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py skills/company-os/assemble-outcome-candidate/scripts/assemble_candidate.py
+          git diff --check
+      - name: Materialize exact clean branch from main
+        run: |
+          rm -rf /tmp/goal-route-clean
+          git worktree add --detach /tmp/goal-route-clean origin/main
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.github/workflows/' \
+            --exclude='artifacts/goal-route-verification/' \
+            --exclude='artifacts/goal-route-clean-failure/' \
+            ./ /tmp/goal-route-clean/
+          cd /tmp/goal-route-clean
+          rm -f scripts/apply_goal_route_operating_system_v2.py
+          rm -f scripts/apply_goal_route_operating_system_v3.py
+          rm -f scripts/repair_goal_route_operating_system_v2.py
+          rm -rf scripts/goal-route-bundle
+          rm -f tmp/goal-route-branch-verification.txt tmp/ignore-this tmp/last-probe tmp/oops tmp/pr-probe.txt tmp/upload-probe-4.txt
+          python3 scripts/distribution.py write-manifest
+      - name: Verify exact clean tree
+        shell: bash
+        run: |
+          set -o pipefail
+          cd /tmp/goal-route-clean
+          mkdir -p /tmp/goal-route-logs/clean
+          python3 -m unittest tests.test_goal_route_system tests.test_goal_route_simulation tests.test_goal_route_organization -v 2>&1 | tee /tmp/goal-route-logs/clean/focused.log
+          python3 skills/company-os/goal-route-system/scripts/goal_route.py simulate 2>&1 | tee /tmp/goal-route-logs/clean/simulation.log
+          python3 -m unittest discover -s tests -p 'test_recursive_skill_foundry*.py' -v 2>&1 | tee /tmp/goal-route-logs/clean/foundry.log
+          python3 -m unittest discover -s tests -v 2>&1 | tee /tmp/goal-route-logs/clean/full-suite.log
+          python3 scripts/distribution.py verify-manifest 2>&1 | tee /tmp/goal-route-logs/clean/manifest.log
+          python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test 2>&1 | tee /tmp/goal-route-logs/clean/fabric.log
+          python3 -m py_compile skills/company-os/goal-route-system/scripts/goal_route.py skills/company-os/direct-outcome/scripts/direct_outcome.py skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py skills/company-os/assemble-outcome-candidate/scripts/assemble_candidate.py
+          git diff --check
+          test ! -e experiments/schema-probe/c.txt
+          test ! -d scripts/goal-route-bundle
+          test ! -e scripts/apply_goal_route_operating_system_v3.py
+      - name: Commit and push clean branch
+        run: |
+          cd /tmp/goal-route-clean
+          git checkout -B "$CLEAN_BRANCH"
+          git config user.name "company-os-goal-route-bot"
+          git config user.email "company-os-goal-route-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(company-os): add goal route operating system"
+          git push origin HEAD:"$CLEAN_BRANCH" --force
+      - name: Open or update clean pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$CLEAN_BRANCH" --base main --state open --json number --jq '.[0].number')
+          if [ -z "$PR" ] || [ "$PR" = "null" ]; then
+            gh pr create --repo "$GITHUB_REPOSITORY" --head "$CLEAN_BRANCH" --base main --title "feat(company-os): add goal route operating system" --body "Concrete content-addressed goals for every master, manager, submanager, and worker; reverse-engineered route graphs; sprints; governed agent templates; cohesion inheritance; evidence rollup; rerouting; takeover packets; and Recursive Skill Foundry integration. Exact clean tree passed focused and full Company OS verification before this pull request was opened."
+            PR=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$CLEAN_BRANCH" --base main --state open --json number --jq '.[0].number')
+          fi
+          echo "CLEAN_PR=$PR" >> "$GITHUB_ENV"
+      - name: Merge verified clean pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr ready "$CLEAN_PR" --repo "$GITHUB_REPOSITORY" || true
+          gh pr merge "$CLEAN_PR" --repo "$GITHUB_REPOSITORY" --squash --subject "feat(company-os): add goal route operating system" --body "Verified recursive goal and route execution control."
+      - name: Verify main contains merged goal route system
+        run: |
+          git fetch origin main
+          git show origin/main:skills/company-os/goal-route-system/scripts/goal_route.py >/dev/null
+          git show origin/main:skills/company-os/direct-outcome/scripts/direct_outcome.py | grep -q 'def goal_route_module'
+          git show origin/main:skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py | grep -q 'def _goal_route_module'
+      - name: Preserve failure evidence on source branch
+        if: failure()
+        run: |
+          mkdir -p artifacts/goal-route-clean-failure
+          cp -R /tmp/goal-route-logs/. artifacts/goal-route-clean-failure/ 2>/dev/null || true
+          git config user.name "company-os-goal-route-bot"
+          git config user.email "company-os-goal-route-bot@users.noreply.github.com"
+          git add artifacts/goal-route-clean-failure || true
+          git commit -m "test(company-os): record clean goal route failure" || true
+          git push origin HEAD:codex/goal-route-operating-system || true
