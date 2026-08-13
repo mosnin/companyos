@@ -1,0 +1,45 @@
+name: Clean Recursive Skill Foundry Merge Gate
+
+on:
+  push:
+    branches:
+      - codex/recursive-skill-foundry-cleanup
+    paths:
+      - ".github/workflows/cleanup-recursive-skill-foundry-merge-gate.yml"
+      - "scripts/cleanup_recursive_skill_foundry_merge_gate.py"
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/recursive-skill-foundry-cleanup
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Remove one time integration machinery
+        run: |
+          python3 scripts/cleanup_recursive_skill_foundry_merge_gate.py
+          rm -f \
+            .github/workflows/cleanup-recursive-skill-foundry-merge-gate.yml \
+            scripts/cleanup_recursive_skill_foundry_merge_gate.py
+          python3 scripts/distribution.py write-manifest
+      - name: Verify clean permanent product tree
+        run: |
+          python3 scripts/validate_role_skills.py
+          python3 scripts/distribution.py verify-manifest
+          python3 -m unittest discover -s tests -v
+          python3 skills/company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py \
+            --output /tmp/post-merge-foundry-simulation.json
+      - name: Commit clean tree
+        run: |
+          git config user.name "company-os-skill-foundry-bot"
+          git config user.email "company-os-skill-foundry-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(company-os): remove recursive skill foundry merge gate"
+          git push origin HEAD:codex/recursive-skill-foundry-cleanup
