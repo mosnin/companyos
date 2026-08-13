@@ -1,0 +1,62 @@
+name: Repair Goal Route Operating System V2
+
+on:
+  push:
+    branches:
+      - codex/goal-route-operating-system
+    paths:
+      - ".github/workflows/repair-goal-route-operating-system-v2.yml"
+      - "scripts/repair_goal_route_operating_system_v2.py"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: goal-route-operating-system-v2
+  cancel-in-progress: false
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/goal-route-operating-system
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Synchronize branch after earlier workflow
+        run: |
+          sleep 20
+          git fetch origin codex/goal-route-operating-system
+          git reset --hard origin/codex/goal-route-operating-system
+      - name: Apply and repair integration
+        run: python3 scripts/repair_goal_route_operating_system_v2.py
+      - name: Refresh distribution manifest
+        run: python3 scripts/distribution.py write-manifest
+      - name: Verify focused goal route system
+        run: |
+          python3 -m unittest tests.test_goal_route_system tests.test_goal_route_simulation tests.test_goal_route_organization -v
+          python3 skills/company-os/goal-route-system/scripts/goal_route.py simulate
+          python3 -m py_compile skills/company-os/goal-route-system/scripts/goal_route.py skills/company-os/direct-outcome/scripts/direct_outcome.py skills/company-os/compile-outcome-organization/scripts/compile_outcome_organization.py skills/company-os/assemble-outcome-candidate/scripts/assemble_candidate.py
+      - name: Verify recursive skill foundry
+        run: python3 -m unittest discover -s tests -p 'test_recursive_skill_foundry*.py' -v
+      - name: Verify complete repository
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 scripts/distribution.py verify-manifest
+          python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
+      - name: Commit verified implementation
+        run: |
+          git config user.name "company-os-goal-route-bot"
+          git config user.email "company-os-goal-route-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(company-os): add goal route operating system"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin codex/goal-route-operating-system
+            git rebase origin/codex/goal-route-operating-system
+            if git push origin HEAD:codex/goal-route-operating-system; then exit 0; fi
+          done
+          exit 1
