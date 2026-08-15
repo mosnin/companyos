@@ -788,6 +788,27 @@ class RoleSkillTests(unittest.TestCase):
                 errors = MODULE.validate_agent_metadata(malformed, "execute-bounded-task")
                 self.assertIn("implicit invocation must be structurally disabled", errors)
 
+    def test_role_skills_keep_openai_and_grok_host_bindings(self) -> None:
+        for name, root in MODULE.SKILLS.items():
+            with self.subTest(role=name):
+                openai_text = (root / "agents/openai.yaml").read_text(encoding="utf-8")
+                grok_text = (root / "agents/grok.yaml").read_text(encoding="utf-8")
+                self.assertEqual([], MODULE.validate_agent_metadata(openai_text, name))
+                self.assertEqual([], MODULE.validate_agent_metadata(grok_text, name))
+                self.assertEqual(
+                    MODULE.parse_agent_yaml(openai_text)[0]["interface"],
+                    MODULE.parse_agent_yaml(grok_text)[0]["interface"],
+                )
+
+    def test_every_openai_host_binding_has_grok_sibling(self) -> None:
+        openai_files = sorted((ROOT / "skills").glob("**/agents/openai.yaml"))
+        self.assertGreater(len(openai_files), 0)
+        for openai_path in openai_files:
+            grok_path = openai_path.with_name("grok.yaml")
+            with self.subTest(path=str(openai_path.relative_to(ROOT))):
+                self.assertTrue(grok_path.is_file(), f"missing {grok_path}")
+                self.assertGreater(grok_path.stat().st_size, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

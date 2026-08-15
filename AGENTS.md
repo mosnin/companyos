@@ -1,7 +1,8 @@
 # Company OS Core
 
 This repository is the canonical source for Company OS. Installed Codex skills
-are distributions and must not be edited as the source of truth.
+and installed Grok Bot / Cursor skills are distributions and must not be edited
+as the source of truth.
 
 ## Scope
 
