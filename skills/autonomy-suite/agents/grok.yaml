@@ -1,0 +1,4 @@
+interface:
+  display_name: "Autonomy Suite"
+  short_description: "Coordinate the autonomous work skill bundle."
+  default_prompt: "Use $autonomy-suite to choose and coordinate the right autonomous workflow skills for this project."

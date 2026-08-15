@@ -967,8 +967,16 @@ def validate() -> list[str]:
         if keys != {"name", "description"}:
             errors.append(f"{name}: frontmatter must contain only name and description")
 
-        metadata_text = (root / "agents/openai.yaml").read_text(encoding="utf-8")
-        errors.extend(f"{name}: {item}" for item in validate_agent_metadata(metadata_text, name))
+        for host_binding in ("openai.yaml", "grok.yaml"):
+            metadata_path = root / "agents" / host_binding
+            if not metadata_path.is_file():
+                errors.append(f"{name}: missing agents/{host_binding}")
+                continue
+            metadata_text = metadata_path.read_text(encoding="utf-8")
+            errors.extend(
+                f"{name}: {host_binding}: {item}"
+                for item in validate_agent_metadata(metadata_text, name)
+            )
 
         spec = ROLE_SPECS[name]
         asset = root / "assets" / spec["asset"]

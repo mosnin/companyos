@@ -41,6 +41,11 @@
       "size": 5932
     },
     {
+      "path": "company-os/assign-capability-skills/agents/grok.yaml",
+      "sha256": "a65f89f5e220a8d81425261e9168a365937503ad43e4b650d64fbf817e186f89",
+      "size": 292
+    },
+    {
       "path": "company-os/assign-capability-skills/agents/openai.yaml",
       "sha256": "a65f89f5e220a8d81425261e9168a365937503ad43e4b650d64fbf817e186f89",
       "size": 292
@@ -181,6 +186,11 @@
       "size": 2216
     },
     {
+      "path": "company-os/brand-creative-system/agents/grok.yaml",
+      "sha256": "586da8cfa61b91af6631105772291fe6fb788802bb96ff39b382711577abacdd",
+      "size": 229
+    },
+    {
       "path": "company-os/brand-creative-system/agents/openai.yaml",
       "sha256": "586da8cfa61b91af6631105772291fe6fb788802bb96ff39b382711577abacdd",
       "size": 229
@@ -236,6 +246,11 @@
       "size": 2143
     },
     {
+      "path": "company-os/commercial-customer-system/agents/grok.yaml",
+      "sha256": "9906278da85eb690854813713833827aee6fec4e9dc13f903145532e652bd8a6",
+      "size": 229
+    },
+    {
       "path": "company-os/commercial-customer-system/agents/openai.yaml",
       "sha256": "9906278da85eb690854813713833827aee6fec4e9dc13f903145532e652bd8a6",
       "size": 229
@@ -244,6 +259,11 @@
       "path": "company-os/company-blueprint/SKILL.md",
       "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
       "size": 3151
+    },
+    {
+      "path": "company-os/company-blueprint/agents/grok.yaml",
+      "sha256": "9eee390e6760b6a0fd676a5a1a4025164e69eb97f136785f3f4a404352787fb3",
+      "size": 165
     },
     {
       "path": "company-os/company-blueprint/agents/openai.yaml",
@@ -289,6 +309,11 @@
       "path": "company-os/company-os/SKILL.md",
       "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
       "size": 16265
+    },
+    {
+      "path": "company-os/company-os/agents/grok.yaml",
+      "sha256": "75c04429548e05c9ba1124e2d657d3bc814ff6007a101a551f26c2eaa7444229",
+      "size": 211
     },
     {
       "path": "company-os/company-os/agents/openai.yaml",
@@ -356,6 +381,11 @@
       "size": 2087
     },
     {
+      "path": "company-os/department-charters/agents/grok.yaml",
+      "sha256": "682dd8b19d55779619ce1a5ac5a4adb20edae341e047886a7a079352039dff64",
+      "size": 108
+    },
+    {
       "path": "company-os/department-charters/agents/openai.yaml",
       "sha256": "682dd8b19d55779619ce1a5ac5a4adb20edae341e047886a7a079352039dff64",
       "size": 108
@@ -374,6 +404,11 @@
       "path": "company-os/elastic-company-os/SKILL.md",
       "sha256": "69de562da2f8654d5963a06f2a418e3ba05e2a6d662b7c68f9f06288273cf952",
       "size": 18808
+    },
+    {
+      "path": "company-os/elastic-company-os/agents/grok.yaml",
+      "sha256": "fbe6a02106c83ba2b973f7cc5f68596da6d7deee8deea316152616ebf0921f1d",
+      "size": 247
     },
     {
       "path": "company-os/elastic-company-os/agents/openai.yaml",
@@ -536,6 +571,11 @@
       "size": 6136
     },
     {
+      "path": "company-os/force-first-execution/agents/grok.yaml",
+      "sha256": "d90e922142248728aa6fc60fb8c308be2e192a4bf0a29aad3fee65898d16e6fd",
+      "size": 117
+    },
+    {
       "path": "company-os/force-first-execution/agents/openai.yaml",
       "sha256": "d90e922142248728aa6fc60fb8c308be2e192a4bf0a29aad3fee65898d16e6fd",
       "size": 117
@@ -661,6 +701,11 @@
       "size": 5459
     },
     {
+      "path": "company-os/intelligence/company-scorecard/agents/grok.yaml",
+      "sha256": "06d7cbda0698baffdeb7da5ea64a5344d1c83e4bc2d464e9bcdfecc0be0e4d81",
+      "size": 239
+    },
+    {
       "path": "company-os/intelligence/company-scorecard/agents/openai.yaml",
       "sha256": "06d7cbda0698baffdeb7da5ea64a5344d1c83e4bc2d464e9bcdfecc0be0e4d81",
       "size": 239
@@ -706,6 +751,11 @@
       "size": 1762
     },
     {
+      "path": "company-os/intelligence/evidence-research-campaign/agents/grok.yaml",
+      "sha256": "009b562626f059e822273f613851d461e36ba290fd069a0d540147e27a8d8ec9",
+      "size": 122
+    },
+    {
       "path": "company-os/intelligence/evidence-research-campaign/agents/openai.yaml",
       "sha256": "009b562626f059e822273f613851d461e36ba290fd069a0d540147e27a8d8ec9",
       "size": 122
@@ -714,6 +764,11 @@
       "path": "company-os/intelligence/innovation-bets/SKILL.md",
       "sha256": "af8d4941e328452bb66244065755ff2f7b8d303eb797b77fc4f33368001e43d9",
       "size": 1326
+    },
+    {
+      "path": "company-os/intelligence/innovation-bets/agents/grok.yaml",
+      "sha256": "8d6de2c6fa76be8daf82333d7b9fee00611c298ef7d7d09c8f50d469836d33fa",
+      "size": 100
     },
     {
       "path": "company-os/intelligence/innovation-bets/agents/openai.yaml",
@@ -726,6 +781,11 @@
       "size": 2439
     },
     {
+      "path": "company-os/intelligence/research-intelligence/agents/grok.yaml",
+      "sha256": "678009f4d69d9b7df1443f5a4b7abddbdd3f66660a09ae231a8982a2034c6899",
+      "size": 112
+    },
+    {
       "path": "company-os/intelligence/research-intelligence/agents/openai.yaml",
       "sha256": "678009f4d69d9b7df1443f5a4b7abddbdd3f66660a09ae231a8982a2034c6899",
       "size": 112
@@ -734,6 +794,11 @@
       "path": "company-os/intelligence/technology-radar/SKILL.md",
       "sha256": "eb60cc12affff565d399beea991086cab418bb8d0cb3c9930323e40cae7341ba",
       "size": 1118
+    },
+    {
+      "path": "company-os/intelligence/technology-radar/agents/grok.yaml",
+      "sha256": "a7cef9c241224d0bf31fcd03c2974e1019e033ee50ec59d85d1cd35c9bd3688a",
+      "size": 102
     },
     {
       "path": "company-os/intelligence/technology-radar/agents/openai.yaml",
@@ -746,6 +811,11 @@
       "size": 1309
     },
     {
+      "path": "company-os/intelligence/voice-of-customer/agents/grok.yaml",
+      "sha256": "261b58dbe9af48e3f5d8d72cf80b06d8450f986f33def9accae95bd8956ce652",
+      "size": 104
+    },
+    {
       "path": "company-os/intelligence/voice-of-customer/agents/openai.yaml",
       "sha256": "261b58dbe9af48e3f5d8d72cf80b06d8450f986f33def9accae95bd8956ce652",
       "size": 104
@@ -754,6 +824,11 @@
       "path": "company-os/manage-company-program/SKILL.md",
       "sha256": "353414f5a3070b83cfa322cee0e36fa5ab62f6ebd3daf1f651f2cb526406e638",
       "size": 4979
+    },
+    {
+      "path": "company-os/manage-company-program/agents/grok.yaml",
+      "sha256": "4c2417a4abdd2b8a77bd2ac08b9f2dad7dd8f12bf7f8ac75b0d5ff442b7820c8",
+      "size": 278
     },
     {
       "path": "company-os/manage-company-program/agents/openai.yaml",
@@ -841,6 +916,11 @@
       "size": 2406
     },
     {
+      "path": "company-os/mission-execution-control/agents/grok.yaml",
+      "sha256": "7d5bdc3fc16baf09c5f1ad394863be5464af095f431d4aed76af74195ce28e86",
+      "size": 353
+    },
+    {
       "path": "company-os/mission-execution-control/agents/openai.yaml",
       "sha256": "7d5bdc3fc16baf09c5f1ad394863be5464af095f431d4aed76af74195ce28e86",
       "size": 353
@@ -921,6 +1001,11 @@
       "size": 2004
     },
     {
+      "path": "company-os/navigation-control/agents/grok.yaml",
+      "sha256": "5b5669677e031e139408ffb6e5fd8f31383b2be0c1e90c860d696c18a63e76f5",
+      "size": 423
+    },
+    {
       "path": "company-os/navigation-control/agents/openai.yaml",
       "sha256": "5b5669677e031e139408ffb6e5fd8f31383b2be0c1e90c860d696c18a63e76f5",
       "size": 423
@@ -936,6 +1021,11 @@
       "size": 2048
     },
     {
+      "path": "company-os/operational-control/agents/grok.yaml",
+      "sha256": "d1e0575f69ce477d94b9e6443a4b5841150b9beeca96a512b38d6c57ded1951c",
+      "size": 108
+    },
+    {
       "path": "company-os/operational-control/agents/openai.yaml",
       "sha256": "d1e0575f69ce477d94b9e6443a4b5841150b9beeca96a512b38d6c57ded1951c",
       "size": 108
@@ -944,6 +1034,11 @@
       "path": "company-os/project-program-management/SKILL.md",
       "sha256": "d3c3d8ae0681f8e407daa782c304f6e36ec803c7c5e610fc35f2cc08cbd3913d",
       "size": 7063
+    },
+    {
+      "path": "company-os/project-program-management/agents/grok.yaml",
+      "sha256": "38fd203b7468850adbbf3603956ec061a13e17d1dd402e9c22dfef990441b8c6",
+      "size": 122
     },
     {
       "path": "company-os/project-program-management/agents/openai.yaml",
@@ -974,6 +1069,11 @@
       "path": "company-os/select-execution-loop/SKILL.md",
       "sha256": "c466f166753f2d80923c2fd4a5ca3b9dd911ba68ad35b27a0855c8866dfa7dda",
       "size": 3084
+    },
+    {
+      "path": "company-os/select-execution-loop/agents/grok.yaml",
+      "sha256": "d93b215d4a16bf75745c08acf3997a2b69edcc42fee85595e7a44de96b512102",
+      "size": 220
     },
     {
       "path": "company-os/select-execution-loop/agents/openai.yaml",
@@ -1091,6 +1191,11 @@
       "size": 6489
     },
     {
+      "path": "autonomy-suite/agents/grok.yaml",
+      "sha256": "208f8b4149556b550528a06d1bd71077f941245d4a6474ce68afa66fb66e99ad",
+      "size": 232
+    },
+    {
       "path": "autonomy-suite/agents/openai.yaml",
       "sha256": "208f8b4149556b550528a06d1bd71077f941245d4a6474ce68afa66fb66e99ad",
       "size": 232
@@ -1101,6 +1206,11 @@
       "size": 2351
     },
     {
+      "path": "autonomy-suite/delegation/supervised-subagent-tree/agents/grok.yaml",
+      "sha256": "ef50a41b15ed0fc5453a920a8c9504eb506ccdb542f0ea0abb264c90a70a4335",
+      "size": 118
+    },
+    {
       "path": "autonomy-suite/delegation/supervised-subagent-tree/agents/openai.yaml",
       "sha256": "ef50a41b15ed0fc5453a920a8c9504eb506ccdb542f0ea0abb264c90a70a4335",
       "size": 118
@@ -1109,6 +1219,11 @@
       "path": "autonomy-suite/execute-bounded-task/SKILL.md",
       "sha256": "a1683dd73003287eadcd12eb3408f45c706d980587b3642101f75fbbdd0bddb7",
       "size": 4119
+    },
+    {
+      "path": "autonomy-suite/execute-bounded-task/agents/grok.yaml",
+      "sha256": "738af2fdcb12a2680c9184a06a8f502f66ccd3ce2fe8e6b4104991ea02cd76b4",
+      "size": 260
     },
     {
       "path": "autonomy-suite/execute-bounded-task/agents/openai.yaml",
@@ -1134,6 +1249,11 @@
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
       "sha256": "3dfc6a1dbf7f97a5c5f02a1d18e801e467bc2121f616acf88b84f38442772f89",
       "size": 15074
+    },
+    {
+      "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/grok.yaml",
+      "sha256": "b0b7ddd7d7a2a6068d47eeb09c22d0f078096de212fc20d46c7d927a14908d72",
+      "size": 251
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/openai.yaml",
@@ -1171,6 +1291,11 @@
       "size": 1647
     },
     {
+      "path": "autonomy-suite/quality/verified-work-loop/agents/grok.yaml",
+      "sha256": "c5d10345071c4b078fda1c05a1c8ad4c3cd90f5ff09b8c8838a7b42d9ac4263e",
+      "size": 106
+    },
+    {
       "path": "autonomy-suite/quality/verified-work-loop/agents/openai.yaml",
       "sha256": "c5d10345071c4b078fda1c05a1c8ad4c3cd90f5ff09b8c8838a7b42d9ac4263e",
       "size": 106
@@ -1196,6 +1321,11 @@
       "size": 2574
     },
     {
+      "path": "autonomy-suite/routing/tiered-agent-routing/agents/grok.yaml",
+      "sha256": "8fa4693a40553413094450046186ed1d60dd660bb3d570d33d6c718d0218e97c",
+      "size": 110
+    },
+    {
       "path": "autonomy-suite/routing/tiered-agent-routing/agents/openai.yaml",
       "sha256": "8fa4693a40553413094450046186ed1d60dd660bb3d570d33d6c718d0218e97c",
       "size": 110
@@ -1204,6 +1334,11 @@
       "path": "autonomy-suite/strategy/portfolio-direction/SKILL.md",
       "sha256": "c21054af43a0f625ca447312dce1f0035bfa86b1ab37e223e4e783b07a202b27",
       "size": 1068
+    },
+    {
+      "path": "autonomy-suite/strategy/portfolio-direction/agents/grok.yaml",
+      "sha256": "16fcefb199e210cb960b6ba6e2619d2f8a00c6f7111d8f64c3de0e4052fca7da",
+      "size": 108
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/agents/openai.yaml",
@@ -1216,6 +1351,11 @@
       "size": 888
     },
     {
+      "path": "autonomy-suite/strategy/project-kickoff-roadmap/agents/grok.yaml",
+      "sha256": "a1bebc077d3b1f94bc71b470bfd7b42b0c0ef1c67097db7e03f8901629befaa9",
+      "size": 116
+    },
+    {
       "path": "autonomy-suite/strategy/project-kickoff-roadmap/agents/openai.yaml",
       "sha256": "a1bebc077d3b1f94bc71b470bfd7b42b0c0ef1c67097db7e03f8901629befaa9",
       "size": 116
@@ -1224,6 +1364,11 @@
       "path": "autonomy-suite/strategy/strategy-pillar/SKILL.md",
       "sha256": "2f260ce77ef4fcbf770340d9a9a7626d120ccc6d85e55017479c07c647f42d40",
       "size": 1554
+    },
+    {
+      "path": "autonomy-suite/strategy/strategy-pillar/agents/grok.yaml",
+      "sha256": "aaedea686fe7eb5aabb8552c5944bc15bb46762234ad8e5e68c933934f986904",
+      "size": 100
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/agents/openai.yaml",
@@ -1249,6 +1394,11 @@
       "path": "autonomy-suite/work-graphs/durable-task-dag/SKILL.md",
       "sha256": "64a9f8a460f018229fc4ef8f8be89cdde70a98e24dd774a53761d3e6b647cd1c",
       "size": 2046
+    },
+    {
+      "path": "autonomy-suite/work-graphs/durable-task-dag/agents/grok.yaml",
+      "sha256": "1e0f550de47498c91d82129fd430c84c47ebd33915b6b7d4540502954e783971",
+      "size": 102
     },
     {
       "path": "autonomy-suite/work-graphs/durable-task-dag/agents/openai.yaml",
