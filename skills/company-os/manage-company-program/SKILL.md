@@ -28,7 +28,7 @@ For reversible local work—source edits, builds, tests, browser/simulator runs,
 - Use `$force-first-execution`: require early materialized bytes, a runnable candidate, direct observation, verification, and prompt decision. Commentary earns zero progress credit.
 - Research becomes pull-based after execution starts. Build/calibrate evaluators after a candidate exists unless an evaluator is required to make execution safe.
 - Checkpoint tested product bytes promptly and integrate continuously.
-- For UI work classify the lane `ui_design`, bind `$ui-design-quality`, render the real interface, and independently inspect interaction, accessibility, responsive states, motion, and performance.
+- For UI work classify the lane `ui_design`, bind `$ui-design-quality` and `$interface-design`, render the real interface, and independently inspect interaction, accessibility, responsive states, motion, and performance.
 
 ## Resource modes
 

@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "6230d4a87455764feb54923965152871edbb6c766c1dccd26d8c5f502b55d7a3",
+      "size": 16467
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -821,9 +821,244 @@
       "size": 104
     },
     {
+      "path": "company-os/interface-design/LICENSE.upstream",
+      "sha256": "ed1dfe988fc40511b4845ccd9050a143a2002fee3bedc8064c47fa342b5d8d4f",
+      "size": 1069
+    },
+    {
+      "path": "company-os/interface-design/SKILL.md",
+      "sha256": "275d95004c18d4f38e65ea11e36283d25a33b5b8382e6b8cc9db994e96b4ab1f",
+      "size": 2601
+    },
+    {
+      "path": "company-os/interface-design/UPSTREAM.json",
+      "sha256": "8bf15b38c86c7dd5c8578da007f9708ef4c3aa766fee1e5f36916ad9245c89d4",
+      "size": 5361
+    },
+    {
+      "path": "company-os/interface-design/agents/grok.yaml",
+      "sha256": "a5e466626e255dd2af73c898494d6a21587929307bdb504902a17d835e1a2e63",
+      "size": 364
+    },
+    {
+      "path": "company-os/interface-design/agents/openai.yaml",
+      "sha256": "a5e466626e255dd2af73c898494d6a21587929307bdb504902a17d835e1a2e63",
+      "size": 364
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/SKILL.md",
+      "sha256": "f07ca17ccb78950cb8bf913af3f4c49bf383fc3d9ae5644fff3b7550716447f1",
+      "size": 9599
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/focus-and-keyboard.md",
+      "sha256": "c3a06d4f3002760a459da608fd74832a1445476c7fd76c848499ebe2ad031019",
+      "size": 6581
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/forms.md",
+      "sha256": "71813142e2056d5acfc3ebdd32c8c6951552e0b8f46c168b86fec7e4cfa53eb4",
+      "size": 3844
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/hit-areas.md",
+      "sha256": "98afb43572a6a149d8278969294ddcbedf76709ab1456a31179a3c5178ce8fc8",
+      "size": 4060
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/motion-and-zoom.md",
+      "sha256": "d55df6cf91cb42106944bed13c5a3ed7a442add2c7fe4e8810d781d2fb470e4d",
+      "size": 4008
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/review-output.md",
+      "sha256": "fe5201659f113d1d7aeed0227b0b0f34d213961e20c1c71f8da781868c27c346",
+      "size": 3359
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/screen-readers.md",
+      "sha256": "4ee2ac09a35678406bd1af4220a72706f8a052d0d8d12067dd436e42633c6ee5",
+      "size": 5087
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/semantics-and-aria.md",
+      "sha256": "7bb7385ff90d8d090cbd4dc4ad01b2f8708f987939b7951208a08165691ee533",
+      "size": 5642
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/SKILL.md",
+      "sha256": "f2f1a376376ac6fba6ec92d25fe052d39913b21c2fdf435374eca00d402bf994",
+      "size": 8557
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/color-formats.md",
+      "sha256": "f14e0b40c3345a8a3bab7edde40a851a1610fe3cdeeebaee7c64a00329bf70d8",
+      "size": 5042
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/color-usage.md",
+      "sha256": "4a60c45ef4a90ab6de2f9a3addd2a0f36b30c327b75d189a3c98f48e5f824932",
+      "size": 6955
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/contrast.md",
+      "sha256": "18404eadb09849deb41a7955bd4e8591c0ff570a12974a130a398561d04931d6",
+      "size": 5003
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/palette-generation.md",
+      "sha256": "382deba08679c85a8b4a9da45aed3c3f8cc288ca15854b74ab9dc29c543d8783",
+      "size": 6567
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/palette-structure.md",
+      "sha256": "3619976783797fd8bd23b2e6594cc926dd7a6bac21b03a4e6f9d3fa8da4f0a07",
+      "size": 6065
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/review-output.md",
+      "sha256": "df4f2eb166f78bbb155166f1af5e7a960da9561acb635930c47475fb46cb3764",
+      "size": 2785
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/token-naming.md",
+      "sha256": "25a8f27bd8030aa163c4cec711f8c32510a1d46b9556731294405dfaf15ce35b",
+      "size": 5702
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-interface/SKILL.md",
+      "sha256": "e4d664467c5fd05b5f7d0feb1c24b1a81d49d04f48aa5bca4c051edb1dbf051e",
+      "size": 13421
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-layout/SKILL.md",
+      "sha256": "2597bbd7e39dd2b74cdd9fefda1062e4492c3c2d64f31b74846bdc8d8b8e7bb3",
+      "size": 6216
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-layout/grouping-and-alignment.md",
+      "sha256": "9e619838e3175cafb7837a52ca83a9a9fbe91a88001fde606a73adba6f0fee90",
+      "size": 5701
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-layout/review-output.md",
+      "sha256": "895f81c32cf078125563a3a226fd1e82ad82af6be9253c76d53921a443b936d1",
+      "size": 2505
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-layout/spacing-and-adaptivity.md",
+      "sha256": "3204ff8756b452989c6d713964e91f7f9293394ffc82ba4b920db599bf10b6e5",
+      "size": 6771
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/SKILL.md",
+      "sha256": "551ef128ded6071163ebba6cd74e519dbfbf646dbee6ccaad2c98fa158effbde",
+      "size": 12886
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/choosing-fonts.md",
+      "sha256": "90a7c4f93e5d82a1f59aef20bfaec8f9297a63018b4ab8523e4eb8bfbda6dd8c",
+      "size": 3258
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/css-cheat-sheet.md",
+      "sha256": "45c77f0d1954e12e76c3903361f52703cb4f4287d54c651710f60926247165fb",
+      "size": 3952
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/details-and-accessibility.md",
+      "sha256": "b7ea09ce9165269aa7ce3db2de0f4fef8b04541f4359caa09b272d5ab47d424e",
+      "size": 5656
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/review-output.md",
+      "sha256": "5baa2f68a64ce66c7548dc50df1ec2cb05355bb3a07701dfcce5a05939bc011b",
+      "size": 2514
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/spacing-and-sizing.md",
+      "sha256": "df78e8fcf74953e5762340d7f793dcc9823b614f0e2ef7e67234ffb9ad3a5aba",
+      "size": 4889
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/variable-fonts-and-opentype.md",
+      "sha256": "5aa349721fa1f667ce4a9515199e866d83b9fd8eb1d815e6265f092201a44dfe",
+      "size": 4369
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/wrapping-and-punctuation.md",
+      "sha256": "8717deaab5b71c9531f936b9f6ea53de2df776f52f188e5cabff1b78f724f745",
+      "size": 3579
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/SKILL.md",
+      "sha256": "3da5341327a7c0f0b14b12ed0fb7ac63b5bd9bcd8b0c91dffeb8a7caf380c961",
+      "size": 8269
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/animations.md",
+      "sha256": "287bcaa59af3fc9dc1cde4f8c0a75f710113425ee457818e54c3420870f13994",
+      "size": 7546
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/enter-exit.md",
+      "sha256": "da5b5955729659b33cf0e3dc9e5a6b426f5f416ddfba9e0908c6f60065a40514",
+      "size": 3991
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/icon-transitions.md",
+      "sha256": "8c53478a2dcfd6201e9d55a8902b71211b09a44296ecddc4532146d0676f61f7",
+      "size": 4314
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/icons.md",
+      "sha256": "2b6738cc445636d7f6ee7bc3549f791f524a04755f42db2b84035a2ba64143e1",
+      "size": 4434
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/performance.md",
+      "sha256": "8450bd42fa61ee425a07de94abba0815119e7ee481eba53ef4ff42e70ca81de5",
+      "size": 3014
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/review-output.md",
+      "sha256": "2e2ee44cc4748541e36b7f2e51ca28840f66af99b6f3c60224e67582f9e96705",
+      "size": 2524
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/surfaces.md",
+      "sha256": "b0276679502ab5cf3de64a65c5bc196c92b362bde04ded74c4304e711fdaecfd",
+      "size": 6518
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-writing/SKILL.md",
+      "sha256": "413b41c7ef5f9614fa96716d47065ad6bb28e9338441e064e538cf2d472f659c",
+      "size": 7810
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-writing/review-output.md",
+      "sha256": "f7b4980ac3e4a70dd0b4febc187c7ece73fd7fa6f96bee9da5d7d06ac2c01029",
+      "size": 2476
+    },
+    {
+      "path": "company-os/interface-design/vendor/interface-review/SKILL.md",
+      "sha256": "990922d6e92eb99a2ca0fb77547ccddf4fa4532c6a8fce9f8da736d96171e2ac",
+      "size": 10227
+    },
+    {
+      "path": "company-os/interface-design/vendor/interface-review/removed-signals.md",
+      "sha256": "3ed84d21292d865a7ec6ed13d3262ce6455e5f2b9bef5c2914a8daceb0b0eacf",
+      "size": 2961
+    },
+    {
+      "path": "company-os/interface-design/vendor/interface-review/scope-resolution.md",
+      "sha256": "bca469a11a3c9f4fd1cb7d2bc19f2d09be200ef57282ef60a5c3ba255afdc8dd",
+      "size": 11294
+    },
+    {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "353414f5a3070b83cfa322cee0e36fa5ab62f6ebd3daf1f651f2cb526406e638",
-      "size": 4979
+      "sha256": "dc25664940edb47763bad2a867792a94ebbfff3c83b993050940b8b2ccb675a0",
+      "size": 5003
     },
     {
       "path": "company-os/manage-company-program/agents/grok.yaml",
@@ -872,8 +1107,8 @@
     },
     {
       "path": "company-os/manage-company-program/references/manager-contract.md",
-      "sha256": "1977db793664157c9f8c4923d58f8b7f486035ade7989c85897d8b4881af6988",
-      "size": 5891
+      "sha256": "19332e233c4064ed351f5967988daf45db757bfed522de83be585ea52a2c2f21",
+      "size": 5964
     },
     {
       "path": "company-os/manage-company-program/schemas/compiled-preflight.schema.json",
@@ -1117,8 +1352,8 @@
     },
     {
       "path": "company-os/ui-design-quality/SKILL.md",
-      "sha256": "389e69fb9236bd02f2dbd146a78ac6b0d32f111ecb4417b8b0cb8071baeb5b8e",
-      "size": 5381
+      "sha256": "32d194b184df7e3d653f8e80cc3d5e3a74f0090f6c63a3818a6df4d8c134f25e",
+      "size": 5567
     },
     {
       "path": "company-os/ui-design-quality/UPSTREAM.json",
@@ -1217,8 +1452,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/SKILL.md",
-      "sha256": "a1683dd73003287eadcd12eb3408f45c706d980587b3642101f75fbbdd0bddb7",
-      "size": 4119
+      "sha256": "71c6a661fa08794c2d26e7043a74bdd1f0e6ca06852894b9d26c05f54334bf5e",
+      "size": 4148
     },
     {
       "path": "autonomy-suite/execute-bounded-task/agents/grok.yaml",
@@ -1237,8 +1472,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/references/worker-contract.md",
-      "sha256": "aa9b2abea4b863bdc592d1cf185b5f09308b786d5f54aa2127005c12257c50f1",
-      "size": 4839
+      "sha256": "56227b200dd7a2b3925b795f4526e36be5f61f90777eb1216897da5db63a1289",
+      "size": 4884
     },
     {
       "path": "autonomy-suite/loops/bounded-autonomy-loop/SKILL.md",

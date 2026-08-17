@@ -34,8 +34,9 @@ packet; do not request the root transcript or repeat the Company OS manual.
    Report those milestones to the manager with exact evidence; never write the
    manager-owned force log.
    When the compiled packet declares `work_domains: ["ui_design"]`, load
-   `$ui-design-quality` before editing, use the vendored design suite it routes,
-   and return every required UI state and visual/interaction evidence. A UI
+   `$ui-design-quality` and `$interface-design` before editing, use the
+   vendored design suites they route, and return every required UI state
+   and visual/interaction evidence. A UI
    source path without the domain or capability is a preflight defect; stop
    rather than silently bypassing the gate.
    When the capability slice contains an external skill assignment, use

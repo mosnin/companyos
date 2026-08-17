@@ -18,7 +18,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
 | Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters` |
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
-| UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality` |
+| UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality`, `$interface-design` |
 | Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
@@ -169,7 +169,10 @@ runnable candidate, verification, direct inspection, receipt, and decision;
 soft speed misses remain visible while hard safety stops remain authoritative.
 
 Any program that creates, changes, prototypes, or reviews a user interface must
-use `$ui-design-quality`. Classify its manager and worker packets as
+use `$ui-design-quality`. When building digital interfaces, also load
+`$interface-design` for typography, color, layout, writing, accessibility, and
+UI polish. `$ui-design-quality` remains the evidence gate. Classify UI manager
+and worker packets as
 `ui_design`, require host capability `ui_design_quality`, and retain the exact
 vendored-suite revision in evidence. Program Preflight fails closed when UI
 signals appear without that classification or capability. A passing code check
