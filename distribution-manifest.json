@@ -242,8 +242,8 @@
     },
     {
       "path": "company-os/commercial-customer-system/SKILL.md",
-      "sha256": "85edf0bb76e4393b3977245cadcb0eabdb91f48a1bfe5d70ec1e1eab022af5b2",
-      "size": 2143
+      "sha256": "d2898540298b08a11fc2bb39bbbfd003aeb4eeeba8c43cab5e6ffb02dd524bef",
+      "size": 2412
     },
     {
       "path": "company-os/commercial-customer-system/agents/grok.yaml",
@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "65c9b9d4d160d94df3b2c132531cfee9fe185f54b4ede0c86d1f309cbc6c1e64",
+      "size": 16509
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -899,6 +899,86 @@
       "path": "company-os/manage-company-program/scripts/compile_program_preflight.py",
       "sha256": "37f0a148ad05eaf2682de1bf2bc7026770825751242004618499d9024d5fcfd8",
       "size": 105788
+    },
+    {
+      "path": "company-os/marketing-architect/SKILL.md",
+      "sha256": "80bd760450a6abea85f84eee8094a9d6a1a0c0ec56528fbf0642afa1ad2e0eff",
+      "size": 3700
+    },
+    {
+      "path": "company-os/marketing-architect/agents/grok.yaml",
+      "sha256": "0416b2d56f7e186c3b50b16ef117588501a8ac6ee9b53be87e7c0e9fed2bf951",
+      "size": 414
+    },
+    {
+      "path": "company-os/marketing-architect/agents/openai.yaml",
+      "sha256": "0416b2d56f7e186c3b50b16ef117588501a8ac6ee9b53be87e7c0e9fed2bf951",
+      "size": 414
+    },
+    {
+      "path": "company-os/marketing-architect/assets/spawn-template.json",
+      "sha256": "ed710819b0479264cd59a003ca5dd150a49eb7221aca14a3c90d71fec1bf1113",
+      "size": 493
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/00-index.txt",
+      "sha256": "c4844bd521ae8efa0e4a1183c8a5943bac692256d1772e93e290b7e64416125d",
+      "size": 963
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/01-market-strategy-foundations.txt",
+      "sha256": "067d2514085163f81d51425556f879d6e56804294e3f727ad93518941ec71e47",
+      "size": 4356
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/02-segmentation-targeting-personas.txt",
+      "sha256": "dea057114b28dbfaa0c471cedc4240aec2301234d379520b6e5012e1149505b8",
+      "size": 3614
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/03-buyer-behavior-journey.txt",
+      "sha256": "370ae24bda77d0dcaa07d406b7d13cf40819b63c49b4c500f9668e33c331097a",
+      "size": 3298
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/04-value-prop-positioning-messaging.txt",
+      "sha256": "f0471e463e759e957ef2a1bbe2286a4abdfc60bce890e1a78c9d6c18e1306ee9",
+      "size": 2990
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/05-marketing-mix-go-to-market.txt",
+      "sha256": "404b29e08c0640b01890c65f0695ac475b3e6afe2fad7754f338639b8968a6f9",
+      "size": 2729
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/06-brand-system-architecture.txt",
+      "sha256": "eaa5fd5e3755aa8dc8ca66a0298c56470ecf632e260e4729a716eae6da09948e",
+      "size": 2707
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/07-marketing-research-insights.txt",
+      "sha256": "5ef91da85a4ddf5e8ea47bfe07a75a90b5f23a0aee568d2e42f8499f37efa464",
+      "size": 2867
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/08-advertising-creative-process.txt",
+      "sha256": "4a22ee1a3e17ca0461aa6a934d0ab3142270f741526533f38be92ad44104e967",
+      "size": 2465
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/09-digital-growth-lifecycle.txt",
+      "sha256": "acf2c0bcef81f491505bb262cade50ef3bc4df9eee74ac21a3a2d99727496760",
+      "size": 2529
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/10-marketing-plan-measurement.txt",
+      "sha256": "625132a71cd9d2923c0c513672f2c3e41fb1362c83e1c83fbb36ad24740bfbea",
+      "size": 2657
+    },
+    {
+      "path": "company-os/marketing-architect/scripts/validate_marketing_architect.py",
+      "sha256": "f68e0d10db1ded473e8265ca939ea8e84d5ec113fb5be966b020a0aedc190e3f",
+      "size": 5775
     },
     {
       "path": "company-os/materialize-outcome-stack/SKILL.md",

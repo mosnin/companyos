@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.marketing-architect-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "marketing-architect"
+  ],
+  "source_pack": "references/source",
+  "template_id": "marketing-architect",
+  "use_when": [
+    "advertising",
+    "go_to_market",
+    "growth_lifecycle",
+    "market_strategy",
+    "segmentation"
+  ]
+}

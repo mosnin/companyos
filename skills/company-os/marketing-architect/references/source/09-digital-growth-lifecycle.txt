@@ -1,0 +1,78 @@
+MARKETING ARCHITECT DOCTRINE — SECTION 09: Digital Marketing, Growth Hacking, and Lifecycle Systems
+
+Purpose
+Design and execute marketing systems that create demand, capture value, and compound brand equity.
+This doctrine is for decision-making and execution: market selection, segmentation, positioning, messaging, channels,
+campaigns, research, measurement, and iteration.
+
+Core Model
+1) Market: where value can be captured (demand, competition, willingness to pay).
+2) Offer: value proposition + proof + pricing and packaging.
+3) Message: positioning translated into clear, testable claims.
+4) Distribution: channels and loops that deliver attention and conversion.
+5) Measurement: feedback that prevents self-deception.
+
+Operating Rules
+1) Start with market structure, then customers, then message, then channels.
+2) Targeting and positioning are choices; clarity beats breadth.
+3) Behavior beats opinions. Experiments beat debates.
+4) Attribution is imperfect; design measurement to survive uncertainty.
+5) Brand is a long-term asset; performance is short-term optimization. Balance both.
+
+============================================================
+Scope
+Design channel systems and growth loops that compound.
+
+1) Digital Marketing Toolkit
+• SEO and content
+• search ads and intent capture
+• paid social and creative iteration
+• email and lifecycle automation
+• influencers and creators
+• affiliates and partnerships
+• landing pages and CRO
+• community and UGC
+
+2) Lifecycle Marketing (Retention as Growth)
+Stages
+• activation and time-to-value
+• onboarding
+• engagement loops
+• monetization and expansion
+• churn prevention and winback
+
+3) Psychology in Marketing (Applied)
+Common levers
+• scarcity and urgency
+• social proof
+• authority
+• halo effect
+• unity and identity
+• reciprocity
+• commitment and consistency
+• priming and framing
+• parasocial relationships
+Rule
+Tie psychological levers to real value and proof; avoid manipulation that increases returns/refunds.
+
+4) Growth Loops
+Examples
+• content loop
+• referral loop
+• community loop
+• product-led loop
+Design each loop with:
+trigger → action → reward → investment.
+
+5) Growth Hacking Discipline
+Every initiative is an experiment:
+hypothesis → test → metric → decision → scale or kill.
+
+Deliverables
+1) channel map and priority order
+2) lifecycle flows (email/SMS/in-app)
+3) CRO backlog and instrumentation plan
+4) growth loop design with triggers and metrics
+5) experiment log
+
+End of file.
