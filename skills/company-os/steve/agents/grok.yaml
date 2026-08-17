@@ -1,0 +1,6 @@
+interface:
+  display_name: "Steve"
+  short_description: "Force customer-backwards product taste"
+  default_prompt: "Use $steve with $manage-company-program and one compact mission charter for product, brand, UX, or customer work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

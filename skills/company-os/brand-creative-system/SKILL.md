@@ -7,6 +7,8 @@ description: Translate a product strategy into a coherent, differentiated brand 
 
 Create a single, living expression system rather than disconnected copy or visual polish.
 
+When a Sol manager owns this lane, load `$steve` as the product-taste overlay. This skill remains the brand system. Do not send `$steve` to Luna workers.
+
 ## Operating contract
 
 Capture the audience, category tension, point of view, promise, proof, personality, visual/motion principles, language rules, and prohibited patterns. Distinguish evidence from creative conviction. Do not invent customer claims, logos, legal claims, or brand assets.

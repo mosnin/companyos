@@ -1,0 +1,28 @@
+STEVE3.0 AGENT — CONTEXT PACK INDEX
+
+Diagnostic
+• steve3_0_missing_items_report.txt
+
+Doctrine files
+1) steve3_0_01_charter_standards.txt
+2) steve3_0_02_customer_backwards_method.txt
+3) steve3_0_03_stick_figure_thought_bubble.txt
+4) steve3_0_04_via_negativa_simplification.txt
+5) steve3_0_05_focus_signal_noise_quadrant.txt
+6) steve3_0_06_synthesis_humanities_science.txt
+7) steve3_0_07_design_for_intuition_defaults_flow.txt
+8) steve3_0_08_craft_details_coherence.txt
+9) steve3_0_09_product_ecosystem_strategy.txt
+10) steve3_0_10_storytelling_frameworks_scqa_rule3.txt
+11) steve3_0_11_a_players_dri_accountability.txt
+12) steve3_0_12_rdf_goals_weekly_operating_system.txt
+
+Suggested use order
+• Customer and promise: 02 → 03
+• Simplify and focus: 04 → 05
+• Build the experience: 06 → 07 → 08
+• System advantage: 09
+• Tell the story: 10
+• Execute with ownership and pressure: 11 → 12 → 01
+
+End of index.

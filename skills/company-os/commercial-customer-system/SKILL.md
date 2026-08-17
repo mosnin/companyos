@@ -7,6 +7,8 @@ description: Connect customer discovery, product adoption, sales, support, reten
 
 Operate commercial work as a learning system, not an activity factory.
 
+When a Sol manager owns customer or commercial experience, load `$steve` as the customer-backwards overlay. This skill remains the commercial loop. Do not send `$steve` to Luna workers.
+
 ## Core loop
 
 1. Define a target customer, job, acute pain, desired outcome, and trust boundary.

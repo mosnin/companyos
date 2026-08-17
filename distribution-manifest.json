@@ -182,8 +182,8 @@
     },
     {
       "path": "company-os/brand-creative-system/SKILL.md",
-      "sha256": "d202f89899a6597be1eb04c89f1648242628fcd627a9a1fff6f0b59550d818ca",
-      "size": 2216
+      "sha256": "d2cd1fbbd778c35dc835671bc073a6db49c0accf1a8fbd5b6b7734ff5ad20e18",
+      "size": 2371
     },
     {
       "path": "company-os/brand-creative-system/agents/grok.yaml",
@@ -242,8 +242,8 @@
     },
     {
       "path": "company-os/commercial-customer-system/SKILL.md",
-      "sha256": "85edf0bb76e4393b3977245cadcb0eabdb91f48a1bfe5d70ec1e1eab022af5b2",
-      "size": 2143
+      "sha256": "142e3a4d3ac7cc3ac224e809737398ff816e567fafef3349d3fbe391bdc308d8",
+      "size": 2330
     },
     {
       "path": "company-os/commercial-customer-system/agents/grok.yaml",
@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "763fdd5122bfddc720c4fb1a9e52fb7fc112cdf607e315f28e768175cf9b58dc",
+      "size": 16472
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -1101,6 +1101,101 @@
       "size": 13270
     },
     {
+      "path": "company-os/steve/SKILL.md",
+      "sha256": "7b776f807f1d897f36e726f86affec5666e4540b3c3b551e111f273b09c2bcbe",
+      "size": 3789
+    },
+    {
+      "path": "company-os/steve/agents/grok.yaml",
+      "sha256": "29591fa1a5ef04f9ee4e3175a5e6d3b8342d320b76b02d3b833656cd2a797110",
+      "size": 331
+    },
+    {
+      "path": "company-os/steve/agents/openai.yaml",
+      "sha256": "29591fa1a5ef04f9ee4e3175a5e6d3b8342d320b76b02d3b833656cd2a797110",
+      "size": 331
+    },
+    {
+      "path": "company-os/steve/assets/spawn-template.json",
+      "sha256": "a9809952b6e8f2e75f8016a550773535952cd8af5dd14743470123d65889146a",
+      "size": 433
+    },
+    {
+      "path": "company-os/steve/references/source/00-index.txt",
+      "sha256": "eab485c5565840e66f74ff537e9b9b63eb9911fac6e00cb45129377d670dd910",
+      "size": 931
+    },
+    {
+      "path": "company-os/steve/references/source/01-charter-standards.txt",
+      "sha256": "a4c13828c6ebd71b1ac4f1b742197b5eb7023f700896b8a77b4466b74e70efce",
+      "size": 1426
+    },
+    {
+      "path": "company-os/steve/references/source/02-customer-backwards-method.txt",
+      "sha256": "5dadcd1dfec570d33035bb4cdc4eea85b8a1150075c3e57e2ca5b57470279167",
+      "size": 1587
+    },
+    {
+      "path": "company-os/steve/references/source/03-stick-figure-thought-bubble.txt",
+      "sha256": "4fdec73b7c840785649c0dc42dd816bd3764cc46f8cad00b95f37d9db3a63e07",
+      "size": 1860
+    },
+    {
+      "path": "company-os/steve/references/source/04-via-negativa-simplification.txt",
+      "sha256": "b4389507d41c33bf3d93251b6fb3ffc3658f1a12062b670fb906bc59c8d5740d",
+      "size": 1627
+    },
+    {
+      "path": "company-os/steve/references/source/05-focus-signal-noise-quadrant.txt",
+      "sha256": "771b1316963bda919252795d34663ecf2f20fdf82992390b3424c6ec6fcf3f26",
+      "size": 1542
+    },
+    {
+      "path": "company-os/steve/references/source/06-synthesis-humanities-science.txt",
+      "sha256": "b09ae498377e45a5816982c5e5f9cc7368ec940ef6e947a1d83a9d2938d6cde9",
+      "size": 1480
+    },
+    {
+      "path": "company-os/steve/references/source/07-design-for-intuition-defaults-flow.txt",
+      "sha256": "7ead7ee49cb41b6bce72198237004c615ea996a0457034484a7d8cfaa6caa33b",
+      "size": 1511
+    },
+    {
+      "path": "company-os/steve/references/source/08-craft-details-coherence.txt",
+      "sha256": "552d35ceb490ac5441ed1618cec79f9e44bb899f463008d2a1c3546f6df39865",
+      "size": 1449
+    },
+    {
+      "path": "company-os/steve/references/source/09-product-ecosystem-strategy.txt",
+      "sha256": "e8535084176562315f1eaf2052ebe75205c8199a8d6edb0fa740cb77214367ee",
+      "size": 1784
+    },
+    {
+      "path": "company-os/steve/references/source/10-storytelling-frameworks-scqa-rule3.txt",
+      "sha256": "1e42b4741aaa64f0163a25adcd2b72dba4f7b48f6538e469ea15fac0b82cacfb",
+      "size": 1662
+    },
+    {
+      "path": "company-os/steve/references/source/11-a-players-dri-accountability.txt",
+      "sha256": "e631d33b94404ed864cfd587eac364e8ee8f81c6e8385f47cacd1a5e3c5c3bd9",
+      "size": 1552
+    },
+    {
+      "path": "company-os/steve/references/source/12-rdf-goals-weekly-operating-system.txt",
+      "sha256": "3fdc9e65a0a57188634462aec3dc944de6e5bdab93916fd2df7726af84d58fc3",
+      "size": 1811
+    },
+    {
+      "path": "company-os/steve/references/source/product-demo-framework.md",
+      "sha256": "92332056560a2a0e957dcf087f66d2d39a12154f8dc6b29017c151930cc7ae12",
+      "size": 4729
+    },
+    {
+      "path": "company-os/steve/scripts/validate_steve_doctrine.py",
+      "sha256": "32bdb79eb4040c3f3fd99465954974dc12f46944420c5e10ff976b79bf69a0dd",
+      "size": 6008
+    },
+    {
       "path": "company-os/synthesize-outcome-model/SKILL.md",
       "sha256": "3243e8aca2d6ecdc81d32805df4b88db4f1673a2f28599df7b57ec3810557938",
       "size": 2227
@@ -1117,8 +1212,8 @@
     },
     {
       "path": "company-os/ui-design-quality/SKILL.md",
-      "sha256": "389e69fb9236bd02f2dbd146a78ac6b0d32f111ecb4417b8b0cb8071baeb5b8e",
-      "size": 5381
+      "sha256": "2936896b71bcdfd0cc75442101105a467df2bd86d0098a0610a1fc91a5fa5591",
+      "size": 5510
     },
     {
       "path": "company-os/ui-design-quality/UPSTREAM.json",

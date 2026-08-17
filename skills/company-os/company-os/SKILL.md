@@ -17,10 +17,10 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
 | Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters` |
-| Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
-| UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality` |
+| Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system`, `$steve` |
+| UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality`, `$steve` |
 | Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
-| Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system` |
+| Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system`, `$steve` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
 | Executive execution governor | Measure distance from the original objective, identify the global bottleneck, allocate scarce time/tokens/cost toward reality, and trigger compression/critical-path modes when execution lags | `$govern-outcome-execution` |
 | Mission execution control | Enforce First Reality scope, work admission, hard deadlines, scheduler leases, evidence-bound capability state, replacement, and product checkpoints at controller boundaries | `$mission-execution-control` |
@@ -82,6 +82,9 @@ design, execution, verification, and integration. Managers use
 `$manage-company-program` and `$luna-execution-fabric`; workers use
 `$execute-bounded-task`. Send the role skill plus one compact mission charter
 or work packet instead of repeating the operating system in every prompt.
+When the manager outcome is product design, brand, user experience, or
+customer experience, also send `$steve`. Do not send `$steve` to workers or
+use it as the master persona.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.
