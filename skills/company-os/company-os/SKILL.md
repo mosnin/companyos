@@ -79,9 +79,11 @@ For a multi-manager delivery program, the primary thread acts as the Company OS
 master. It versions the Program Contract, spawns one Sol manager thread per
 bounded roadmap outcome, and receives a compact report at charter, discovery,
 design, execution, verification, and integration. Managers use
-`$manage-company-program` and `$luna-execution-fabric`; workers use
-`$execute-bounded-task`. Send the role skill plus one compact mission charter
-or work packet instead of repeating the operating system in every prompt.
+`$manage-company-program`, `$middle-manager-operating-doctrine`, and
+`$luna-execution-fabric`; workers use `$execute-bounded-task`. Send the
+manager role skill, the middle-manager doctrine, and one compact mission
+charter. Send workers only the worker packet. Do not use the doctrine as the
+master persona or repeat the operating system in every prompt.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.
