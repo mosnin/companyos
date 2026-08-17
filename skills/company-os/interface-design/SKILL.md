@@ -1,16 +1,19 @@
 ---
 name: interface-design
-description: Apply the pinned jakubkrehel interface-craft suite when building or reviewing digital interfaces. Routes typography, color, layout, writing, accessibility, and UI polish. Does not replace `$ui-design-quality` as the Company OS evidence gate.
+description: Apply the pinned jakubkrehel interface-craft suite and frontend-design visual direction when building or reviewing digital interfaces. Routes typography, color, layout, writing, accessibility, UI polish, and distinctive aesthetic identity. Does not replace `$ui-design-quality` as the Company OS evidence gate.
 ---
 
 # Interface Design
 
 Use this skill when Company OS work builds or reviews a digital interface.
-The complete upstream suite is vendored under [vendor](vendor) at the immutable
+The jakubkrehel suite is vendored under [vendor](vendor) at the immutable
 revision recorded in [UPSTREAM.json](UPSTREAM.json). Its MIT license is in
-[LICENSE.upstream](LICENSE.upstream). Upstream instructions supply interface
-craft; Company OS authority, scope, budgets, cancellation, and acceptance
-rules remain controlling.
+[LICENSE.upstream](LICENSE.upstream). Distinctive visual-identity direction
+is the pinned [frontend-design](references/source/frontend-design/SKILL.md)
+companion; its Apache license is in
+[LICENSE.txt](references/source/frontend-design/LICENSE.txt). Upstream
+instructions supply interface craft; Company OS authority, scope, budgets,
+cancellation, and acceptance rules remain controlling.
 
 `$ui-design-quality` remains the UI evidence gate. This skill does not own
 authority, leases, fabric, completion, or the 9.0/10 acceptance barrier.
@@ -27,6 +30,11 @@ authority, leases, fabric, completion, or the 9.0/10 acceptance barrier.
    [better-typography](vendor/better-typography/SKILL.md),
    [better-colors](vendor/better-colors/SKILL.md), or
    [better-ui](vendor/better-ui/SKILL.md).
+   When the work is a new visual identity or a reshape away from templated
+   defaults, also load [frontend-design](references/source/frontend-design/SKILL.md).
+   It owns aesthetic direction and signature. The `better-*` skills still own
+   craft rules. Accepted project tokens and brand rules still win. Do not
+   invent customers, brand, or product facts; mark assumptions.
 3. **Review the interface as one system.** For a holistic screen or flow
    review, use [better-interface](vendor/better-interface/SKILL.md). It
    consolidates the domain skills; do not restack their rules here.

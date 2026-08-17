@@ -170,8 +170,9 @@ soft speed misses remain visible while hard safety stops remain authoritative.
 
 Any program that creates, changes, prototypes, or reviews a user interface must
 use `$ui-design-quality`. When building digital interfaces, also load
-`$interface-design` for typography, color, layout, writing, accessibility, and
-UI polish. `$ui-design-quality` remains the evidence gate. Classify UI manager
+`$interface-design` for typography, color, layout, writing, accessibility,
+UI polish, and distinctive visual identity. `$ui-design-quality` remains the
+evidence gate. Classify UI manager
 and worker packets as
 `ui_design`, require host capability `ui_design_quality`, and retain the exact
 vendored-suite revision in evidence. Program Preflight fails closed when UI

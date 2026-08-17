@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "6230d4a87455764feb54923965152871edbb6c766c1dccd26d8c5f502b55d7a3",
-      "size": 16467
+      "sha256": "727e30bbf9a0aff619227be6c1d2874ccc20e72cf1103720115779ae4226a426",
+      "size": 16496
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -827,8 +827,8 @@
     },
     {
       "path": "company-os/interface-design/SKILL.md",
-      "sha256": "275d95004c18d4f38e65ea11e36283d25a33b5b8382e6b8cc9db994e96b4ab1f",
-      "size": 2601
+      "sha256": "afefa7625a957346dda357faedb3f4d055ec72d46c0d7da81d33f1641379e4ff",
+      "size": 3253
     },
     {
       "path": "company-os/interface-design/UPSTREAM.json",
@@ -837,13 +837,28 @@
     },
     {
       "path": "company-os/interface-design/agents/grok.yaml",
-      "sha256": "a5e466626e255dd2af73c898494d6a21587929307bdb504902a17d835e1a2e63",
-      "size": 364
+      "sha256": "bbcf7ac2cc7d10e05985fcb628d846193204c85df39614b90cb639ee7aa6627a",
+      "size": 403
     },
     {
       "path": "company-os/interface-design/agents/openai.yaml",
-      "sha256": "a5e466626e255dd2af73c898494d6a21587929307bdb504902a17d835e1a2e63",
-      "size": 364
+      "sha256": "bbcf7ac2cc7d10e05985fcb628d846193204c85df39614b90cb639ee7aa6627a",
+      "size": 403
+    },
+    {
+      "path": "company-os/interface-design/references/source/frontend-design/LICENSE.txt",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174
+    },
+    {
+      "path": "company-os/interface-design/references/source/frontend-design/SKILL.md",
+      "sha256": "1608ea77fbb6fc30d13a97d12cfa8ebf31358d40f0dd97beed24829d6b3f45dd",
+      "size": 8260
+    },
+    {
+      "path": "company-os/interface-design/references/source/frontend-design/UPSTREAM.json",
+      "sha256": "63537279e25a37268af9f77c81046cdf10658b7ac63da5e46d06a8e1e3a3392f",
+      "size": 608
     },
     {
       "path": "company-os/interface-design/vendor/better-accessibility/SKILL.md",
@@ -1352,8 +1367,8 @@
     },
     {
       "path": "company-os/ui-design-quality/SKILL.md",
-      "sha256": "32d194b184df7e3d653f8e80cc3d5e3a74f0090f6c63a3818a6df4d8c134f25e",
-      "size": 5567
+      "sha256": "38737fd4a7b79e28fef547f587fd09c2022328a9161d40757faf86fc82c9acac",
+      "size": 5596
     },
     {
       "path": "company-os/ui-design-quality/UPSTREAM.json",

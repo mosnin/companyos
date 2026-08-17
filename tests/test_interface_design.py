@@ -44,11 +44,34 @@ class InterfaceDesignTests(unittest.TestCase):
         provenance = json.loads((SKILL_ROOT / "UPSTREAM.json").read_text(encoding="utf-8"))
         for skill in provenance["skills"]:
             self.assertIn(f"vendor/{skill}", content)
+        self.assertIn("references/source/frontend-design/SKILL.md", content)
         self.assertIn("Company OS authority", content)
         self.assertIn("`$ui-design-quality` remains the UI evidence gate", content)
         self.assertIn("Do not start it implicitly", content)
         words = len(content.split())
         self.assertLessEqual(words, 700, words)
+
+    def test_frontend_design_companion_is_present_and_byte_exact(self) -> None:
+        companion = SKILL_ROOT / "references/source/frontend-design"
+        provenance = json.loads((companion / "UPSTREAM.json").read_text(encoding="utf-8"))
+        self.assertEqual("frontend-design", provenance["skill"])
+        self.assertEqual("https://github.com/anthropics/skills", provenance["source_repository"])
+        self.assertEqual("2235be7c60b551f5de82ade908fd3816455afcda", provenance["source_commit"])
+        self.assertEqual("Apache-2.0", provenance["license"])
+        expected = provenance["files"]
+        actual_paths = {
+            path.name
+            for path in companion.iterdir()
+            if path.is_file() and path.name != "UPSTREAM.json"
+        }
+        self.assertEqual(set(expected), actual_paths)
+        for name, digest in expected.items():
+            path = companion / name
+            self.assertFalse(path.is_symlink())
+            self.assertEqual(digest, hashlib.sha256(path.read_bytes()).hexdigest())
+        skill = (companion / "SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue(skill.startswith("---\nname: frontend-design\n"))
+        self.assertIn("Apache License", (companion / "LICENSE.txt").read_text(encoding="utf-8"))
 
     def test_ui_lanes_load_interface_design_without_replacing_the_gate(self) -> None:
         paths = (
