@@ -17,7 +17,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
 | Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters` |
-| Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
+| Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system`, `$brand-architect` |
 | UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality` |
 | Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system` |
@@ -82,6 +82,9 @@ design, execution, verification, and integration. Managers use
 `$manage-company-program` and `$luna-execution-fabric`; workers use
 `$execute-bounded-task`. Send the role skill plus one compact mission charter
 or work packet instead of repeating the operating system in every prompt.
+When the manager outcome is brand system, positioning, identity, voice, or
+presence, also send `$brand-architect`. Do not send `$brand-architect` to
+workers or use it as the master persona.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.

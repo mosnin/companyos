@@ -181,9 +181,89 @@
       "size": 19447
     },
     {
+      "path": "company-os/brand-architect/SKILL.md",
+      "sha256": "d66a5a3776759f09dfc2bc273da8df70671628879c7cc74c40e4cbc6779440a4",
+      "size": 3535
+    },
+    {
+      "path": "company-os/brand-architect/agents/grok.yaml",
+      "sha256": "bb0ebf037ca38111ec9a60bc880597f090e8d63c6c20d6204210e7b1727354b5",
+      "size": 377
+    },
+    {
+      "path": "company-os/brand-architect/agents/openai.yaml",
+      "sha256": "bb0ebf037ca38111ec9a60bc880597f090e8d63c6c20d6204210e7b1727354b5",
+      "size": 377
+    },
+    {
+      "path": "company-os/brand-architect/assets/spawn-template.json",
+      "sha256": "2bc9b60afdb81ffa845fb7454284c79e3528126319fbe2d3d11dd66ee445d569",
+      "size": 501
+    },
+    {
+      "path": "company-os/brand-architect/references/source/00-index.txt",
+      "sha256": "f3efc96094f9ca121764fc9e230647948ac50eacf29c6401a5369badb9e01184",
+      "size": 970
+    },
+    {
+      "path": "company-os/brand-architect/references/source/01-brand-system-strategy-framework.txt",
+      "sha256": "7d73282701988d90eafa1b437ed647602a6353a64afe68735266783fac37800d",
+      "size": 1714
+    },
+    {
+      "path": "company-os/brand-architect/references/source/02-positioning-category-differentiation.txt",
+      "sha256": "008f07c2c9c6c23aca2fc25837df89998984b52f475791ead1276590c648c485",
+      "size": 1458
+    },
+    {
+      "path": "company-os/brand-architect/references/source/03-target-audience-intelligence.txt",
+      "sha256": "5ce63918b23a3589bd02254318ac214fc3b184d04797111e38277a2170abbe8b",
+      "size": 1385
+    },
+    {
+      "path": "company-os/brand-architect/references/source/04-brand-pillars-identity-credibility-visibility.txt",
+      "sha256": "0394af9a9f9ef0c70ecdd620fa88c93717a5ed9712d6fed9fe3c2cfa07794cfb",
+      "size": 1238
+    },
+    {
+      "path": "company-os/brand-architect/references/source/05-storytelling-emotional-appeal.txt",
+      "sha256": "82ee0b80aba560f69ed1dff1fd825534029bc113908495b9d637f2314de069cd",
+      "size": 1025
+    },
+    {
+      "path": "company-os/brand-architect/references/source/06-visual-identity-logo-color-typography.txt",
+      "sha256": "a0a4de31b215db5dfb535819d5d1be1f089f4a9ea6c8ef9032ea642183968b7b",
+      "size": 1296
+    },
+    {
+      "path": "company-os/brand-architect/references/source/07-brand-voice-messaging-system.txt",
+      "sha256": "8f807b80864f27518465c53dddf01d0993b250a1513abaf2d06e8b7e9773398e",
+      "size": 1101
+    },
+    {
+      "path": "company-os/brand-architect/references/source/08-experience-principles-delivery-design.txt",
+      "sha256": "8b3ca002232a1d0e81e0547a7c1ee0844c1050f6f1bcdbc8a7e2c4bfd1fbfa56",
+      "size": 1136
+    },
+    {
+      "path": "company-os/brand-architect/references/source/09-brand-presence-social-distribution.txt",
+      "sha256": "2b4a38364ed61df7f12bdec5ef430b780f5ceceb2c9df92f43e090709ba1477c",
+      "size": 1096
+    },
+    {
+      "path": "company-os/brand-architect/references/source/10-governance-architecture-equity-expansion.txt",
+      "sha256": "2ba470700dec7a38a240142197372808bc9c4acdd90448520f833aa1a00c812c",
+      "size": 1314
+    },
+    {
+      "path": "company-os/brand-architect/scripts/validate_brand_architect.py",
+      "sha256": "3686379836e612cfec0203594b32eaf347de91f73523f7277a5538ffe72e9ecb",
+      "size": 5788
+    },
+    {
       "path": "company-os/brand-creative-system/SKILL.md",
-      "sha256": "d202f89899a6597be1eb04c89f1648242628fcd627a9a1fff6f0b59550d818ca",
-      "size": 2216
+      "sha256": "bddbc8b3d9219891362e54bfda2cef8ebdfc069261f4ca6dfa3416a6c10e8544",
+      "size": 2416
     },
     {
       "path": "company-os/brand-creative-system/agents/grok.yaml",
@@ -307,8 +387,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "8541c421fd1c3c72d32141db3f615f8641e1dbea9aafb35bdae0d4d742d2c86d",
+      "size": 16475
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",

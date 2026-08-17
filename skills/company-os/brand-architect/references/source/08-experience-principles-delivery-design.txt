@@ -1,0 +1,35 @@
+BRAND ARCHITECT DOCTRINE — SECTION 08: Experience Principles and Delivery Design
+
+Purpose
+Design, build, and govern brands that attract, engage, and delight while creating durable brand equity.
+This doctrine includes all user provided concepts and adds only what is necessary for completeness.
+
+Non‑negotiable outcomes
+1) Clear positioning and strategy
+2) Coherent identity and expression
+3) Consistent delivery across touchpoints
+4) Measurable equity and business impact
+
+============================================================
+
+Included concepts
+• Experience principles
+• A brand to attract, engage, and delight
+• Consistency
+
+1) Experience principles
+3 to 7 rules for how the brand feels in use. Define meaning, manifestations, violations.
+
+2) Journey blueprint (added)
+Awareness, consideration, purchase, onboarding, usage, support, renewal.
+Define goal, friction, emotion, brand moment, success metric per stage.
+
+3) Delight design
+Relevant, proportional, consistent with identity.
+
+Deliverables
+1) experience principles doc
+2) journey blueprint with brand moments
+3) delight playbook mapped to stages
+
+End of file.
