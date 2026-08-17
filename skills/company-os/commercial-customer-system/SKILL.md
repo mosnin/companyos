@@ -9,8 +9,8 @@ Operate commercial work as a learning system, not an activity factory.
 
 When a Sol manager owns prospecting, qualification, discovery, pipeline, or
 closing work, load `$sales-architect` as the sales overlay. This skill remains
-the commercial operating contract. Do not send `$sales-architect` to Luna
-workers.
+the commercial operating contract.
+Do not send `$sales-architect` to Luna workers.
 
 ## Core loop
 
