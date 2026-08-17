@@ -1,0 +1,194 @@
+file_name: four_actions_framework_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime Four Actions Framework used to reconstruct
+  industry value curves and drive value innovation.
+  This file preserves the canonical ERRC format while extending it into
+  cost discipline, differentiation logic, and execution planning.
+
+what_this_is:
+  definition: >
+    The Four Actions Framework challenges an industry’s strategic logic
+    by asking four questions:
+    What should be eliminated, reduced, raised, and created?
+  primary_goal: >
+    Break the value–cost tradeoff by eliminating and reducing low-value
+    factors while raising and creating high-value ones.
+  not_this:
+    - "A feature wishlist"
+    - "A brainstorming exercise without tradeoffs"
+    - "An optimization-only tool"
+
+canonical_format:
+  quadrants:
+    - Eliminate
+    - Reduce
+    - Raise
+    - Create
+  invariant_rule: >
+    True strategy requires tradeoffs.
+    If nothing is eliminated or reduced, there is no strategy.
+
+spatial_logic:
+  cost_side:
+    description: "Eliminate and Reduce lower cost structure"
+  value_side:
+    description: "Raise and Create increase buyer value"
+  strategic_balance: >
+    The framework must rebalance cost and value simultaneously.
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke Four Actions Framework"
+    - "Run ERRC grid"
+    - "Four Actions for <business / product / industry>"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Generate a best-effort ERRC grid using assumptions where required.
+  discipline_constraint:
+    rule: >
+      Each item must reference a real industry factor or activity.
+
+input_contract:
+  user_input_template: |
+    FOUR ACTIONS INPUT
+    Business / Product:
+    Industry:
+    Target Customer:
+    Strategy Intent: (cost leadership / differentiation / value innovation)
+    Competitive Context:
+    Evidence Available: (none, customer data, market data)
+  minimum_viable_input:
+    description: >
+      If only an industry is provided,
+      infer standard competitive factors and industry norms
+      and mark all inferred items as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Scope and Strategic Intent"
+    - "2. Four Actions Grid"
+    - "3. Cost–Value Impact Assessment"
+    - "4. Assumptions Ledger"
+    - "5. Risks and Failure Modes"
+    - "6. Strategic Initiatives"
+    - "7. Review Cadence"
+
+scope_and_strategic_intent:
+  rules:
+    - "One industry and customer context"
+    - "Explicit strategic intent"
+  why_this_matters: >
+    ERRC grids collapse when multiple customer contexts are mixed.
+    Precision is structural.
+
+four_actions_grid:
+
+  eliminate:
+    definition: >
+      Factors the industry has long competed on
+      that no longer add meaningful value to customers.
+    guiding_questions:
+      - "What do customers not care about?"
+      - "What exists only because competitors do it?"
+    impact:
+      cost: "High reduction potential"
+      value: "Minimal or neutral loss"
+    failure_modes:
+      - "Eliminating table stakes"
+      - "Fear-based attachment to legacy features"
+
+  reduce:
+    definition: >
+      Factors that should be reduced well below industry standard.
+    guiding_questions:
+      - "Where is the industry over-serving?"
+      - "Which factors drive cost without proportional value?"
+    impact:
+      cost: "Moderate reduction"
+      value: "Acceptable tradeoff"
+    failure_modes:
+      - "Reducing differentiators"
+      - "Reducing without customer validation"
+
+  raise:
+    definition: >
+      Factors that should be raised well above industry standard.
+    guiding_questions:
+      - "Where are customers forced to compromise?"
+      - "Which factors disproportionately influence choice?"
+    impact:
+      cost: "Targeted increase"
+      value: "High perceived benefit"
+    failure_modes:
+      - "Raising too many factors"
+      - "Raising factors customers don’t notice"
+
+  create:
+    definition: >
+      New factors the industry has never offered.
+    guiding_questions:
+      - "What would eliminate customer pain entirely?"
+      - "What new sources of value could unlock demand?"
+    impact:
+      cost: "Selective increase"
+      value: "New demand creation"
+    failure_modes:
+      - "Novelty without value"
+      - "Creation without feasibility"
+
+cost_value_impact_assessment:
+  evaluation_dimensions:
+    cost_effect:
+      scale: "Decrease / Neutral / Increase"
+    value_effect:
+      scale: "Decrease / Neutral / Increase"
+  prioritization_rule: >
+    Favor actions that increase value while decreasing or neutralizing cost.
+  warning_signal: >
+    If most actions increase cost, strategy coherence is weak.
+
+assumptions_ledger:
+  categories:
+    customer_value_assumptions:
+      description: "Beliefs about what customers truly value"
+    cost_assumptions:
+      description: "Beliefs about cost savings or increases"
+    competitor_response_assumptions:
+      description: "Beliefs about how competitors will react"
+    adoption_assumptions:
+      description: "Beliefs about customer switching behavior"
+
+risks_and_failure_modes:
+  strategic:
+    - "No real tradeoffs"
+    - "Incrementalism disguised as innovation"
+  execution:
+    - "Cost structure incompatible with raised or created factors"
+    - "Inability to deliver promised value"
+  cognitive:
+    - "Anchoring to industry norms"
+    - "Internal bias toward complexity"
+
+strategic_initiatives:
+  output_definition: >
+    Concrete initiatives derived from ERRC actions.
+  examples:
+    - "Remove legacy feature set to simplify operations"
+    - "Reduce service tiers to cut overhead"
+    - "Raise onboarding quality to accelerate adoption"
+    - "Create a new value dimension competitors ignore"
+  success_metrics:
+    - "Customer switching rate"
+    - "Margin improvement"
+    - "Reduced price sensitivity"
+
+review_cadence:
+  recommended:
+    stable_industries: "Annual"
+    dynamic_industries: "Quarterly"
+  trigger_events:
+    - "Competitive convergence"
+    - "Cost pressure"
+    - "Customer behavior shift"

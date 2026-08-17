@@ -1,0 +1,238 @@
+file_name: mckinsey_7s_framework_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime McKinsey 7S Framework used to diagnose
+  organizational alignment and execution capability.
+  This file preserves the canonical 7S model while extending it into
+  actionable decisions, risks, and change initiatives.
+
+what_this_is:
+  definition: >
+    The McKinsey 7S Framework evaluates how seven internal elements of an
+    organization align to support strategy and performance.
+  primary_goal: >
+    Identify misalignment that prevents strategy from being executed.
+  not_this:
+    - "A market analysis"
+    - "A financial model"
+    - "A culture-only assessment"
+
+canonical_format:
+  elements:
+    hard_elements:
+      - Strategy
+      - Structure
+      - Systems
+    soft_elements:
+      - Shared Values
+      - Style
+      - Staff
+      - Skills
+  invariant_rule: >
+    All seven elements must be aligned.
+    Optimizing one in isolation degrades overall performance.
+
+spatial_logic:
+  center:
+    shared_values: "The core beliefs and purpose at the heart of the organization"
+  dependency_logic: >
+    Hard elements are easier to change.
+    Soft elements determine sustainability.
+  diagnostic_principle: >
+    Performance problems usually arise from misalignment, not incompetence.
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke McKinsey 7S"
+    - "Run 7S analysis"
+    - "7S for <organization / team / initiative>"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Perform a best-effort diagnosis using assumptions where necessary.
+  honesty_constraint:
+    rule: >
+      Do not sanitize cultural or leadership issues.
+      Soft elements must be assessed directly.
+
+input_contract:
+  user_input_template: |
+    7S INPUT
+    Organization / Initiative:
+    Stage: (early, scaling, mature, turnaround)
+    Strategy Summary:
+    Org Size:
+    Leadership Structure:
+    Known Issues (if any):
+    Evidence Available: (none, anecdotes, metrics)
+  minimum_viable_input:
+    description: >
+      If only an organization or initiative name is provided,
+      infer typical 7S patterns for the stage and industry
+      and mark all inferred items as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Scope and Context"
+    - "2. The 7S Elements"
+    - "3. Alignment Assessment"
+    - "4. Assumptions Ledger"
+    - "5. Misalignment Risks"
+    - "6. Change Initiatives"
+    - "7. Review Cadence"
+
+scope_and_context:
+  rules:
+    - "One organization or unit per 7S"
+    - "Explicit time horizon"
+  why_this_matters: >
+    7S diagnoses are time-sensitive.
+    Alignment today may not hold after growth or change.
+
+seven_s_elements:
+
+  strategy:
+    definition: >
+      The plan for achieving competitive advantage and long-term goals.
+    evaluation_questions:
+      - "Is the strategy clear and explicit?"
+      - "Is it differentiated?"
+      - "Is it understood beyond leadership?"
+    metrics:
+      - "Strategic clarity"
+      - "Execution consistency"
+    failure_modes:
+      - "Implicit or outdated strategy"
+      - "Strategy disconnected from reality"
+
+  structure:
+    definition: >
+      How roles, responsibilities, and authority are organized.
+    evaluation_questions:
+      - "Does structure support the strategy?"
+      - "Are decision rights clear?"
+    metrics:
+      - "Decision latency"
+      - "Span of control"
+    failure_modes:
+      - "Over-centralization"
+      - "Conflicting reporting lines"
+
+  systems:
+    definition: >
+      The processes and workflows that drive daily operations.
+    evaluation_questions:
+      - "Do systems reinforce desired behavior?"
+      - "Are incentives aligned?"
+    metrics:
+      - "Process cycle time"
+      - "Error or rework rate"
+    failure_modes:
+      - "Manual workarounds"
+      - "Metrics that drive the wrong behavior"
+
+  shared_values:
+    definition: >
+      Core beliefs, purpose, and norms that guide behavior.
+    evaluation_questions:
+      - "Are values explicit or implicit?"
+      - "Are they lived or only stated?"
+    metrics:
+      - "Cultural consistency"
+      - "Value-behavior alignment"
+    failure_modes:
+      - "Stated values contradict incentives"
+      - "Cultural drift during growth"
+
+  style:
+    definition: >
+      Leadership approach and management behavior.
+    evaluation_questions:
+      - "How do leaders actually behave?"
+      - "What behavior is rewarded or punished?"
+    metrics:
+      - "Psychological safety"
+      - "Speed of escalation"
+    failure_modes:
+      - "Command-and-control mismatch"
+      - "Avoidance of accountability"
+
+  staff:
+    definition: >
+      The people, their roles, and overall workforce composition.
+    evaluation_questions:
+      - "Are the right people in the right roles?"
+      - "Is talent scaling with strategy?"
+    metrics:
+      - "Retention"
+      - "Role clarity"
+    failure_modes:
+      - "Talent gaps"
+      - "Misaligned incentives"
+
+  skills:
+    definition: >
+      The capabilities and competencies the organization does well.
+    evaluation_questions:
+      - "What are we uniquely good at?"
+      - "Which skills are missing?"
+    metrics:
+      - "Skill coverage"
+      - "Learning velocity"
+    failure_modes:
+      - "Outdated core skills"
+      - "Skills misaligned with strategy"
+
+alignment_assessment:
+  method:
+    description: >
+      Evaluate pairwise alignment between elements.
+  critical_pairs:
+    - "Strategy ↔ Structure"
+    - "Strategy ↔ Skills"
+    - "Systems ↔ Shared Values"
+    - "Style ↔ Staff"
+  scoring:
+    scale: "Low / Medium / High alignment"
+  diagnostic_rule: >
+    One low-alignment pair can negate strengths elsewhere.
+
+assumptions_ledger:
+  categories:
+    strategy_assumptions:
+      description: "Beliefs about competitive positioning"
+    leadership_assumptions:
+      description: "Beliefs about management behavior"
+    culture_assumptions:
+      description: "Beliefs about values in practice"
+    capability_assumptions:
+      description: "Beliefs about skills depth"
+
+misalignment_risks:
+  common_patterns:
+    - "Strategy changed, structure did not"
+    - "Growth outpaced systems"
+    - "Values diluted during scaling"
+    - "Leadership style misfit for stage"
+
+change_initiatives:
+  principles:
+    - "Fix alignment before adding complexity"
+    - "Change hard elements to influence soft elements"
+  examples:
+    - "Redesign decision rights to support strategy"
+    - "Update incentives to reinforce values"
+    - "Invest in capability building"
+  success_metrics:
+    - "Execution speed"
+    - "Consistency of behavior"
+
+review_cadence:
+  recommended:
+    early_stage: "Every 6 months"
+    scaling: "Annually"
+    mature: "Annually or during transformation"
+  trigger_events:
+    - "Rapid growth"
+    - "Leadership change"
+    - "Strategic pivot"

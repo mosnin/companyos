@@ -1,0 +1,184 @@
+file_name: strategy_canvas_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime Strategy Canvas framework used to visualize
+  competitive positioning, reveal strategic convergence, and design
+  differentiation through value innovation.
+  This file preserves the canonical Strategy Canvas format while extending it
+  into strategic decision-making and execution.
+
+what_this_is:
+  definition: >
+    The Strategy Canvas is a core tool of Blue Ocean Strategy.
+    It plots how different players compete across key industry factors
+    to reveal similarity, differentiation, and opportunity.
+  primary_goal: >
+    Make strategic positioning visible and actionable.
+  not_this:
+    - "A financial model"
+    - "A customer discovery tool"
+    - "A feature comparison table"
+
+canonical_format:
+  axes:
+    x_axis: Competitive Factors
+    y_axis: Level of Offering
+  value_curves:
+    definition: >
+      Lines representing how each competitor (including you)
+      invests across competitive factors.
+  invariant_rules:
+    - "All factors must be industry-relevant"
+    - "Value curves must be comparable on the same factors"
+    - "Strategy is the pattern, not any single factor"
+
+spatial_logic:
+  horizontal:
+    description: "Factors customers consider when choosing between offerings"
+  vertical:
+    description: "Relative level of investment or performance"
+  interpretation:
+    - "Converging curves = commoditization"
+    - "Diverging curves = differentiation"
+    - "Flat curves = underinvestment or irrelevance"
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke Strategy Canvas"
+    - "Build Strategy Canvas for <industry>"
+    - "Strategy Canvas vs competitors"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Generate a best-effort canvas using assumptions where needed.
+  comparability_constraint:
+    rule: >
+      All competitors must be evaluated on the same factor set.
+
+input_contract:
+  user_input_template: |
+    STRATEGY CANVAS INPUT
+    Business / Product Name:
+    Industry:
+    Geography:
+    Target Customer:
+    Key Competitors:
+    Known Differentiators (if any):
+    Strategy Intent: (cost leadership / differentiation / value innovation)
+    Evidence Available: (none, market data, customer data)
+  minimum_viable_input:
+    description: >
+      If only an industry and focal business are provided,
+      infer common competitive factors and typical incumbents
+      and mark all inferred items as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Scope and Intent"
+    - "2. Competitive Factors"
+    - "3. Value Curves"
+    - "4. Strategic Diagnosis"
+    - "5. Four Actions Framework"
+    - "6. Assumptions Ledger"
+    - "7. Risks and Failure Modes"
+    - "8. Strategic Moves"
+
+scope_and_intent:
+  rules:
+    - "One industry and one customer context"
+    - "Explicit strategic intent"
+  why_this_matters: >
+    Strategy canvases collapse if industries or customers are mixed.
+    Precision is structural.
+
+competitive_factors:
+  definition: >
+    The attributes and dimensions on which the industry competes.
+  sourcing_methods:
+    - "Customer decision criteria"
+    - "Industry norms"
+    - "Marketing claims of incumbents"
+  rules:
+    - "5–12 factors is ideal"
+    - "Phrase factors neutrally"
+    - "Avoid internal metrics"
+  failure_modes:
+    - "Too many factors"
+    - "Factors customers do not care about"
+
+value_curves:
+  entities:
+    incumbent_players:
+      description: "Major existing competitors"
+    focal_player:
+      description: "Your business or proposed strategy"
+  scoring_scale:
+    example:
+      low: 1
+      medium: 3
+      high: 5
+  rules:
+    - "Relative, not absolute scoring"
+    - "Consistency across players"
+  interpretation_signals:
+    convergence: "All curves look similar"
+    divergence: "Clear structural difference"
+    incoherence: "No clear strategic pattern"
+
+strategic_diagnosis:
+  questions:
+    - "Where does the industry over-invest?"
+    - "Where does the industry under-serve?"
+    - "Where are customers forced to trade off?"
+  warning_signs:
+    - "High cost with no differentiation"
+    - "Feature escalation arms race"
+
+four_actions_framework:
+  purpose: >
+    Translate the Strategy Canvas into value innovation.
+  actions:
+    eliminate:
+      definition: "Factors the industry takes for granted but customers do not value"
+    reduce:
+      definition: "Factors that can be lowered below industry standard"
+    raise:
+      definition: "Factors that should be increased well above standard"
+    create:
+      definition: "New factors the industry has never offered"
+  invariant_rule: >
+    True strategy requires trade-offs.
+    You cannot raise everything.
+
+assumptions_ledger:
+  categories:
+    factor_relevance:
+      description: "Beliefs about what customers value"
+    competitor_behavior:
+      description: "Beliefs about incumbent positioning"
+    cost_assumptions:
+      description: "Beliefs about cost impact of factor changes"
+    adoption_assumptions:
+      description: "Beliefs about customer response"
+
+risks_and_failure_modes:
+  strategic:
+    - "Superficial differentiation"
+    - "No real trade-offs"
+  execution:
+    - "Cost structure incompatible with strategy"
+    - "Inability to deliver raised or created factors"
+  cognitive:
+    - "Copying competitors instead of redefining value"
+
+strategic_moves:
+  output_definition: >
+    Concrete initiatives derived from the Four Actions Framework.
+  examples:
+    - "Remove legacy feature set to cut costs"
+    - "Double down on one high-impact factor"
+    - "Introduce a new value dimension"
+  success_metrics:
+    - "Customer switching"
+    - "Margin expansion"
+    - "Reduced price sensitivity"

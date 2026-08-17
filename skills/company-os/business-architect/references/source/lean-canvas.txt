@@ -1,0 +1,302 @@
+file_name: lean_canvas_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime Lean Canvas definition for early-stage,
+  uncertainty-heavy businesses.
+  This canvas is optimized for speed, learning, and risk reduction.
+
+what_this_is:
+  definition: >
+    The Lean Canvas is a startup-focused adaptation of the Business Model Canvas.
+    It replaces long-term infrastructure thinking with problem-solution
+    and traction-first thinking.
+  best_used_when:
+    - "Idea stage"
+    - "Pre-PMF"
+    - "Early revenue"
+    - "High uncertainty environments"
+  not_for:
+    - "Mature enterprises"
+    - "Highly regulated, slow-cycle industries without modification"
+
+canonical_format:
+  structure:
+    top_row:
+      - Problem
+      - Solution
+      - Unique Value Proposition
+      - Unfair Advantage
+      - Customer Segments
+    middle_row:
+      - Key Metrics
+      - Channels
+    bottom_row:
+      - Cost Structure
+      - Revenue Streams
+  invariant_rule: >
+    The Unique Value Proposition sits at the center.
+    Everything else supports or validates it.
+
+spatial_logic:
+  left_side: Problem Space
+  center: Value Hypothesis
+  right_side: Market & Distribution
+  bottom: Economics
+  execution_focus: >
+    The canvas is read as a set of hypotheses to be tested,
+    not facts to be defended.
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke Lean Canvas"
+    - "Build Lean Canvas for <startup>"
+    - "Lean Canvas for <idea>"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Produce a best-effort canvas using explicit assumptions.
+  bias_toward_action:
+    rule: >
+      Prefer speed and falsifiability over completeness.
+
+input_contract:
+  user_input_template: |
+    LEAN CANVAS INPUT
+    Startup / Product Name:
+    One-liner:
+    Target Customer:
+    Primary Problem:
+    Existing Alternatives:
+    Stage: (idea, MVP, revenue)
+    Pricing (if known):
+    Distribution ideas (if known):
+    Constraints:
+    Evidence available: (none, interviews, usage, revenue)
+  minimum_viable_input:
+    description: >
+      If only a name or idea is provided,
+      infer the rest from first principles and
+      mark all inferred elements as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Canvas Scope"
+    - "2. Lean Canvas Blocks"
+    - "3. Assumptions Ledger"
+    - "4. Riskiest Assumptions"
+    - "5. Failure Modes"
+    - "6. Validation Plan"
+    - "7. Iteration Strategy"
+
+canvas_scope:
+  rules:
+    - "One primary customer segment"
+    - "One core problem"
+    - "One core solution"
+  why_this_matters: >
+    Lean Canvas breaks when it tries to serve everyone.
+    Focus is a structural requirement.
+
+lean_canvas_blocks:
+
+  problem:
+    definition: >
+      The top 1–3 problems the customer urgently cares about.
+    rules:
+      - "Problems must be painful and frequent"
+      - "Phrase in customer language"
+      - "Avoid solution framing"
+    include:
+      - "Existing alternatives or workarounds"
+    metrics:
+      - "Problem frequency"
+      - "Customer frustration intensity"
+    failure_modes:
+      - "Nice-to-have problems"
+      - "Founder-only problems"
+
+  solution:
+    definition: >
+      A high-level description of how you solve the problem.
+      Not a feature list.
+    rules:
+      - "One solution per problem cluster"
+      - "Assume solution is wrong until proven"
+    maturity_levels:
+      - "Concept"
+      - "MVP"
+      - "V1"
+    metrics:
+      - "Time to first value"
+      - "Adoption rate"
+    failure_modes:
+      - "Overbuilt solution"
+      - "Solution in search of problem"
+
+  unique_value_proposition:
+    definition: >
+      A single, clear statement that explains why this product matters
+      and why it is different.
+    formula: >
+      "For [customer] who [problem], our product is [category]
+      that [primary benefit], unlike [alternative]."
+    rules:
+      - "Clear > clever"
+      - "Outcome-focused"
+    metrics:
+      - "Message resonance"
+      - "Conversion lift"
+    failure_modes:
+      - "Buzzwords"
+      - "Feature-based UVP"
+
+  unfair_advantage:
+    definition: >
+      Something that cannot be easily copied or bought.
+      If none exists, say 'none yet'.
+    examples:
+      - "Founder insight"
+      - "Exclusive data"
+      - "Distribution leverage"
+      - "Brand trust"
+      - "Network effects"
+    rules:
+      - "If it can be copied in 6 months, it’s not unfair"
+    metrics:
+      - "Defensibility over time"
+    failure_modes:
+      - "Claiming future advantages as current"
+      - "Generic advantages"
+
+  customer_segments:
+    definition: >
+      The specific people who experience the problem.
+    include:
+      - "Early adopters"
+      - "Decision-makers vs users"
+    rules:
+      - "Narrow before broad"
+      - "Segment by behavior, not demographics"
+    metrics:
+      - "Activation rate by segment"
+    failure_modes:
+      - "Everyone as a customer"
+
+  key_metrics:
+    definition: >
+      The few numbers that tell you if the business is working.
+    rules:
+      - "Avoid vanity metrics"
+      - "Metrics should drive decisions"
+    examples_by_type:
+      SaaS:
+        - "Activation rate"
+        - "Retention"
+        - "MRR growth"
+      ecom:
+        - "Contribution margin"
+        - "Repeat purchase rate"
+      marketplace:
+        - "Liquidity"
+        - "Time to match"
+    failure_modes:
+      - "Tracking too many metrics"
+
+  channels:
+    definition: >
+      How you reach and acquire customers.
+    categories:
+      - "Inbound"
+      - "Outbound"
+      - "Paid"
+      - "Partnerships"
+    rules:
+      - "Start with one primary channel"
+    metrics:
+      - "CAC"
+      - "Channel scalability"
+    failure_modes:
+      - "Channel spread too thin"
+      - "Unscalable channels"
+
+  cost_structure:
+    definition: >
+      The major costs required to operate the business.
+    include:
+      - "Fixed costs"
+      - "Variable costs"
+    rules:
+      - "Rough orders of magnitude are sufficient"
+    metrics:
+      - "Burn rate"
+      - "Runway"
+    failure_modes:
+      - "Underestimating variable costs"
+
+  revenue_streams:
+    definition: >
+      How the business makes money.
+    include:
+      - "Pricing model"
+      - "Payment timing"
+    rules:
+      - "Test willingness to pay early"
+    metrics:
+      - "ARPU"
+      - "LTV"
+    failure_modes:
+      - "Monetization as an afterthought"
+
+assumptions_ledger:
+  categories:
+    problem_assumptions:
+      description: "Customer truly cares about the problem"
+    solution_assumptions:
+      description: "Solution actually solves the problem"
+    market_assumptions:
+      description: "Enough customers exist"
+    pricing_assumptions:
+      description: "Customers will pay at this level"
+
+riskiest_assumptions:
+  rule: >
+    Identify the assumption that would kill the business fastest if false.
+  typical_candidates:
+    - "Problem urgency"
+    - "Willingness to pay"
+    - "Channel viability"
+
+failure_modes:
+  strategic:
+    - "Building before learning"
+    - "Ignoring evidence"
+  execution:
+    - "Premature scaling"
+    - "Feature creep"
+  cognitive:
+    - "Founder bias"
+    - "Confirmation bias"
+
+validation_plan:
+  principles:
+    - "Test problems before solutions"
+    - "Behavior > opinions"
+  experiments:
+    - "Customer interviews"
+    - "Smoke tests"
+    - "Pre-sales"
+    - "Landing page experiments"
+  success_signals:
+    - "Customers pull the product"
+    - "Alternatives are abandoned"
+
+iteration_strategy:
+  when_to_pivot:
+    - "Low engagement"
+    - "Poor retention"
+    - "Price resistance"
+  pivot_axes:
+    - "Problem"
+    - "Customer segment"
+    - "Channel"
+    - "Revenue model"

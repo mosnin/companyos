@@ -1,0 +1,243 @@
+file_name: pestel_analysis_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime PESTEL Analysis framework used to evaluate
+  macro-environmental forces that affect a business, market, or industry.
+  This file preserves the canonical PESTEL format while extending it into
+  decision-ready strategic insights.
+
+what_this_is:
+  definition: >
+    PESTEL Analysis examines six macro-environmental dimensions:
+    Political, Economic, Social, Technological, Environmental, and Legal.
+  scope: >
+    PESTEL focuses on forces outside the firm’s direct control.
+    It informs strategy, risk management, and timing decisions.
+  not_this:
+    - "A competitive analysis"
+    - "An internal capability assessment"
+
+canonical_format:
+  dimensions:
+    - Political
+    - Economic
+    - Social
+    - Technological
+    - Environmental
+    - Legal
+  invariant_rule: >
+    All factors must be external to the firm.
+    Internal reactions belong in strategy, not in PESTEL.
+
+spatial_logic:
+  macro_to_micro:
+    description: >
+      PESTEL scans the environment broadly,
+      then filters down to what materially affects the business.
+  time_horizon:
+    default: "12–36 months"
+    note: "Some factors evolve slowly; others move suddenly."
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke PESTEL"
+    - "Run PESTEL analysis"
+    - "PESTEL for <business / industry / market>"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Produce a best-effort PESTEL using assumptions where needed.
+  relevance_constraint:
+    rule: >
+      Exclude factors that do not materially affect decisions.
+
+input_contract:
+  user_input_template: |
+    PESTEL INPUT
+    Business / Industry:
+    Geography:
+    Stage: (early, scaling, mature)
+    Time Horizon:
+    Regulatory Exposure (low / medium / high):
+    Evidence Available: (none, reports, data)
+  minimum_viable_input:
+    description: >
+      If only an industry or business name is provided,
+      infer relevant PESTEL factors for the geography
+      and mark all inferred elements as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Scope and Context"
+    - "2. PESTEL Factors"
+    - "3. Assumptions Ledger"
+    - "4. Impact & Uncertainty Assessment"
+    - "5. Strategic Implications"
+    - "6. Priority Watchlist"
+    - "7. Review Cadence"
+
+scope_and_context:
+  rules:
+    - "One geography per PESTEL"
+    - "Explicit time horizon"
+  why_this_matters: >
+    Macro forces vary significantly by country and over time.
+    Mixing geographies or horizons reduces signal quality.
+
+pestel_factors:
+
+  political:
+    definition: >
+      Government actions, policies, and political stability factors.
+    examples:
+      - "Tax policy"
+      - "Trade restrictions"
+      - "Government stability"
+      - "Subsidies or incentives"
+    impact_vectors:
+      - "Cost structure"
+      - "Market access"
+    metrics:
+      - "Policy volatility"
+      - "Government intervention likelihood"
+    failure_modes:
+      - "Ignoring local vs national differences"
+      - "Overreacting to short-term noise"
+
+  economic:
+    definition: >
+      Macroeconomic conditions affecting purchasing power and costs.
+    examples:
+      - "Interest rates"
+      - "Inflation"
+      - "Employment levels"
+      - "Currency fluctuations"
+    impact_vectors:
+      - "Demand elasticity"
+      - "Cost of capital"
+    metrics:
+      - "GDP growth"
+      - "Consumer spending trends"
+    failure_modes:
+      - "Assuming stable macro conditions"
+      - "Ignoring second-order effects"
+
+  social:
+    definition: >
+      Demographic, cultural, and behavioral trends.
+    examples:
+      - "Demographic shifts"
+      - "Lifestyle changes"
+      - "Consumer attitudes"
+      - "Trust and values"
+    impact_vectors:
+      - "Product adoption"
+      - "Brand perception"
+    metrics:
+      - "Adoption rate by cohort"
+      - "Cultural alignment risk"
+    failure_modes:
+      - "Projecting founder values onto market"
+      - "Ignoring slow-moving social change"
+
+  technological:
+    definition: >
+      Technological developments that affect products, processes, or markets.
+    examples:
+      - "Automation"
+      - "AI adoption"
+      - "Platform evolution"
+      - "Infrastructure changes"
+    impact_vectors:
+      - "Cost reduction"
+      - "New business models"
+    metrics:
+      - "Rate of tech adoption"
+      - "Obsolescence risk"
+    failure_modes:
+      - "Chasing hype cycles"
+      - "Ignoring build vs buy tradeoffs"
+
+  environmental:
+    definition: >
+      Ecological and sustainability-related factors.
+    examples:
+      - "Climate regulations"
+      - "Resource availability"
+      - "Energy costs"
+    impact_vectors:
+      - "Compliance costs"
+      - "Supply chain stability"
+    metrics:
+      - "Environmental compliance burden"
+      - "Resource volatility"
+    failure_modes:
+      - "Treating sustainability as PR only"
+      - "Ignoring supply-side risks"
+
+  legal:
+    definition: >
+      Laws and regulations governing how business is conducted.
+    examples:
+      - "Labor laws"
+      - "Data protection"
+      - "Industry-specific regulation"
+    impact_vectors:
+      - "Operational constraints"
+      - "Liability exposure"
+    metrics:
+      - "Regulatory change frequency"
+      - "Compliance cost"
+    failure_modes:
+      - "Underestimating enforcement"
+      - "Assuming regulations are static"
+
+assumptions_ledger:
+  categories:
+    policy_assumptions:
+      description: "Beliefs about political or regulatory direction"
+    macro_assumptions:
+      description: "Beliefs about economic stability"
+    behavior_assumptions:
+      description: "Beliefs about consumer or societal change"
+    technology_assumptions:
+      description: "Beliefs about adoption speed"
+
+impact_and_uncertainty_assessment:
+  scoring_dimensions:
+    impact:
+      scale: "Low / Medium / High"
+    uncertainty:
+      scale: "Low / Medium / High"
+  prioritization_rule: >
+    Focus strategy on factors with High Impact and High Uncertainty.
+
+strategic_implications:
+  strategy_types:
+    exploit:
+      description: "Use favorable trends to accelerate growth"
+    hedge:
+      description: "Reduce exposure to adverse forces"
+    wait:
+      description: "Delay commitment until uncertainty resolves"
+  rule: >
+    PESTEL insights must translate into timing,
+    investment, or risk-mitigation decisions.
+
+priority_watchlist:
+  definition: >
+    A short list of macro factors to monitor continuously.
+  output_limit:
+    max_items: 5
+  failure_modes:
+    - "Monitoring everything"
+    - "Monitoring nothing"
+
+review_cadence:
+  recommended:
+    stable_industries: "Annual"
+    volatile_industries: "Quarterly"
+  trigger_events:
+    - "Regulatory change"
+    - "Macroeconomic shock"
+    - "Technological inflection"

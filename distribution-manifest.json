@@ -206,6 +206,121 @@
       "size": 16259
     },
     {
+      "path": "company-os/business-architect/SKILL.md",
+      "sha256": "b57a7879cf289c08a40b8fc41de3a7f0b5f83fae35200d958709cb44790e221b",
+      "size": 3689
+    },
+    {
+      "path": "company-os/business-architect/agents/grok.yaml",
+      "sha256": "537908d7ea3b2dae551980b6a19ad3c5c0950333574fb5a264d56c0020781d63",
+      "size": 430
+    },
+    {
+      "path": "company-os/business-architect/agents/openai.yaml",
+      "sha256": "537908d7ea3b2dae551980b6a19ad3c5c0950333574fb5a264d56c0020781d63",
+      "size": 430
+    },
+    {
+      "path": "company-os/business-architect/assets/spawn-template.json",
+      "sha256": "92d6a14df21133f2a2c16f772e27bd40608ee4886ae4836fcd3d2fc5f71b7fbc",
+      "size": 505
+    },
+    {
+      "path": "company-os/business-architect/references/source/00-index.txt",
+      "sha256": "95880e9d5788040b826f8d553b919a8b5703eb2ce9f558bd691c684f7072b6db",
+      "size": 1740
+    },
+    {
+      "path": "company-os/business-architect/references/source/business-model-canvas.txt",
+      "sha256": "a522e276dafa7c686e447b13c670d6c6b95c080f9db7b84c229026839047d819",
+      "size": 5629
+    },
+    {
+      "path": "company-os/business-architect/references/source/core-context-framework.txt",
+      "sha256": "f9faded96a1790011ee397e3d34e15c6d16765e36efe67b474fc8ba8f1df0f80",
+      "size": 1075
+    },
+    {
+      "path": "company-os/business-architect/references/source/decision-tree-journal.txt",
+      "sha256": "736675c79e41fc11077cad64768d8b9feeb32435a079e0b9444d7226bdc934b8",
+      "size": 592
+    },
+    {
+      "path": "company-os/business-architect/references/source/flywheel-model.txt",
+      "sha256": "0a2420e79fa1f136306688bd52bdbc0d98102a74f8b155dab1c9790cfb9df506",
+      "size": 730
+    },
+    {
+      "path": "company-os/business-architect/references/source/four-actions-framework.txt",
+      "sha256": "ec2dab76745fc51a5829fe37d012e96fe0ce12832cc77e377226c4ec6a167a67",
+      "size": 6049
+    },
+    {
+      "path": "company-os/business-architect/references/source/jobs-to-be-done.txt",
+      "sha256": "7bec191575567dcac0b8c0cd43ddf39514cc94b255012958b4380221f2be6cfc",
+      "size": 677
+    },
+    {
+      "path": "company-os/business-architect/references/source/lean-canvas.txt",
+      "sha256": "d2ed4e9d00c4a251ba4bda2fb1f8b31103422edd6b9ef0dbad126c654884e3a0",
+      "size": 7616
+    },
+    {
+      "path": "company-os/business-architect/references/source/mckinsey-7s.txt",
+      "sha256": "78dfea3290e9286d53b007e36f33295b7c4591f900c491508c321f5e859fd3d3",
+      "size": 6799
+    },
+    {
+      "path": "company-os/business-architect/references/source/north-star-metric.txt",
+      "sha256": "b001b13029bb149b3122e51562a53de206e40d20260ce796dbb67e5b466b48f3",
+      "size": 645
+    },
+    {
+      "path": "company-os/business-architect/references/source/pestel-analysis.txt",
+      "sha256": "df0918898822d2249f43f865521ea0be6841b32bbb2cfbb8a7d165d5b9a41afa",
+      "size": 6780
+    },
+    {
+      "path": "company-os/business-architect/references/source/porters-five-forces.txt",
+      "sha256": "7c1fb2e998aaa61c5d10ab6acac7ead42b6349d2b8b3503bc085d3f1b2700f16",
+      "size": 1381
+    },
+    {
+      "path": "company-os/business-architect/references/source/promise-model.txt",
+      "sha256": "579652fcba076e6726de245ea895bbafa388e8a36fd2f801e55c903e88d502d8",
+      "size": 5692
+    },
+    {
+      "path": "company-os/business-architect/references/source/risk-register.txt",
+      "sha256": "fbbdc6d7309f6e55aa326eaef844f6e0fd2d82edb960309a9768f258e0facf5f",
+      "size": 773
+    },
+    {
+      "path": "company-os/business-architect/references/source/strategy-canvas.txt",
+      "sha256": "ac0f8506fd4f18782de75b14f5afed50b559d010ff7ac1fe005b980c994fddd6",
+      "size": 5699
+    },
+    {
+      "path": "company-os/business-architect/references/source/three-horizon-model.txt",
+      "sha256": "1076c2dffb33e8265d5a0c6e7615ea09a0f104b9125ec21ce0b9803ca5e66300",
+      "size": 6647
+    },
+    {
+      "path": "company-os/business-architect/references/source/value-builder-system.txt",
+      "sha256": "50097fe295a811d526f4212512b5773f3db98364462c4f36c70e9dfa83bb8300",
+      "size": 7262
+    },
+    {
+      "path": "company-os/business-architect/references/source/value-proposition-canvas.txt",
+      "sha256": "e5651c9651a1fa173f5db7a40d6e12291de83703b59e208e41387f633ac027a7",
+      "size": 7813
+    },
+    {
+      "path": "company-os/business-architect/scripts/validate_business_architect.py",
+      "sha256": "26c49e1350286ee854b9088a16a5ae544c60d3cae31c18a797d9df053b99a09e",
+      "size": 5962
+    },
+    {
       "path": "company-os/calibrate-outcome-evaluator/SKILL.md",
       "sha256": "a8fb2bf80d3f7299a566096a0745417765419a590eaae732d2d470d0833f196c",
       "size": 1412
@@ -307,8 +422,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "e1e300ca1213a8a7a8b3959174f6e51d77626d84d0e880536ff808191baf4a3a",
+      "size": 16521
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -1332,8 +1447,8 @@
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/SKILL.md",
-      "sha256": "c21054af43a0f625ca447312dce1f0035bfa86b1ab37e223e4e783b07a202b27",
-      "size": 1068
+      "sha256": "dd5ac9945bf0ab01ee8a27383e688b166bb66d549859126148d3200a056a6d94",
+      "size": 1285
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/agents/grok.yaml",
@@ -1362,8 +1477,8 @@
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/SKILL.md",
-      "sha256": "2f260ce77ef4fcbf770340d9a9a7626d120ccc6d85e55017479c07c647f42d40",
-      "size": 1554
+      "sha256": "a7b407dd53ee020032a8eea2e7caf0b8fbd328c9435ea7aca8a2a933bed5ef21",
+      "size": 1773
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/agents/grok.yaml",

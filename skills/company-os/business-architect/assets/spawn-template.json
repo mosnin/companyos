@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.business-architect-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "business-architect"
+  ],
+  "source_pack": "references/source",
+  "template_id": "business-architect",
+  "use_when": [
+    "business_model",
+    "competitive_strategy",
+    "jobs_to_be_done",
+    "market_analysis",
+    "value_proposition"
+  ]
+}
