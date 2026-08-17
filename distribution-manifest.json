@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "e846e3e80af944ddcd6df11979db6e6886a6b63694cafd072ca8824ab1537490",
+      "size": 16474
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -1017,8 +1017,8 @@
     },
     {
       "path": "company-os/operational-control/SKILL.md",
-      "sha256": "496e34d3b47621a88ad63a1d94ff0fe7383f0d849f1835a6a26f0a31ac3b4d9e",
-      "size": 2048
+      "sha256": "6f3453d88621fa53f7f85a36cd0072ab2961d12f0c58a93650c5c8e508a7e312",
+      "size": 2289
     },
     {
       "path": "company-os/operational-control/agents/grok.yaml",
@@ -1029,6 +1029,86 @@
       "path": "company-os/operational-control/agents/openai.yaml",
       "sha256": "d1e0575f69ce477d94b9e6443a4b5841150b9beeca96a512b38d6c57ded1951c",
       "size": 108
+    },
+    {
+      "path": "company-os/ops-architect/SKILL.md",
+      "sha256": "43ee10d6e40e4fb9fc2e93aaf32d9f927ab4636b54dcc6193fcc9f8c32f13f23",
+      "size": 3514
+    },
+    {
+      "path": "company-os/ops-architect/agents/grok.yaml",
+      "sha256": "fd040caaee45ac195cb7872e90744a537a79c513d37db0e6c59abe95af8ae0eb",
+      "size": 385
+    },
+    {
+      "path": "company-os/ops-architect/agents/openai.yaml",
+      "sha256": "fd040caaee45ac195cb7872e90744a537a79c513d37db0e6c59abe95af8ae0eb",
+      "size": 385
+    },
+    {
+      "path": "company-os/ops-architect/assets/spawn-template.json",
+      "sha256": "aaffb529a93bf43426aeefaf2218a1986f7d87224aea6f2b9055f48af176f076",
+      "size": 458
+    },
+    {
+      "path": "company-os/ops-architect/references/source/00-index.txt",
+      "sha256": "e5d87d7b0649253626f6aea9359288ba6aa8142c1d70003bf4dbde8bf4f17be0",
+      "size": 945
+    },
+    {
+      "path": "company-os/ops-architect/references/source/01-operations-fundamentals-flow-metrics.txt",
+      "sha256": "d9a5c9a7534cdcf7dcc15733d77743dc9134b22506e9810ac7bbf854bb00b509",
+      "size": 3410
+    },
+    {
+      "path": "company-os/ops-architect/references/source/02-capacity-bottlenecks-constraints.txt",
+      "sha256": "9dcd1c418655eb19f99edac36223647ff807886aa6f0b3950d46c2e20f6427c9",
+      "size": 3016
+    },
+    {
+      "path": "company-os/ops-architect/references/source/03-queueing-systems-littles-law.txt",
+      "sha256": "f47b5a8e4ca3e6993a3c07d6fff06e9481382a046eb040f7f6ad541410810306",
+      "size": 2774
+    },
+    {
+      "path": "company-os/ops-architect/references/source/04-process-structures-layouts.txt",
+      "sha256": "d34588a3cf96fad18e4a5a82d33ce2b3dea9165a2f15b8273d210cf254751b5b",
+      "size": 2849
+    },
+    {
+      "path": "company-os/ops-architect/references/source/05-visual-tools-networks-scheduling.txt",
+      "sha256": "39011ff946fe652296816818f191f562c5477d419597e20c19e6adde9977ff8e",
+      "size": 2611
+    },
+    {
+      "path": "company-os/ops-architect/references/source/06-inventory-economics-costs-benefits.txt",
+      "sha256": "326b07da4d2ea56842118fd845a3134a72bd6816d66af3f4f50972e2abc6e314",
+      "size": 2525
+    },
+    {
+      "path": "company-os/ops-architect/references/source/07-inventory-management-methods.txt",
+      "sha256": "58d3c9af126e19d13d6d33bd7b60a4d218c5d9a9be126e288badeb37ed1e165b",
+      "size": 2855
+    },
+    {
+      "path": "company-os/ops-architect/references/source/08-forecasting-demand-planning.txt",
+      "sha256": "40ae9ad70be586d7cfc2a4a785940541cc32658ff703662b43e523bc8c50827b",
+      "size": 2364
+    },
+    {
+      "path": "company-os/ops-architect/references/source/09-supply-chain-management.txt",
+      "sha256": "9e3583999200c21f623ebfc1ec835bf784ab543d639eef356ebd71b3b631cc84",
+      "size": 2403
+    },
+    {
+      "path": "company-os/ops-architect/references/source/10-project-and-agile-delivery.txt",
+      "sha256": "f1dac71a53c4bbf931f65de0bb91fb30811546a1732f7c78d65ba5253980ed3c",
+      "size": 2623
+    },
+    {
+      "path": "company-os/ops-architect/scripts/validate_ops_architect.py",
+      "sha256": "4e0abee553f86f2a9ee486180078071dffab2dcfce94c83f49318477d12892b8",
+      "size": 5755
     },
     {
       "path": "company-os/project-program-management/SKILL.md",

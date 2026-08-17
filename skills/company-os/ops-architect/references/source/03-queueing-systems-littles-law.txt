@@ -1,0 +1,74 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 03: Queueing Systems Design, Queue Discipline, and Little’s Law
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Queues are inevitable with variability. Design decides where waiting occurs, who waits, and what it costs.
+
+1) Core Terms
+1) Arrival process: rate and variability of entries
+2) Service process: processing time distribution
+3) Servers: parallel resources
+4) Queue discipline: rule selecting the next unit
+
+2) Little’s Law (Always Use)
+I = R × T
+Applications
+1) infer missing metric
+2) detect inconsistent measurement
+3) set WIP limits to hit lead time targets
+
+3) Utilization and Delay
+Principle
+Waiting grows sharply as utilization rises, especially with variability.
+Design implication
+Keep critical services below saturation if predictability matters.
+
+4) Queue Disciplines
+1) FIFO: stable, fair default
+2) LIFO: can reduce abandonment but risks starving old items
+3) Priority: use when delay costs differ; require anti-starvation
+4) SPT: minimizes average flow time; may be unfair
+5) EDD: deadline driven; depends on due date quality
+
+Anti-starvation
+1) priority aging
+2) service quotas by class
+3) time-based guarantees
+
+5) Queue System Architecture
+Decisions
+1) Single pooled queue vs multiple queues
+2) Reservation and appointment systems
+3) Triage and routing by class
+4) Fast lanes for short jobs when appropriate
+
+6) Batch Effects
+Batching reduces setup frequency but increases waiting.
+Batch only when it reduces constraint time enough to offset added queueing.
+
+Deliverables
+1) Queue map with causes
+2) Discipline selection and fairness rules
+3) WIP limit policy using Little’s Law
+4) Variability reduction plan for arrivals and service times
+
+End of file.

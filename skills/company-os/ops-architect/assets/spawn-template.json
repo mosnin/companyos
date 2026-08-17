@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.ops-architect-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "ops-architect"
+  ],
+  "source_pack": "references/source",
+  "template_id": "ops-architect",
+  "use_when": [
+    "capacity",
+    "inventory",
+    "process_flow",
+    "queueing",
+    "supply_chain"
+  ]
+}

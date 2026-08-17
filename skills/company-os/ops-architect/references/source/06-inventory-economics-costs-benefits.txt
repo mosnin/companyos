@@ -1,0 +1,65 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 06: Inventory Economics: Costs, Benefits, and Policy Tradeoffs
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Inventory buffers variability but ties up capital and can hide problems.
+
+1) Why Inventory Exists
+1) decouple mismatched rates and variability
+2) protect against demand uncertainty
+3) protect against supply lead times
+4) exploit ordering, setup, or transport economies
+5) meet service level commitments
+
+2) Inventory Costs
+1) holding: capital, storage, shrinkage, obsolescence
+2) ordering or setup: fixed per replenishment
+3) stockout: lost sales, expediting, reputation damage
+4) quality: defects stored and propagated
+5) complexity: tracking and admin
+
+3) Inventory Benefits
+1) higher service level
+2) shorter customer lead time
+3) reduced changeover frequency when setups are expensive
+4) smoothing capacity use
+
+4) Central Tradeoff
+More inventory reduces stockouts but increases holding and obsolescence.
+Less inventory reduces holding but increases stockout risk.
+
+5) Buffer Placement Rules
+1) protect the constraint
+2) buffer where variability enters
+3) avoid buffers that hide chronic quality issues
+4) prefer small, intentional buffers over uncontrolled piles
+
+6) WIP is Inventory
+Reducing WIP reduces lead time via Little’s Law.
+
+Deliverables
+1) inventory taxonomy and buffers
+2) cost model: holding, ordering, stockout, obsolescence
+3) target service levels by class
+4) buffer placement rationale map
+
+End of file.

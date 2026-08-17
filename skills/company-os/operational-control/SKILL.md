@@ -5,6 +5,11 @@ description: Operate a reliable autonomous or hybrid organization through servic
 
 # Operational Control
 
+When a Sol manager owns process flow, capacity, queueing, inventory, or
+supply chain work, load `$ops-architect` as the operations overlay. This skill
+remains the operations operating contract.
+Do not send `$ops-architect` to Luna workers.
+
 ## Control cycle
 
 Observe service and business health; detect meaningful deviation; triage impact and owner; stabilize; investigate root cause; correct; verify; update safeguards and runbooks.

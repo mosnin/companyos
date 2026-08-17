@@ -1,0 +1,71 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 09: Supply Chain Management: Sourcing, Logistics, Resilience, and Metrics
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Coordinate flows of materials, information, and cash from source to customer.
+
+1) Network View
+Nodes: suppliers, production, distribution, customers.
+Links: transport, information, payment.
+
+2) Strategic Choices
+1) single vs multi sourcing
+2) nearshore vs offshore
+3) make vs buy
+4) centralized vs decentralized inventory
+5) push vs pull replenishment
+
+3) Lead Time Anatomy
+Includes order processing, supplier queueing, production, transit, receiving.
+Reduce variability first; it improves service levels materially.
+
+4) Resilience
+Risks
+1) supplier failure
+2) logistics disruption
+3) demand shocks
+4) quality failures
+5) regulatory and geopolitical
+
+Mechanisms
+1) dual sourcing for critical items
+2) strategic safety stock
+3) flexible capacity agreements
+4) substitution and standardization
+5) visibility and early warning metrics
+
+5) Metrics
+1) OTIF
+2) fill rate
+3) lead time and variability
+4) total landed cost
+5) inventory turns
+6) cash-to-cash cycle time
+7) defect and returns rate
+
+Deliverables
+1) supply chain map with tiers and lead times
+2) critical item list and controls
+3) inventory placement strategy
+4) dashboard for OTIF, turns, lead time variability, landed cost
+
+End of file.

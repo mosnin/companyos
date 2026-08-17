@@ -1,0 +1,71 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 07: Inventory Management Methods: EOQ, ROP, Safety Stock, ABC, FIFO/LIFO, JIT
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Policy toolkit for inventory control and replenishment.
+
+1) ABC Analysis
+Rank by annual usage value or impact.
+A: tight control, frequent review, higher service level.
+B: moderate.
+C: simple controls.
+
+2) EOQ Baseline
+EOQ ≈ sqrt((2 × D × S) / H)
+D annual demand; S fixed ordering or setup cost; H annual holding cost per unit.
+Use as baseline; adjust for variability, lead time, and constraints.
+
+3) Reorder Point and Safety Stock
+ROP = demand during lead time + safety stock
+Baseline demand during lead time = d × L
+Safety stock reflects uncertainty and service level target.
+Practical method
+1) choose service level by ABC class
+2) estimate sigma of demand during lead time
+3) safety stock = z × sigma_LT
+
+4) FIFO and LIFO
+FIFO reduces spoilage and obsolescence in physical flow.
+LIFO is primarily accounting and may not match physical flow.
+
+5) Batch Tracking, Traceability, and Consignment
+Use batch tracking for recalls, compliance, or supplier variability.
+Consignment shifts ownership to supplier until use, improving cash but increasing coordination.
+
+6) Cross-Docking and Dropshipping
+Cross-docking reduces storage, increases coordination requirements.
+Dropshipping reduces owned inventory, may reduce control and speed.
+
+7) JIT and Lean Replenishment
+Requires stable processes, reliable suppliers, short setups, strong quality.
+
+8) Perpetual Inventory
+Continuous tracking suited to fast operations and high-value items.
+
+Deliverables
+1) ABC and service level policy
+2) EOQ baseline and adjustments
+3) ROP and safety stock per item class
+4) replenishment model choice by SKU category
+5) traceability requirements
+
+End of file.
