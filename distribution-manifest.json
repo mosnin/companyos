@@ -242,8 +242,8 @@
     },
     {
       "path": "company-os/commercial-customer-system/SKILL.md",
-      "sha256": "85edf0bb76e4393b3977245cadcb0eabdb91f48a1bfe5d70ec1e1eab022af5b2",
-      "size": 2143
+      "sha256": "be52da0117a06b00de1caddac24b49add9bc6a864979527b106c22d1ca72935f",
+      "size": 2375
     },
     {
       "path": "company-os/commercial-customer-system/agents/grok.yaml",
@@ -257,8 +257,8 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
-      "size": 3151
+      "sha256": "07a1a8c6f013c10931b38c0c97b40fb415fd505d8320174c88a85d782d8067c7",
+      "size": 3321
     },
     {
       "path": "company-os/company-blueprint/agents/grok.yaml",
@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "253229ba267deb6c33d3ccb9189a47e2a7469dab829cb1dea0c93d0f6adbb602",
+      "size": 16542
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -1184,6 +1184,86 @@
       "path": "company-os/ui-design-quality/vendor/review-animations/STANDARDS.md",
       "sha256": "e7d3605034acda54ca13e43aec9e64d65b53de20f75b11b8d694e373012fbe07",
       "size": 9801
+    },
+    {
+      "path": "company-os/value-creation-delivery/SKILL.md",
+      "sha256": "2b3567be96f0c6b4064824a4957141593eb51dfc1e9b986826211a2fc090bedc",
+      "size": 3455
+    },
+    {
+      "path": "company-os/value-creation-delivery/agents/grok.yaml",
+      "sha256": "5dd1c8f1792bf9804c0691c432bc7c04aecf066bb33de516d8bf6028a8898f28",
+      "size": 437
+    },
+    {
+      "path": "company-os/value-creation-delivery/agents/openai.yaml",
+      "sha256": "5dd1c8f1792bf9804c0691c432bc7c04aecf066bb33de516d8bf6028a8898f28",
+      "size": 437
+    },
+    {
+      "path": "company-os/value-creation-delivery/assets/spawn-template.json",
+      "sha256": "b1124018a3d8b11efbac03c97c794d288472d88992cebbf00170494f65fa67d0",
+      "size": 514
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/00-index.txt",
+      "sha256": "312a4c3963e227ee79de50a7c06fa44147a2088a0e02cdd9400b8a3bb09c0abc",
+      "size": 1562
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/01-business-model-core.txt",
+      "sha256": "448a31b842ca04f9feae9d177a0e2df473fa49a24abd626d558469e28129ead1",
+      "size": 1825
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/02-market-selection-market-laws.txt",
+      "sha256": "baad372fde72036bda51e7fda75b9181a8447533f04344f45d738d543f9a59fd",
+      "size": 1918
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/03-human-drives-social-status.txt",
+      "sha256": "7e422b74fff5ba25f4e4ba1f59a758180570b5c19aa166696946bac3b6e2f7b6",
+      "size": 1222
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/04-forms-of-value-offer-architecture.txt",
+      "sha256": "afece80a42abd4f7d437a475c1ed6912a8331a304a1c05294bc7f912358641ec",
+      "size": 1907
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/05-value-levers-importance-testing.txt",
+      "sha256": "52a8e55cb37dd77d8ce956a1e117d8931f8fede2c4d2422389c4053bf1409432",
+      "size": 1327
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/06-validation-assumptions-iteration.txt",
+      "sha256": "65952ba550c5341fbf4a7a7248aee3d803d554e702671243ffaa96d8599a8b55",
+      "size": 1648
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/07-value-delivery-streams-expectations.txt",
+      "sha256": "63ba6d3b96d26f7fff36cc946d3107a8a24f694d0352581bc0dd31fb1dc91cde",
+      "size": 1493
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/08-delivery-reliability-quality-metrics.txt",
+      "sha256": "ff6db0cced61cb8779100491563d223d5ee70bf9edd2e4e942ea48f1dbbf362e",
+      "size": 1243
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/09-scaling-systemization-moats.txt",
+      "sha256": "c6ae958765ab10c1b4aefeab1f08c75553c341156b936e691bfad8485418c249",
+      "size": 1517
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/10-integrated-playbooks-templates.txt",
+      "sha256": "ec202bcbc4bf957369986a8e5392680ecb875d2ae0d809b26c66000f23665274",
+      "size": 1361
+    },
+    {
+      "path": "company-os/value-creation-delivery/scripts/validate_value_creation_delivery.py",
+      "sha256": "aaf5be8f90a0c14ede0f3e2c730593f6c8fa246444e7591bbd4803372c34c0df",
+      "size": 5983
     },
     {
       "path": "autonomy-suite/SKILL.md",

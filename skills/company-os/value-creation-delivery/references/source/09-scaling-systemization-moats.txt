@@ -1,0 +1,43 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 09: Scaling: Duplication, Systemization, and Moats
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• Duplication
+• Multiplication
+• Scale
+• Accumulation
+• Amplification
+• Barrier to competition
+• Force multiplier
+• Systemization
+
+Scaling ladder (kept terms, clarified)
+Duplication: repeat delivery unit consistently.
+Multiplication: add parallel capacity.
+Scale: increase output while maintaining or improving unit economics and quality.
+
+Accumulation (kept)
+Build persistent assets: SOPs, templates, automation, proof library, training, proprietary data.
+
+Amplification and force multipliers (kept)
+Increase output per input via tooling, automation, partnerships, productization, instrumentation.
+
+Systemization (kept)
+Standardized workflow, QA gates, documentation, onboarding, measurement.
+
+Barrier to competition (kept)
+Switching costs, trust, integrated workflows, learning curve advantage.
+
+Template: Scale readiness checklist
+Stable acceptance criteria, predictable cycle time, low defects, known capacity constraints, documented SOPs, measurable unit economics.
+
+End of file.

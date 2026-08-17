@@ -30,3 +30,6 @@ Agents may research, segment, summarize, draft, and propose. Approval is require
 ## Handoff
 
 Persist decisions, confidence, evidence, experiment status, approval state, risks, and exact next action in the Company OS ledger. Escalate meaningful customer harm or privacy risk immediately.
+
+When the work is offer architecture, value validation, or reliable delivery of a promised outcome, load `$value-creation-delivery` as the value-creation and delivery overlay.
+Do not send `$value-creation-delivery` to Luna workers.

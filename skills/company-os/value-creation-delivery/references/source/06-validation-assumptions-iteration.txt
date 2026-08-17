@@ -1,0 +1,54 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 06: Validation: Assumptions, Prototypes, and Iteration
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• Prototype
+• The iteration cycle
+• Iteration velocity
+• Feedback
+• Critical assumptions
+• Shadow testing
+• Minimum viable offer
+• Incremental augmentation
+• Field testing
+
+Critical assumptions (kept)
+Demand at price, deliverability, CAC, margins under real support load.
+
+Prototype (kept)
+Minimum artifact to test one critical assumption.
+
+Shadow testing (kept)
+Test demand without full build: preorder, paid pilot, priced waitlist, sales calls.
+
+Minimum viable offer (kept)
+Smallest sellable offer that delivers a real outcome and generates learning.
+
+Iteration cycle (kept)
+hypothesize → smallest test → measure → learn → revise
+
+Iteration velocity (kept)
+Increase loops per unit time by narrowing tests, modularity, and clear metrics.
+
+Feedback (kept)
+Prefer behavioral feedback plus short “why” interviews.
+
+Incremental augmentation and field testing (kept)
+Augment after baseline delivery is reliable; test in real conditions.
+
+Templates
+A) Assumption log
+• Assumption, test, metric, threshold, decision
+B) Experiment report
+• hypothesis, method, results, decision, changes
+
+End of file.

@@ -49,6 +49,9 @@ quotas.
 - **Learning plane:** execution receipts, business outcomes, exceptions, and
   framework adaptations.
 
+When compiling customers and offers, load `$value-creation-delivery` as the value-creation and delivery overlay.
+Do not send `$value-creation-delivery` to Luna workers.
+
 ## Activation boundary
 
 Compilation is planning, not runtime activation. Recurring routines are emitted

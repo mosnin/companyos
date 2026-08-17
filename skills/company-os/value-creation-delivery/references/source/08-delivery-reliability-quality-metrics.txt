@@ -1,0 +1,37 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 08: Delivery Reliability, QA, and Operations Metrics
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• Quality
+• Quality signals
+• Predictability
+• Throughout
+
+Reliability system (added)
+1) Define “done” with acceptance criteria.
+2) Instrument checkpoints.
+3) Detect defects early.
+4) Provide recovery paths.
+5) Reduce variance over time.
+
+Core delivery metrics (added)
+cycle time, lead time, throughput, defect rate, rework rate, on-time rate, cost to serve, satisfaction proxy, retention.
+
+Quality signals toolkit (added)
+proof library, process transparency, guarantees with conditions, third-party validation when relevant.
+
+Template: QA gate checklist
+Pre: requirements confirmed, scope locked
+During: checkpoints passed, risks escalated
+Post: acceptance met, outcome validated, learnings logged
+
+End of file.

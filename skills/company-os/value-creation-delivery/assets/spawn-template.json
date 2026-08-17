@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.value-creation-delivery-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "value-creation-delivery"
+  ],
+  "source_pack": "references/source",
+  "template_id": "value-creation-delivery",
+  "use_when": [
+    "offer_architecture",
+    "value_creation",
+    "value_delivery",
+    "value_scaling",
+    "value_validation"
+  ]
+}

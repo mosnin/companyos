@@ -1,0 +1,38 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 03: Human Drives, Social Status, and Demand Mechanics
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• Core human drives (drive to acquire, the drive to bond, the drive to learn, the drive to defend, the drive to feel)
+• Social status
+
+Drive mapping
+Map the offer to 1–3 primary drives:
+• acquire: gain resources, save money, increase income
+• bond: belonging, connection, trust
+• learn: competence, clarity, mastery
+• defend: reduce risk, avoid loss, safety
+• feel: pleasure, identity, meaning
+
+Status mechanics
+Status changes willingness to pay, urgency, retention, referrals.
+Rule: status claims require respected signals.
+
+Template: Demand driver map
+• Segment
+• Primary drives
+• Status angle
+• Trigger moment
+• Language used
+• Proof required
+• Objections
+
+End of file.

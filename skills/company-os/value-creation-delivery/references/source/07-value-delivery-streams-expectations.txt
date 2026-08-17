@@ -1,0 +1,44 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 07: Value Delivery: Streams, Channels, Expectations
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• value stream
+• distribution channel
+• The expectation effect
+• Predictability
+• Quality
+• Quality signals
+• Throughout
+
+Value stream (kept)
+End-to-end steps producing outcomes. Define steps, handoffs, cycle time, failure modes, acceptance criteria.
+
+Distribution channel (kept)
+How value reaches the customer. Must match trust, effort, support intensity, context.
+
+Expectation effect (kept)
+Satisfaction = reality minus expectations.
+Rules: promise only what you can deliver reliably; make progress visible; communicate constraints early.
+
+Predictability (kept)
+Predictability is a feature: consistent timelines and outcomes.
+
+Quality and quality signals (kept)
+Quality meets acceptance criteria. Quality signals reduce pre-purchase uncertainty.
+
+Throughout (interpreted as throughput, kept term)
+Throughput: completed outcomes per unit time.
+
+Template: Value stream map
+• Inputs, steps, buffers, outputs, acceptance criteria, metrics per step
+
+End of file.
