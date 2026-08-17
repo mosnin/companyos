@@ -967,7 +967,7 @@ def validate() -> list[str]:
         if keys != {"name", "description"}:
             errors.append(f"{name}: frontmatter must contain only name and description")
 
-        for host_binding in ("openai.yaml", "grok.yaml"):
+        for host_binding in ("openai.yaml", "grok.yaml", "claude.yaml"):
             metadata_path = root / "agents" / host_binding
             if not metadata_path.is_file():
                 errors.append(f"{name}: missing agents/{host_binding}")

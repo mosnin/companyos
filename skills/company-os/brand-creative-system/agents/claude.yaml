@@ -1,0 +1,4 @@
+interface:
+  display_name: "Brand and Creative System"
+  short_description: "Turn strategy into coherent product and content expression."
+  default_prompt: "Build or audit a brand and creative operating system for this project."

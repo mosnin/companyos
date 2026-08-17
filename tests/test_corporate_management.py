@@ -107,7 +107,7 @@ class CorporateManagementTests(unittest.TestCase):
         self.assertNotIn("$corporate-management", fabric)
 
     def test_host_bindings_stay_explicit_and_lane_bound(self) -> None:
-        for name in ("openai.yaml", "grok.yaml"):
+        for name in ("openai.yaml", "grok.yaml", "claude.yaml"):
             text = (SKILL / "agents" / name).read_text(encoding="utf-8")
             self.assertIn("$corporate-management", text)
             self.assertIn("$manage-company-program", text)

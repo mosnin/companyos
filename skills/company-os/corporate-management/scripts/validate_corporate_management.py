@@ -89,7 +89,7 @@ def validate_pack(root: Path = ROOT) -> list[str]:
     if extra:
         errors.append(f"unexpected source files: {', '.join(extra)}")
 
-    for host in ("openai.yaml", "grok.yaml"):
+    for host in ("openai.yaml", "grok.yaml", "claude.yaml"):
         host_path = root / "agents" / host
         if not host_path.is_file():
             errors.append(f"missing agents/{host}")
