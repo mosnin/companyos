@@ -257,8 +257,8 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
-      "size": 3151
+      "sha256": "5787d9ff21ade414c318dcdbe49aaba596a3338d184117c7ea4530fa6bd1bc92",
+      "size": 3318
     },
     {
       "path": "company-os/company-blueprint/agents/grok.yaml",
@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "e9d6d7dc8d28aad4ab08728a2f165665ff54b5e622d14e06855d81e675b35503",
+      "size": 16480
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -377,8 +377,8 @@
     },
     {
       "path": "company-os/department-charters/SKILL.md",
-      "sha256": "beee9af7b9ce04b7f35608baca0808d77868d104862de0ef2a7eff068ece588a",
-      "size": 2087
+      "sha256": "e7b7903513367552f40653820502b87460a433222d03b7d3f68b3cb96164abcc",
+      "size": 2295
     },
     {
       "path": "company-os/department-charters/agents/grok.yaml",
@@ -694,6 +694,86 @@
       "path": "company-os/govern-outcome-execution/scripts/executive_governor.py",
       "sha256": "f331d864261691a9884bb680340a812059d30391fd8e69113b060cbf060232ed",
       "size": 12289
+    },
+    {
+      "path": "company-os/hr-architect/SKILL.md",
+      "sha256": "8d819054a0e6181bf66eb9e8d08f657f5b558fca2d9158e8ddbbd5a6b5ae6eed",
+      "size": 3489
+    },
+    {
+      "path": "company-os/hr-architect/agents/grok.yaml",
+      "sha256": "5fcd5116e3c6f8ab2dec3e037ea64ca0811e216113f04adbfd4e9356902b9fe5",
+      "size": 392
+    },
+    {
+      "path": "company-os/hr-architect/agents/openai.yaml",
+      "sha256": "5fcd5116e3c6f8ab2dec3e037ea64ca0811e216113f04adbfd4e9356902b9fe5",
+      "size": 392
+    },
+    {
+      "path": "company-os/hr-architect/assets/spawn-template.json",
+      "sha256": "6605bef755f5ea08a5fe6b0f05dbbf7975a875b8b6fb1cd822fde921583ef2ce",
+      "size": 464
+    },
+    {
+      "path": "company-os/hr-architect/references/source/00-index.txt",
+      "sha256": "030d6afcf9915257991d0604ebed350a97f50aa93a56bccfbb055187ee9e6a6e",
+      "size": 1017
+    },
+    {
+      "path": "company-os/hr-architect/references/source/01-hr-operating-model.txt",
+      "sha256": "60cb488f43dc83a057027e8e3a338af3bec86174a089159ac82357f70d3d4c4b",
+      "size": 3353
+    },
+    {
+      "path": "company-os/hr-architect/references/source/02-org-design-roles.txt",
+      "sha256": "245fd49bc1c73bcb34dcc89e44372ff29b023b48266866621e487897b54ae0ec",
+      "size": 3193
+    },
+    {
+      "path": "company-os/hr-architect/references/source/03-recruiting-sourcing.txt",
+      "sha256": "f1450ebd2adb3cd1263a670ce835255ebe49ab1ad319db729e4825132e6851bc",
+      "size": 3512
+    },
+    {
+      "path": "company-os/hr-architect/references/source/04-selection-interviews-assessments.txt",
+      "sha256": "365281871a60a20dd96c77cfcc778e7ab48773ec9fe4b767354fdc0c2fdf0bb9",
+      "size": 3550
+    },
+    {
+      "path": "company-os/hr-architect/references/source/05-comp-offers-classification.txt",
+      "sha256": "223a86078c1dcfd0fb1b26124506fb4aae9ed2ae3968bd36093e8b83a7bffad4",
+      "size": 3438
+    },
+    {
+      "path": "company-os/hr-architect/references/source/06-onboarding-enablement.txt",
+      "sha256": "b26da476d658a00ab3d5d394345c12bc1e7aba8046fd8c192b81bd228c4f3b6b",
+      "size": 2957
+    },
+    {
+      "path": "company-os/hr-architect/references/source/07-performance-management.txt",
+      "sha256": "ae613cc06bba1a9781c392dc46a67a116370f93d37c8879a84065389a075603b",
+      "size": 3146
+    },
+    {
+      "path": "company-os/hr-architect/references/source/08-culture-retention-offboarding.txt",
+      "sha256": "4baa97e76ab7f4d14d0e28a7be7b1a9ee426c2974c00a0cf375cf97b3bb2eb5a",
+      "size": 3062
+    },
+    {
+      "path": "company-os/hr-architect/references/source/09-hr-ops-compliance.txt",
+      "sha256": "ae1f65fa6a50494349ebc8ab316b52a2474f12f6eedeadf116ff106f3cc3eb2d",
+      "size": 3001
+    },
+    {
+      "path": "company-os/hr-architect/references/source/10-ai-agents-hr-tech-analytics.txt",
+      "sha256": "90d1cd2c4d33da8a29336aed100f27f4bfa610014e3e98d3428aff9be76c450f",
+      "size": 3535
+    },
+    {
+      "path": "company-os/hr-architect/scripts/validate_hr_architect.py",
+      "sha256": "37de39754d0fc0e7909ebb09de6ab916458ec85d50837d0ab0b94cebaf5362ed",
+      "size": 5689
     },
     {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",

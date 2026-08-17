@@ -1,0 +1,71 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 09: HR Operations, Policies, and Compliance Hygiene
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Core HR ops: policies, records, security, and compliance hygiene. Not legal advice; align with counsel.
+
+1) HR Ops Building Blocks
+1) employee handbook and policies
+2) record keeping and access controls
+3) payroll and benefits administration
+4) incident and complaint handling process
+5) time off and attendance processes
+6) role and compensation change process
+
+2) Practical Policy Set
+1) code of conduct
+2) anti-harassment and reporting
+3) confidentiality and IP assignment
+4) acceptable use and security
+5) remote work and device policy
+6) performance and discipline process
+7) time off policy
+
+3) Hiring Documentation Hygiene
+1) keep selection procedures job-related and consistent
+2) document hiring decisions
+3) retain records per policy
+4) protect medical and disability-related info
+If you use automated screening tools, treat them as selection procedures with monitoring.
+
+4) Security for People Ops
+1) least privilege access
+2) background checks where appropriate
+3) device management for employees
+4) contractor and VA access: time-bound, scoped, logged
+5) offboarding access revocation checklist
+
+Deliverables
+1) HR ops checklist and calendar
+2) policy outline
+3) records and access control plan
+4) hiring documentation policy draft
+5) security and offboarding controls
+
+End of file.

@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.hr-architect-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "hr-architect"
+  ],
+  "source_pack": "references/source",
+  "template_id": "hr-architect",
+  "use_when": [
+    "hiring",
+    "onboarding",
+    "org_design",
+    "performance_management",
+    "recruiting"
+  ]
+}

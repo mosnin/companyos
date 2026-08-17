@@ -1,0 +1,84 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 07: Performance Management, Feedback, Promotions, and Terminations
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Performance management as an operating system: goals, feedback, growth, and decisive action.
+
+1) Performance Model
+Performance = clarity of expectations + capability + motivation + environment.
+Diagnose before blame:
+1) unclear outcomes
+2) missing enablement
+3) misfit role design
+4) poor manager bandwidth
+
+2) Goal Systems
+Use:
+1) OKRs for directional objectives with measurable key results
+2) KPIs for roles with consistent output metrics
+Define:
+1) leading indicators
+2) lagging indicators
+3) thresholds and escalation rules
+
+3) Feedback and Coaching Cadences
+1) weekly 1:1: priorities, blockers, support
+2) monthly: progress on outcomes
+3) quarterly: formal performance and growth planning
+Feedback framework: SBI
+Situation, Behavior, Impact, then next expected behavior.
+
+4) Promotions and Leveling
+Promotion requires:
+1) sustained performance at next-level scope
+2) consistent autonomy
+3) impact and influence
+Use:
+1) written packet with evidence
+2) calibration to reduce favoritism
+
+5) Performance Improvement and Termination
+PIP principles:
+1) clear expectations and timeline
+2) specific examples
+3) support provided
+4) measurable checkpoints
+Termination hygiene:
+1) document facts
+2) preserve dignity
+3) secure access and capture knowledge
+
+Deliverables
+1) role KPIs/OKRs
+2) 1:1 agenda templates
+3) SBI feedback template
+4) promotion packet and leveling rubric
+5) PIP template and termination checklist
+
+End of file.

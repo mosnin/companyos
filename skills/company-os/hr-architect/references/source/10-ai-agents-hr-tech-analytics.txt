@@ -1,0 +1,89 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 10: AI Agents as Digital Workers, HR Tech Stack, and People Analytics
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Modern operations include automation and AI agents. Govern them like digital workers with roles and controls.
+
+1) Digital Worker Model for AI Agents
+Treat each AI agent as workforce capacity with:
+1) role and scope (tasks and boundaries)
+2) inputs and data access (permissions)
+3) outputs and quality criteria
+4) escalation rules (when human approval is required)
+5) audit logs and monitoring
+6) versioning and change control
+Human-in-the-loop patterns:
+1) draft then review then send
+2) autonomous execution with guardrails and rollback
+3) approvals for sensitive actions (offers, terminations, policy changes)
+
+2) AI in Recruiting and Selection
+If AI is used for screening:
+1) treat as a selection procedure
+2) require explainability and vendor documentation
+3) keep a human review pathway
+4) monitor outcomes for adverse impact signals
+
+3) HR Tech Stack
+Core systems:
+1) ATS (applicant tracking)
+2) HRIS (employee records)
+3) payroll and benefits
+4) performance and goal tracking
+5) knowledge base for SOPs
+6) identity and access management
+Small teams should consolidate; scale teams should integrate.
+
+4) People Analytics
+Dashboards:
+1) hiring funnel conversion and time-in-stage
+2) quality of hire proxies
+3) retention and regretted attrition
+4) performance distribution and promotion velocity
+5) compensation band adherence
+Analytics rules:
+1) define metrics precisely
+2) avoid vanity metrics
+3) use data to improve process, not punish
+
+5) Hybrid Workforce Operating Model
+Humans + contractors/VAs + AI agents:
+1) clear handoffs
+2) shared SOPs
+3) security model per worker type
+4) one accountable human owner per process
+
+Deliverables
+1) AI agent role template
+2) AI governance and approval matrix
+3) HR tech stack blueprint
+4) people analytics dashboard spec
+5) hybrid workforce RACI model
+
+End of file.

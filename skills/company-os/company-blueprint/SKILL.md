@@ -9,6 +9,10 @@ Company OS is an organization compiler. Do not dispatch managers until the
 company blueprint is concrete enough to explain what the organization is,
 which outcomes matter, what it may access, and what it must not do.
 
+When the blueprint includes headcount, role design, or a people operating
+model, load `$hr-architect` as the HR overlay.
+Do not send `$hr-architect` to Luna workers.
+
 ## Intake
 
 Ask the operator focused questions about identity, customer, offer, operating

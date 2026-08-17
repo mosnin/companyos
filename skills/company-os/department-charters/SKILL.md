@@ -7,6 +7,11 @@ description: Define coordinated human and agent departments with clear mandates,
 
 Create a charter before creating a department or agent team.
 
+When the work is org design, role design, or people-system structure, load
+`$hr-architect` as the HR overlay. This skill remains the department-charter
+contract.
+Do not send `$hr-architect` to Luna workers.
+
 ## Charter fields
 
 - Mission and customers served.
