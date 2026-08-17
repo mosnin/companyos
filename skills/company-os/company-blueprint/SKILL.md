@@ -9,6 +9,11 @@ Company OS is an organization compiler. Do not dispatch managers until the
 company blueprint is concrete enough to explain what the organization is,
 which outcomes matter, what it may access, and what it must not do.
 
+When the blueprint is a company, platform, or ecosystem operating system
+spanning infrastructure, production, governance, and digital layers, load
+`$civilization-builder` as the systems overlay. Do not send
+`$civilization-builder` to Luna workers.
+
 ## Intake
 
 Ask the operator focused questions about identity, customer, offer, operating

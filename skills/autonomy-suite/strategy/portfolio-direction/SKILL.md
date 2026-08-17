@@ -10,3 +10,5 @@ Evaluate customer pain, strategic fit, differentiation, business impact, evidenc
 Classify each bet as active, incubating, deferred, or stopped. Limit active bets. Every active bet needs a target metric, decision owner, review date, kill/pivot criteria, and next learning milestone.
 
 Do not let weighted scores replace judgment. Reserve intentional capacity for a small number of high-conviction, category-creating bets; evaluate them against clarity of thesis, experience potential, learning speed, and strategic asymmetry rather than only existing demand. Record the rationale for tradeoffs and feed only approved slices to project kickoff.
+
+When a bet is a civilizational system, infrastructure network, industrial production system, technological platform, or digital ecosystem, load `$civilization-builder` as the systems overlay. Do not send `$civilization-builder` to Luna workers.

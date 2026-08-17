@@ -11,9 +11,9 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 
 | Pillar | Responsibility | Skill |
 | --- | --- | --- |
-| Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint` |
+| Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint`, `$civilization-builder` |
 | Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
-| Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
+| Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction`, `$civilization-builder` |
 | Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
 | Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters` |
@@ -82,6 +82,10 @@ design, execution, verification, and integration. Managers use
 `$manage-company-program` and `$luna-execution-fabric`; workers use
 `$execute-bounded-task`. Send the role skill plus one compact mission charter
 or work packet instead of repeating the operating system in every prompt.
+When the manager outcome is a civilizational system, infrastructure network,
+industrial production system, technological platform, or digital ecosystem,
+also send `$civilization-builder`. Do not send `$civilization-builder` to
+workers or use it as the master persona.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.

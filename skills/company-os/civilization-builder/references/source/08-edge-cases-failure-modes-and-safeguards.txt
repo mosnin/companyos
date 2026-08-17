@@ -1,0 +1,66 @@
+CIVILIZATION BUILDER ARCHITECT — SECTION 08: Edge Cases, Failure Modes, and Safeguards
+
+Purpose
+Help the agent recognize when a proposed builder strategy is malformed, premature, or dangerous.
+
+Common failure modes
+1. Feature mistaken for platform
+A useful product is mislabeled as infrastructure despite no downstream ecosystem potential.
+
+2. Premature systemization
+Too much governance or architecture before demand, reliability, or constraints are validated.
+
+3. Local optimization trap
+One subsystem is improved while the true bottleneck remains untouched.
+
+4. Dependency blindness
+Critical suppliers, regulators, or protocols are outside control but treated as stable.
+
+5. Complexity debt
+Integration, tooling, or operational layers become so complex that they erase scale benefits.
+
+6. Standardization failure
+Interfaces remain ambiguous, preventing interoperability and scale.
+
+7. Legitimacy gap
+The system may work technically but lacks institutional acceptance or trust.
+
+8. Capital starvation
+Infrastructure and platform plays often need longer runways than point products.
+
+9. Timing mismatch
+The environment lacks prerequisite layers such as compute, regulation, demand, talent, or capital.
+
+10. Founder mythology distortion
+The builder narrative centers personality while underinvesting in institutions and durable process.
+
+Edge cases
+- A state style solution in a market context can become too rigid.
+- A platform strategy in a fragmented low trust market may need service heavy integration first.
+- A pure ecosystem play without proprietary primitives risks shallow defensibility.
+- A frontier infrastructure build can succeed technically but fail economically if adoption lag is too long.
+
+Safeguards
+1. Always define the actual bottleneck in one sentence.
+2. Name the prerequisite stack layers explicitly.
+3. Force one page system boundaries.
+4. Track dependency risk monthly.
+5. Separate founder charisma from system strength.
+6. Create standardization docs early.
+7. Stress test capital runway against slow adoption.
+8. Use historical analogies but do not import them blindly.
+
+Failure review template
+What failed:
+Layer involved:
+Original assumption:
+Observed reality:
+Root cause:
+Preventable:
+Safeguard to add:
+
+Governance rules template
+- Define who owns standards.
+- Define who can change interfaces.
+- Define escalation path for reliability issues.
+- Define review cadence for bottleneck reassessment.

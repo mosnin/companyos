@@ -231,6 +231,86 @@
       "size": 22348
     },
     {
+      "path": "company-os/civilization-builder/SKILL.md",
+      "sha256": "3da77ee6392c99c9ab200419ba330155b5e5bfbf3106b886c5954197e16b09de",
+      "size": 3693
+    },
+    {
+      "path": "company-os/civilization-builder/agents/grok.yaml",
+      "sha256": "47c8eab5bbbca2070a5c521ddcdcc43bac20b2bb10d410fa57ed8913eb1711ff",
+      "size": 458
+    },
+    {
+      "path": "company-os/civilization-builder/agents/openai.yaml",
+      "sha256": "47c8eab5bbbca2070a5c521ddcdcc43bac20b2bb10d410fa57ed8913eb1711ff",
+      "size": 458
+    },
+    {
+      "path": "company-os/civilization-builder/assets/spawn-template.json",
+      "sha256": "df3b19377061d617b7642c77e878949bf12337f902bc213a03b6b9c9a6803860",
+      "size": 540
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/00-index.txt",
+      "sha256": "f0cd3b635a26e3285a3cac9c1f6159a405b7a97c3adfe68b06f188564b3222b8",
+      "size": 2177
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/01-foundation-and-definitions.txt",
+      "sha256": "e2986dc00b519f919dc4768ac6be4e719588f97ebfca2b6daedeb21e2a0c0c24",
+      "size": 5034
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/02-taxonomy-of-builders-and-systems.txt",
+      "sha256": "bd8282fd6aef37feae145823e45beba59d680ca1effbef7e64cb0726394883ef",
+      "size": 3958
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/03-core-principles-and-invariants.txt",
+      "sha256": "b99ba735e78b1752afb97e262161b989e2c91524d34d39cb1abc87cd01835d97",
+      "size": 3501
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/04-frameworks-and-mental-models.txt",
+      "sha256": "6405dabe89e4d8c0be9f20ab68373b962b7c7b2bb4371e54d0cf349ec6d8eec1",
+      "size": 3038
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/05-processes-and-workflows.txt",
+      "sha256": "2d0da3ddc8985922d6ba8047dd361b5a3aae1e9d569af4b309051a081f03d2f8",
+      "size": 2538
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/06-templates-checklists-and-rubrics.txt",
+      "sha256": "f07d792b3027786bdd16179731707a93af7a7b53a90f7383205ecc9ceb097c64",
+      "size": 2491
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/07-metrics-instrumentation-and-diagnostics.txt",
+      "sha256": "572282dcb66ff9827f06bc6869a80c71b6cba4190b7f61776761114fcdaa32a3",
+      "size": 2277
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/08-edge-cases-failure-modes-and-safeguards.txt",
+      "sha256": "58e8f624d039ead8197dbea9e3a80faf9ace59e46a9a96e8346265a37f1afd77",
+      "size": 2429
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/09-scaling-systemization-and-governance.txt",
+      "sha256": "c2864705e94564fcf9639bba9b97f571a8d7182d84181f05e793f9b69abfb47b",
+      "size": 2060
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/10-worked-examples-exercises-and-drills.txt",
+      "sha256": "7150ec10899c4ce7d6f8acb7389d6c5bbae6ab51295b935c1cfb512974bf3976",
+      "size": 3364
+    },
+    {
+      "path": "company-os/civilization-builder/scripts/validate_civilization_builder.py",
+      "sha256": "ab0c22014c5fc316f8188f91a7c0d8b5106a5c9383a8cdc798a88060f33b0134",
+      "size": 5895
+    },
+    {
       "path": "company-os/close-outcome-discovery/SKILL.md",
       "sha256": "441ca3415abd290c6b2580ff4d7550f2cc143e852fe0a175b9183800e3630d70",
       "size": 1756
@@ -257,8 +337,8 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
-      "size": 3151
+      "sha256": "3ea2ed2f67892534b214d325c045e1bc0a0be204ae2346349e347e5447215a19",
+      "size": 3400
     },
     {
       "path": "company-os/company-blueprint/agents/grok.yaml",
@@ -307,8 +387,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "26f918c51c02f204a2d5996bf925ce1f5a48eddfa491b7599d00eb57bb424187",
+      "size": 16583
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -1332,8 +1412,8 @@
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/SKILL.md",
-      "sha256": "c21054af43a0f625ca447312dce1f0035bfa86b1ab37e223e4e783b07a202b27",
-      "size": 1068
+      "sha256": "36a57b02e9dbbfe6dda4c39ff963b6c61dcdfc820b846fc89b7c4d6439e9fb37",
+      "size": 1314
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/agents/grok.yaml",
