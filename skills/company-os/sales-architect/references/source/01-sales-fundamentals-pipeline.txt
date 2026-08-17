@@ -1,0 +1,97 @@
+SALES ARCHITECT DOCTRINE — SECTION 01: Sales Fundamentals and Pipeline Architecture
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+Sales basics, core terminology, pipeline stages, and a repeatable operating cadence.
+
+1) Core Terms (Execution-Level)
+• Lead: an entity that might buy, not yet qualified.
+• Prospect: a lead you are actively working.
+• Qualified lead: meets minimum fit + intent criteria (your definition).
+• Opportunity (deal): a prospect with a defined problem, stakeholders, and a path to purchase.
+• ICP (Ideal Customer Profile): the company or customer archetype most likely to buy and succeed.
+• Persona: the human decision role within ICP.
+• Pipeline: all active opportunities tracked through stages.
+• Funnel: aggregate conversion model across stages.
+• Sales cycle: elapsed time from first touch to close.
+• Win rate: Closed Won / (Closed Won + Closed Lost).
+• ACV/ARR: annual contract value / annual recurring revenue.
+• CAC payback: time to recoup acquisition cost from gross profit.
+• Forecast: probabilistic prediction of expected revenue in a period.
+
+2) Pipeline Stages (Default Template)
+Stage definitions must be strict. Suggested stages:
+1) Prospecting (not yet contacted)
+2) Contacted (two-way interaction started)
+3) Qualified (fit + urgency + path to decision)
+4) Discovery (pain quantified; stakeholders mapped)
+5) Demo/Meeting (solution shown or plan presented)
+6) Proposal/Quote (commercial terms shared)
+7) Negotiation/Commit (terms being finalized)
+8) Closed Won
+9) Closed Lost
+10) Nurture/Recycle
+
+3) Stage Exit Criteria (How to Stop Lying to Yourself)
+Each stage should have required evidence:
+• Qualified: documented ICP fit + buying trigger + timeline hypothesis + identified next meeting.
+• Discovery complete: quantified impact, current workflow, decision criteria, decision process, key stakeholders.
+• Proposal: written scope, pricing, timeline, success criteria, and next step agreed.
+
+4) Sales Process Design
+A process is useful only if it:
+• increases conversion or reduces cycle length
+• standardizes best practices
+• creates measurable checkpoints
+Process design steps:
+1) choose pipeline stages
+2) define exit criteria
+3) define required fields in CRM
+4) define call types and scripts per stage
+5) define cadence of follow-ups
+6) define handoffs to onboarding/customer success
+
+5) Weekly Operating Cadence
+Daily
+• new prospects added
+• outreach sent
+• follow-ups executed
+• notes updated
+Weekly
+• pipeline review (stage hygiene, next steps)
+• deal strategy review (top 5 opportunities)
+• conversion review (meeting rate, show rate, win rate)
+Monthly
+• territory/list health review
+• script improvements from call recordings
+• ICP refinement based on wins/losses
+
+Deliverables
+1) pipeline map + stage definitions
+2) stage exit criteria checklist
+3) core metrics dashboard spec
+4) weekly operating cadence
+
+End of file.

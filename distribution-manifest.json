@@ -242,8 +242,8 @@
     },
     {
       "path": "company-os/commercial-customer-system/SKILL.md",
-      "sha256": "85edf0bb76e4393b3977245cadcb0eabdb91f48a1bfe5d70ec1e1eab022af5b2",
-      "size": 2143
+      "sha256": "1721c563b409395dccdec920ffa9940b546bf3911d16ddfbc4a1560c3e4be93d",
+      "size": 2382
     },
     {
       "path": "company-os/commercial-customer-system/agents/grok.yaml",
@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "b04f08657c9193320e25c57d981b89ec0f6c1fd53c15b13d74c2052c3b4ed8fd",
+      "size": 16479
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -1064,6 +1064,86 @@
       "path": "company-os/run-outcome-loop/SKILL.md",
       "sha256": "f62e947f9aa8ea767597b2ba614788a3edbd60c05ab5b21586d9a67db7738ed2",
       "size": 5002
+    },
+    {
+      "path": "company-os/sales-architect/SKILL.md",
+      "sha256": "657eed62dfe0fc585c8839615e2b2e50e7ce2972fa830564068100c92f7d84c2",
+      "size": 3462
+    },
+    {
+      "path": "company-os/sales-architect/agents/grok.yaml",
+      "sha256": "30aadb80cbe9c834e37553aba67062cb8c505a38e63c161040da1fcaf69e7f26",
+      "size": 395
+    },
+    {
+      "path": "company-os/sales-architect/agents/openai.yaml",
+      "sha256": "30aadb80cbe9c834e37553aba67062cb8c505a38e63c161040da1fcaf69e7f26",
+      "size": 395
+    },
+    {
+      "path": "company-os/sales-architect/assets/spawn-template.json",
+      "sha256": "4d08bc3ce193b72a27353a21197f293e6689287e6b9fb596f9caee113dcc76e6",
+      "size": 463
+    },
+    {
+      "path": "company-os/sales-architect/references/source/00-index.txt",
+      "sha256": "f3bd853b2cdefeacb1aa2c1efdbc0fd545e3a8850dbdd2befa3c2329a4026c17",
+      "size": 878
+    },
+    {
+      "path": "company-os/sales-architect/references/source/01-sales-fundamentals-pipeline.txt",
+      "sha256": "8dea6d53521896ea96c54f849636cf9da7573827f040cd60a70746cdf93f28f5",
+      "size": 4250
+    },
+    {
+      "path": "company-os/sales-architect/references/source/02-prospecting-icp-lists.txt",
+      "sha256": "e9d71921dba030b74fdbf58d220a475a7615caa8704033deafacb74e674eb50a",
+      "size": 3626
+    },
+    {
+      "path": "company-os/sales-architect/references/source/03-outreach-sequences-multichannel.txt",
+      "sha256": "bfdc2a694fd08f6a6f917b4daf23be8e31759295575ca5d6989511a920ffb012",
+      "size": 4179
+    },
+    {
+      "path": "company-os/sales-architect/references/source/04-appointments-qualification.txt",
+      "sha256": "8c5b2a1b27b18d08245e60c611442e98149d83813e4adafe14994a53a161dd65",
+      "size": 3539
+    },
+    {
+      "path": "company-os/sales-architect/references/source/05-discovery-needs-roi.txt",
+      "sha256": "f7a86ea3b4acb288a8739d5eaf45b4e79435827ccc2fe2e69567f55b369954db",
+      "size": 3269
+    },
+    {
+      "path": "company-os/sales-architect/references/source/06-pitch-demo-presentation.txt",
+      "sha256": "65a5f3cd654c8baa073c11892d5026a7a61d22010ce51aa2152bd5682eb5323b",
+      "size": 2797
+    },
+    {
+      "path": "company-os/sales-architect/references/source/07-objections-negotiation.txt",
+      "sha256": "620169190ecb7abba23091c22f2e783111b8d69e668b721c582ec80993c761f1",
+      "size": 3057
+    },
+    {
+      "path": "company-os/sales-architect/references/source/08-closing-contracting.txt",
+      "sha256": "e6862ed10a292b9e31140ac274f031ddf22fdae44a7077c97e03fc0b11546e3e",
+      "size": 2658
+    },
+    {
+      "path": "company-os/sales-architect/references/source/09-referrals-expansion-accounts.txt",
+      "sha256": "799233d5626162fa9f86b0db3b6327ebdc1a9c1ea5bd4b8861d60973bf8236c6",
+      "size": 2512
+    },
+    {
+      "path": "company-os/sales-architect/references/source/10-sales-ops-management.txt",
+      "sha256": "cfc54fb0482767ba6acb058c602176f56ca14b183b0e67c98bb4b27e506a959d",
+      "size": 4109
+    },
+    {
+      "path": "company-os/sales-architect/scripts/validate_sales_architect.py",
+      "sha256": "383cb2c95ae7108f6ea7a26f69f95bfcaf270975d35f83d2876bd7afc509a776",
+      "size": 5706
     },
     {
       "path": "company-os/select-execution-loop/SKILL.md",

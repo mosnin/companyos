@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sales Architect"
+  short_description: "Force pipeline, qualification, and close-system design"
+  default_prompt: "Use $sales-architect with $manage-company-program and one compact mission charter for prospecting, qualification, discovery, pipeline, or closing work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

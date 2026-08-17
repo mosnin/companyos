@@ -1,0 +1,85 @@
+SALES ARCHITECT DOCTRINE — SECTION 04: Appointments, Qualification, and Deal Scoping
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+Turn conversations into scheduled meetings, then qualify and scope opportunities with consistency.
+
+1) Appointment Setting (Meeting Conversion)
+Goal: secure a specific next step with time and agenda.
+Appointment close options
+• “Does Tue 10am or Wed 2pm work for a 20-min call?”
+• “If I show you X, and it’s relevant, are you open to Y next?”
+Reduce friction:
+• offer shorter first call
+• offer “audit” or “assessment”
+• send calendar invite immediately
+• confirm 24 hours prior
+
+2) Qualification: Fast and Deep
+Use a framework matched to complexity:
+Light qualification
+• BANT: Budget, Authority, Need, Timeline
+Consultative qualification
+• GPCTBA/C&I: Goals, Plans, Challenges, Timeline, Budget, Authority, Consequences & Implications
+Complex B2B qualification
+• MEDDIC/MEDDPICC: Metrics, Economic Buyer, Decision Criteria, Decision Process, Paper Process, Implication of Pain, Champion, Competition
+Alternative modern qualification
+• NEAT: Need, Economic Impact, Access to Authority, Timeline
+
+3) Qualification Outputs (What “Good” Looks Like)
+A qualified opportunity has:
+• ICP fit confirmed
+• quantified impact (money/time/risk)
+• a defined success outcome
+• stakeholders mapped (economic buyer + champion)
+• decision criteria and process documented
+• timeline hypothesis and next step locked
+
+4) Deal Scoping
+Scope = what you will do, what is excluded, who owns what, and timeline.
+Scoping method:
+1) current state map
+2) desired state
+3) gap analysis
+4) requirements (must/should/could)
+5) dependencies and risks
+6) success criteria and measurement
+
+5) Disqualification (Professional No)
+Disqualify when:
+• no clear problem
+• no timeline and no trigger
+• no access to authority path
+• no economic justification
+• misaligned expectations
+Deliverable: “close the loop” message with a clean door-open for later.
+
+Deliverables
+1) appointment setting scripts
+2) qualification checklists by framework
+3) scope template (current → future → gap → plan)
+4) disqualification scripts and recycle rules
+
+End of file.

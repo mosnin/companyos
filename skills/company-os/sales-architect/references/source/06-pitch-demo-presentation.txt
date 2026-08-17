@@ -1,0 +1,71 @@
+SALES ARCHITECT DOCTRINE — SECTION 06: Pitches, Demos, and Presentations: Story, Proof, and Control
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+How to present without “feature dumping”: narrative, proof, and controlled next steps.
+
+1) Pitch Architecture (High-Level)
+A strong pitch answers:
+1) what problem is this
+2) why it matters now
+3) what changes with you
+4) why you are credible
+5) what happens next
+
+2) Challenger Pattern (Teach, Tailor, Take Control)
+Teach: reframe their problem with an insight
+Tailor: connect to their context and metrics
+Take control: guide to a decision and next steps
+
+3) Demo Framework (Show Value, Not UI)
+Demo = claim → proof → confirmation.
+Structure
+1) recap goals and success criteria
+2) show the “before” problem
+3) show the “after” workflow
+4) prove key claims (data, case studies)
+5) confirm fit and next step
+
+4) Presentation Tools
+• “message map”: 1 core claim, 3 pillars, proof per pillar
+• “objection slide”: name risk, show mitigation
+• “implementation slide”: timeline, owners, dependencies
+• “ROI slide”: baseline, delta, payback
+
+5) Control: Agenda and Mutual Commitments
+Start every meeting with:
+• time check
+• purpose
+• agenda
+• outcomes and next step options
+
+Deliverables
+1) pitch template and talk track
+2) challenger reframe templates
+3) demo checklist + script
+4) slide outline: message map, ROI, implementation, risk
+5) meeting control opener and closer
+
+End of file.

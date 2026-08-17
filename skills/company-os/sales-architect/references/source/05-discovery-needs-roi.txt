@@ -1,0 +1,91 @@
+SALES ARCHITECT DOCTRINE — SECTION 05: Discovery Mastery: Needs, Value, ROI, and Business Cases
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+Discovery is the engine of persuasion. It converts curiosity into urgency and aligns stakeholders.
+
+1) Discovery Principles
+• Ask to understand, not to trap.
+• Quantify impact. Numbers create urgency.
+• Map the decision. Deals are systems.
+• Synthesize often: “Here’s what I’m hearing…”
+
+2) SPIN Questioning (Consultative Discovery)
+Situation: context without drowning in details
+Problem: what is broken or constrained
+Implication: why it matters, second-order costs
+Need-payoff: what improvement is worth and why now
+
+3) Sandler “Pain Funnel” Logic (Root Cause)
+Move from surface pain to deep pain:
+• “Tell me more”
+• “How long has that been happening”
+• “What have you tried”
+• “What happens if nothing changes”
+Goal: uncover cost of inaction and emotional stakes.
+
+4) Business Case Construction
+Impact categories
+• revenue gain
+• cost reduction
+• time saved
+• risk reduced
+• compliance improved
+Business case template
+1) baseline
+2) target
+3) delta
+4) mechanism (how solution creates delta)
+5) implementation cost
+6) payback period
+
+5) Stakeholder Map
+Roles
+• Economic buyer: owns budget
+• Champion: internal seller
+• User: daily operator
+• Influencer: shapes criteria
+• Gatekeeper/procurement: controls process
+Output: stakeholder influence map + messaging per role.
+
+6) Decision Process Mapping
+Ask:
+• “Walk me through how decisions like this get made.”
+• “What are the steps and who signs off.”
+• “What could slow this down.”
+Capture:
+• steps
+• meeting schedule
+• evaluation criteria
+• procurement and legal path (paper process)
+
+Deliverables
+1) discovery call agenda + script
+2) SPIN question bank by segment
+3) pain funnel prompts
+4) business case worksheet
+5) stakeholder and decision maps
+
+End of file.
