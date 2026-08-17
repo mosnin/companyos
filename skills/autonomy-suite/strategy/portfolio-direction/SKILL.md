@@ -10,3 +10,6 @@ Evaluate customer pain, strategic fit, differentiation, business impact, evidenc
 Classify each bet as active, incubating, deferred, or stopped. Limit active bets. Every active bet needs a target metric, decision owner, review date, kill/pivot criteria, and next learning milestone.
 
 Do not let weighted scores replace judgment. Reserve intentional capacity for a small number of high-conviction, category-creating bets; evaluate them against clarity of thesis, experience potential, learning speed, and strategic asymmetry rather than only existing demand. Record the rationale for tradeoffs and feed only approved slices to project kickoff.
+
+When a bet needs opportunity cost, unit economics, pricing, or TAM/SAM/SOM, load `$economics-architect` as the economics overlay.
+Do not send `$economics-architect` to Luna workers.

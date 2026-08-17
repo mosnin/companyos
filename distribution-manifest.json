@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "2f7072463d352cbe85f281e53feedf9d2d17b532946afb830030bedd31b8ed79",
+      "size": 16509
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -399,6 +399,86 @@
       "path": "company-os/direct-outcome/scripts/direct_outcome.py",
       "sha256": "138df478284bfc5a2c56873c173a3953c0d223c89b3f476f40704f3ce8bd3c1d",
       "size": 64199
+    },
+    {
+      "path": "company-os/economics-architect/SKILL.md",
+      "sha256": "b66b3006e484e5bd9c23c28a30a742dfd140006aa911313c58ba421d8d407532",
+      "size": 3593
+    },
+    {
+      "path": "company-os/economics-architect/agents/grok.yaml",
+      "sha256": "9859cc92ae8cf49f1b36b9893a05dda279c4110c8dff84bfab9e952638a1664c",
+      "size": 422
+    },
+    {
+      "path": "company-os/economics-architect/agents/openai.yaml",
+      "sha256": "9859cc92ae8cf49f1b36b9893a05dda279c4110c8dff84bfab9e952638a1664c",
+      "size": 422
+    },
+    {
+      "path": "company-os/economics-architect/assets/spawn-template.json",
+      "sha256": "70a0d5eaac6a8fc7b06da08c0c4b511a456a68ea27aa6b7ef7cfe3b57a864db3",
+      "size": 493
+    },
+    {
+      "path": "company-os/economics-architect/references/source/00-index.txt",
+      "sha256": "89ea68b672cab43e6d509dd6abf2e509aa26d3992684903281e559c2dd210e5b",
+      "size": 895
+    },
+    {
+      "path": "company-os/economics-architect/references/source/01-resources-opportunity-cost.txt",
+      "sha256": "e2c0f1acfc4178a0c24b4b44c5cd4d12cde76e336ab13d75fa9bd4dd66630708",
+      "size": 3730
+    },
+    {
+      "path": "company-os/economics-architect/references/source/02-consumer-utility-demand.txt",
+      "sha256": "f387c963979bf7f6766631bf427e228e4c1a00f9ac92ca22d408fbc72eab8697",
+      "size": 3234
+    },
+    {
+      "path": "company-os/economics-architect/references/source/03-production-costs-unit-econ.txt",
+      "sha256": "1ae24d663712be472ecaaa51d7eb86e849accd491662fb728f2fb4c1a0e72421",
+      "size": 3361
+    },
+    {
+      "path": "company-os/economics-architect/references/source/04-supply-demand-elasticity-pricing.txt",
+      "sha256": "15a6e0d779922074f35932f8d6a09fa421b42c151a765c6d10c3fc4a3b0b731a",
+      "size": 3790
+    },
+    {
+      "path": "company-os/economics-architect/references/source/05-markets-advantage-tam-sam-som.txt",
+      "sha256": "2d11504381903316546252069567a9f391969baee6033645753c42e07b491575",
+      "size": 3020
+    },
+    {
+      "path": "company-os/economics-architect/references/source/06-asymmetric-information-lemons.txt",
+      "sha256": "4721d8ea5e8db7ca8e25d445ec7503f0afc2e5a666f362ad53ee9400779a2946",
+      "size": 2766
+    },
+    {
+      "path": "company-os/economics-architect/references/source/07-externalities-ecosystems.txt",
+      "sha256": "0a153ee874fdaca0c9ad8eee95a460fcfe1c68e6578a12b5381acf9f6b2a32c8",
+      "size": 2674
+    },
+    {
+      "path": "company-os/economics-architect/references/source/08-macro-indicators-business-cycle.txt",
+      "sha256": "48db64c7af30e45b5eac2dae182f71641d1c8205e4acf09271bb9077b654dd92",
+      "size": 2271
+    },
+    {
+      "path": "company-os/economics-architect/references/source/09-ad-as-policy-scenarios.txt",
+      "sha256": "dcf2e335fbc744b52636841f66d2c15cb71b30b396d63347088a9c4098be1001",
+      "size": 2561
+    },
+    {
+      "path": "company-os/economics-architect/references/source/10-implementation-playbook.txt",
+      "sha256": "ab3ec3f2cccc89a9962dd93cc601d5e67104f70a9a082034eff1543485748933",
+      "size": 3168
+    },
+    {
+      "path": "company-os/economics-architect/scripts/validate_economics_architect.py",
+      "sha256": "63218cc0c25938edf0f16e0332d90c086cd30ea8e7b3415373cae4f9c50c1fbd",
+      "size": 5730
     },
     {
       "path": "company-os/elastic-company-os/SKILL.md",
@@ -1332,8 +1412,8 @@
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/SKILL.md",
-      "sha256": "c21054af43a0f625ca447312dce1f0035bfa86b1ab37e223e4e783b07a202b27",
-      "size": 1068
+      "sha256": "0521405691c7b1a53201f586db103e0c8329b00c2a23612f12aed0ad95f97bed",
+      "size": 1251
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/agents/grok.yaml",
@@ -1362,8 +1442,8 @@
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/SKILL.md",
-      "sha256": "2f260ce77ef4fcbf770340d9a9a7626d120ccc6d85e55017479c07c647f42d40",
-      "size": 1554
+      "sha256": "7b239fe6b8fd07dfbd7e5f477a09e520731f3444b09eb281c82a9da4dea3aa43",
+      "size": 1750
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/agents/grok.yaml",

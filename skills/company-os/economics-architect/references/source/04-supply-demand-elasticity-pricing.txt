@@ -1,0 +1,84 @@
+ECONOMICS ARCHITECT DOCTRINE — SECTION 04: Supply and Demand, Elasticity, and Pricing Architecture
+
+Purpose
+Translate microeconomics and macroeconomics into operating decisions for building and scaling businesses.
+This doctrine is action-oriented: pricing, incentives, product strategy, market selection, capacity planning,
+competitive dynamics, and macro-aware forecasting.
+
+Core Economic Lens for Business
+1) Scarcity and tradeoffs: every choice has an opportunity cost.
+2) Incentives and behavior: systems produce outcomes.
+3) Margins: decisions happen at the margin (marginal cost vs marginal benefit).
+4) Markets: prices coordinate supply and demand under constraints.
+5) Information: asymmetric information creates failures and opportunities.
+6) Externalities: costs/benefits often spill over beyond the transaction.
+7) Cycles: macro conditions shift demand, costs, and risk.
+
+Operating Rules
+1) Always define the unit of analysis (customer, order, cohort, market segment, time period).
+2) Convert narratives into numbers: demand curves, elasticities, unit economics, and constraints.
+3) Separate price from value: price is a lever; value is the driver.
+4) Use experiments to estimate uncertain parameters (elasticity, willingness to pay, churn response).
+5) Keep models simple enough to guide decisions, strict enough to falsify.
+
+============================================================
+Scope
+Market pricing mechanics: demand curves, elasticity, surplus, and pricing strategy.
+
+1) Supply and Demand as Business Tools
+Demand: how many units customers buy at each price.
+Supply: how many units the firm can provide at each cost/capacity.
+Equilibrium: where quantity supplied meets quantity demanded.
+Business use:
+• predict effects of price changes
+• forecast volumes under constraints
+• understand how capacity limits can raise effective prices (scarcity)
+
+2) Elasticity
+Price elasticity of demand (PED): responsiveness of quantity to price.
+• elastic: demand changes a lot with price
+• inelastic: demand changes little with price
+Business implications:
+• elastic categories require differentiation and segmentation
+• inelastic categories can support price increases if value and trust are strong
+Perfectly inelastic or elastic are theoretical extremes; real markets are in between.
+
+3) Substitutes and Cross-Elasticity
+Substitute goods constrain pricing.
+Cross-price elasticity tells how demand shifts when competitors change price.
+Business use:
+• map your true substitutes (including “do nothing”)
+• differentiate to reduce substitutability
+
+4) Consumer Surplus and Producer Surplus
+Consumer surplus: value above price.
+Producer surplus: price above cost.
+Business use:
+• capture surplus via better targeting, packaging, and pricing discrimination (ethical and legal constraints)
+• preserve consumer surplus where retention depends on perceived fairness
+
+5) Deadweight Loss
+When prices or quantities are distorted, total welfare falls.
+Business translation:
+• friction in onboarding, procurement, and UX creates deadweight loss in your funnel
+Reduce friction to recover lost transactions without lowering price.
+
+6) Pricing Architecture (Implementation)
+Key choices:
+• pricing metric (per seat, per usage, per outcome, per project)
+• packaging (tiers, bundles, add-ons)
+• discount policy (give-get trades)
+• fences (limits that separate segments)
+• price increases and grandfathering strategy
+Measurement:
+• conversion rate by price point
+• churn/retention by cohort
+• gross margin and payback
+
+Deliverables
+1) demand curve hypothesis and test plan
+2) elasticity measurement plan (segment by segment)
+3) substitutes map (including do nothing)
+4) pricing architecture document (metric, tiers, fences, discount rules)
+
+End of file.

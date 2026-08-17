@@ -1,0 +1,59 @@
+ECONOMICS ARCHITECT DOCTRINE — SECTION 09: Aggregate Demand, AD-AS, SRAS/LRAS, and Policy Transmission
+
+Purpose
+Translate microeconomics and macroeconomics into operating decisions for building and scaling businesses.
+This doctrine is action-oriented: pricing, incentives, product strategy, market selection, capacity planning,
+competitive dynamics, and macro-aware forecasting.
+
+Core Economic Lens for Business
+1) Scarcity and tradeoffs: every choice has an opportunity cost.
+2) Incentives and behavior: systems produce outcomes.
+3) Margins: decisions happen at the margin (marginal cost vs marginal benefit).
+4) Markets: prices coordinate supply and demand under constraints.
+5) Information: asymmetric information creates failures and opportunities.
+6) Externalities: costs/benefits often spill over beyond the transaction.
+7) Cycles: macro conditions shift demand, costs, and risk.
+
+Operating Rules
+1) Always define the unit of analysis (customer, order, cohort, market segment, time period).
+2) Convert narratives into numbers: demand curves, elasticities, unit economics, and constraints.
+3) Separate price from value: price is a lever; value is the driver.
+4) Use experiments to estimate uncertain parameters (elasticity, willingness to pay, churn response).
+5) Keep models simple enough to guide decisions, strict enough to falsify.
+
+============================================================
+Scope
+Macro models to interpret environment changes and plan scenarios.
+
+1) Aggregate Demand (AD)
+Drivers: consumption, investment, government spending, net exports.
+Business translation:
+• AD down: weaker conversion and pricing power
+• AD up: growth can hide inefficiency; maintain discipline
+
+2) AD-AS Model
+SRAS: short-run output responds to prices and input costs.
+LRAS: potential output driven by productivity, labor, capital.
+Business translation:
+• SRAS shocks: input cost spikes, supply chain disruptions
+• LRAS shifts: technology improvements and productivity gains
+
+3) Inflation Concepts
+Demand-pull vs cost-push.
+Business use:
+• decide pass-through policy by elasticity and competition
+• protect margins with redesign and supplier strategy
+
+4) Policy Transmission (High Level)
+Monetary policy affects rates, credit, asset prices, and demand.
+Fiscal policy affects demand via spending and taxes.
+Business use:
+• scenario plan around rates and credit
+• adjust cash, inventory, and hiring triggers
+
+Deliverables
+1) scenario matrix (base/downside/upside)
+2) policy watchlist and triggers
+3) inflation pass-through plan
+
+End of file.

@@ -1,0 +1,77 @@
+ECONOMICS ARCHITECT DOCTRINE — SECTION 02: Consumer Theory: Utility, Demand, Budget Lines, and Willingness to Pay
+
+Purpose
+Translate microeconomics and macroeconomics into operating decisions for building and scaling businesses.
+This doctrine is action-oriented: pricing, incentives, product strategy, market selection, capacity planning,
+competitive dynamics, and macro-aware forecasting.
+
+Core Economic Lens for Business
+1) Scarcity and tradeoffs: every choice has an opportunity cost.
+2) Incentives and behavior: systems produce outcomes.
+3) Margins: decisions happen at the margin (marginal cost vs marginal benefit).
+4) Markets: prices coordinate supply and demand under constraints.
+5) Information: asymmetric information creates failures and opportunities.
+6) Externalities: costs/benefits often spill over beyond the transaction.
+7) Cycles: macro conditions shift demand, costs, and risk.
+
+Operating Rules
+1) Always define the unit of analysis (customer, order, cohort, market segment, time period).
+2) Convert narratives into numbers: demand curves, elasticities, unit economics, and constraints.
+3) Separate price from value: price is a lever; value is the driver.
+4) Use experiments to estimate uncertain parameters (elasticity, willingness to pay, churn response).
+5) Keep models simple enough to guide decisions, strict enough to falsify.
+
+============================================================
+Scope
+How customers choose: utility, demand, budget constraints, and value measurement.
+
+1) Utility Theory (Business Translation)
+Utility is the satisfaction or value a customer derives from consumption.
+Decompose utility into:
+• functional utility (job done)
+• emotional utility (confidence, relief)
+• social utility (status, belonging)
+• option value (flexibility)
+• risk utility (certainty vs uncertainty)
+
+2) Law of Demand
+All else equal, quantity demanded decreases as price increases.
+Business implication:
+• every price change shifts conversion and the buyer mix
+• measure response by segment and channel, not just in aggregate
+
+3) Budget Lines and Constraints
+Customers face constraints:
+• money
+• time
+• attention
+• organizational approvals
+Business implication:
+• “affordable” includes time-to-value and implementation effort
+• reduce non-monetary costs to increase demand without lowering price
+
+4) Marginal Utility and Diminishing Returns
+Marginal utility decreases as consumption increases.
+Business applications:
+• tiering and packaging: segments value “more” differently
+• usage-based pricing aligns price with marginal utility
+• bundles can increase total utility by reducing decision cost
+
+5) Estimating Willingness to Pay (WTP)
+Methods:
+• direct: interviews with tradeoff questions (careful about bias)
+• revealed preference: observe choices at different prices
+• A/B price tests (guardrails for brand)
+• conjoint analysis (for attribute tradeoffs)
+Outputs:
+• WTP distribution
+• segment-specific WTP
+• value drivers that shift WTP
+
+Deliverables
+1) utility decomposition for your ICP
+2) constraint reduction plan (time, risk, effort)
+3) WTP estimation plan and measurement guardrails
+4) packaging hypotheses tied to marginal utility
+
+End of file.
