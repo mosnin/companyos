@@ -1,0 +1,24 @@
+CORPORATE MANAGEMENT — SOURCE PACK INDEX
+
+This kit is a compiled Company OS thinking overlay. It is not a claim to be
+Fayol, Koontz, or any named MBA school. Load one primary file for the named
+decision. Do not invent a fourth executable hop.
+
+Decision -> file
+- Management as a continuous process -> 01-management-as-process.txt
+- Functions of management -> 02-functions-of-management.txt
+- Four corporate tiers -> 03-levels-of-management.txt
+- Map tiers onto Company OS roles -> 04-tier-to-company-os-mapping.txt
+- Which functions each tier owns -> 05-function-by-tier.txt
+- Charter fields and escalation -> 06-charter-and-escalation.txt
+
+Shared operating rules
+- Management turns potential into performance. Resources without a named
+  owner, plan, and check are not an accepted outcome.
+- Functions form a cycle: plan, organize, staff, direct, coordinate, control.
+- Executable delegation stays master → manager → worker.
+- Low-level management is a narrower Sol-manager charter, not a new runtime
+  role. Staff are Luna workers.
+- Do not invent headcount, authority, or a second orchestrator.
+
+End of index.

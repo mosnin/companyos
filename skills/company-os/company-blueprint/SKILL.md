@@ -41,7 +41,8 @@ quotas.
 ## Operating planes
 
 - **Identity plane:** mission, thesis, customers, offers, objectives, values.
-- **Organization plane:** departments, interfaces, decision rights, metrics.
+- **Organization plane:** departments, interfaces, decision rights, metrics. When compiling the organization, load `$corporate-management` and name senior, middle, low-level, and staff tiers.
+Do not send `$corporate-management` to Luna workers.
 - **Capability plane:** skills, tools, playbooks, models, permissions.
 - **Execution plane:** programs, DAGs, leases, budgets, acceptance, recovery.
 - **Context plane:** knowledge, brand, assets, content and style references.

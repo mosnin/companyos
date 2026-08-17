@@ -1,0 +1,33 @@
+CORPORATE MANAGEMENT — SECTION 04: Tier to Company OS Mapping
+
+Purpose
+Map the four corporate tiers onto the existing three-hop authority model.
+
+Hard cap
+Executable delegation is master → manager → worker. The overlay may name
+four corporate tiers. It may not add a fourth executable hop, a new
+orchestrator, or a scheduler/runtime enablement.
+
+Mapping
+- Top / senior management = Company OS master.
+  Uses `$company-os`, `$govern-outcome-execution`, `$mission-execution-control`,
+  and `$navigation-control`. Versions the Program Contract. Decides charter,
+  design, verification, and integration barriers. Names the global bottleneck.
+- Middle management = Sol manager of a department or program outcome.
+  Uses `$manage-company-program`. Coordinates interfaces, implements senior
+  plans, and reports at phase barriers. May not change strategy, roadmap
+  ownership, or authority.
+- Low-level management = Sol manager of one slice or worker team.
+  Same fabric role as middle management. Narrower charter: direct the team,
+  control local evidence, escalate blockers. Not a new runtime role.
+- Employees / staff = Luna workers.
+  Use `$execute-bounded-task`. One packet, one write boundary, one receipt.
+  Worker completion is never acceptance.
+
+Rules
+- Do not spawn a manager to sit between master and manager.
+- Do not spawn a worker to act as low-level management.
+- Derive manager count from independently accountable outcomes, not a
+  fixed 1:1:1:N headcount slogan.
+
+End of file.

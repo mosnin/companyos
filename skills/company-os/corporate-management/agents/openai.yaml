@@ -1,0 +1,6 @@
+interface:
+  display_name: "Corporate Management"
+  short_description: "Force four-tier corporate management on Company OS"
+  default_prompt: "Use $corporate-management with $manage-company-program and one compact mission charter when compiling or running a multi-tier autonomous company. Name each actor as senior, middle, low-level, or staff. Do not load this skill as the master persona or on Luna workers."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,26 @@
+CORPORATE MANAGEMENT — SECTION 01: Management as a Process
+
+Purpose
+Treat management as the continuous process that turns potential into
+performance. Ideas, money, machines, materials, and people are valuable only
+when combined with a named owner, a plan, and a check.
+
+Operating definition
+Management is a series of continuous, interrelated functions performed to
+achieve organizational goals efficiently and effectively. The functions are
+not job titles. They are the cycle every governed outcome must pass through.
+
+Inclusion
+- Planning, organizing, staffing, directing, coordinating, and controlling
+  are one cycle.
+- Decision making and change sit inside the cycle; they are not a seventh
+  execution loop.
+- Anything minus management is zero: unowned resources do not become
+  accepted Company OS outcomes.
+
+Company OS rule
+This overlay does not own authority, leases, fabric, or completion.
+`$manage-company-program` still wins. Rejected commands must not mutate
+governed state.
+
+End of file.

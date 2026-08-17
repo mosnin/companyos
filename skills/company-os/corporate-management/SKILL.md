@@ -1,0 +1,57 @@
+---
+name: corporate-management
+description: Force four-tier corporate management and the plan-organize-staff-direct-coordinate-control cycle on one Company OS program. Use when compiling or running a multi-tier autonomous company. Do not load as the Company OS master persona or on Luna workers.
+---
+
+# Corporate Management
+
+This is a thinking overlay for how Company OS is staffed. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$company-blueprint`, and `$department-charters` still win.
+
+This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, quoted speech, or affiliation with Fayol, Koontz, or any named MBA school.
+
+Do not send this skill to Luna workers. Do not use it as the master persona. Do not attach it to a manager whose outcome is not company organization, department charters, or a named management tier.
+
+## Every heartbeat
+
+Before spawning or directing a multi-tier program, answer these:
+
+1. Name the tier. Senior is the Company OS master. Sol managers are middle or low-level. Luna workers are staff.
+2. Name the function in cycle: plan, organize, staff, direct, coordinate, control. Do not skip control.
+3. Senior owns strategy, policy, the global bottleneck, and barrier decisions. Managers may not change those.
+4. Middle coordinates a department or program. Low-level directs one worker team on one slice. Same fabric role; different charter width.
+5. Pause if this is a fourth executable hop, a worker setting strategy, or a manager acting as master.
+
+Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable the scheduler or runtime from this overlay.
+
+## Forced moves
+
+- Management turns potential into performance. Unowned resources are not accepted outcomes.
+- Functions are a cycle, not a seventh execution loop.
+- Executable delegation stays master → manager → worker. Low-level management is a narrower Sol-manager charter, not a new runtime role.
+- Staff execute one packet. They do not spawn children or accept their own work.
+- Derive manager count from independently accountable outcomes, not a 1:1:1:N slogan.
+- Do not enable the Company OS scheduler or runtime from this overlay.
+
+## Artifacts
+
+Keep these manager-local and compact:
+
+- tier map: senior, middle, low-level, staff
+- owned functions per actor
+- escalation path
+- named bottleneck function in the cycle
+
+## Source pack
+
+Load only the file needed. Do not paste the pack into worker prompts.
+
+| Need | File |
+| --- | --- |
+| Process | `references/source/01-management-as-process.txt` |
+| Functions | `references/source/02-functions-of-management.txt` |
+| Tiers | `references/source/03-levels-of-management.txt` |
+| Company OS map | `references/source/04-tier-to-company-os-mapping.txt` |
+| Function by tier | `references/source/05-function-by-tier.txt` |
+| Charter | `references/source/06-charter-and-escalation.txt` |
+
+Index: `references/source/00-index.txt`. Spawn with `assets/spawn-template.json`.

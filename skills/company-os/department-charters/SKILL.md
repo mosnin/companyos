@@ -39,3 +39,6 @@ Department packs are reusable definitions, not always-running agents. The
 accepted program work graph determines which Sol manager outcomes and Luna
 worker tasks exist for a particular objective. Scheduled department routines
 remain planned until runtime and scheduler activation are separately accepted.
+
+When chartering departments, load `$corporate-management` and name each department manager as middle or low-level. Staff remain Luna workers.
+Do not send `$corporate-management` to Luna workers.

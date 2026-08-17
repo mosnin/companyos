@@ -1,0 +1,28 @@
+CORPORATE MANAGEMENT — SECTION 06: Charter and Escalation
+
+Purpose
+Make the tier and the owned functions visible on the charter before work
+starts.
+
+Name these in the compact mission charter or work packet text. Do not add a
+new schema field, preflight capability, or fabric role.
+- management tier: senior | middle | low_level | staff
+- owned functions: the subset of the cycle this actor may perform
+- reporting destination: master for managers; parent manager for staff
+- escalation: the first blocker that leaves this tier
+
+Escalation
+- Staff stop and report to the parent manager.
+- Low-level managers escalate strategy, authority, budget, or cross-lane
+  collisions to middle or to master when no middle exists.
+- Middle managers escalate barrier decisions, authority changes, and the
+  global bottleneck to master.
+- Senior / master does not escalate to a manager. It decides, stops, or
+  asks the operator.
+
+Safety
+- Do not contact customers, hire, spend, or mutate HRIS from this overlay.
+- Do not enable the Company OS scheduler or runtime from this overlay.
+- Rejected commands must not mutate governed state.
+
+End of file.

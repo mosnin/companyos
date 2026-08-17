@@ -257,8 +257,8 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
-      "size": 3151
+      "sha256": "36d629bb71cb89d6f68f7a9595364bfd3172c72fe82f4e5ba30219622c446c5e",
+      "size": 3319
     },
     {
       "path": "company-os/company-blueprint/agents/grok.yaml",
@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "8f0c81fbe92c49ee213ac1c4d81dea916c26cda2ce8dbd9a8149281306d5a04c",
+      "size": 16610
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -366,6 +366,66 @@
       "size": 35515
     },
     {
+      "path": "company-os/corporate-management/SKILL.md",
+      "sha256": "23f59dff5e52843d906ca29afbb13b6a49c5ba5f01424ff788fbe5d8f59469ab",
+      "size": 3057
+    },
+    {
+      "path": "company-os/corporate-management/agents/grok.yaml",
+      "sha256": "cfda9bc1e8285986fe16e27aa60ba15785d32d28f1787ad73de5553e8b9cf15b",
+      "size": 454
+    },
+    {
+      "path": "company-os/corporate-management/agents/openai.yaml",
+      "sha256": "cfda9bc1e8285986fe16e27aa60ba15785d32d28f1787ad73de5553e8b9cf15b",
+      "size": 454
+    },
+    {
+      "path": "company-os/corporate-management/assets/spawn-template.json",
+      "sha256": "fb500eda55f108d2076ab778473d87e14cbabb7259729341c733f99a8c37f77f",
+      "size": 525
+    },
+    {
+      "path": "company-os/corporate-management/references/source/00-index.txt",
+      "sha256": "69b62107b80a4b3dfa60469b3fcd3c83d0c0653ce23bd445cdabdb4260e0b408",
+      "size": 1119
+    },
+    {
+      "path": "company-os/corporate-management/references/source/01-management-as-process.txt",
+      "sha256": "1306ca3805a5063d723f8fd0fec8afd551881ff9aff974c4169b8693840f9d0c",
+      "size": 1003
+    },
+    {
+      "path": "company-os/corporate-management/references/source/02-functions-of-management.txt",
+      "sha256": "14b5fc665e3987432ecfec3e9e1f118e8070cfac8fa2b872145c8aad9e0b92b7",
+      "size": 1020
+    },
+    {
+      "path": "company-os/corporate-management/references/source/03-levels-of-management.txt",
+      "sha256": "9b26b6839756b6e083bed48622cec2123d007b945b5daef0bc393539be71d3f5",
+      "size": 940
+    },
+    {
+      "path": "company-os/corporate-management/references/source/04-tier-to-company-os-mapping.txt",
+      "sha256": "e013214bde9670ee022a53d74691e3b0f93aae661686523da71d45efe04671e7",
+      "size": 1495
+    },
+    {
+      "path": "company-os/corporate-management/references/source/05-function-by-tier.txt",
+      "sha256": "089c674b1f7adfea1f3ff6b89df596990badd5136ae82507064b0769482bbcaf",
+      "size": 1179
+    },
+    {
+      "path": "company-os/corporate-management/references/source/06-charter-and-escalation.txt",
+      "sha256": "1368dcab7c737da88ef2c15b8f2a9acb8f9b50d06b56feffd208e081ca241cd3",
+      "size": 1137
+    },
+    {
+      "path": "company-os/corporate-management/scripts/validate_corporate_management.py",
+      "sha256": "2defd370e4180c22bca0bc02bffdc76c9e374307e84650dafdd61e96ea94dd4d",
+      "size": 5689
+    },
+    {
       "path": "company-os/define-outcome-artifacts/SKILL.md",
       "sha256": "b2a680613998385506aa4a5628fb953eb3a8e17849685f37a644e6e1c0f889f1",
       "size": 944
@@ -377,8 +437,8 @@
     },
     {
       "path": "company-os/department-charters/SKILL.md",
-      "sha256": "beee9af7b9ce04b7f35608baca0808d77868d104862de0ef2a7eff068ece588a",
-      "size": 2087
+      "sha256": "cf10fa7f8425a6ce8e320ce2ee7340bcec52b30fb374ec4c38ae67f5cc124ffe",
+      "size": 2283
     },
     {
       "path": "company-os/department-charters/agents/grok.yaml",

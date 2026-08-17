@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.corporate-management-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "corporate-management"
+  ],
+  "source_pack": "references/source",
+  "template_id": "corporate-management",
+  "use_when": [
+    "company_organization",
+    "department_charters",
+    "management_functions",
+    "management_structure",
+    "program_staffing"
+  ]
+}
