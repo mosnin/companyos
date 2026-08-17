@@ -1,0 +1,54 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 01: Core Thesis, Discoverability, and Understanding
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+1) Core thesis: make the right action obvious and the wrong action hard
+
+1.1 Discoverability
+1) Users should be able to figure out what actions are possible.
+2) The system should reveal:
+1) What it is
+2) What it does
+3) What actions are available now
+4) What will happen after an action
+
+1.2 Understanding
+1) Users should be able to predict outcomes before acting.
+2) After acting, users should be able to interpret what happened.
+
+Implementation guidance
+A) Make “what it is” legible in 5 seconds
+• page title and primary purpose
+• primary call to action
+• supporting context: who it is for, why it matters
+
+B) Make “what it does” legible in one sentence
+• use user language, not internal labels
+• reference the user goal, not your feature set
+
+C) Make “what actions are available now” unmissable
+• emphasize primary action using hierarchy and spacing
+• reduce competing actions; demote secondary actions
+• keep actions near the objects they affect
+
+D) Make “what will happen after an action” predictable
+• previews, microcopy, inline examples
+• show cost, time, reversibility, and downstream effects
+
+E) Understanding check
+• before: can a first-time user predict the outcome?
+• after: can the user explain what changed and what to do next?
+
+Deliverables
+1) 5‑second clarity test script
+2) “What it is / does / can do now / will happen next” checklist for each screen
+3) microcopy template: action + outcome + reversibility
+
+End of file.

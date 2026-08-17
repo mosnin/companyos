@@ -1,0 +1,71 @@
+DESIGN THINKING DOCTRINE — SECTION 10: Iteration and Experiment Reporting System
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+A disciplined experiment system that turns learning into compounding progress.
+
+A. Experiment Report Template
+1) Hypothesis
+2) Test setup
+3) Metrics
+4) Results
+5) Learning
+6) Decision
+7) Next actions
+
+B. Metrics Ladder
+1) Desirability: comprehension, intent, commitment
+2) Usability: task success, time to value, errors
+3) Value: outcomes achieved, frequency
+4) Growth: retention, referral, revenue, CAC signals
+
+C. Iteration Cadence (Weekly)
+1) Run tests
+2) Synthesize
+3) Update model artifacts
+4) Prioritize next experiments
+
+Artifacts Updated Each Cycle
+1) Lean Canvas
+2) Customer Profile
+3) Persona assumptions
+4) Journey map and blueprint (if service-heavy)
+5) Backlog priorities
+
+D. Decision Hygiene
+Rules
+1) Predefine success criteria
+2) Do not move goalposts after results
+3) Separate evidence from interpretation
+4) Log disconfirming evidence
+
+E. Experiment Backlog Fields
+1) Assumption tested
+2) Risk score
+3) Cost to test
+4) Time to run
+5) Expected information value
+
+Deliverables
+1) Experiment report template
+2) Ranked backlog
+3) Weekly review checklist
+4) Version history of model changes
+
+End of file.

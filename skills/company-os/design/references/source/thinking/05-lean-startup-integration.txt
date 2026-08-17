@@ -1,0 +1,73 @@
+DESIGN THINKING DOCTRINE — SECTION 05: Lean Startup Integration
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+Use Lean Startup discipline to test assumptions quickly and keep the business model aligned to learning.
+
+A. Build → Measure → Learn
+Interpretation
+• Build only what is needed to learn
+• Measure only what changes decisions
+• Learn by updating the model
+
+B. MVP Definition
+Minimum capabilities required to test the primary assumption.
+
+MVP Types
+1) Concierge
+2) Wizard-of-Oz
+3) Landing page
+4) Prototype
+5) Single-feature slice
+
+C. Stage Gates
+1) Problem discovery
+2) Problem-solution fit
+3) Product-market fit
+4) Scaling fit
+
+D. Metrics Discipline
+Use:
+• Activation
+• Retention
+• Referral
+• Revenue
+
+E. Lean Canvas as a Living Document
+Blocks
+1) Problem
+2) Customer segments
+3) Unique value proposition
+4) Solution
+5) Channels
+6) Revenue streams
+7) Cost structure
+8) Key metrics
+9) Unfair advantage
+
+Rule
+Update after every experiment.
+
+Deliverables
+1) MVP + hypothesis list
+2) Metric plan
+3) Lean canvas version history
+4) Experiment backlog ranked by uncertainty impact
+
+End of file.

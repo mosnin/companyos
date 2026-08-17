@@ -1,0 +1,21 @@
+DESIGN ARCHITECT — 10 SECTION FILE INDEX
+
+1) design_architect_section_01_thesis_discoverability_understanding.txt
+2) design_architect_section_02_gulfs_of_execution_and_evaluation.txt
+3) design_architect_section_03_seven_stages_of_action.txt
+4) design_architect_section_04_affordances_signifiers_feedback_models.txt
+5) design_architect_section_05_knowledge_world_vs_head.txt
+6) design_architect_section_06_human_error_slips_mistakes_recovery.txt
+7) design_architect_section_07_design_principles_visibility_mapping_consistency.txt
+8) design_architect_section_08_conventions_culture_semantics.txt
+9) design_architect_section_09_system_image_mental_models.txt
+10) design_architect_section_10_evaluation_checklist_testing_protocol.txt
+
+Suggested use order
+• Foundations: 01 → 04
+• Memory and resilience: 05 → 06
+• Principles and conventions: 07 → 08
+• Mental models: 09
+• Evaluation and testing: 10
+
+End of index.

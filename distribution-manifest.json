@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "514368f530dd4389ed02c56071f78a7d420db7751b07aa3c64228a6dc99fbbaf",
+      "size": 16480
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -389,6 +389,146 @@
       "path": "company-os/department-charters/agents/openai.yaml",
       "sha256": "682dd8b19d55779619ce1a5ac5a4adb20edae341e047886a7a079352039dff64",
       "size": 108
+    },
+    {
+      "path": "company-os/design/SKILL.md",
+      "sha256": "15a75f62f6d49a5215984c273f361d1dd8c96441c46f4a1e67d44713c199d186",
+      "size": 3330
+    },
+    {
+      "path": "company-os/design/agents/grok.yaml",
+      "sha256": "f8bc63361d083d7e5c0b2a3201f9f823fb140c03a52b2b58ab0d162f69c5a9fa",
+      "size": 401
+    },
+    {
+      "path": "company-os/design/agents/openai.yaml",
+      "sha256": "f8bc63361d083d7e5c0b2a3201f9f823fb140c03a52b2b58ab0d162f69c5a9fa",
+      "size": 401
+    },
+    {
+      "path": "company-os/design/assets/spawn-template.json",
+      "sha256": "dfa1ff9bc3545b3c8a5edefd53138e8d15150ae709b97137efb55e314ac7e946",
+      "size": 464
+    },
+    {
+      "path": "company-os/design/references/source/architect/00-index.txt",
+      "sha256": "46fb15ed4d3b43563d30d9af466bd4248e886cdefaa5de07aa9bb30dc3850218",
+      "size": 927
+    },
+    {
+      "path": "company-os/design/references/source/architect/01-thesis-discoverability-understanding.txt",
+      "sha256": "6e3fb170d50b569de389c137d7cd94d53a3a6ea69c11b924e51ebda5d93b60c9",
+      "size": 2002
+    },
+    {
+      "path": "company-os/design/references/source/architect/02-gulfs-of-execution-and-evaluation.txt",
+      "sha256": "d6889449326150db1ef76d61ff39df0129ac6bb3040dab9566af5a4e314cec26",
+      "size": 1761
+    },
+    {
+      "path": "company-os/design/references/source/architect/03-seven-stages-of-action.txt",
+      "sha256": "1b75d2e730b3e891d49cf821bf8d1871ac62e30805f2821e7546c32a78d8da32",
+      "size": 1965
+    },
+    {
+      "path": "company-os/design/references/source/architect/04-affordances-signifiers-feedback-models.txt",
+      "sha256": "b43bd1ac13c5139e479efbcdc13a688260983165331b51a399dc61fd7a1789a8",
+      "size": 2610
+    },
+    {
+      "path": "company-os/design/references/source/architect/05-knowledge-world-vs-head.txt",
+      "sha256": "5814b50742d323327355451b7a8a62fc3b2cf5f08de90a7eed1aa4b1ac62e066",
+      "size": 1853
+    },
+    {
+      "path": "company-os/design/references/source/architect/06-human-error-slips-mistakes-recovery.txt",
+      "sha256": "5dfbc9a6892a37e1025974d4e0e1c6267fd00f2acc2d3668c3aef697af2e3a20",
+      "size": 2389
+    },
+    {
+      "path": "company-os/design/references/source/architect/07-design-principles-visibility-mapping-consistency.txt",
+      "sha256": "711ebc86cfb399e061256c9dc0dc6ef9a1086310672bcf08839c5e947e03c5a7",
+      "size": 2040
+    },
+    {
+      "path": "company-os/design/references/source/architect/08-conventions-culture-semantics.txt",
+      "sha256": "99f5e3addc74285220ef379836d00177792bc286627469df11957b89c956d5cb",
+      "size": 1436
+    },
+    {
+      "path": "company-os/design/references/source/architect/09-system-image-mental-models.txt",
+      "sha256": "2dd5e0eed8f650289ce0eb732b0cb9f971c18fcb2b5268f807451b92d56f53b1",
+      "size": 1639
+    },
+    {
+      "path": "company-os/design/references/source/architect/10-evaluation-checklist-testing-protocol.txt",
+      "sha256": "18979828ccf11350007d5c72e83b9f85a4f3c2eb22d6927ba01c8514885ebbf4",
+      "size": 1928
+    },
+    {
+      "path": "company-os/design/references/source/design-system-tokens.md",
+      "sha256": "fbb98bf28599cfc7f90bcb5530d9bfeda01557f27847abaa011400c262452925",
+      "size": 1454
+    },
+    {
+      "path": "company-os/design/references/source/thinking/00-index.txt",
+      "sha256": "02fe995619daf61dc1bb3830a607a43ac5abb119e4a91f322e42256fe3aa6c38",
+      "size": 1107
+    },
+    {
+      "path": "company-os/design/references/source/thinking/01-user-understanding-foundations.txt",
+      "sha256": "73dabb837fb2a1e21ec1378190bcc4a01fe10240a0c86614f83c2da7a06f483f",
+      "size": 4281
+    },
+    {
+      "path": "company-os/design/references/source/thinking/02-problem-definition.txt",
+      "sha256": "8007ce0e60fdfad74e4e789152ff5d477efb7fb47c593ddfc3360e9d42bd1ce2",
+      "size": 2176
+    },
+    {
+      "path": "company-os/design/references/source/thinking/03-ideation-concept-development.txt",
+      "sha256": "db6e4ad65071172ccb495d4767f41c37b85b4e59bd96ac51fe1a8078992a683e",
+      "size": 1643
+    },
+    {
+      "path": "company-os/design/references/source/thinking/04-prototyping-testing.txt",
+      "sha256": "0c9b31a9a1cb5b5b8edb3cd92ce796163b3841bab0c40fe1aaabda685e94cf64",
+      "size": 2046
+    },
+    {
+      "path": "company-os/design/references/source/thinking/05-lean-startup-integration.txt",
+      "sha256": "9624c9b22e6bded512877dac04afca87e38ab678f3d1fb89e434ee9846e81ff3",
+      "size": 1750
+    },
+    {
+      "path": "company-os/design/references/source/thinking/06-scale-ecosystem-design.txt",
+      "sha256": "01a29faa3dfa6d0567bbf8b97ee65369477b55183a9583d21965b9a79b550f96",
+      "size": 1729
+    },
+    {
+      "path": "company-os/design/references/source/thinking/07-service-design-experience-excellence.txt",
+      "sha256": "305435f534cb6fb502767de12dde62912c83ae30884f0d198eacf7ca560e5ee9",
+      "size": 1719
+    },
+    {
+      "path": "company-os/design/references/source/thinking/08-problem-to-growth-scale-framework.txt",
+      "sha256": "c5ac4b08004692049652cd230c2a3aa2880348b514a604fd22cb151d2b18b141",
+      "size": 1531
+    },
+    {
+      "path": "company-os/design/references/source/thinking/09-desirability-feasibility-viability-bridge.txt",
+      "sha256": "744e3187126a4654ac8d2ea4595a4559589e007631b256c5fece8d448eb21cf3",
+      "size": 1912
+    },
+    {
+      "path": "company-os/design/references/source/thinking/10-iteration-experiment-reporting-system.txt",
+      "sha256": "51d9d3409bfe4938108c7846241e78852ce468e593729c5e0d32cb0bb649302d",
+      "size": 1880
+    },
+    {
+      "path": "company-os/design/scripts/validate_design.py",
+      "sha256": "5fd0897170dfb22514d26a7d999734e2bdd14ff43f1fbe2bfbc5533fc0791b7a",
+      "size": 6478
     },
     {
       "path": "company-os/direct-outcome/SKILL.md",
@@ -1117,8 +1257,8 @@
     },
     {
       "path": "company-os/ui-design-quality/SKILL.md",
-      "sha256": "389e69fb9236bd02f2dbd146a78ac6b0d32f111ecb4417b8b0cb8071baeb5b8e",
-      "size": 5381
+      "sha256": "c3a8d7e240ae1466a9a24d4c429941769f5717bc9ef682186cbf3e73a96ea707",
+      "size": 5573
     },
     {
       "path": "company-os/ui-design-quality/UPSTREAM.json",

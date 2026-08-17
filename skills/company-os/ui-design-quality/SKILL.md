@@ -9,6 +9,10 @@ Use this skill for every Company OS work packet classified as `ui_design` and
 for any packet that touches UI source such as HTML, CSS, JSX/TSX, Vue, or
 Svelte. This is a required delivery gate, not optional inspiration.
 
+When a Sol manager owns design-process or interaction-architecture work, load
+`$design` as the design overlay. This skill remains the UI evidence gate.
+Do not send `$design` to Luna workers.
+
 The complete upstream suite is vendored under [vendor](vendor) at the immutable
 revision recorded in [UPSTREAM.json](UPSTREAM.json). Its MIT license is in
 [LICENSE.upstream](LICENSE.upstream). Upstream instructions supply design

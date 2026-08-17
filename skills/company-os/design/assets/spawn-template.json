@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.design-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "design"
+  ],
+  "source_pack": "references/source",
+  "template_id": "design",
+  "use_when": [
+    "interaction_design",
+    "problem_framing",
+    "prototyping",
+    "service_design",
+    "user_understanding"
+  ]
+}

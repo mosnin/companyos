@@ -1,0 +1,71 @@
+DESIGN THINKING DOCTRINE — SECTION 09: Desirability–Feasibility–Viability Bridge
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+Prevent building things that are wanted but unbuildable, buildable but unwanted, or wanted but not sustainable.
+
+A. Desirability
+Questions
+1) Real job and pain?
+2) Alternative clearly worse?
+3) Meaningful improvement quickly?
+4) Concrete commitment?
+
+Evidence
+• Behavioral tests
+• Switching with tradeoffs
+• Repeat usage
+
+B. Feasibility
+Questions
+1) Build credible version quickly?
+2) Operate reliably?
+3) Dependencies and risks?
+4) Minimum architecture for quality?
+
+Evidence
+• Prototype completion
+• Reliability indicators
+• Cost and time grounded in capability
+
+C. Viability
+Questions
+1) Sustainable economics?
+2) Acquisition and delivery scale?
+3) Revenue streams and constraints?
+4) Advantage or moat?
+
+Evidence
+• Unit economics assumptions and sensitivity
+• Pricing and willingness to pay tests
+• Sales cycle reality
+
+D. Bridging Method
+1) Map assumptions in each dimension
+2) Rank by risk
+3) Test highest risk first
+4) Update Lean Canvas and Customer Profile
+
+Deliverables
+1) Assumption map across D, F, V
+2) Risk-ranked top assumptions
+3) Test plan per assumption
+4) Decision rules: continue, pivot, stop
+
+End of file.
