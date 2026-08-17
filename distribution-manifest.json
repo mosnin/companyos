@@ -1187,8 +1187,8 @@
     },
     {
       "path": "company-os/value-creation-delivery/SKILL.md",
-      "sha256": "2b3567be96f0c6b4064824a4957141593eb51dfc1e9b986826211a2fc090bedc",
-      "size": 3455
+      "sha256": "f5ef37f6305c220c4518028d11e9d71b9a16e998b385e4ab4d11cc3defe23893",
+      "size": 3736
     },
     {
       "path": "company-os/value-creation-delivery/agents/grok.yaml",
@@ -1207,8 +1207,8 @@
     },
     {
       "path": "company-os/value-creation-delivery/references/source/00-index.txt",
-      "sha256": "312a4c3963e227ee79de50a7c06fa44147a2088a0e02cdd9400b8a3bb09c0abc",
-      "size": 1562
+      "sha256": "24bb35a462d3dcaafc1f0b5fc1ceb2bef2847296cbd016c7c0d7e0f6de82fa36",
+      "size": 1736
     },
     {
       "path": "company-os/value-creation-delivery/references/source/01-business-model-core.txt",
@@ -1261,9 +1261,14 @@
       "size": 1361
     },
     {
+      "path": "company-os/value-creation-delivery/references/source/cold-start-problem.md",
+      "sha256": "fbbbd34ad0b65bb0624cd36a089bf938630220e1014b89d56d34aaa39317b2e2",
+      "size": 52461
+    },
+    {
       "path": "company-os/value-creation-delivery/scripts/validate_value_creation_delivery.py",
-      "sha256": "aaf5be8f90a0c14ede0f3e2c730593f6c8fa246444e7591bbd4803372c34c0df",
-      "size": 5983
+      "sha256": "b069f839376f68e8d5f7e65c9ca8fed7f7220b72019269eef4cd8423bd93e3fd",
+      "size": 6055
     },
     {
       "path": "autonomy-suite/SKILL.md",

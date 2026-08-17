@@ -39,6 +39,7 @@ SOURCE_FILES = (
     "08-delivery-reliability-quality-metrics.txt",
     "09-scaling-systemization-moats.txt",
     "10-integrated-playbooks-templates.txt",
+    "cold-start-problem.md",
 )
 TOP_LEVEL = {
     "schema",
@@ -60,6 +61,7 @@ SKILL_MARKERS = (
     "offer without a proof plan",
     "not a claim of personal identity",
     "satisfaction is reality minus expectations",
+    "never scale a broken atomic network",
 )
 
 

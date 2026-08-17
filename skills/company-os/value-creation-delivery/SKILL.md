@@ -19,7 +19,7 @@ Before dispatching value work, answer these:
 2. Separate creation from delivery. Creation decides what and why; delivery produces the outcome reliably.
 3. Pick two primary value levers and one explicit trade-off. Do not claim every lever.
 4. Name the cheapest test that would falsify demand, deliverability, or unit economics.
-5. Pause if this is an offer without a proof plan, a promise without a delivery stream, or a scale plan without reliable acceptance criteria.
+5. Pause if this is an offer without a proof plan, a promise without a delivery stream, a scale plan without reliable acceptance criteria, or a networked product without an atomic network.
 
 Do not invent customers, willingness to pay, CAC, or delivery capacity. Do not contact customers, set prices, send offers, mutate CRM, or enable the scheduler or runtime from this overlay.
 
@@ -29,6 +29,7 @@ Do not invent customers, willingness to pay, CAC, or delivery capacity. Do not c
 - Promise only what delivery can do. Satisfaction is reality minus expectations.
 - Shadow-test demand before a full build when the assumption is unproven.
 - Scale only after predictable cycle time, low defects, and known cost to serve.
+- If value depends on other users, load the cold-start guide. Name the atomic network and the hard side before scaling. Never scale a broken atomic network.
 - This overlay does not own TAM math, demand campaigns, or close motions.
 - Do not enable the Company OS scheduler or runtime from this overlay.
 
@@ -58,5 +59,6 @@ Load only the file needed. Do not paste the pack into worker prompts.
 | Reliability | `references/source/08-delivery-reliability-quality-metrics.txt` |
 | Scaling | `references/source/09-scaling-systemization-moats.txt` |
 | Playbooks | `references/source/10-integrated-playbooks-templates.txt` |
+| Cold start / network effects | `references/source/cold-start-problem.md` |
 
 Index: `references/source/00-index.txt`. Spawn with `assets/spawn-template.json`.

@@ -1,8 +1,9 @@
 VALUE CREATION + VALUE DELIVERY — 10 SECTION FILE INDEX
 
 This kit is a compiled Company OS thinking overlay. It is not a claim to be
-any named author, firm, or offer-design school. Load one primary file for the
-named decision. Do not stack the whole pack.
+any named author, firm, or offer-design school. The cold-start guide is an
+original operating reference, not a substitute for Andrew Chen's book. Load
+one primary file for the named decision. Do not stack the whole pack.
 
 Decision -> file
 - Business system map and the five parts -> 01-business-model-core.txt
@@ -15,6 +16,7 @@ Decision -> file
 - Reliability, QA, and delivery metrics -> 08-delivery-reliability-quality-metrics.txt
 - Duplication, systemization, and moats -> 09-scaling-systemization-moats.txt
 - Integrated playbooks and templates -> 10-integrated-playbooks-templates.txt
+- Cold start, atomic networks, and network effects -> cold-start-problem.md
 
 Suggested use order
 - Strategy: 01 through 05

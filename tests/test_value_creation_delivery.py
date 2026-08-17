@@ -39,9 +39,14 @@ class ValueCreationDeliveryTests(unittest.TestCase):
             for path in (SKILL / "references/source").iterdir()
             if path.is_file()
         )
-        self.assertEqual(len(names), 11)
+        self.assertEqual(len(names), 12)
         self.assertIn("00-index.txt", names)
         self.assertIn("10-integrated-playbooks-templates.txt", names)
+        self.assertIn("cold-start-problem.md", names)
+        cold_start = (SKILL / "references/source/cold-start-problem.md").read_text(encoding="utf-8")
+        self.assertTrue(cold_start.startswith("# The Cold Start Problem Advanced Guide"))
+        self.assertIn("atomic network", cold_start.casefold())
+        self.assertIn("never scale a broken atomic network", cold_start.casefold())
 
     def test_spawn_template_is_value_lane_specific(self) -> None:
         template = json.loads((SKILL / "assets/spawn-template.json").read_text(encoding="utf-8"))
