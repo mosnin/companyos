@@ -205,4 +205,10 @@ Choose the lightest method that fits uncertainty:
 - Use stage-gated plans for regulated, high-risk, or dependency-heavy work.
 - Use a hybrid when discovery and deterministic implementation coexist.
 
+When the work is a testable belief rather than a delivery slice, bind a
+`company-os.scientific-method-packet.v1` and follow
+[references/scientific-method.md](references/scientific-method.md). The packet
+is a checklist over existing outcome, bet, and adaptation records. It does not
+own iteration, leases, or completion.
+
 Do not force Agile or Waterfall as identity. Define decision cadence, evidence gates, and flow constraints for the actual work.
