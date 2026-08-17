@@ -205,4 +205,11 @@ Choose the lightest method that fits uncertainty:
 - Use stage-gated plans for regulated, high-risk, or dependency-heavy work.
 - Use a hybrid when discovery and deterministic implementation coexist.
 
+When optimizing a named bottleneck, bind a
+`company-os.riocl-tc-packet.v1` and follow
+[references/riocl-tc.md](references/riocl-tc.md). This is the default
+bottleneck-optimization overlay. The packet is a checklist over the existing
+governor, navigation, and adaptation records. It does not own iteration,
+leases, or completion.
+
 Do not force Agile or Waterfall as identity. Define decision cadence, evidence gates, and flow constraints for the actual work.

@@ -30,4 +30,4 @@ Use severity based on customer, financial, security, and operational impact. Pre
 
 ## Continuous improvement
 
-Convert repeated exceptions, manual toil, recurring rework, and expensive bottlenecks into prioritized improvement initiatives. Verify that a process change improves the metric it was meant to improve before standardizing it.
+Convert repeated exceptions, manual toil, recurring rework, and expensive bottlenecks into prioritized improvement initiatives. Verify that a process change improves the metric it was meant to improve before standardizing it. When diagnosing a process bottleneck, bind a `company-os.riocl-tc-packet.v1` as the optimization overlay and keep one action per loop.

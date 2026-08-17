@@ -1,0 +1,486 @@
+RIOCL TC MASTER CONTROL LOOP
+================================
+
+Purpose
+=======
+RIOCL TC is a closed loop control algorithm for making decisions and changing outcomes in any system under uncertainty.
+It scales from everyday situations to large projects without changing structure.
+Only the boundary, stakes, and parameters change.
+
+Core promise
+============
+You will not act under the wrong rules, on the wrong target, at the wrong time, with non survivable downside.
+
+Definition of a system
+======================
+A system is a set of interacting parts that transforms inputs into outputs according to internal rules, constraints, and feedback over time.
+
+Examples of parts
+• people
+• machines
+• software
+• money
+• information
+• rules
+• incentives
+• interfaces
+
+Key terms and exact meanings
+============================
+
+Regime
+A regime is the current rule set that governs how the system behaves at the chosen boundary.
+Same action in a different regime can produce the opposite result.
+
+Outcome
+The result you are optimizing for at the chosen boundary, right now.
+There may be multiple outcomes in the world, but you pick one dominant outcome for the current loop.
+
+Constraint
+A constraint is a hard limit that defines what is possible in the current frame.
+Constraints often do not move quickly.
+If pushing harder does not change anything, you are likely hitting a constraint.
+
+Bottleneck
+A bottleneck is the current limiting point that is slowing flow toward the outcome.
+Bottlenecks often move after you fix them.
+If removing it would immediately improve flow, it is a bottleneck.
+
+Leverage
+Leverage is a small change that creates a large change in outcome because it targets the bottleneck while respecting constraints.
+
+Time horizon
+The clock the outcome is optimized on, such as minutes, hours, days, months, years.
+Different actors can operate on different clocks.
+
+Incentives
+Incentives are what the system rewards, punishes, or tolerates.
+Incentives determine whether changes persist or revert.
+
+Expected value
+Expected value is the combined judgment of upside, downside, probability, reversibility, and survivability.
+A move is allowed only if downside is survivable.
+
+Phase transition
+A phase transition is a threshold where system behavior flips once a critical variable crosses a point.
+Examples of threshold variables include cost, density, trust, scale, latency, quality.
+Learning curves and cost curves are predictors used here and in expected value.
+
+Time compression
+Time compression reduces the time between hypothesis and reality update without increasing fragility.
+It is not rushing.
+It is lowering feedback latency and increasing learning rate safely.
+
+Five step execution discipline
+The five step algorithm is an execution discipline applied after the bottleneck is correctly identified.
+It prevents accelerating waste and automating chaos.
+
+Algorithm overview
+==================
+RIOCL TC is a loop.
+Each loop produces exactly one of four outputs.
+A do nothing
+B run one test
+C execute one leverage move
+D redesign a subsystem
+
+Inputs
+======
+Observations O
+What you can see, hear, measure, or infer from behavior and flows.
+
+Stakes S
+Low, medium, high.
+High means non survivable downside is possible.
+
+Reversibility R
+Reversible, semi reversible, irreversible.
+
+Outputs
+=======
+A do nothing
+B run one test
+C execute one leverage move
+D redesign a subsystem
+
+The algorithm in full detail
+============================
+
+Step 0   Set boundary and primary flow
+--------------------------------------
+Goal
+Shrink reality to a controllable frame.
+
+Actions
+0.1 Choose boundary B
+• interaction level: one person, one moment
+• subsystem level: one process or pipeline
+• system level: whole organization or product
+
+0.2 Choose primary flow F inside B
+Common flows
+• people flow
+• information flow
+• work flow
+• cash flow
+• attention flow
+• energy flow
+
+0.3 Overload rule
+If you feel overloaded, shrink B to interaction or subsystem and pick one flow again.
+
+Output of Step 0
+Boundary B and primary flow F
+
+Step 1   RI   Regime Identification
+-----------------------------------
+Goal
+Select the rule set that applies at this boundary right now.
+
+Call
+RI(B, O, S, R) returns
+• RegimeTag G
+• RuleSet GRules
+
+Minimum regime axes to consider
+• exploration or exploitation
+• crisis or normal operations
+• scarcity or abundance
+• early or mature system
+• reversible or irreversible decision context
+• optimization or power building
+
+Rule enforcement examples
+Exploration
+• prioritize learning
+• small reversible tests
+• avoid premature optimization
+
+Exploitation
+• reduce variance
+• optimize throughput
+• scale what works
+
+Crisis
+• centralize decisions
+• speed over elegance
+• protect survival
+
+Irreversible context
+• slow down
+• preserve option space
+• overweight downside
+
+Fail safe
+If you cannot tag the regime quickly, default to exploration and forbid big moves.
+Output must be a test, not a large commitment.
+
+Output of Step 1
+G and GRules
+
+Step 1.5   TC   Time Compression
+--------------------------------
+Goal
+Increase learning rate safely under the rules from RI.
+
+Call
+TC(B, G, O) returns a CycleTimePlan T
+
+TC questions
+1. What is the slowest feedback loop right now
+2. What assumption, if false, would change the decision
+3. What is the fastest falsification test for that assumption
+4. What can be parallelized safely without coupling
+5. What latency is self inflicted, such as waiting for permission or perfect information
+
+TC outputs
+• a shorter feedback path
+• a test design that returns truth faster
+• a plan to reduce decision and execution latency safely
+
+Note
+TC changes how fast you learn what is correct.
+It is positioned before targeting and execution because it improves model accuracy before you commit effort.
+
+Output of Step 1.5
+T
+
+Step 2   OCL   Outcome Constraint Leverage
+------------------------------------------
+Goal
+Target the correct point of intervention.
+
+Call
+OCL(B, F, O, GRules) returns
+• ActiveOutcome Y
+• Constraints C
+• Bottleneck K
+• LeverageCandidates L
+
+OCL internal sequence
+2.1 Outcome
+Choose one dominant outcome Y for this boundary now.
+If multiple outcomes exist, choose the one that makes the others irrelevant if missed.
+
+2.2 Constraint compression
+List constraints quickly, then compress to 1 or 2 binding constraints C.
+Binding means changing it would materially change system behavior.
+
+2.3 Bottleneck selection
+Pick the single bottleneck K that currently limits flow toward Y.
+
+Bottleneck test
+If removed right now, does flow improve immediately
+If yes, it is a bottleneck
+If no, it is likely a constraint or a symptom
+
+2.4 Leverage candidates
+Generate 1 to 3 leverage candidates L that hit K while respecting C and GRules.
+
+Common leverage forms
+• geometry change: reroute, reorder, reposition
+• simplify: remove steps, reduce friction
+• reduce variance: standardize, constrain options
+• clarity: remove ambiguity, add redundancy, add fail safe
+• incentives: change default, reward, penalty, ownership
+• architecture: redesign the subsystem
+
+OCL validity checks
+If Y is unclear, output A do nothing and return to Step 0
+If more than 2 constraints seem binding, boundary is too wide, return to Step 0
+If no bottleneck exists, output A do nothing and return to Step 0
+If no leverage candidates exist, output B test or A do nothing depending on regime
+
+Output of Step 2
+Y, C, K, L
+
+Step 3   Time horizon alignment
+-------------------------------
+Goal
+Understand the clock driving behavior.
+
+Actions
+3.1 Tag the time horizon H for Y
+minutes, hours, days, months, years
+
+3.2 Check for clock mismatch
+Different actors may optimize on different horizons.
+A mismatch can be
+• leverage amplifier, such as reframing value for long horizon actors
+• risk factor, such as conflict or delayed cooperation
+
+Output of Step 3
+H and any clock mismatch notes M
+
+Step 4   Incentive truth and reversion gate
+-------------------------------------------
+Goal
+Predict whether change will persist.
+
+Actions
+4.1 Identify incentive truth I
+What is rewarded, punished, tolerated in this boundary.
+
+4.2 Reversion test
+If you apply leverage, will incentives push the system back to the old behavior
+
+If reversion likely, choose one
+• add an incentive adjustment
+• downgrade to a test
+• redesign the subsystem
+
+Output of Step 4
+I and reversion risk decision
+
+Step 5   EV gate with survivability hard stop
+---------------------------------------------
+Goal
+Choose whether to act and which move is best.
+
+For each candidate l in L evaluate
+• Upside U: magnitude and compounding potential
+• Downside D: severity
+• Probability P: current odds
+• Reversibility V: ability to undo and learn cheaply
+• Survivability: is downside survivable
+
+Selection rule
+Pick the candidate with highest upside subject to bounded downside and survivability, consistent with GRules.
+
+Hard stop
+If any move risks non survivable downside, discard it regardless of upside.
+
+Output of Step 5
+Chosen decision mode
+A do nothing
+B test
+C execute leverage
+D redesign
+
+Step 6   Phase transition and curve check
+-----------------------------------------
+Run this step only when progress is flat, confusing, or suddenly nonlinear.
+
+Goal
+Detect thresholds and choose correct timing behavior.
+
+Actions
+6.1 Identify threshold variable Tvar
+Common examples
+• cost
+• density
+• trust
+• scale
+• latency
+• quality
+
+6.2 Determine phase
+Pre threshold
+• focus on crossing the threshold variable
+• do not over optimize outputs
+• position for the flip
+
+Post threshold
+• shift to exploitation style if allowed by RI
+• scaling and optimization become high EV
+
+Curves
+Learning curves and cost curves are used here as predictors
+• capability improves with repetition
+• unit cost falls with cumulative volume
+
+Output of Step 6
+Pre threshold or post threshold adjustment guidance
+
+Step 7   Execute exactly one action using five step discipline
+--------------------------------------------------------------
+Goal
+Act cleanly on the bottleneck without creating waste.
+
+If output mode is A
+Do nothing, keep observing, return to Step 0
+
+If output mode is B
+Run one test designed to reduce uncertainty fast.
+Tests should be reversible and provide a clear signal.
+
+If output mode is C or D
+Apply the five step execution discipline to the chosen move
+
+Five step discipline
+1 define requirements for what must be true for success
+2 delete anything not required
+3 simplify what remains
+4 accelerate throughput or cadence
+5 automate last, only after deletion and simplification
+
+One action rule
+Execute only one significant action per loop.
+Do not stack actions.
+Stacking destroys attribution and learning.
+
+Output of Step 7
+Action executed
+
+Step 8   Feedback, second order effects, update, repeat
+-------------------------------------------------------
+Goal
+Let reality judge and update the model.
+
+Actions
+8.1 Observe result
+What changed in the flow toward the outcome
+
+8.2 Update
+• did bottleneck move
+• did constraints change
+• did incentives shift
+• did regime change
+• did a new failure mode appear
+
+8.3 Repeat
+Loop back to Step 0 with updated observations.
+
+Minimal real time version
+=========================
+Use this when you need speed.
+1 RI   tag regime and obey its rules
+2 TC   compress feedback latency safely
+3 OCL  choose outcome, 1 or 2 constraints, one bottleneck, 1 to 3 leverage candidates
+4 Time horizon and incentive check
+5 EV gate with survivability hard stop
+6 Optional threshold check
+7 One action
+8 Update and repeat
+
+How to run it in everyday life
+==============================
+Choose a tiny boundary and one flow.
+Example boundary: ordering coffee
+Example flow: people flow or attention flow
+
+Run the minimal version mentally in under 30 seconds.
+You are training compilation into intuition.
+
+Everyday outputs often are
+• do nothing
+• run a micro test, such as asking one question or changing one variable
+• make one leverage move, such as changing sequence or reducing steps
+
+Recommended logging format
+==========================
+Logging is optional for low stakes but useful for building intuition and for agent training.
+
+Loop record
+• Boundary
+• Flow
+• Regime
+• Outcome
+• Constraints
+• Bottleneck
+• Leverage candidate chosen
+• EV summary
+• Action
+• Result
+• Bottleneck after action
+• Notes on incentives and time horizon
+• Was this pre threshold or post threshold
+
+Parameter tuning guidance
+=========================
+Aggression is a parameter, not a different algorithm.
+
+Increase aggression when
+• reversibility is high
+• downside is bounded
+• feedback is fast
+• exploration regime requires learning
+
+Decrease aggression when
+• irreversible context
+• high stakes
+• long feedback loops
+• incentives strongly oppose change
+
+Common failure modes and fixes
+==============================
+Failure mode: too many variables
+Fix: shrink boundary, pick one flow, keep 1 outcome, 2 constraints max, 1 bottleneck
+
+Failure mode: acting too soon
+Fix: obey RI, default to test when uncertain, use TC to get truth faster
+
+Failure mode: change reverts
+Fix: incentives were not aligned, add incentive adjustment or redesign subsystem
+
+Failure mode: endless thinking
+Fix: enforce one action rule, choose a test if EV unclear
+
+Failure mode: optimizing before threshold
+Fix: phase transition step, focus on threshold variable, position for flip
+
+Final one sentence trigger
+==========================
+Right rules, fast truth, real bottleneck, safe leverage, one action, reality updates, repeat.
+
+End of file

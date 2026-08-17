@@ -36,6 +36,11 @@ Every master heartbeat must identify the single most important missing capabilit
 
 Resources follow the global bottleneck. A technically interesting lane is paused when it does not materially shorten objective distance.
 
+When choosing the intervention, bind a `company-os.riocl-tc-packet.v1` and
+follow the RIOCL TC overlay: tag the regime, compress feedback latency, name
+one outcome, at most two constraints, one bottleneck, and exactly one safe
+action. The packet is a checklist. This skill remains the governor.
+
 ## Operating modes
 
 - **NORMAL** — initial discovery and execution proceed together.

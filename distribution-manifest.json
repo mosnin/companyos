@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "25cd4296bf1b8eb03b128f7ec0d68c1a2bd5fe3e7cb24159da446e52b9be13a0",
+      "size": 16595
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -319,6 +319,26 @@
       "path": "company-os/company-os/agents/openai.yaml",
       "sha256": "75c04429548e05c9ba1124e2d657d3bc814ff6007a101a551f26c2eaa7444229",
       "size": 211
+    },
+    {
+      "path": "company-os/company-os/assets/riocl-tc-packet.example.json",
+      "sha256": "5506859ca56123f14fc057317cedab0be70b1042eab62210af0c235e90acc777",
+      "size": 1033
+    },
+    {
+      "path": "company-os/company-os/references/riocl-tc.md",
+      "sha256": "d93d3f3655cdb7025573b286b8e6f3a47f6a97b64635107dde00f948d42168e0",
+      "size": 3394
+    },
+    {
+      "path": "company-os/company-os/references/source/riocl-tc-master-algorithm.txt",
+      "sha256": "38a263cbfea9bf26b7fb108c0c0f5dfad718c52ad57b031aebea8bd41c329eab",
+      "size": 13596
+    },
+    {
+      "path": "company-os/company-os/scripts/validate_riocl_tc_packet.py",
+      "sha256": "4a441b4e780e501b2a30c4c7a057be0376f09e76bef7fcce7bb3f5802b306232",
+      "size": 8370
     },
     {
       "path": "company-os/compile-outcome-benchmarks/SKILL.md",
@@ -687,8 +707,8 @@
     },
     {
       "path": "company-os/govern-outcome-execution/SKILL.md",
-      "sha256": "43f3d555893f16e4641ade74f523f8c57e6ef3e16b1af1f61204c265ac35176a",
-      "size": 5280
+      "sha256": "50522cbbf4fc93e4d01498df83b2b752211c4a084f2017319ea1f09a89a04d39",
+      "size": 5576
     },
     {
       "path": "company-os/govern-outcome-execution/scripts/executive_governor.py",
@@ -997,8 +1017,8 @@
     },
     {
       "path": "company-os/navigation-control/SKILL.md",
-      "sha256": "33682fed55b5d907c03dced67b009965eb4a7ca778c351b25b29b9e30bb82ec3",
-      "size": 2004
+      "sha256": "ffed9072e65b4aa61a64865f80e28bce023cb69595d5bc13c52ff0d51cc09e4e",
+      "size": 2246
     },
     {
       "path": "company-os/navigation-control/agents/grok.yaml",
@@ -1017,8 +1037,8 @@
     },
     {
       "path": "company-os/operational-control/SKILL.md",
-      "sha256": "496e34d3b47621a88ad63a1d94ff0fe7383f0d849f1835a6a26f0a31ac3b4d9e",
-      "size": 2048
+      "sha256": "d4221b08ceef299d29492842ad7a89415566fe5ef569450b3d788939b4114b12",
+      "size": 2183
     },
     {
       "path": "company-os/operational-control/agents/grok.yaml",
@@ -1067,8 +1087,8 @@
     },
     {
       "path": "company-os/select-execution-loop/SKILL.md",
-      "sha256": "c466f166753f2d80923c2fd4a5ca3b9dd911ba68ad35b27a0855c8866dfa7dda",
-      "size": 3084
+      "sha256": "a8485ebcc1024ff82f25d0d0ac713711524b5a79b56ec44fcf071f099bd0be31",
+      "size": 3243
     },
     {
       "path": "company-os/select-execution-loop/agents/grok.yaml",

@@ -19,6 +19,11 @@ Every control cycle is:
 
 Use `scripts/navigation_control.py` for the authoritative navigation decision. Follow its `next_action`, `sensor_posture`, objective distance, velocity, and actuation policy.
 
+When the work is bottleneck optimization, a `company-os.riocl-tc-packet.v1`
+may name regime, constraints, leverage, and decision mode. It is an overlay
+checklist. Follow only the navigation `next_action`; do not let the packet
+own the loop.
+
 Research or audit work is justified only when it blocks the active action, is likely to change the next action, or is itself the current verification action. If objective velocity stalls, change implementation strategy or context before generating more general research or reports.
 
 The minimum-sufficient-actuation ladder prefers existing code and supplied integrations, then standard-library/native platform capabilities, then installed dependencies, and only then the smallest new code that produces the required observable state transition. Never simplify away explicit requirements, security, trust-boundary validation, data-loss prevention, required error handling, accessibility, or reality evidence.

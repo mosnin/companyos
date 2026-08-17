@@ -1,0 +1,32 @@
+{
+  "authority": "overlay",
+  "binding": {
+    "kind": "governor_decision",
+    "record_id": "mission-1",
+    "record_sha256": null
+  },
+  "bottleneck": "missing connected runtime path from the original objective to a fresh user",
+  "boundary": "system",
+  "constraints": [
+    "mandatory user requirements",
+    "remaining mission budget"
+  ],
+  "decision_mode": "execute_leverage",
+  "flow": "work",
+  "incentives": "receipts and documents are not rewarded without a runnable artifact",
+  "leverage_candidates": [
+    "integrate the supplied capability and exercise the smallest vertical",
+    "materialize a connected R3 path before further research"
+  ],
+  "next_action": "force_first_execution",
+  "outcome": "Reach connected R3 behavior on the original objective",
+  "packet_id": "riocl-global-bottleneck",
+  "phase": null,
+  "regime": "exploitation",
+  "reversibility": "reversible",
+  "reversion_risk": false,
+  "schema": "company-os.riocl-tc-packet.v1",
+  "stakes": "high",
+  "survivable": true,
+  "time_horizon": "hours"
+}
