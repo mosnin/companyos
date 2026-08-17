@@ -14,7 +14,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint` |
 | Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
-| Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
+| Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap`, `$project-manager` |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
 | Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters` |
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
@@ -82,6 +82,9 @@ design, execution, verification, and integration. Managers use
 `$manage-company-program` and `$luna-execution-fabric`; workers use
 `$execute-bounded-task`. Send the role skill plus one compact mission charter
 or work packet instead of repeating the operating system in every prompt.
+When the manager outcome is project scoping, phase planning, work breakdown,
+risk management, or execution workflow, also send `$project-manager`.
+Do not send `$project-manager` to workers or use it as the master persona.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.

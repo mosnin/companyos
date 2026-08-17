@@ -1,0 +1,24 @@
+
+PHASE ARCHITECTURE PATTERNS DOCUMENT
+
+Purpose:
+Provide structural patterns for phase planning across project types.
+
+Common Phase Models:
+1. Discovery → Design → Build → Implement → Optimize
+2. Research → Strategy → Development → Testing → Deployment
+3. Ideation → Planning → Execution → Review
+
+Rules for Sequencing:
+- Discovery always precedes definition.
+- Design informs execution.
+- Testing precedes deployment.
+- Optimization follows implementation.
+
+Parallelization:
+- Design and research may overlap.
+- Build can proceed in modules.
+- Content and technical tasks can run concurrently if dependencies are clear.
+
+Phase Dependencies:
+- Each phase must have: objective, deliverables, risks, inputs, outputs.

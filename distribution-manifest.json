@@ -307,8 +307,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "e89bf152e890656a31470fbb1719f3608969d83e69e63cc1b588b5effecc813a",
+      "size": 16507
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -1031,9 +1031,74 @@
       "size": 108
     },
     {
+      "path": "company-os/project-manager/SKILL.md",
+      "sha256": "f70c8fabaee903461191b947f0584e18ae86c59fcd3da5489b627fdba968b2ab",
+      "size": 3123
+    },
+    {
+      "path": "company-os/project-manager/agents/grok.yaml",
+      "sha256": "53cdd4cd591f862d8e23337eb3dedbfee4aa1620c87dc022b99474280c1b0ab9",
+      "size": 417
+    },
+    {
+      "path": "company-os/project-manager/agents/openai.yaml",
+      "sha256": "53cdd4cd591f862d8e23337eb3dedbfee4aa1620c87dc022b99474280c1b0ab9",
+      "size": 417
+    },
+    {
+      "path": "company-os/project-manager/assets/spawn-template.json",
+      "sha256": "823247dab3e22ee8fb5799bac16195cfdbc55bf15349c52dd5a8664d3ee10ac2",
+      "size": 495
+    },
+    {
+      "path": "company-os/project-manager/references/source/00-index.txt",
+      "sha256": "456cea3343bc4d7f9a433a4e4e3a0f6a0beedb288bcd9947b1eb0f5f7544ca6c",
+      "size": 1251
+    },
+    {
+      "path": "company-os/project-manager/references/source/execution-workflow-playbook.txt",
+      "sha256": "c6e9fdc43ffc1c1fb9d63daafb75a66825dbda05e7311144e5e968a8f3515824",
+      "size": 550
+    },
+    {
+      "path": "company-os/project-manager/references/source/phase-architecture-patterns.txt",
+      "sha256": "ef8b523ab7534dc465ab0daf12eac686df9cbedc6d81a2a2eb5f8d129024ede5",
+      "size": 736
+    },
+    {
+      "path": "company-os/project-manager/references/source/project-management-methods.txt",
+      "sha256": "29fb8395ca5dad735e069f7b54f237743d0fd7d360dc8905af057f7042771d46",
+      "size": 3767
+    },
+    {
+      "path": "company-os/project-manager/references/source/project-scoping-template.txt",
+      "sha256": "4dd00aea60b678df8d04f3f3d9987d4510dbd0bda7baafe75bc62ab42944fae7",
+      "size": 982
+    },
+    {
+      "path": "company-os/project-manager/references/source/project-typology-framework.txt",
+      "sha256": "b46b801eea4adddde4b5c3d05b1c19809217cc7bf62fbd1f99ad78175f31396a",
+      "size": 789
+    },
+    {
+      "path": "company-os/project-manager/references/source/risk-dependency-constraint-library.txt",
+      "sha256": "48be0c8997e56d428897be00fed9521179360958355f2786c281fa9a0d240ef5",
+      "size": 872
+    },
+    {
+      "path": "company-os/project-manager/references/source/task-granularity-standards.txt",
+      "sha256": "1e28e9909b53b679f603c4f3bc0e6d238cb02c16717de7d5a96f4d047fcd8fac",
+      "size": 691
+    },
+    {
+      "path": "company-os/project-manager/scripts/validate_project_manager.py",
+      "sha256": "5e2e9e20e4b85439f10742f8b54cb9e599d647a085f6ec5971592f94885e683c",
+      "size": 5711
+    },
+    {
       "path": "company-os/project-program-management/SKILL.md",
-      "sha256": "d3c3d8ae0681f8e407daa782c304f6e36ec803c7c5e610fc35f2cc08cbd3913d",
-      "size": 7063
+      "sha256": "c4cec80ff6f8211309b7ffcd552e09d591a8bfb89b0f04eba285af44980101af",
+      "size": 7275
     },
     {
       "path": "company-os/project-program-management/agents/grok.yaml",
@@ -1347,8 +1412,8 @@
     },
     {
       "path": "autonomy-suite/strategy/project-kickoff-roadmap/SKILL.md",
-      "sha256": "76f1cca9fee3a255e96aec85eeb7bdf1e995724b6e29126645a6f51ff81f97c5",
-      "size": 888
+      "sha256": "c4081a6af4e0f2189f6a72b9a2f973d909346be5fbc721f9cbbb00a38331fcca",
+      "size": 1072
     },
     {
       "path": "autonomy-suite/strategy/project-kickoff-roadmap/agents/grok.yaml",

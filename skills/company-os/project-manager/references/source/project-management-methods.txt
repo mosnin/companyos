@@ -1,0 +1,90 @@
+
+PROJECT MANAGEMENT METHODS REFERENCE DOCUMENT
+
+1. TRADITIONAL PROJECT MANAGEMENT (PMBOK)
+Definition:
+A structured, process-driven framework built around defined processes and documentation. Based on the Project Management Body of Knowledge (PMBOK).
+
+How to Set Up a Project:
+- Define project scope, goals, and constraints.
+- Identify stakeholders and clarify roles.
+- Build a Work Breakdown Structure (WBS).
+- Develop a full project schedule with phases and milestones.
+- Allocate resources and assign responsibilities.
+- Plan risk management, communications, and quality processes.
+- Track progress through PMBOK phases: Initiating, Planning, Executing, Monitoring/Controlling, Closing.
+
+2. AGILE
+Definition:
+An iterative, flexible approach that delivers work in short cycles (sprints) and adapts quickly to change.
+
+How to Set Up a Project:
+- Define product vision and core objectives.
+- Create a product backlog containing user stories.
+- Prioritize backlog items using value and urgency.
+- Plan sprints (1-4 weeks).
+- Conduct sprint rituals: standups, reviews, retrospectives.
+- Adapt backlog and direction continuously based on feedback.
+
+3. LEAN
+Definition:
+A methodology focused on eliminating waste, optimizing processes, and increasing value delivery. Originates from Toyota Production System.
+
+How to Set Up a Project:
+- Define what customer value is.
+- Map the value stream (every step in the process).
+- Identify and remove waste (time, inefficiency, unnecessary steps).
+- Establish continuous flow of work.
+- Create pull-based processes where work is only started when needed.
+- Continuously improve processes (Kaizen).
+
+4. CRITICAL CHAIN PROJECT MANAGEMENT (CCPM)
+Definition:
+A resource-centered project methodology that emphasizes constraints, resource availability, and buffer management.
+
+How to Set Up a Project:
+- Identify all project tasks.
+- Determine resource availability and constraints.
+- Map the critical chain (longest resource-constrained task path).
+- Add buffers: project buffer, feeding buffers, resource buffers.
+- Monitor buffer use as the primary metric of project health.
+- Adjust resource allocation dynamically as needed.
+
+5. CRITICAL PATH METHOD (CPM)
+Definition:
+A scheduling technique that identifies the longest path of dependent tasks, determining the shortest possible project duration.
+
+How to Set Up a Project:
+- List all tasks and activities.
+- Estimate task durations.
+- Identify dependencies between tasks.
+- Create a network diagram.
+- Identify the critical path (tasks with zero slack).
+- Monitor and optimize schedule by adjusting non-critical tasks.
+- Focus management effort on critical tasks to prevent delays.
+
+6. INTEGRATED PROJECT METHOD (IPM)
+Definition:
+An incremental, adaptive project approach dividing management into specific functional categories.
+
+How to Set Up a Project:
+- Define management processes and core functions.
+- Establish management deliverables for each team or role.
+- Define metrics for success and tracking.
+- Clarify roles and responsibilities across stakeholders.
+- Set review checkpoints and sign-off processes.
+- Use techniques appropriate to the environment (agile, lean, hybrid).
+
+7. WATERFALL METHODOLOGY
+Definition:
+A rigid, sequential model where each phase must be completed before the next begins. Works best when requirements are fully known upfront.
+
+How to Set Up a Project:
+- Conduct full requirements gathering.
+- Create sequential stages: Requirements → Design → Implementation → Testing → Deployment → Maintenance.
+- Document outputs at each stage.
+- Acquire approvals before moving forward.
+- Prevent backtracking unless change control procedures are triggered.
+- Ensure heavy planning and documentation early to avoid downstream issues.
+
+END OF DOCUMENT

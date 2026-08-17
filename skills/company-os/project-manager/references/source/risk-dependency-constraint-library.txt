@@ -1,0 +1,32 @@
+
+RISK, DEPENDENCY & CONSTRAINT LIBRARY
+
+Purpose:
+Provide a universal reference for anticipating and managing project risks.
+
+Risk Categories:
+- Technical: System failures, integration issues.
+- Operational: Process inefficiencies, unclear workflows.
+- Financial: Budget overruns, cash flow issues.
+- Legal: Compliance risks.
+- Resource: Skill shortages, lack of materials.
+- Timeline: Delays from external dependencies.
+
+Dependency Types:
+- Task dependencies (finish-to-start, start-to-start).
+- Resource dependencies (people, tools, approvals).
+- External dependencies (vendors, partners).
+
+Constraint Types:
+- Budget, scope, time, technology, staffing.
+
+Mitigation Methods:
+- Add buffers.
+- Define fallback paths.
+- Pre-validate dependencies.
+- Prepare contingency tasks.
+
+Bottleneck Patterns:
+- Single point-of-failure tasks.
+- Overloaded resources.
+- Approval delays.
