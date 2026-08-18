@@ -61,6 +61,9 @@ SKILL_MARKERS = (
     "tokens follow the global bottleneck",
     "do not spawn a manager, reviewer, or llm audit loop",
     "$govern-outcome-execution",
+    "control scores outputs",
+    "$execute-outcome-evaluator",
+    "a manager score, audit, or production narrative is not a score",
 )
 
 

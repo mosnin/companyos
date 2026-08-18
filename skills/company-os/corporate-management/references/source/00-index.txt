@@ -24,5 +24,7 @@ Shared operating rules
 - Tokens follow the global bottleneck, not the org chart. Do not spawn an
   audit manager or paste this pack into prompts. `$govern-outcome-execution`
   still wins for spend.
+- Control scores outputs. `$execute-outcome-evaluator` and
+  `$run-outcome-loop` still win. A manager score is not a score.
 
 End of index.

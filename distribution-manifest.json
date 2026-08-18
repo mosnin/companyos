@@ -392,8 +392,8 @@
     },
     {
       "path": "company-os/corporate-management/SKILL.md",
-      "sha256": "c8e24253b95cf0a201338b1eb37451273e7dff3ce4425d47cc97d5c273ca50bc",
-      "size": 3648
+      "sha256": "e3309b6f1ecd59a98369b869ac640eb866d4d45440ec068974385c874d59fedc",
+      "size": 3941
     },
     {
       "path": "company-os/corporate-management/agents/claude.yaml",
@@ -417,8 +417,8 @@
     },
     {
       "path": "company-os/corporate-management/references/source/00-index.txt",
-      "sha256": "11c68a90224bd2f929aec403b0d74216c8ca5145e6f5c3fb2c054cef2c8de497",
-      "size": 1361
+      "sha256": "2b044107057237f199e4cd13e1296bbcbb1efe918804307482bf6b0c1f9657d4",
+      "size": 1485
     },
     {
       "path": "company-os/corporate-management/references/source/01-management-as-process.txt",
@@ -427,8 +427,8 @@
     },
     {
       "path": "company-os/corporate-management/references/source/02-functions-of-management.txt",
-      "sha256": "ef59f758c0b11ff28f8f37ab6ce973c487c4ec922fc984a82b0a068211f042b7",
-      "size": 1148
+      "sha256": "af6d720cda1a466fc4ccfb5478ddc9cde19a57bc48466ef153647c45f997d373",
+      "size": 1355
     },
     {
       "path": "company-os/corporate-management/references/source/03-levels-of-management.txt",
@@ -442,8 +442,8 @@
     },
     {
       "path": "company-os/corporate-management/references/source/05-function-by-tier.txt",
-      "sha256": "3301388fd98df64900a0423158914c07ef4e9845dbd45a8cb6cf1ff16cbf1f5b",
-      "size": 1614
+      "sha256": "7870e3c82a106884b1c9ac1ebbc1685373fe528a5becb52cf4b124fa720272a6",
+      "size": 1691
     },
     {
       "path": "company-os/corporate-management/references/source/06-charter-and-escalation.txt",
@@ -452,8 +452,8 @@
     },
     {
       "path": "company-os/corporate-management/scripts/validate_corporate_management.py",
-      "sha256": "a423a783a95c2ad921379954da0a3d7d0b95116ce3db3028f9a22ac418ef59bc",
-      "size": 5939
+      "sha256": "6e34eadb75c973483c424ba2ea162233e08bf839a0c014ab00a7e03f5d3b9509",
+      "size": 6073
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",

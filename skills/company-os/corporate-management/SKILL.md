@@ -30,7 +30,8 @@ Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable
 - Executable delegation stays master → manager → worker. Low-level management is a narrower Sol-manager charter, not a new runtime role.
 - Four names do not require four agent layers. A bounded pilot may have two peer managers.
 - Tokens follow the global bottleneck, not the org chart. Do not paste this pack, `$company-os`, or `$elastic-company-os` into a manager or worker prompt.
-- Do not spawn a manager, reviewer, or LLM audit loop to satisfy the four names. Control is one named check. The controller `audit` command is not a review meeting.
+- Do not spawn a manager, reviewer, or LLM audit loop to satisfy the four names. The controller `audit` command is not a review meeting.
+- Control scores outputs. For outcome-owned work, run `$execute-outcome-evaluator` against current artifact bytes and record receipts through `$run-outcome-loop`. A manager score, audit, or production narrative is not a score. Worker completion is never acceptance. `$accept-outcome-reality` is the only terminal accept.
 - Any manager escalates to master. A peer notice of a collision is not command.
 - Staff execute one packet. They do not spawn children or accept their own work.
 - Derive manager count from independently accountable outcomes, not a 1:1:1:N slogan.

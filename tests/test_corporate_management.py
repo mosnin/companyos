@@ -110,6 +110,36 @@ class CorporateManagementTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("competent bureaucracy", governor)
 
+    def test_control_requires_evaluator_receipts_not_manager_scores(self) -> None:
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        controlling = " ".join(
+            (SKILL / "references/source/02-functions-of-management.txt")
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        self.assertIn("$execute-outcome-evaluator", skill)
+        self.assertIn("$run-outcome-loop", skill)
+        self.assertIn("$accept-outcome-reality", skill)
+        self.assertIn(
+            "A manager score, audit, or production narrative is not a score.",
+            skill,
+        )
+        self.assertIn("Worker completion is never acceptance.", skill)
+        self.assertIn("verified evaluator receipt", controlling)
+        self.assertIn("score-quality", controlling)
+        loop = (ROOT / "skills/company-os/run-outcome-loop/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Execute every required independent evaluator", loop)
+        self.assertIn("The only terminal success state is `accepted`", loop)
+        execute = (
+            ROOT / "skills/company-os/execute-outcome-evaluator/SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "An evaluator contract is not evidence that evaluation happened.",
+            execute,
+        )
+
     def test_spawn_template_is_organization_lane_specific(self) -> None:
         template = json.loads((SKILL / "assets/spawn-template.json").read_text(encoding="utf-8"))
         self.assertEqual(template["use_when"], list(MODULE.USE_WHEN))

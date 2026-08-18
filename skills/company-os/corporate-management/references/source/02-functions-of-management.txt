@@ -14,10 +14,13 @@ Functions
    outcome.
 5) Coordinating: integrate efforts so lanes do not duplicate or collide.
 6) Controlling: measure actual performance against the standard and take
-   corrective action. Last in the cycle, first in the next.
+   corrective action. Last in the cycle, first in the next. In Company OS
+   this is a verified evaluator receipt or controller `score-quality`
+   bound to artifact bytes, not a manager-written score.
 
 Rules
 - Skip control and the plan is decoration.
+- A manager score, audit, or production narrative is not a score.
 - Skip staffing and the right work goes to the wrong actor.
 - Skip coordinating and two lanes write the same boundary.
 - Do not treat the cycle as a new Company OS execution loop.
