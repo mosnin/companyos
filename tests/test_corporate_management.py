@@ -125,7 +125,7 @@ class CorporateManagementTests(unittest.TestCase):
             skill,
         )
         self.assertIn("Worker completion is never acceptance.", skill)
-        self.assertIn("verified evaluator receipt", controlling)
+        self.assertIn("calibrated evaluator receipt", controlling)
         self.assertIn("score-quality", controlling)
         loop = (ROOT / "skills/company-os/run-outcome-loop/SKILL.md").read_text(
             encoding="utf-8"
@@ -139,6 +139,32 @@ class CorporateManagementTests(unittest.TestCase):
             "An evaluator contract is not evidence that evaluation happened.",
             execute,
         )
+
+    def test_scores_must_be_calibrated_and_progress_must_be_real(self) -> None:
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("$calibrate-outcome-evaluator", skill)
+        self.assertIn("$force-first-execution", skill)
+        self.assertIn("$authorize-outcome-scale", skill)
+        self.assertIn("An uncalibrated number is not a correct score.", skill)
+        self.assertIn("the executor is not a producer", skill)
+        self.assertIn(
+            "Plans, audits, and scores without a candidate are not progress.",
+            skill,
+        )
+        calibrate = (
+            ROOT / "skills/company-os/calibrate-outcome-evaluator/SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Do not trust a judge merely because it returns scores.", calibrate)
+        self.assertIn("increases strictly across the known order", calibrate)
+        force = (ROOT / "skills/company-os/force-first-execution/SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Commentary and repeated planning earn no progress credit.", force)
+        economics = (
+            ROOT
+            / "skills/company-os/mission-execution-control/references/evaluator-economics.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("at most 10 percent of remaining mission resources", economics)
 
     def test_spawn_template_is_organization_lane_specific(self) -> None:
         template = json.loads((SKILL / "assets/spawn-template.json").read_text(encoding="utf-8"))

@@ -5,7 +5,7 @@ description: Force four-tier corporate management and the plan-organize-staff-di
 
 # Corporate Management
 
-This is a thinking overlay for how Company OS is staffed. It does not own authority, leases, fabric, spend, or completion. `$manage-company-program`, `$company-blueprint`, `$department-charters`, and `$govern-outcome-execution` still win.
+This is a thinking overlay for how Company OS is staffed. It does not own authority, leases, fabric, spend, or completion. `$manage-company-program`, `$company-blueprint`, `$department-charters`, `$govern-outcome-execution`, and `$force-first-execution` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, quoted speech, or affiliation with Fayol, Koontz, or any named MBA school.
 
@@ -32,6 +32,8 @@ Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable
 - Tokens follow the global bottleneck, not the org chart. Do not paste this pack, `$company-os`, or `$elastic-company-os` into a manager or worker prompt.
 - Do not spawn a manager, reviewer, or LLM audit loop to satisfy the four names. The controller `audit` command is not a review meeting.
 - Control scores outputs. For outcome-owned work, run `$execute-outcome-evaluator` against current artifact bytes and record receipts through `$run-outcome-loop`. A manager score, audit, or production narrative is not a score. Worker completion is never acceptance. `$accept-outcome-reality` is the only terminal accept.
+- A score is correct only after `$calibrate-outcome-evaluator` strictly ranks known-quality candidates on the same evaluator bytes, the executor is not a producer, and artifact or adapter digest drift has not occurred. Take the conservative minimum across evaluators. An uncalibrated number is not a correct score. Do not scale production without `$authorize-outcome-scale`.
+- Move the ball with `$force-first-execution`. Credit only materialized artifacts, runnable candidates, and observed behavior. Plans, audits, and scores without a candidate are not progress. Build the candidate before expanding the judge.
 - Any manager escalates to master. A peer notice of a collision is not command.
 - Staff execute one packet. They do not spawn children or accept their own work.
 - Derive manager count from independently accountable outcomes, not a 1:1:1:N slogan.

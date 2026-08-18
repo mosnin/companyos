@@ -392,8 +392,8 @@
     },
     {
       "path": "company-os/corporate-management/SKILL.md",
-      "sha256": "e3309b6f1ecd59a98369b869ac640eb866d4d45440ec068974385c874d59fedc",
-      "size": 3941
+      "sha256": "9cfe19ed8acf17f732db7dacd338ec21670fa4b459e70bbbae6b72126c2c52b8",
+      "size": 4581
     },
     {
       "path": "company-os/corporate-management/agents/claude.yaml",
@@ -417,18 +417,18 @@
     },
     {
       "path": "company-os/corporate-management/references/source/00-index.txt",
-      "sha256": "2b044107057237f199e4cd13e1296bbcbb1efe918804307482bf6b0c1f9657d4",
-      "size": 1485
+      "sha256": "5964924dbf97a1bc9c88f77a6eff378cdb16660e6f2c0aac6f23743750f71502",
+      "size": 1713
     },
     {
       "path": "company-os/corporate-management/references/source/01-management-as-process.txt",
-      "sha256": "e299c28e52c108344673e52d162440ddf45a542e8b16ada4abb195a7d7398af1",
-      "size": 1312
+      "sha256": "e2baf255f39691ffad4de3ca19bf0f466f908c3c4214a76aa65e9c1257b463b4",
+      "size": 1405
     },
     {
       "path": "company-os/corporate-management/references/source/02-functions-of-management.txt",
-      "sha256": "af6d720cda1a466fc4ccfb5478ddc9cde19a57bc48466ef153647c45f997d373",
-      "size": 1355
+      "sha256": "ad37500574da7931db105afa870cdb6940c876e24abfc37ff2b22b03fcd2dbd8",
+      "size": 1608
     },
     {
       "path": "company-os/corporate-management/references/source/03-levels-of-management.txt",
@@ -442,8 +442,8 @@
     },
     {
       "path": "company-os/corporate-management/references/source/05-function-by-tier.txt",
-      "sha256": "7870e3c82a106884b1c9ac1ebbc1685373fe528a5becb52cf4b124fa720272a6",
-      "size": 1691
+      "sha256": "8f2c182de42a2fadb64d345b2219a207e274e3958961cdf2f428fe3983a67e96",
+      "size": 1799
     },
     {
       "path": "company-os/corporate-management/references/source/06-charter-and-escalation.txt",
@@ -452,8 +452,8 @@
     },
     {
       "path": "company-os/corporate-management/scripts/validate_corporate_management.py",
-      "sha256": "6e34eadb75c973483c424ba2ea162233e08bf839a0c014ab00a7e03f5d3b9509",
-      "size": 6073
+      "sha256": "3cd83227a43932407800387c289ca9a710d4fbee5dc2c4b0648fa9ae25c779e7",
+      "size": 6246
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",

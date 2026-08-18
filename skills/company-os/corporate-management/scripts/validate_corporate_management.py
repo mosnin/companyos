@@ -64,6 +64,10 @@ SKILL_MARKERS = (
     "control scores outputs",
     "$execute-outcome-evaluator",
     "a manager score, audit, or production narrative is not a score",
+    "a score is correct only after",
+    "$calibrate-outcome-evaluator",
+    "$force-first-execution",
+    "plans, audits, and scores without a candidate are not progress",
 )
 
 

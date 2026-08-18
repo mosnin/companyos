@@ -26,5 +26,9 @@ Shared operating rules
   still wins for spend.
 - Control scores outputs. `$execute-outcome-evaluator` and
   `$run-outcome-loop` still win. A manager score is not a score.
+- A score is correct only after `$calibrate-outcome-evaluator` strictly
+  ranks known-quality candidates and the executor is not a producer.
+- `$force-first-execution` still wins for motion. Plans and audits are
+  not progress.
 
 End of index.

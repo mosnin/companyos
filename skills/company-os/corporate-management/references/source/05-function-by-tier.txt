@@ -33,8 +33,10 @@ Staff / Luna worker
 Cycle rule
 Every accepted outcome still needs the full cycle. The missing function is
 the management bottleneck. Do not add a meeting, extra manager, or LLM
-audit loop to hide a missing function. Control is verified evaluator
-receipts or controller `score-quality` bound to artifact bytes. A manager
-score is not a score. Audits are sensors; they are not accepted outcomes.
+audit loop to hide a missing function. Control is a calibrated evaluator
+receipt or controller `score-quality` bound to artifact bytes. A manager
+score is not a score. An uncalibrated number is not a correct score.
+Audits are sensors; they are not accepted outcomes. Plans are not
+progress until a candidate exists and runs.
 
 End of file.
