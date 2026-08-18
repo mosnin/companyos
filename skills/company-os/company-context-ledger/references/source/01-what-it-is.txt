@@ -1,0 +1,22 @@
+companyosweb is the hosted company ledger for Company OS. It is not a control plane.
+
+Convex is the source of truth for company identity, blueprint, architecture,
+department artifacts, harness lanes, and loop records. Harnesses pull that
+config. They do not treat a local .company-os/ folder as the company source
+when a ledger URL is bound.
+
+This overlay does not own authority, leases, fabric, spend, or completion.
+It cannot dispatch a manager, acquire a lease, enable the scheduler or
+runtime, accept an outcome, authorize spend, mutate CRM or HRIS, or send
+to a customer.
+
+Open-source Company OS remains the installable operating system for Claude
+Code, Claude Cowork, ChatGPT Work, Grok, and Hermes. companyosweb is
+storage and display.
+
+One MCP. Later OAuth into operate.to, marketer.sh, govern.sh,
+tryscalar.xyz, and glove.so lands in that same MCP. Those products are
+coming_soon until they expose OAuth. Do not add a second server per
+product.
+
+Rejected control-plane verbs must not mutate governed state.

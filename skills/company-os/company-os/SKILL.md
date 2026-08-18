@@ -27,6 +27,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Navigation control | Treat the original objective as the destination; continuously observe, act, verify, measure objective distance/velocity, and replan while keeping research/audits as subordinate sensors | `$navigation-control` |
 | Execution | Deliver work through Sol manager tasks and bounded Luna labor with early real artifacts, runtime observation, targeted rework, verification, and decisions | `$manage-company-program`, `$execute-bounded-task`, `$force-first-execution`, `$autonomy-suite`, `$luna-execution-fabric` |
 | Elastic control | Create an isolated project operating model and improve it through independently reviewed feedback | `$elastic-company-os` |
+| Hosted company ledger | Pull and write shared company context through one companyosweb MCP across Claude, ChatGPT Work, and Grok | `$company-context-ledger` |
 
 ## Project isolation
 
@@ -82,6 +83,10 @@ design, execution, verification, and integration. Managers use
 `$manage-company-program` and `$luna-execution-fabric`; workers use
 `$execute-bounded-task`. Send the role skill plus one compact mission charter
 or work packet instead of repeating the operating system in every prompt.
+When a hosted companyosweb ledger is in use, send `$company-context-ledger`
+to the master or department manager that will pull or write company context.
+Do not send `$company-context-ledger` to workers. The ledger is not a control
+plane.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.

@@ -306,9 +306,59 @@
       "size": 31368
     },
     {
+      "path": "company-os/company-context-ledger/SKILL.md",
+      "sha256": "2f199a568b69aa3d0e9b5c2280006ff629be4b3ba574c86cca55b88932a6cdd2",
+      "size": 2405
+    },
+    {
+      "path": "company-os/company-context-ledger/agents/claude.yaml",
+      "sha256": "b7dde37add732303ea2b1296dc43610180e36bd37a1b0473692223aaff18522d",
+      "size": 428
+    },
+    {
+      "path": "company-os/company-context-ledger/agents/grok.yaml",
+      "sha256": "b7dde37add732303ea2b1296dc43610180e36bd37a1b0473692223aaff18522d",
+      "size": 428
+    },
+    {
+      "path": "company-os/company-context-ledger/agents/openai.yaml",
+      "sha256": "b7dde37add732303ea2b1296dc43610180e36bd37a1b0473692223aaff18522d",
+      "size": 428
+    },
+    {
+      "path": "company-os/company-context-ledger/assets/spawn-template.json",
+      "sha256": "6a1fdc391fff64369e9c1a000e7f044b110a43cc052d1421c80ced2102b7a6ff",
+      "size": 484
+    },
+    {
+      "path": "company-os/company-context-ledger/references/source/00-index.txt",
+      "sha256": "6e56bd733fd3c046e1a6857601ae9dae81fe3b8a7a7303ffe51177aa4f9839bf",
+      "size": 372
+    },
+    {
+      "path": "company-os/company-context-ledger/references/source/01-what-it-is.txt",
+      "sha256": "8bc228006e49d6014cfe58e35baab37beafb4fe13b0d7e1b87664c0d19eceabb",
+      "size": 1016
+    },
+    {
+      "path": "company-os/company-context-ledger/references/source/02-connect-harnesses.txt",
+      "sha256": "d59ba08ea6401db79217986aa683c26b634c3ffe23e89cb10bfc6bf4fd5a83a4",
+      "size": 872
+    },
+    {
+      "path": "company-os/company-context-ledger/references/source/03-write-contract.txt",
+      "sha256": "6ca21514f025cd1e8f79979abf378e9766fc644ddc91679c23c393c858d90622",
+      "size": 1163
+    },
+    {
+      "path": "company-os/company-context-ledger/scripts/validate_company_context_ledger.py",
+      "sha256": "7dd82c76628b5f8bdb9940b57ba5aeb6333bdfd22e0ee8940a7b700eb6b36ddd",
+      "size": 5562
+    },
+    {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "ca131825f5b8eed18f56df62c742a27f49581ae0a318b21b49f4260c7aafd965",
+      "size": 16664
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",

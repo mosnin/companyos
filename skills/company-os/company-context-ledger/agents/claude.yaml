@@ -1,0 +1,6 @@
+interface:
+  display_name: "Company Context Ledger"
+  short_description: "Pull and write the hosted company ledger"
+  default_prompt: "Use $company-context-ledger with $manage-company-program when a hosted companyosweb ledger is the shared company context. Call config.pull first. Write documents and run records only. Do not load this skill as the master persona or on Luna workers."
+policy:
+  allow_implicit_invocation: false
