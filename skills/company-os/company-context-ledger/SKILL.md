@@ -5,9 +5,9 @@ description: Connect Claude Code, Claude Cowork, ChatGPT Work, and Grok to one h
 
 # Company Context Ledger
 
-This is a thinking overlay for the hosted companyosweb ledger. It does not own authority, leases, fabric, spend, or completion. `$manage-company-program`, `$company-blueprint`, `$mission-execution-control`, `$govern-outcome-execution`, and `$force-first-execution` still win.
+This is a thinking overlay for the hosted company-os-web ledger. It does not own authority, leases, fabric, spend, or completion. `$manage-company-program`, `$company-blueprint`, `$mission-execution-control`, `$govern-outcome-execution`, and `$force-first-execution` still win.
 
-companyosweb is Convex storage and display. Open-source Company OS remains the installable operating system. The ledger is shared company context. It is not a control plane.
+company-os-web is Convex storage and display. Open-source Company OS remains the installable operating system. The ledger is shared company context. It is not a control plane.
 
 Do not send this skill to Luna workers. Do not use it as the master persona.
 

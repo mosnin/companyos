@@ -1,4 +1,4 @@
-companyosweb is the hosted company ledger for Company OS. It is not a control plane.
+company-os-web is the hosted company ledger for Company OS. It is not a control plane.
 
 Convex is the source of truth for company identity, blueprint, architecture,
 department artifacts, harness lanes, and loop records. Harnesses pull that
@@ -11,7 +11,7 @@ runtime, accept an outcome, authorize spend, mutate CRM or HRIS, or send
 to a customer.
 
 Open-source Company OS remains the installable operating system for Claude
-Code, Claude Cowork, ChatGPT Work, Grok, and Hermes. companyosweb is
+Code, Claude Cowork, ChatGPT Work, Grok, and Hermes. company-os-web is
 storage and display.
 
 One MCP. Later OAuth into operate.to, marketer.sh, govern.sh,

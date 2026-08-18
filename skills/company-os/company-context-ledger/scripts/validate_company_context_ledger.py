@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the Company Context Ledger pack and spawn template.
 
-The template is a thinking overlay for the hosted companyosweb ledger. It
+The template is a thinking overlay for the hosted company-os-web ledger. It
 cannot be spawned as the master persona, a Luna worker, or a control plane.
 """
 

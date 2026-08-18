@@ -99,9 +99,9 @@ class CompanyContextLedgerTests(unittest.TestCase):
                 "spawn role must be manager", module.validate_spawn_template(mutated)
             )
 
-    def test_companyosweb_stays_out_of_this_repo(self) -> None:
+    def test_company_os_web_stays_out_of_this_repo(self) -> None:
         ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
-        self.assertIn("/companyosweb/", ignore)
+        self.assertIn("/company-os-web/", ignore)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 Company Context Ledger source pack
 
 01-what-it-is.txt
-  Boundary. companyosweb stores context. It is not a control plane.
+  Boundary. company-os-web stores context. It is not a control plane.
 
 02-connect-harnesses.txt
   Claude Code, Claude Cowork, ChatGPT Work, and Grok share one MCP URL.

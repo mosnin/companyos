@@ -1,4 +1,4 @@
-Connect every harness to the same companyosweb MCP URL.
+Connect every harness to the same company-os-web MCP URL.
 
 Claude Code and Claude Cowork use .mcp.json:
 
