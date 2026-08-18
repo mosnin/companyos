@@ -35,10 +35,13 @@ Common foundations include:
 
 Each department may propose work to another. It may not command cross-functional or consequential action without the receiving owner and configured approval. Keep a shared company scorecard and resolve conflicts through explicit decision rights.
 
-Department packs are reusable definitions, not always-running agents. The
-accepted program work graph determines which Sol manager outcomes and Luna
-worker tasks exist for a particular objective. Scheduled department routines
-remain planned until runtime and scheduler activation are separately accepted.
+Department packs are reusable modules, not always-running agents. Each pack
+stores agent slots for a middle or low-level manager and staff workers. Store
+a created agent as a cloned slot with `origin=stored`; do not invent a new
+fabric role or a live thread. The accepted program work graph determines which
+slots are instantiated for a particular objective. Scheduled department
+routines remain planned until runtime and scheduler activation are separately
+accepted.
 
 When chartering departments, load `$corporate-management` and name each department manager as middle or low-level. Staff remain Luna workers.
 Do not send `$corporate-management` to Luna workers.

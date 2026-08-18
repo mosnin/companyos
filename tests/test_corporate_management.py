@@ -42,13 +42,16 @@ class CorporateManagementTests(unittest.TestCase):
         self.assertEqual(len(names), 7)
         self.assertIn("00-index.txt", names)
         self.assertIn("04-tier-to-company-os-mapping.txt", names)
-        mapping = (SKILL / "references/source/04-tier-to-company-os-mapping.txt").read_text(
-            encoding="utf-8"
+        mapping = " ".join(
+            (SKILL / "references/source/04-tier-to-company-os-mapping.txt")
+            .read_text(encoding="utf-8")
+            .split()
         )
         self.assertIn("master → manager → worker", mapping)
         self.assertIn("not a new runtime role", mapping.casefold())
         self.assertIn("not a parent hop", mapping.casefold())
         self.assertIn("peer Sol managers", mapping)
+        self.assertIn("department agent slots", mapping)
 
     def test_audit_keeps_four_names_on_three_hops(self) -> None:
         source = {

@@ -42,7 +42,7 @@ class CompanyBlueprintTests(unittest.TestCase):
             self.assertEqual(first_manifest, second_manifest)
             self.assertEqual(
                 compiler.verify_compiled(first_root / "compiled"),
-                {"ok": True, "company_id": "acme-software", "files": 8},
+                {"ok": True, "company_id": "acme-software", "files": 9},
             )
             for item in first_manifest["files"]:
                 self.assertEqual(
@@ -61,6 +61,11 @@ class CompanyBlueprintTests(unittest.TestCase):
             self.assertTrue(all(item["status"] == "requires-host-preflight" for item in capabilities["skills"]))
             self.assertTrue(all(item["status"] == "requires-host-preflight" for item in capabilities["tools"]))
             self.assertTrue(all(item["steps"] and item["evidence"] for item in capabilities["playbooks"]))
+            registry = json.loads((first_root / "compiled/agent-registry.json").read_text())
+            self.assertEqual("templates-not-running-agents", registry["activation_policy"])
+            self.assertEqual(20, len(registry["slots"]))
+            self.assertTrue(all(item["status"] in {"template", "stored"} for item in registry["slots"]))
+            self.assertTrue(all(item["role"] in {"manager", "worker"} for item in registry["slots"]))
 
     def test_materially_different_agency_selects_smaller_organization(self) -> None:
         blueprint = self.load_example()
@@ -152,6 +157,104 @@ class CompanyBlueprintTests(unittest.TestCase):
             artifact.write_bytes(artifact.read_bytes() + b" ")
             with self.assertRaisesRegex(compiler.BlueprintError, "drifted"):
                 compiler.verify_compiled(root / "compiled")
+
+    def test_department_packs_store_reusable_manager_and_staff_slots(self) -> None:
+        catalog = json.loads(
+            (ROOT / "skills/company-os/company-blueprint/assets/department-packs.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        departments = compiler.validate_department_catalog(catalog)
+        self.assertEqual(10, len(departments))
+        for department in departments.values():
+            roles = {slot["role"] for slot in department["agent_slots"]}
+            self.assertIn("manager", roles)
+            self.assertTrue(any(slot["management_tier"] in {"middle", "low_level"} for slot in department["agent_slots"]))
+            self.assertTrue(all(slot["management_tier"] != "senior" for slot in department["agent_slots"]))
+
+    def test_store_agent_clones_a_template_without_starting_a_thread(self) -> None:
+        catalog = json.loads(
+            (ROOT / "skills/company-os/company-blueprint/assets/department-packs.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        source = next(
+            slot
+            for slot in catalog["departments"][0]["agent_slots"]
+            if slot["id"] == "executive-strategy-manager"
+        )
+        stored = dict(source)
+        stored.update(
+            {
+                "id": "executive-strategy-manager-onboarding",
+                "origin": "stored",
+                "source_slot_id": "executive-strategy-manager",
+                "status": "stored",
+                "outcome": "Coordinate the onboarding program strategy slice",
+            }
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            catalog_path = root / "department-packs.json"
+            slot_path = root / "stored-slot.json"
+            catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+            slot_path.write_text(json.dumps(stored), encoding="utf-8")
+            result = compiler.store_agent_slot(
+                catalog_path, "executive-strategy", slot_path, catalog_path
+            )
+            self.assertEqual("executive-strategy-manager-onboarding", result["slot_id"])
+            self.assertFalse(result["running"])
+            updated = compiler.validate_department_catalog(
+                json.loads(catalog_path.read_text(encoding="utf-8"))
+            )
+            ids = {slot["id"] for slot in updated["executive-strategy"]["agent_slots"]}
+            self.assertIn("executive-strategy-manager-onboarding", ids)
+            with self.assertRaisesRegex(compiler.BlueprintError, "already stored"):
+                compiler.store_agent_slot(
+                    catalog_path, "executive-strategy", slot_path, catalog_path
+                )
+        shared_source = (
+            ROOT / "skills/company-os/company-blueprint/assets/department-packs.json"
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            slot_path = Path(temporary) / "stored-slot.json"
+            slot_path.write_text(json.dumps(stored), encoding="utf-8")
+            with self.assertRaisesRegex(compiler.BlueprintError, "shared department catalog"):
+                compiler.store_agent_slot(
+                    shared_source,
+                    "executive-strategy",
+                    slot_path,
+                    compiler.DEFAULT_DEPARTMENTS,
+                )
+
+    def test_store_agent_rejects_role_or_model_drift(self) -> None:
+        catalog = json.loads(
+            (ROOT / "skills/company-os/company-blueprint/assets/department-packs.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        stored = {
+            "forbidden_roles": ["master", "worker"],
+            "id": "executive-strategy-manager-bad",
+            "management_tier": "staff",
+            "origin": "stored",
+            "outcome": "Illegal staff manager",
+            "requested_model": "gpt-5.6-sol",
+            "role": "manager",
+            "skills": ["manage-company-program", "strategy-pillar"],
+            "source_slot_id": "executive-strategy-manager",
+            "status": "stored",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            catalog_path = root / "department-packs.json"
+            slot_path = root / "stored-slot.json"
+            catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+            slot_path.write_text(json.dumps(stored), encoding="utf-8")
+            with self.assertRaisesRegex(compiler.BlueprintError, "role and management tier"):
+                compiler.store_agent_slot(
+                    catalog_path, "executive-strategy", slot_path, catalog_path
+                )
 
     def test_postgres_blueprint_storage_is_portable_and_append_only(self) -> None:
         sql = SQL.read_text(encoding="utf-8")

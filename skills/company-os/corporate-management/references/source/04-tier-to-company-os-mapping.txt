@@ -34,6 +34,7 @@ Rules
 - Four names do not require four agent layers. A bounded pilot may have
   two peer managers.
 - Derive manager count from independently accountable outcomes, not a
-  fixed 1:1:1:N headcount slogan.
+  fixed 1:1:1:N headcount slogan. Store created agents as department
+  agent slots. Slots are reusable templates, not a fourth hop.
 
 End of file.

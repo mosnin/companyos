@@ -30,18 +30,27 @@ Run:
 
 The compiler selects composable department packs from the accepted archetypes
 and requested capabilities. It emits a content-addressed organization,
-capability map, routine plan, work graph, knowledge graph, asset registry,
-integration registry, storage plan, and manifest.
+capability map, agent registry, routine plan, work graph, knowledge graph,
+asset registry, integration registry, storage plan, and manifest.
+
+Each department pack is a reusable module. It stores agent slots: one middle
+or low-level Sol-manager template and staff Luna-worker templates. Created
+agents are stored by cloning a slot into a project-local catalog. Slots are
+templates, not running threads. Department labels are not dispatch quotas.
+
+Store a created agent without mutating the shared core unless that catalog is
+the explicit output:
+
+`python3 scripts/compile_company_blueprint.py --store-agent path/to/slot.json --department engineering-quality --departments path/to/project-department-packs.json --output path/to/project-department-packs.json`
 
 Department count is not fixed. Create departments only when they own a distinct
 outcome, decision boundary, or operating system. Manager and Luna capacity is
-derived later from the accepted work graph; department labels are not agent
-quotas.
+derived later from the accepted work graph.
 
 ## Operating planes
 
 - **Identity plane:** mission, thesis, customers, offers, objectives, values.
-- **Organization plane:** departments, interfaces, decision rights, metrics. When compiling the organization, load `$corporate-management` and name senior, middle, low-level, and staff tiers.
+- **Organization plane:** departments, interfaces, decision rights, metrics, reusable agent slots. When compiling the organization, load `$corporate-management` and name senior, middle, low-level, and staff tiers.
 Do not send `$corporate-management` to Luna workers.
 - **Capability plane:** skills, tools, playbooks, models, permissions.
 - **Execution plane:** programs, DAGs, leases, budgets, acceptance, recovery.

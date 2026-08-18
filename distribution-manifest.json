@@ -272,8 +272,8 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "36d629bb71cb89d6f68f7a9595364bfd3172c72fe82f4e5ba30219622c446c5e",
-      "size": 3319
+      "sha256": "05ab74db05f79f11074f58630c6f3c877fed7fce79d1580ac0849825b6511f4c",
+      "size": 3933
     },
     {
       "path": "company-os/company-blueprint/agents/claude.yaml",
@@ -302,8 +302,8 @@
     },
     {
       "path": "company-os/company-blueprint/assets/department-packs.json",
-      "sha256": "72038ac6c7cc8c523d312a3581fd00da45a8c204cc494fb525ac99e7d345dcd4",
-      "size": 10729
+      "sha256": "1b562de822ed925a8f819f64381b51ce83ace8c800347ca08103e934fbb78c07",
+      "size": 25464
     },
     {
       "path": "company-os/company-blueprint/assets/playbook-library.json",
@@ -312,8 +312,8 @@
     },
     {
       "path": "company-os/company-blueprint/references/company-blueprint-contract.md",
-      "sha256": "137a36328ccf30ad927835d9b827171998e663a3260dfb0838ab71c2c078bc3e",
-      "size": 2011
+      "sha256": "49b0057b94d80cb0251071e4d7e73b19a9fe0220c65894eb425a47a9e2631e47",
+      "size": 2296
     },
     {
       "path": "company-os/company-blueprint/schemas/company-blueprint.schema.json",
@@ -321,9 +321,14 @@
       "size": 4020
     },
     {
+      "path": "company-os/company-blueprint/schemas/department-pack-catalog.schema.json",
+      "sha256": "45ef554bc51812a215ef311f9682eb111950608bcc25a9e2fe84a1e5e201835f",
+      "size": 3128
+    },
+    {
       "path": "company-os/company-blueprint/scripts/compile_company_blueprint.py",
-      "sha256": "5807874c895e3496e74b508dc785e62ada47affdbdc7b07aecd6e6b390e30a05",
-      "size": 31368
+      "sha256": "c226254b3f5956678c0665f753823eb738dd19a35c3a55393f83c28e894fd44d",
+      "size": 40630
     },
     {
       "path": "company-os/company-os/SKILL.md",
@@ -437,8 +442,8 @@
     },
     {
       "path": "company-os/corporate-management/references/source/04-tier-to-company-os-mapping.txt",
-      "sha256": "13ccee4e29b78c66acef7364428f3cea18b9a007f46f3941b8d2277c14cff382",
-      "size": 1791
+      "sha256": "cc7567d5438f40f8ccb1e1b85b6b8ac014d53fef5950ebc6318f511c176ac178",
+      "size": 1889
     },
     {
       "path": "company-os/corporate-management/references/source/05-function-by-tier.txt",
@@ -467,8 +472,8 @@
     },
     {
       "path": "company-os/department-charters/SKILL.md",
-      "sha256": "cf10fa7f8425a6ce8e320ce2ee7340bcec52b30fb374ec4c38ae67f5cc124ffe",
-      "size": 2283
+      "sha256": "8c5abbb6a482804d1022362dcee90842b93a981503e51bd198741102a35cf082",
+      "size": 2446
     },
     {
       "path": "company-os/department-charters/agents/claude.yaml",

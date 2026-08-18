@@ -15,6 +15,20 @@ from typing import Any
 SCHEMA = "company-os.company-blueprint.v1"
 COMPILED_SCHEMA = "company-os.compiled-company.v1"
 ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
+AGENT_SLOT_FIELDS = {
+    "forbidden_roles",
+    "id",
+    "management_tier",
+    "origin",
+    "outcome",
+    "requested_model",
+    "role",
+    "skills",
+    "source_slot_id",
+    "status",
+}
+MANAGER_FORBIDDEN = {"master", "worker"}
+WORKER_FORBIDDEN = {"master", "manager"}
 SECRET_RE = re.compile(
     r"(?:api[_-]?key|access[_-]?token|secret|password|private[_-]?key)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{8,}",
     re.IGNORECASE,
@@ -93,9 +107,10 @@ def validate_department_catalog(value: dict[str, Any]) -> dict[str, dict[str, An
     expected = {
         "id", "mission", "capabilities", "decision_rights", "inputs", "outputs",
         "interfaces", "metrics", "playbooks", "required_approvals", "routines",
-        "skills", "tools",
+        "skills", "tools", "agent_slots",
     }
     routine_ids: set[str] = set()
+    slot_ids: set[str] = set()
     for department_id, department in departments.items():
         if set(department) != expected:
             raise BlueprintError(f"department {department_id} fields differ from the contract")
@@ -121,7 +136,75 @@ def validate_department_catalog(value: dict[str, Any]) -> dict[str, dict[str, An
             require_id(routine["playbook"], f"routine {routine_id}.playbook")
             if routine["playbook"] not in department["playbooks"]:
                 raise BlueprintError(f"routine {routine_id} references a playbook outside its department")
+        validate_department_agent_slots(department, slot_ids)
     return departments
+
+
+def validate_agent_slot(slot: Any, department_id: str, slot_ids: set[str]) -> dict[str, Any]:
+    if not isinstance(slot, dict) or set(slot) != AGENT_SLOT_FIELDS:
+        raise BlueprintError(f"department {department_id} agent slot fields differ from the contract")
+    slot_id = require_id(slot["id"], f"department {department_id}.agent_slot.id")
+    if slot_id in slot_ids:
+        raise BlueprintError(f"duplicate agent slot id: {slot_id}")
+    slot_ids.add(slot_id)
+    require_id(slot["source_slot_id"], f"{slot_id}.source_slot_id")
+    require_text(slot["outcome"], f"{slot_id}.outcome")
+    skills = require_string_list(slot["skills"], f"{slot_id}.skills", nonempty=True)
+    for skill in skills:
+        require_id(skill, f"{slot_id}.skills")
+    forbidden = require_string_list(slot["forbidden_roles"], f"{slot_id}.forbidden_roles", nonempty=True)
+    role = require_text(slot["role"], f"{slot_id}.role")
+    tier = require_text(slot["management_tier"], f"{slot_id}.management_tier")
+    origin = require_text(slot["origin"], f"{slot_id}.origin")
+    status = require_text(slot["status"], f"{slot_id}.status")
+    model = require_text(slot["requested_model"], f"{slot_id}.requested_model")
+    if origin not in {"catalog", "stored"}:
+        raise BlueprintError(f"{slot_id}.origin must be catalog or stored")
+    if status not in {"template", "stored"}:
+        raise BlueprintError(f"{slot_id}.status must be template or stored")
+    if origin == "catalog" and (status != "template" or slot["source_slot_id"] != slot_id):
+        raise BlueprintError(f"{slot_id} catalog templates must be self-sourced templates")
+    if origin == "stored" and status != "stored":
+        raise BlueprintError(f"{slot_id} stored slots must have status stored")
+    if role == "manager":
+        if tier not in {"middle", "low_level"}:
+            raise BlueprintError(f"{slot_id} manager tier must be middle or low_level")
+        if "manage-company-program" not in skills:
+            raise BlueprintError(f"{slot_id} manager slot must include manage-company-program")
+        if not MANAGER_FORBIDDEN.issubset(set(forbidden)):
+            raise BlueprintError(f"{slot_id} manager slot must forbid master and worker")
+        if model != "gpt-5.6-sol":
+            raise BlueprintError(f"{slot_id} manager requested_model must remain gpt-5.6-sol")
+    elif role == "worker":
+        if tier != "staff":
+            raise BlueprintError(f"{slot_id} worker tier must be staff")
+        if "execute-bounded-task" not in skills:
+            raise BlueprintError(f"{slot_id} worker slot must include execute-bounded-task")
+        if not WORKER_FORBIDDEN.issubset(set(forbidden)):
+            raise BlueprintError(f"{slot_id} worker slot must forbid master and manager")
+        if model != "gpt-5.6-luna":
+            raise BlueprintError(f"{slot_id} worker requested_model must remain gpt-5.6-luna")
+    else:
+        raise BlueprintError(f"{slot_id}.role must be manager or worker")
+    if tier == "senior":
+        raise BlueprintError(f"{slot_id} must not store the Company OS master as a department slot")
+    return slot
+
+
+def validate_department_agent_slots(department: dict[str, Any], slot_ids: set[str]) -> list[dict[str, Any]]:
+    department_id = department["id"]
+    slots = department.get("agent_slots")
+    if not isinstance(slots, list) or not slots:
+        raise BlueprintError(f"department {department_id} must store at least one agent slot")
+    local_ids: set[str] = set()
+    validated = [validate_agent_slot(slot, department_id, local_ids) for slot in slots]
+    slot_ids.update(local_ids)
+    if not any(slot["role"] == "manager" for slot in validated):
+        raise BlueprintError(f"department {department_id} must store a manager slot")
+    for slot in validated:
+        if slot["source_slot_id"] not in local_ids:
+            raise BlueprintError(f"{slot['id']} source_slot_id is not in the department")
+    return validated
 
 
 def validate_archetype_catalog(value: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -478,6 +561,17 @@ def compile_artifacts(
         for department in selected:
             if skill in department["skills"]:
                 edges.append({"from": f"department:{department['id']}", "kind": "uses", "to": node_id})
+    for department in selected:
+        for slot in department["agent_slots"]:
+            node_id = f"agent-slot:{slot['id']}"
+            nodes.append({"id": node_id, "kind": "agent-slot", "label": slot["outcome"]})
+            edges.append({"from": f"department:{department['id']}", "kind": "stores", "to": node_id})
+            if slot["origin"] == "stored" and slot["source_slot_id"] != slot["id"]:
+                edges.append({
+                    "from": f"agent-slot:{slot['source_slot_id']}",
+                    "kind": "cloned-as",
+                    "to": node_id,
+                })
 
     assets = blueprint.get("assets", [])
     integrations = blueprint.get("integrations", [])
@@ -528,7 +622,32 @@ def compile_artifacts(
         "portability": ["neon", "supabase", "amazon-rds", "google-cloud-sql", "self-managed-postgresql"],
         "schema": blueprint["storage"]["schema"],
     }
+    agent_slots = []
+    for department in selected:
+        for slot in department["agent_slots"]:
+            agent_slots.append(
+                {
+                    "department_id": department["id"],
+                    "forbidden_roles": list(slot["forbidden_roles"]),
+                    "id": slot["id"],
+                    "management_tier": slot["management_tier"],
+                    "origin": slot["origin"],
+                    "outcome": slot["outcome"],
+                    "requested_model": slot["requested_model"],
+                    "role": slot["role"],
+                    "skills": list(slot["skills"]),
+                    "source_slot_id": slot["source_slot_id"],
+                    "status": slot["status"],
+                }
+            )
+    agent_registry = {
+        "$schema": "company-os.compiled-agent-registry.v1",
+        "activation_policy": "templates-not-running-agents",
+        "company_id": company_id,
+        "slots": sorted(agent_slots, key=lambda item: item["id"]),
+    }
     return {
+        "agent-registry.json": agent_registry,
         "asset-registry.json": asset_registry,
         "capabilities.json": capabilities,
         "integration-registry.json": integration_registry,
@@ -538,6 +657,70 @@ def compile_artifacts(
         "storage-plan.json": storage_plan,
         "work-graph.json": work_graph,
     }
+
+
+def store_agent_slot(
+    catalog_path: Path,
+    department_id: str,
+    slot_path: Path,
+    output_path: Path,
+) -> dict[str, Any]:
+    catalog = read_json(catalog_path, "department catalog")
+    departments = validate_department_catalog(catalog)
+    department = departments.get(department_id)
+    if department is None:
+        raise BlueprintError(f"unknown department: {department_id}")
+    slot = read_json(slot_path, "agent slot")
+    if slot.get("origin") != "stored" or slot.get("status") != "stored":
+        raise BlueprintError("created agents must be stored as origin=stored status=stored slots")
+    existing_ids = {item["id"] for item in department["agent_slots"]}
+    new_id = require_id(slot.get("id"), "stored agent slot.id")
+    if new_id in existing_ids:
+        raise BlueprintError(f"agent slot already stored: {new_id}")
+    source_id = require_id(slot.get("source_slot_id"), "stored agent slot.source_slot_id")
+    source = next((item for item in department["agent_slots"] if item["id"] == source_id), None)
+    if source is None:
+        raise BlueprintError(f"source_slot_id is not in {department_id}: {source_id}")
+    if slot.get("role") != source["role"] or slot.get("management_tier") != source["management_tier"]:
+        raise BlueprintError("stored agent must keep the source role and management tier")
+    if slot.get("requested_model") != source["requested_model"]:
+        raise BlueprintError("stored agent must keep the source requested_model")
+    updated = copy_department_with_slot(catalog, department_id, slot)
+    validate_department_catalog(updated)
+    raw = canonical_bytes(updated)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if output_path.exists() and (output_path.is_symlink() or not output_path.is_file()):
+        raise BlueprintError("store-agent output must be a regular file")
+    if output_path.resolve() == DEFAULT_DEPARTMENTS.resolve():
+        raise BlueprintError("do not store created agents into the shared department catalog")
+    output_path.write_bytes(raw)
+    return {
+        "ok": True,
+        "department_id": department_id,
+        "slot_id": new_id,
+        "source_slot_id": source_id,
+        "catalog_sha256": digest_bytes(raw),
+        "status": "stored",
+        "running": False,
+    }
+
+
+def copy_department_with_slot(
+    catalog: dict[str, Any],
+    department_id: str,
+    slot: dict[str, Any],
+) -> dict[str, Any]:
+    departments = []
+    for department in catalog["departments"]:
+        if department["id"] != department_id:
+            departments.append(department)
+            continue
+        cloned = dict(department)
+        cloned["agent_slots"] = list(department["agent_slots"]) + [slot]
+        departments.append(cloned)
+    updated = dict(catalog)
+    updated["departments"] = departments
+    return updated
 
 
 def compile_blueprint(
@@ -606,9 +789,20 @@ def main() -> int:
     parser.add_argument("--archetypes", type=Path, default=DEFAULT_ARCHETYPES)
     parser.add_argument("--playbooks", type=Path, default=DEFAULT_PLAYBOOKS)
     parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--store-agent", type=Path)
+    parser.add_argument("--department", type=str)
     args = parser.parse_args()
     try:
-        if args.verify:
+        if args.store_agent is not None:
+            if not args.department:
+                parser.error("--department is required with --store-agent")
+            result = store_agent_slot(
+                args.departments,
+                args.department,
+                args.store_agent,
+                args.output,
+            )
+        elif args.verify:
             result = verify_compiled(args.output)
         else:
             if args.blueprint is None:

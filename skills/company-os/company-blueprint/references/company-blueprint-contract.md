@@ -22,6 +22,10 @@ prompt, transcript, credential file, or project status report.
    a separate governed decision.
 9. Every compiled file is canonical JSON and content-addressed in one manifest.
 10. Recompiling identical inputs produces identical bytes.
+11. Department packs store reusable agent slots. Created agents are stored as
+    cloned slots (`origin=stored`). Slots are templates, not running threads.
+    Senior / master is never a department slot. Capacity is still derived from
+    the accepted work graph, not from slot count.
 
 ## Operator intake
 

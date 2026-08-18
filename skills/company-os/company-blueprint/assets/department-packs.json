@@ -1,177 +1,979 @@
 {
-  "$schema": "company-os.department-pack-catalog.v1",
-  "catalog_version": 1,
+  "$schema": "company-os.department-pack-catalog.v2",
+  "catalog_version": 2,
   "departments": [
     {
-      "capabilities": ["company-direction", "portfolio-management"],
-      "decision_rights": ["propose-strategy", "prioritize-portfolio", "stop-program"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "executive-strategy-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Coordinate one independently accountable strategy or portfolio outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "strategy-pillar"
+          ],
+          "source_slot_id": "executive-strategy-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "executive-strategy-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded strategy evidence packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "executive-strategy-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "company-direction",
+        "portfolio-management"
+      ],
+      "decision_rights": [
+        "propose-strategy",
+        "prioritize-portfolio",
+        "stop-program"
+      ],
       "id": "executive-strategy",
-      "inputs": ["company-blueprint", "scorecard", "market-intelligence"],
-      "interfaces": ["all-departments"],
-      "metrics": ["objective-attainment", "portfolio-value", "decision-latency"],
+      "inputs": [
+        "company-blueprint",
+        "scorecard",
+        "market-intelligence"
+      ],
+      "interfaces": [
+        "all-departments"
+      ],
+      "metrics": [
+        "objective-attainment",
+        "portfolio-value",
+        "decision-latency"
+      ],
       "mission": "Set direction, allocate attention, and reconcile company outcomes",
-      "outputs": ["strategy-decisions", "portfolio-priorities", "company-scorecard"],
-      "playbooks": ["annual-direction", "portfolio-review", "strategic-decision"],
-      "required_approvals": ["material-strategy-change", "unplanned-capital-allocation"],
-      "routines": [
-        {"cadence": "0 14 * * 1", "id": "portfolio-and-program-review", "playbook": "portfolio-review"},
-        {"cadence": "0 15 1 * *", "id": "company-operating-review", "playbook": "strategic-decision"}
+      "outputs": [
+        "strategy-decisions",
+        "portfolio-priorities",
+        "company-scorecard"
       ],
-      "skills": ["strategy-pillar", "portfolio-direction", "company-scorecard"],
-      "tools": ["company-os-control-plane"]
+      "playbooks": [
+        "annual-direction",
+        "portfolio-review",
+        "strategic-decision"
+      ],
+      "required_approvals": [
+        "material-strategy-change",
+        "unplanned-capital-allocation"
+      ],
+      "routines": [
+        {
+          "cadence": "0 14 * * 1",
+          "id": "portfolio-and-program-review",
+          "playbook": "portfolio-review"
+        },
+        {
+          "cadence": "0 15 1 * *",
+          "id": "company-operating-review",
+          "playbook": "strategic-decision"
+        }
+      ],
+      "skills": [
+        "strategy-pillar",
+        "portfolio-direction",
+        "company-scorecard"
+      ],
+      "tools": [
+        "company-os-control-plane"
+      ]
     },
     {
-      "capabilities": ["program-planning", "dependency-management"],
-      "decision_rights": ["sequence-work", "manage-dependencies", "escalate-drift"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "program-management-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable program outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "project-program-management"
+          ],
+          "source_slot_id": "program-management-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "program-management-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded program artifact packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "program-management-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "program-planning",
+        "dependency-management"
+      ],
+      "decision_rights": [
+        "sequence-work",
+        "manage-dependencies",
+        "escalate-drift"
+      ],
       "id": "program-management",
-      "inputs": ["portfolio-priorities", "requirements", "capacity"],
-      "interfaces": ["executive-strategy", "all-delivery-departments"],
-      "metrics": ["accepted-lead-time", "dependency-age", "rework-rate"],
+      "inputs": [
+        "portfolio-priorities",
+        "requirements",
+        "capacity"
+      ],
+      "interfaces": [
+        "executive-strategy",
+        "all-delivery-departments"
+      ],
+      "metrics": [
+        "accepted-lead-time",
+        "dependency-age",
+        "rework-rate"
+      ],
       "mission": "Convert objectives into accountable programs and dependency-aware roadmaps",
-      "outputs": ["program-contracts", "roadmaps", "decision-records"],
-      "playbooks": ["project-kickoff", "program-preflight", "milestone-review"],
-      "required_approvals": ["scope-change", "deadline-change"],
-      "routines": [
-        {"cadence": "0 13 * * 1", "id": "weekly-program-preflight", "playbook": "program-preflight"}
+      "outputs": [
+        "program-contracts",
+        "roadmaps",
+        "decision-records"
       ],
-      "skills": ["project-program-management", "project-kickoff-roadmap", "durable-task-dag", "select-execution-loop"],
-      "tools": ["company-os-control-plane", "task-runtime"]
+      "playbooks": [
+        "project-kickoff",
+        "program-preflight",
+        "milestone-review"
+      ],
+      "required_approvals": [
+        "scope-change",
+        "deadline-change"
+      ],
+      "routines": [
+        {
+          "cadence": "0 13 * * 1",
+          "id": "weekly-program-preflight",
+          "playbook": "program-preflight"
+        }
+      ],
+      "skills": [
+        "project-program-management",
+        "project-kickoff-roadmap",
+        "durable-task-dag",
+        "select-execution-loop"
+      ],
+      "tools": [
+        "company-os-control-plane",
+        "task-runtime"
+      ]
     },
     {
-      "capabilities": ["customer-research", "product-strategy", "product-delivery"],
-      "decision_rights": ["propose-product-roadmap", "accept-product-requirements"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "product-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable product outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "project-program-management"
+          ],
+          "source_slot_id": "product-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "product-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded product artifact packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "product-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "customer-research",
+        "product-strategy",
+        "product-delivery"
+      ],
+      "decision_rights": [
+        "propose-product-roadmap",
+        "accept-product-requirements"
+      ],
       "id": "product",
-      "inputs": ["customer-evidence", "strategy-decisions", "technology-radar"],
-      "interfaces": ["engineering-quality", "brand-creative", "commercial-growth"],
-      "metrics": ["activation", "retention", "time-to-value", "validated-learning"],
+      "inputs": [
+        "customer-evidence",
+        "strategy-decisions",
+        "technology-radar"
+      ],
+      "interfaces": [
+        "engineering-quality",
+        "brand-creative",
+        "commercial-growth"
+      ],
+      "metrics": [
+        "activation",
+        "retention",
+        "time-to-value",
+        "validated-learning"
+      ],
       "mission": "Discover and deliver differentiated customer value",
-      "outputs": ["product-requirements", "experience-concepts", "accepted-product-slices"],
-      "playbooks": ["product-reality-audit", "opportunity-brief", "product-requirements"],
-      "required_approvals": ["material-roadmap-change", "customer-data-use"],
-      "routines": [
-        {"cadence": "0 16 * * 4", "id": "product-opportunity-review", "playbook": "opportunity-brief"}
+      "outputs": [
+        "product-requirements",
+        "experience-concepts",
+        "accepted-product-slices"
       ],
-      "skills": ["project-program-management", "evidence-research-campaign", "innovation-bets"],
-      "tools": ["research", "product-analytics"]
+      "playbooks": [
+        "product-reality-audit",
+        "opportunity-brief",
+        "product-requirements"
+      ],
+      "required_approvals": [
+        "material-roadmap-change",
+        "customer-data-use"
+      ],
+      "routines": [
+        {
+          "cadence": "0 16 * * 4",
+          "id": "product-opportunity-review",
+          "playbook": "opportunity-brief"
+        }
+      ],
+      "skills": [
+        "project-program-management",
+        "evidence-research-campaign",
+        "innovation-bets"
+      ],
+      "tools": [
+        "research",
+        "product-analytics"
+      ]
     },
     {
-      "capabilities": ["software-engineering", "quality-engineering", "technology-selection"],
-      "decision_rights": ["design-architecture", "accept-implementation", "block-unsafe-release"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "engineering-quality-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable engineering outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "technology-radar"
+          ],
+          "source_slot_id": "engineering-quality-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "engineering-quality-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded implementation packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "engineering-quality-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "software-engineering",
+        "quality-engineering",
+        "technology-selection"
+      ],
+      "decision_rights": [
+        "design-architecture",
+        "accept-implementation",
+        "block-unsafe-release"
+      ],
       "id": "engineering-quality",
-      "inputs": ["product-requirements", "architecture", "incident-evidence"],
-      "interfaces": ["product", "operations", "security-compliance"],
-      "metrics": ["deployment-quality", "defect-escape-rate", "recovery-time", "cost-per-outcome"],
+      "inputs": [
+        "product-requirements",
+        "architecture",
+        "incident-evidence"
+      ],
+      "interfaces": [
+        "product",
+        "operations",
+        "security-compliance"
+      ],
+      "metrics": [
+        "deployment-quality",
+        "defect-escape-rate",
+        "recovery-time",
+        "cost-per-outcome"
+      ],
       "mission": "Build and verify reliable systems that realize accepted product outcomes",
-      "outputs": ["working-code", "technical-decisions", "verification-evidence"],
-      "playbooks": ["architecture-decision", "bounded-implementation", "release-verification"],
-      "required_approvals": ["production-write", "destructive-operation"],
-      "routines": [
-        {"cadence": "0 15 * * 2", "id": "technology-radar-review", "playbook": "architecture-decision"}
+      "outputs": [
+        "working-code",
+        "technical-decisions",
+        "verification-evidence"
       ],
-      "skills": ["technology-radar", "manage-company-program", "execute-bounded-task", "select-execution-loop"],
-      "tools": ["repository", "test-runtime", "deployment-provider"]
+      "playbooks": [
+        "architecture-decision",
+        "bounded-implementation",
+        "release-verification"
+      ],
+      "required_approvals": [
+        "production-write",
+        "destructive-operation"
+      ],
+      "routines": [
+        {
+          "cadence": "0 15 * * 2",
+          "id": "technology-radar-review",
+          "playbook": "architecture-decision"
+        }
+      ],
+      "skills": [
+        "technology-radar",
+        "manage-company-program",
+        "execute-bounded-task",
+        "select-execution-loop"
+      ],
+      "tools": [
+        "repository",
+        "test-runtime",
+        "deployment-provider"
+      ]
     },
     {
-      "capabilities": ["brand-system", "content-production", "ui-design"],
-      "decision_rights": ["maintain-brand-system", "accept-creative-quality"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "brand-creative-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable brand or creative outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "brand-creative-system"
+          ],
+          "source_slot_id": "brand-creative-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "brand-creative-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded creative artifact packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "brand-creative-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "brand-system",
+        "content-production",
+        "ui-design"
+      ],
+      "decision_rights": [
+        "maintain-brand-system",
+        "accept-creative-quality"
+      ],
       "id": "brand-creative",
-      "inputs": ["company-thesis", "product-experience", "customer-insight"],
-      "interfaces": ["product", "commercial-growth"],
-      "metrics": ["brand-cohesion", "creative-acceptance", "content-performance"],
+      "inputs": [
+        "company-thesis",
+        "product-experience",
+        "customer-insight"
+      ],
+      "interfaces": [
+        "product",
+        "commercial-growth"
+      ],
+      "metrics": [
+        "brand-cohesion",
+        "creative-acceptance",
+        "content-performance"
+      ],
       "mission": "Create a coherent, differentiated brand and customer-facing experience",
-      "outputs": ["brand-system", "creative-assets", "content-library"],
-      "playbooks": ["brand-audit", "creative-production", "content-system"],
-      "required_approvals": ["public-publishing", "material-brand-change"],
-      "routines": [
-        {"cadence": "0 15 * * 3", "id": "brand-cohesion-review", "playbook": "brand-audit"}
+      "outputs": [
+        "brand-system",
+        "creative-assets",
+        "content-library"
       ],
-      "skills": ["brand-creative-system", "ui-design-quality", "creative-production:produce"],
-      "tools": ["image-generation", "document-production", "design-system"]
+      "playbooks": [
+        "brand-audit",
+        "creative-production",
+        "content-system"
+      ],
+      "required_approvals": [
+        "public-publishing",
+        "material-brand-change"
+      ],
+      "routines": [
+        {
+          "cadence": "0 15 * * 3",
+          "id": "brand-cohesion-review",
+          "playbook": "brand-audit"
+        }
+      ],
+      "skills": [
+        "brand-creative-system",
+        "ui-design-quality",
+        "creative-production:produce"
+      ],
+      "tools": [
+        "image-generation",
+        "document-production",
+        "design-system"
+      ]
     },
     {
-      "capabilities": ["market-research", "revenue-growth", "sales-operations"],
-      "decision_rights": ["propose-offer", "manage-pipeline", "recommend-pricing"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "commercial-growth-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable commercial outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "commercial-customer-system"
+          ],
+          "source_slot_id": "commercial-growth-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "commercial-growth-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded commercial artifact packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "commercial-growth-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "market-research",
+        "revenue-growth",
+        "sales-operations"
+      ],
+      "decision_rights": [
+        "propose-offer",
+        "manage-pipeline",
+        "recommend-pricing"
+      ],
       "id": "commercial-growth",
-      "inputs": ["offer", "market-evidence", "brand-system", "product-capabilities"],
-      "interfaces": ["product", "brand-creative", "customer-success", "finance"],
-      "metrics": ["qualified-pipeline", "win-rate", "customer-acquisition-cost", "revenue"],
+      "inputs": [
+        "offer",
+        "market-evidence",
+        "brand-system",
+        "product-capabilities"
+      ],
+      "interfaces": [
+        "product",
+        "brand-creative",
+        "customer-success",
+        "finance"
+      ],
+      "metrics": [
+        "qualified-pipeline",
+        "win-rate",
+        "customer-acquisition-cost",
+        "revenue"
+      ],
       "mission": "Translate customer value into ethical, repeatable revenue",
-      "outputs": ["offers", "campaigns", "proposals", "pipeline-decisions"],
-      "playbooks": ["market-research", "offer-design", "proposal-production", "pipeline-review"],
-      "required_approvals": ["customer-communication", "pricing-change", "contract-offer"],
-      "routines": [
-        {"cadence": "0 14 * * 5", "id": "revenue-pipeline-review", "playbook": "pipeline-review"}
+      "outputs": [
+        "offers",
+        "campaigns",
+        "proposals",
+        "pipeline-decisions"
       ],
-      "skills": ["commercial-customer-system", "hormozi-offer", "sales:index"],
-      "tools": ["crm", "communications", "documents"]
+      "playbooks": [
+        "market-research",
+        "offer-design",
+        "proposal-production",
+        "pipeline-review"
+      ],
+      "required_approvals": [
+        "customer-communication",
+        "pricing-change",
+        "contract-offer"
+      ],
+      "routines": [
+        {
+          "cadence": "0 14 * * 5",
+          "id": "revenue-pipeline-review",
+          "playbook": "pipeline-review"
+        }
+      ],
+      "skills": [
+        "commercial-customer-system",
+        "hormozi-offer",
+        "sales:index"
+      ],
+      "tools": [
+        "crm",
+        "communications",
+        "documents"
+      ]
     },
     {
-      "capabilities": ["customer-success", "support-operations"],
-      "decision_rights": ["triage-customer-risk", "propose-retention-action"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "customer-success-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable customer-success outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "commercial-customer-system"
+          ],
+          "source_slot_id": "customer-success-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "customer-success-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded customer-evidence packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "customer-success-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "customer-success",
+        "support-operations"
+      ],
+      "decision_rights": [
+        "triage-customer-risk",
+        "propose-retention-action"
+      ],
       "id": "customer-success",
-      "inputs": ["customer-health", "support-signals", "product-changes"],
-      "interfaces": ["product", "commercial-growth", "operations"],
-      "metrics": ["retention", "resolution-time", "customer-health", "expansion"],
+      "inputs": [
+        "customer-health",
+        "support-signals",
+        "product-changes"
+      ],
+      "interfaces": [
+        "product",
+        "commercial-growth",
+        "operations"
+      ],
+      "metrics": [
+        "retention",
+        "resolution-time",
+        "customer-health",
+        "expansion"
+      ],
       "mission": "Help customers achieve measurable value and surface product truth",
-      "outputs": ["customer-health-decisions", "support-resolutions", "voice-of-customer"],
-      "playbooks": ["customer-onboarding", "risk-triage", "voice-of-customer"],
-      "required_approvals": ["customer-communication", "account-change"],
-      "routines": [
-        {"cadence": "0 13 * * *", "id": "customer-risk-review", "playbook": "risk-triage"}
+      "outputs": [
+        "customer-health-decisions",
+        "support-resolutions",
+        "voice-of-customer"
       ],
-      "skills": ["commercial-customer-system", "voice-of-customer"],
-      "tools": ["crm", "support-system", "communications"]
+      "playbooks": [
+        "customer-onboarding",
+        "risk-triage",
+        "voice-of-customer"
+      ],
+      "required_approvals": [
+        "customer-communication",
+        "account-change"
+      ],
+      "routines": [
+        {
+          "cadence": "0 13 * * *",
+          "id": "customer-risk-review",
+          "playbook": "risk-triage"
+        }
+      ],
+      "skills": [
+        "commercial-customer-system",
+        "voice-of-customer"
+      ],
+      "tools": [
+        "crm",
+        "support-system",
+        "communications"
+      ]
     },
     {
-      "capabilities": ["financial-control", "planning-analysis"],
-      "decision_rights": ["reconcile-financials", "recommend-budget", "block-unapproved-spend"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "finance-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable finance outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "company-scorecard"
+          ],
+          "source_slot_id": "finance-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "finance-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded finance artifact packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "finance-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "financial-control",
+        "planning-analysis"
+      ],
+      "decision_rights": [
+        "reconcile-financials",
+        "recommend-budget",
+        "block-unapproved-spend"
+      ],
       "id": "finance",
-      "inputs": ["transactions", "contracts", "budgets", "operating-metrics"],
-      "interfaces": ["executive-strategy", "commercial-growth", "operations"],
-      "metrics": ["cash-runway", "gross-margin", "budget-variance", "forecast-accuracy"],
+      "inputs": [
+        "transactions",
+        "contracts",
+        "budgets",
+        "operating-metrics"
+      ],
+      "interfaces": [
+        "executive-strategy",
+        "commercial-growth",
+        "operations"
+      ],
+      "metrics": [
+        "cash-runway",
+        "gross-margin",
+        "budget-variance",
+        "forecast-accuracy"
+      ],
       "mission": "Maintain financial truth and allocate resources against company outcomes",
-      "outputs": ["financial-models", "forecasts", "variance-decisions"],
-      "playbooks": ["monthly-close", "budget-review", "scenario-modeling"],
-      "required_approvals": ["financial-commitment", "payment", "banking-change"],
-      "routines": [
-        {"cadence": "0 13 1 * *", "id": "monthly-financial-review", "playbook": "monthly-close"}
+      "outputs": [
+        "financial-models",
+        "forecasts",
+        "variance-decisions"
       ],
-      "skills": ["spreadsheets:Spreadsheets", "company-scorecard"],
-      "tools": ["accounting-system", "spreadsheets", "database"]
+      "playbooks": [
+        "monthly-close",
+        "budget-review",
+        "scenario-modeling"
+      ],
+      "required_approvals": [
+        "financial-commitment",
+        "payment",
+        "banking-change"
+      ],
+      "routines": [
+        {
+          "cadence": "0 13 1 * *",
+          "id": "monthly-financial-review",
+          "playbook": "monthly-close"
+        }
+      ],
+      "skills": [
+        "spreadsheets:Spreadsheets",
+        "company-scorecard"
+      ],
+      "tools": [
+        "accounting-system",
+        "spreadsheets",
+        "database"
+      ]
     },
     {
-      "capabilities": ["business-operations", "incident-management", "process-improvement"],
-      "decision_rights": ["triage-incident", "manage-capacity", "propose-process-change"],
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "operations-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable operations outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "operational-control"
+          ],
+          "source_slot_id": "operations-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "operations-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded operations artifact packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "operations-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "business-operations",
+        "incident-management",
+        "process-improvement"
+      ],
+      "decision_rights": [
+        "triage-incident",
+        "manage-capacity",
+        "propose-process-change"
+      ],
       "id": "operations",
-      "inputs": ["service-health", "queues", "costs", "exceptions"],
-      "interfaces": ["all-departments"],
-      "metrics": ["availability", "queue-age", "incident-resolution", "operating-cost"],
-      "mission": "Keep the organization reliable, observable, and continuously improving",
-      "outputs": ["operating-review", "incident-records", "process-improvements"],
-      "playbooks": ["daily-exception-review", "incident-response", "capacity-review"],
-      "required_approvals": ["production-change", "policy-change"],
-      "routines": [
-        {"cadence": "0 13 * * *", "id": "operations-exception-review", "playbook": "daily-exception-review"}
+      "inputs": [
+        "service-health",
+        "queues",
+        "costs",
+        "exceptions"
       ],
-      "skills": ["operational-control", "company-scorecard"],
-      "tools": ["observability", "company-os-control-plane", "database"]
+      "interfaces": [
+        "all-departments"
+      ],
+      "metrics": [
+        "availability",
+        "queue-age",
+        "incident-resolution",
+        "operating-cost"
+      ],
+      "mission": "Keep the organization reliable, observable, and continuously improving",
+      "outputs": [
+        "operating-review",
+        "incident-records",
+        "process-improvements"
+      ],
+      "playbooks": [
+        "daily-exception-review",
+        "incident-response",
+        "capacity-review"
+      ],
+      "required_approvals": [
+        "production-change",
+        "policy-change"
+      ],
+      "routines": [
+        {
+          "cadence": "0 13 * * *",
+          "id": "operations-exception-review",
+          "playbook": "daily-exception-review"
+        }
+      ],
+      "skills": [
+        "operational-control",
+        "company-scorecard"
+      ],
+      "tools": [
+        "observability",
+        "company-os-control-plane",
+        "database"
+      ]
     },
     {
-      "capabilities": ["legal-review", "security-governance", "privacy-compliance"],
-      "decision_rights": ["block-noncompliant-action", "recommend-control", "review-contract"],
-      "id": "security-compliance",
-      "inputs": ["architecture", "contracts", "data-flows", "incidents"],
-      "interfaces": ["engineering-quality", "operations", "finance", "commercial-growth"],
-      "metrics": ["control-effectiveness", "open-risk-age", "policy-exceptions"],
-      "mission": "Protect customers and the company through proportionate security, privacy, and legal controls",
-      "outputs": ["risk-decisions", "control-requirements", "legal-review"],
-      "playbooks": ["risk-assessment", "privacy-review", "contract-review"],
-      "required_approvals": ["legal-commitment", "security-policy-change", "sensitive-data-access"],
-      "routines": [
-        {"cadence": "0 14 1 * *", "id": "risk-and-control-review", "playbook": "risk-assessment"}
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "security-compliance-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable security or compliance outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "engineering-adversarial-review"
+          ],
+          "source_slot_id": "security-compliance-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "security-compliance-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded control-evidence packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "security-compliance-worker",
+          "status": "template"
+        }
       ],
-      "skills": ["risk-matrix", "engineering-adversarial-review"],
-      "tools": ["policy-registry", "security-scanner", "documents"]
+      "capabilities": [
+        "legal-review",
+        "security-governance",
+        "privacy-compliance"
+      ],
+      "decision_rights": [
+        "block-noncompliant-action",
+        "recommend-control",
+        "review-contract"
+      ],
+      "id": "security-compliance",
+      "inputs": [
+        "architecture",
+        "contracts",
+        "data-flows",
+        "incidents"
+      ],
+      "interfaces": [
+        "engineering-quality",
+        "operations",
+        "finance",
+        "commercial-growth"
+      ],
+      "metrics": [
+        "control-effectiveness",
+        "open-risk-age",
+        "policy-exceptions"
+      ],
+      "mission": "Protect customers and the company through proportionate security, privacy, and legal controls",
+      "outputs": [
+        "risk-decisions",
+        "control-requirements",
+        "legal-review"
+      ],
+      "playbooks": [
+        "risk-assessment",
+        "privacy-review",
+        "contract-review"
+      ],
+      "required_approvals": [
+        "legal-commitment",
+        "security-policy-change",
+        "sensitive-data-access"
+      ],
+      "routines": [
+        {
+          "cadence": "0 14 1 * *",
+          "id": "risk-and-control-review",
+          "playbook": "risk-assessment"
+        }
+      ],
+      "skills": [
+        "risk-matrix",
+        "engineering-adversarial-review"
+      ],
+      "tools": [
+        "policy-registry",
+        "security-scanner",
+        "documents"
+      ]
     }
   ]
 }
