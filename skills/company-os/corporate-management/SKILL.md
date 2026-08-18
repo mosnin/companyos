@@ -5,7 +5,7 @@ description: Force four-tier corporate management and the plan-organize-staff-di
 
 # Corporate Management
 
-This is a thinking overlay for how Company OS is staffed. It does not own authority, leases, fabric, spend, or completion. `$manage-company-program`, `$company-blueprint`, `$department-charters`, `$govern-outcome-execution`, and `$force-first-execution` still win.
+This is a thinking overlay for how Company OS is staffed. It does not own authority, leases, fabric, spend, or completion. `$manage-company-program`, `$company-blueprint`, `$department-charters`, `$corporate-departments`, `$govern-outcome-execution`, and `$force-first-execution` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, quoted speech, or affiliation with Fayol, Koontz, or any named MBA school.
 
@@ -36,7 +36,7 @@ Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable
 - Move the ball with `$force-first-execution`. Credit only materialized artifacts, runnable candidates, and observed behavior. Plans, audits, and scores without a candidate are not progress. Build the candidate before expanding the judge.
 - Any manager escalates to master. A peer notice of a collision is not command.
 - Staff execute one packet. They do not spawn children or accept their own work.
-- Derive manager count from independently accountable outcomes, not a 1:1:1:N slogan.
+- Derive manager count from independently accountable outcomes, not a 1:1:1:N slogan. Named department function uses `$corporate-departments` and a preset pack.
 - Do not enable the Company OS scheduler or runtime from this overlay.
 
 ## Artifacts

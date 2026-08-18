@@ -51,7 +51,7 @@ class CompanyBlueprintTests(unittest.TestCase):
                 )
 
             organization = json.loads((first_root / "compiled/organization.json").read_text())
-            self.assertEqual(10, organization["department_count"])
+            self.assertEqual(12, organization["department_count"])
             self.assertEqual("elastic_work_graph", organization["capacity_policy"]["topology_mode"])
             self.assertNotIn("max_managers", organization["capacity_policy"])
             routines = json.loads((first_root / "compiled/routine-plan.json").read_text())
@@ -63,7 +63,7 @@ class CompanyBlueprintTests(unittest.TestCase):
             self.assertTrue(all(item["steps"] and item["evidence"] for item in capabilities["playbooks"]))
             registry = json.loads((first_root / "compiled/agent-registry.json").read_text())
             self.assertEqual("templates-not-running-agents", registry["activation_policy"])
-            self.assertEqual(20, len(registry["slots"]))
+            self.assertEqual(24, len(registry["slots"]))
             self.assertTrue(all(item["status"] in {"template", "stored"} for item in registry["slots"]))
             self.assertTrue(all(item["role"] in {"manager", "worker"} for item in registry["slots"]))
 
@@ -82,8 +82,10 @@ class CompanyBlueprintTests(unittest.TestCase):
             compiler.compile_blueprint(self.write_blueprint(root, blueprint), root / "compiled")
             organization = json.loads((root / "compiled/organization.json").read_text())
             department_ids = {item["id"] for item in organization["departments"]}
-            self.assertEqual(7, organization["department_count"])
-            self.assertIn("commercial-growth", department_ids)
+            self.assertEqual(8, organization["department_count"])
+            self.assertIn("marketing", department_ids)
+            self.assertIn("sales", department_ids)
+            self.assertNotIn("commercial-growth", department_ids)
             self.assertNotIn("engineering-quality", department_ids)
 
     def test_unknown_capability_and_disabled_owner_fail_before_dispatch(self) -> None:
@@ -165,7 +167,11 @@ class CompanyBlueprintTests(unittest.TestCase):
             )
         )
         departments = compiler.validate_department_catalog(catalog)
-        self.assertEqual(10, len(departments))
+        self.assertEqual(12, len(departments))
+        self.assertIn("marketing", departments)
+        self.assertIn("sales", departments)
+        self.assertIn("human-resources", departments)
+        self.assertNotIn("commercial-growth", departments)
         for department in departments.values():
             roles = {slot["role"] for slot in department["agent_slots"]}
             self.assertIn("manager", roles)

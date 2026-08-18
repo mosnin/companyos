@@ -30,8 +30,15 @@ Common foundations include:
 - **Strategy & Product:** direction, research, portfolio, customer outcomes.
 - **Program Management:** roadmaps, dependencies, plans, decision records.
 - **Engineering & Quality:** implementation, testing, reliability, security review.
+- **Marketing:** demand, campaigns, positioning; separate from Sales.
+- **Sales:** qualification, pipeline, revenue conversion.
 - **Operations:** service health, incidents, process, cost/capacity.
-- **Customer/Go-to-Market:** only with strict approval for external communications and data access.
+- **Finance:** cash truth, forecast, allocation.
+- **Human Resources:** roles, hiring plans, org slices; no invented headcount.
+- **Customer Success / Brand / Security-Legal:** value realized, brand system, controls.
+
+Load `$corporate-departments` on the department manager for issue trees and
+function doctrine. Do not send `$corporate-departments` to Luna workers.
 
 Each department may propose work to another. It may not command cross-functional or consequential action without the receiving owner and configured approval. Keep a shared company scorecard and resolve conflicts through explicit decision rights.
 

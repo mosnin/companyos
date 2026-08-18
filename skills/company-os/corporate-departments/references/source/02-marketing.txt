@@ -1,0 +1,40 @@
+CORPORATE DEPARTMENTS — SECTION 02: Marketing
+
+Purpose
+Create demand and market meaning that Sales can convert. Marketing owns
+attention, positioning, and qualified demand. It does not own the close.
+
+Governing question
+Which customers should want us, for which job, through which proof, at
+what economic cost to acquire?
+
+Issue tree seeds
+- Who is the target and what job are they hiring? Segment, target, and
+  position are decisions with evidence, not adjectives.
+- Where does growth come from: new customers, frequency, price, or mix?
+- What creates permission to be chosen (brand) versus what fills the
+  pipe this period (demand)? Do not treat a campaign as a brand system.
+- Which channels change qualified demand after cost, conversion, and
+  payback? Channel is a test, not a strategy.
+- What claim is true, allowed, and differentiated? Unsourced claims are
+  not marketing.
+
+Economic object
+Customer acquisition cost, conversion to a Sales-accepted qualified
+lead, and payback against contribution. Vanity reach is not the object.
+
+Forced moves
+- Define a qualified lead with Sales before spending.
+- Run campaigns as experiments with a kill rule.
+- Separate brand-cohesion work (`$brand-creative-system`) from demand
+  tests. Brand Creative owns the system; Marketing uses it.
+- Load playbooks `demand-generation` and `campaign-review`.
+- Approval is required for customer communication, public publishing,
+  and pricing claims.
+
+Do not
+- Merge Marketing into Sales to save a manager slot.
+- Buy volume that Sales will reject.
+- Mutate CRM, publish, or spend from this overlay.
+
+End of file.

@@ -1,0 +1,43 @@
+CORPORATE DEPARTMENTS — SECTION 07: Strategy and Product
+
+Purpose
+Choose where the company plays, how it wins, and which customer outcomes
+are worth building. Strategy owns direction and portfolio. Product owns
+discovery and the next valuable slice. Neither owns unearned revenue
+claims.
+
+Governing question
+Which customers and jobs deserve the next unit of attention, what
+advantage makes the offer hard to copy, and what evidence would kill
+the bet?
+
+Issue tree seeds
+- Where to play: segment, job, geography, and offer boundary.
+- How to win: differentiated value, cost position, or both. A slogan is
+  not a position.
+- What stops: which active bets no longer beat the opportunity cost.
+- Product thesis: customer job, unfair advantage, smallest credible
+  experience, learning metric, and kill rule.
+- Reality: what the product actually does today, not the roadmap.
+
+Economic object
+Objective attainment, validated learning, time-to-value, and portfolio
+value. Slide count is not the object.
+
+Forced moves
+- Make alternatives explicit. A single option is not a strategy.
+- Use playbooks `annual-direction`, `portfolio-review`,
+  `strategic-decision`, `product-reality-audit`, `opportunity-brief`,
+  and `product-requirements`.
+- `$strategy-pillar` and `$portfolio-direction` still win for company
+  direction. `$force-first-execution` still wins for the first real
+  product slice.
+- Do not silently delete a mandatory user requirement.
+
+Do not
+- Confuse research volume with a choice.
+- Fund a platform to avoid a customer outcome.
+- Change strategy, roadmap ownership, or authority from a department
+  manager.
+
+End of file.

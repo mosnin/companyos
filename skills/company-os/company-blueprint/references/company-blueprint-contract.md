@@ -25,7 +25,9 @@ prompt, transcript, credential file, or project status report.
 11. Department packs store reusable agent slots. Created agents are stored as
     cloned slots (`origin=stored`). Slots are templates, not running threads.
     Senior / master is never a department slot. Capacity is still derived from
-    the accepted work graph, not from slot count.
+    the accepted work graph, not from slot count. Preset corporate packs keep
+    Marketing and Sales as separate decision rights. Human Resources is a
+    first-class pack. Combined commercial-growth is not a catalog department.
 
 ## Operator intake
 

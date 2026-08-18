@@ -16,7 +16,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
 | Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
-| Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters`, `$corporate-management` |
+| Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters`, `$corporate-management`, `$corporate-departments` |
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
 | UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality` |
 | Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
@@ -84,8 +84,10 @@ design, execution, verification, and integration. Managers use
 or work packet instead of repeating the operating system in every prompt.
 When compiling a company or spawning a multi-manager program, also send
 `$corporate-management` and name each actor as senior, middle, low-level, or
-staff. Do not send `$corporate-management` to workers or use it as the master
-persona. Executable delegation stays master → manager → worker.
+staff. When compiling named departments, also send `$corporate-departments`
+to the department manager. Do not send `$corporate-management` to workers or
+use it as the master persona. Do not send `$corporate-departments` to workers.
+Executable delegation stays master → manager → worker.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.

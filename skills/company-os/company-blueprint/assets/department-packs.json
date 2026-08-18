@@ -17,7 +17,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "strategy-pillar"
+            "strategy-pillar",
+            "corporate-departments"
           ],
           "source_slot_id": "executive-strategy-manager",
           "status": "template"
@@ -93,7 +94,8 @@
       "skills": [
         "strategy-pillar",
         "portfolio-direction",
-        "company-scorecard"
+        "company-scorecard",
+        "corporate-departments"
       ],
       "tools": [
         "company-os-control-plane"
@@ -114,7 +116,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "project-program-management"
+            "project-program-management",
+            "corporate-departments"
           ],
           "source_slot_id": "program-management-manager",
           "status": "template"
@@ -187,7 +190,8 @@
         "project-program-management",
         "project-kickoff-roadmap",
         "durable-task-dag",
-        "select-execution-loop"
+        "select-execution-loop",
+        "corporate-departments"
       ],
       "tools": [
         "company-os-control-plane",
@@ -209,7 +213,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "project-program-management"
+            "project-program-management",
+            "corporate-departments"
           ],
           "source_slot_id": "product-manager",
           "status": "template"
@@ -250,7 +255,8 @@
       "interfaces": [
         "engineering-quality",
         "brand-creative",
-        "commercial-growth"
+        "marketing",
+        "sales"
       ],
       "metrics": [
         "activation",
@@ -283,7 +289,8 @@
       "skills": [
         "project-program-management",
         "evidence-research-campaign",
-        "innovation-bets"
+        "innovation-bets",
+        "corporate-departments"
       ],
       "tools": [
         "research",
@@ -305,7 +312,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "technology-radar"
+            "technology-radar",
+            "corporate-departments"
           ],
           "source_slot_id": "engineering-quality-manager",
           "status": "template"
@@ -381,7 +389,8 @@
         "technology-radar",
         "manage-company-program",
         "execute-bounded-task",
-        "select-execution-loop"
+        "select-execution-loop",
+        "corporate-departments"
       ],
       "tools": [
         "repository",
@@ -404,7 +413,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "brand-creative-system"
+            "brand-creative-system",
+            "corporate-departments"
           ],
           "source_slot_id": "brand-creative-manager",
           "status": "template"
@@ -444,7 +454,8 @@
       ],
       "interfaces": [
         "product",
-        "commercial-growth"
+        "marketing",
+        "sales"
       ],
       "metrics": [
         "brand-cohesion",
@@ -476,7 +487,8 @@
       "skills": [
         "brand-creative-system",
         "ui-design-quality",
-        "creative-production:produce"
+        "creative-production:produce",
+        "corporate-departments"
       ],
       "tools": [
         "image-generation",
@@ -491,17 +503,18 @@
             "master",
             "worker"
           ],
-          "id": "commercial-growth-manager",
+          "id": "marketing-manager",
           "management_tier": "middle",
           "origin": "catalog",
-          "outcome": "Manage one independently accountable commercial outcome",
+          "outcome": "Manage one independently accountable marketing outcome",
           "requested_model": "gpt-5.6-sol",
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "commercial-customer-system"
+            "commercial-customer-system",
+            "corporate-departments"
           ],
-          "source_slot_id": "commercial-growth-manager",
+          "source_slot_id": "marketing-manager",
           "status": "template"
         },
         {
@@ -509,30 +522,30 @@
             "master",
             "manager"
           ],
-          "id": "commercial-growth-worker",
+          "id": "marketing-worker",
           "management_tier": "staff",
           "origin": "catalog",
-          "outcome": "Produce one bounded commercial artifact packet",
+          "outcome": "Produce one bounded marketing artifact packet",
           "requested_model": "gpt-5.6-luna",
           "role": "worker",
           "skills": [
             "execute-bounded-task"
           ],
-          "source_slot_id": "commercial-growth-worker",
+          "source_slot_id": "marketing-worker",
           "status": "template"
         }
       ],
       "capabilities": [
-        "market-research",
-        "revenue-growth",
-        "sales-operations"
+        "demand-generation",
+        "campaign-execution",
+        "market-research"
       ],
       "decision_rights": [
-        "propose-offer",
-        "manage-pipeline",
-        "recommend-pricing"
+        "propose-campaign",
+        "allocate-demand-budget",
+        "recommend-positioning"
       ],
-      "id": "commercial-growth",
+      "id": "marketing",
       "inputs": [
         "offer",
         "market-evidence",
@@ -542,27 +555,130 @@
       "interfaces": [
         "product",
         "brand-creative",
+        "sales",
+        "customer-success",
+        "finance"
+      ],
+      "metrics": [
+        "qualified-demand",
+        "campaign-conversion",
+        "customer-acquisition-cost",
+        "share-of-demand"
+      ],
+      "mission": "Create ethical, measurable demand and market meaning",
+      "outputs": [
+        "campaigns",
+        "demand-plans",
+        "market-evidence",
+        "positioning-briefs"
+      ],
+      "playbooks": [
+        "market-research",
+        "demand-generation",
+        "campaign-review"
+      ],
+      "required_approvals": [
+        "customer-communication",
+        "public-publishing",
+        "pricing-claim"
+      ],
+      "routines": [
+        {
+          "cadence": "0 15 * * 3",
+          "id": "campaign-performance-review",
+          "playbook": "campaign-review"
+        }
+      ],
+      "skills": [
+        "commercial-customer-system",
+        "corporate-departments"
+      ],
+      "tools": [
+        "crm",
+        "communications",
+        "documents"
+      ]
+    },
+    {
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "sales-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable sales outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "commercial-customer-system",
+            "corporate-departments"
+          ],
+          "source_slot_id": "sales-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "sales-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded sales artifact packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "sales-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "revenue-growth",
+        "sales-operations",
+        "sales-qualification"
+      ],
+      "decision_rights": [
+        "manage-pipeline",
+        "propose-offer",
+        "recommend-pricing"
+      ],
+      "id": "sales",
+      "inputs": [
+        "qualified-demand",
+        "offer",
+        "market-evidence",
+        "product-capabilities"
+      ],
+      "interfaces": [
+        "marketing",
+        "product",
         "customer-success",
         "finance"
       ],
       "metrics": [
         "qualified-pipeline",
         "win-rate",
-        "customer-acquisition-cost",
-        "revenue"
+        "revenue",
+        "sales-cycle-time"
       ],
-      "mission": "Translate customer value into ethical, repeatable revenue",
+      "mission": "Convert qualified demand into ethical, repeatable revenue",
       "outputs": [
-        "offers",
-        "campaigns",
         "proposals",
-        "pipeline-decisions"
+        "pipeline-decisions",
+        "forecasts",
+        "account-plans"
       ],
       "playbooks": [
-        "market-research",
         "offer-design",
         "proposal-production",
-        "pipeline-review"
+        "pipeline-review",
+        "sales-qualification"
       ],
       "required_approvals": [
         "customer-communication",
@@ -578,6 +694,7 @@
       ],
       "skills": [
         "commercial-customer-system",
+        "corporate-departments",
         "hormozi-offer",
         "sales:index"
       ],
@@ -602,7 +719,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "commercial-customer-system"
+            "commercial-customer-system",
+            "corporate-departments"
           ],
           "source_slot_id": "customer-success-manager",
           "status": "template"
@@ -641,7 +759,8 @@
       ],
       "interfaces": [
         "product",
-        "commercial-growth",
+        "marketing",
+        "sales",
         "operations"
       ],
       "metrics": [
@@ -674,7 +793,8 @@
       ],
       "skills": [
         "commercial-customer-system",
-        "voice-of-customer"
+        "voice-of-customer",
+        "corporate-departments"
       ],
       "tools": [
         "crm",
@@ -697,7 +817,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "company-scorecard"
+            "company-scorecard",
+            "corporate-departments"
           ],
           "source_slot_id": "finance-manager",
           "status": "template"
@@ -738,7 +859,8 @@
       ],
       "interfaces": [
         "executive-strategy",
-        "commercial-growth",
+        "marketing",
+        "sales",
         "operations"
       ],
       "metrics": [
@@ -772,7 +894,8 @@
       ],
       "skills": [
         "spreadsheets:Spreadsheets",
-        "company-scorecard"
+        "company-scorecard",
+        "corporate-departments"
       ],
       "tools": [
         "accounting-system",
@@ -795,7 +918,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "operational-control"
+            "operational-control",
+            "corporate-departments"
           ],
           "source_slot_id": "operations-manager",
           "status": "template"
@@ -868,12 +992,111 @@
       ],
       "skills": [
         "operational-control",
-        "company-scorecard"
+        "company-scorecard",
+        "corporate-departments"
       ],
       "tools": [
         "observability",
         "company-os-control-plane",
         "database"
+      ]
+    },
+    {
+      "agent_slots": [
+        {
+          "forbidden_roles": [
+            "master",
+            "worker"
+          ],
+          "id": "human-resources-manager",
+          "management_tier": "middle",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable people outcome",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "corporate-departments"
+          ],
+          "source_slot_id": "human-resources-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "human-resources-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one bounded people-ops artifact packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "human-resources-worker",
+          "status": "template"
+        }
+      ],
+      "capabilities": [
+        "hiring",
+        "org-design",
+        "people-operations"
+      ],
+      "decision_rights": [
+        "propose-role",
+        "recommend-hire-plan",
+        "design-org-slice"
+      ],
+      "id": "human-resources",
+      "inputs": [
+        "strategy-decisions",
+        "capacity",
+        "role-gaps",
+        "people-metrics"
+      ],
+      "interfaces": [
+        "executive-strategy",
+        "finance",
+        "all-departments"
+      ],
+      "metrics": [
+        "time-to-fill",
+        "quality-of-hire",
+        "span-of-control",
+        "role-clarity"
+      ],
+      "mission": "Acquire and align the capability the company actually needs",
+      "outputs": [
+        "hiring-plans",
+        "org-designs",
+        "role-charters",
+        "people-ops-decisions"
+      ],
+      "playbooks": [
+        "hiring-plan",
+        "org-design-review",
+        "people-ops-review"
+      ],
+      "required_approvals": [
+        "hiring-commitment",
+        "compensation-change",
+        "org-change"
+      ],
+      "routines": [
+        {
+          "cadence": "0 14 2 * *",
+          "id": "workforce-and-hiring-review",
+          "playbook": "hiring-plan"
+        }
+      ],
+      "skills": [
+        "corporate-departments"
+      ],
+      "tools": [
+        "documents",
+        "company-os-control-plane"
       ]
     },
     {
@@ -891,7 +1114,8 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
-            "engineering-adversarial-review"
+            "engineering-adversarial-review",
+            "corporate-departments"
           ],
           "source_slot_id": "security-compliance-manager",
           "status": "template"
@@ -935,7 +1159,8 @@
         "engineering-quality",
         "operations",
         "finance",
-        "commercial-growth"
+        "marketing",
+        "sales"
       ],
       "metrics": [
         "control-effectiveness",
@@ -967,7 +1192,8 @@
       ],
       "skills": [
         "risk-matrix",
-        "engineering-adversarial-review"
+        "engineering-adversarial-review",
+        "corporate-departments"
       ],
       "tools": [
         "policy-registry",

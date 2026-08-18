@@ -47,6 +47,12 @@ Department count is not fixed. Create departments only when they own a distinct
 outcome, decision boundary, or operating system. Manager and Luna capacity is
 derived later from the accepted work graph.
 
+Preset corporate packs are Strategy, Program Management, Product, Engineering,
+Brand, Marketing, Sales, Customer Success, Finance, Operations, Human
+Resources, and Security/Legal. Marketing and Sales are separate decision
+rights. Load `$corporate-departments` on the department manager. Do not send
+`$corporate-departments` to Luna workers.
+
 ## Operating planes
 
 - **Identity plane:** mission, thesis, customers, offers, objectives, values.
