@@ -5,7 +5,7 @@ description: Force four-tier corporate management and the plan-organize-staff-di
 
 # Corporate Management
 
-This is a thinking overlay for how Company OS is staffed. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$company-blueprint`, and `$department-charters` still win.
+This is a thinking overlay for how Company OS is staffed. It does not own authority, leases, fabric, spend, or completion. `$manage-company-program`, `$company-blueprint`, `$department-charters`, and `$govern-outcome-execution` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, quoted speech, or affiliation with Fayol, Koontz, or any named MBA school.
 
@@ -19,7 +19,7 @@ Before spawning or directing a multi-tier program, answer these:
 2. Name the function in cycle: plan, organize, staff, direct, coordinate, control. Do not skip control.
 3. Senior owns strategy, policy, the global bottleneck, and barrier decisions. Managers report a local view; they may not redirect program resources.
 4. Middle and low-level are peer Sol managers under master. Wider vs narrower charter is not a parent hop.
-5. Pause if this is a fourth executable hop, a manager under a manager, a worker setting strategy, or a manager acting as master.
+5. Pause if this is a fourth executable hop, a manager under a manager, an audit or review manager, a worker setting strategy, or a manager acting as master.
 
 Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable the scheduler or runtime from this overlay.
 
@@ -29,6 +29,8 @@ Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable
 - Functions are a cycle, not a seventh execution loop.
 - Executable delegation stays master → manager → worker. Low-level management is a narrower Sol-manager charter, not a new runtime role.
 - Four names do not require four agent layers. A bounded pilot may have two peer managers.
+- Tokens follow the global bottleneck, not the org chart. Do not paste this pack, `$company-os`, or `$elastic-company-os` into a manager or worker prompt.
+- Do not spawn a manager, reviewer, or LLM audit loop to satisfy the four names. Control is one named check. The controller `audit` command is not a review meeting.
 - Any manager escalates to master. A peer notice of a collision is not command.
 - Staff execute one packet. They do not spawn children or accept their own work.
 - Derive manager count from independently accountable outcomes, not a 1:1:1:N slogan.

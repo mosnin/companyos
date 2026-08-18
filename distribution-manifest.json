@@ -392,8 +392,8 @@
     },
     {
       "path": "company-os/corporate-management/SKILL.md",
-      "sha256": "7a50c7f7e08b58e45eba0e657a10211f39bf7e40cacbaa0f3a1b3ed60b8590c8",
-      "size": 3264
+      "sha256": "c8e24253b95cf0a201338b1eb37451273e7dff3ce4425d47cc97d5c273ca50bc",
+      "size": 3648
     },
     {
       "path": "company-os/corporate-management/agents/claude.yaml",
@@ -417,13 +417,13 @@
     },
     {
       "path": "company-os/corporate-management/references/source/00-index.txt",
-      "sha256": "3ccf5b069aeef272fd1a6ba50443c8881ba2931e79666fb396b57f91f0e1d8ec",
-      "size": 1186
+      "sha256": "11c68a90224bd2f929aec403b0d74216c8ca5145e6f5c3fb2c054cef2c8de497",
+      "size": 1361
     },
     {
       "path": "company-os/corporate-management/references/source/01-management-as-process.txt",
-      "sha256": "1306ca3805a5063d723f8fd0fec8afd551881ff9aff974c4169b8693840f9d0c",
-      "size": 1003
+      "sha256": "e299c28e52c108344673e52d162440ddf45a542e8b16ada4abb195a7d7398af1",
+      "size": 1312
     },
     {
       "path": "company-os/corporate-management/references/source/02-functions-of-management.txt",
@@ -442,8 +442,8 @@
     },
     {
       "path": "company-os/corporate-management/references/source/05-function-by-tier.txt",
-      "sha256": "748361719fc3953ac4d98376838619875a0455ee82130ec785bc5279fd6f3bae",
-      "size": 1479
+      "sha256": "3301388fd98df64900a0423158914c07ef4e9845dbd45a8cb6cf1ff16cbf1f5b",
+      "size": 1614
     },
     {
       "path": "company-os/corporate-management/references/source/06-charter-and-escalation.txt",
@@ -452,8 +452,8 @@
     },
     {
       "path": "company-os/corporate-management/scripts/validate_corporate_management.py",
-      "sha256": "ee920bde0a2d687461dec2058b546c6c012968e224a2f68e6e12b93f4654efa6",
-      "size": 5804
+      "sha256": "a423a783a95c2ad921379954da0a3d7d0b95116ce3db3028f9a22ac418ef59bc",
+      "size": 5939
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",

@@ -80,6 +80,36 @@ class CorporateManagementTests(unittest.TestCase):
         self.assertNotIn("parent_manager_id", manager_props)
         self.assertNotIn("management_tier", manager_props)
 
+    def test_token_thrift_rejects_audit_managers_and_pack_paste(self) -> None:
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        process = " ".join(
+            (SKILL / "references/source/01-management-as-process.txt").read_text(
+                encoding="utf-8"
+            ).split()
+        )
+        self.assertIn("$govern-outcome-execution", skill)
+        self.assertIn("Tokens follow the global bottleneck, not the org chart.", skill)
+        self.assertIn("Do not paste this pack", skill)
+        self.assertIn("LLM audit loop", skill)
+        self.assertIn("controller `audit` command", skill)
+        self.assertIn("$govern-outcome-execution", process)
+        self.assertIn("Tokens follow the global bottleneck, not the org chart.", process)
+        self.assertIn("not an LLM review loop", process)
+        charter = json.loads(
+            (
+                ROOT / "skills/company-os/manage-company-program/assets/mission-charter.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertIsNone(charter["budget"]["max_tokens"])
+        fabric = (
+            ROOT / "skills/autonomy-suite/orchestration/luna-execution-fabric/SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("70–85% of model tokens in Luna", fabric)
+        governor = (
+            ROOT / "skills/company-os/govern-outcome-execution/SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("competent bureaucracy", governor)
+
     def test_spawn_template_is_organization_lane_specific(self) -> None:
         template = json.loads((SKILL / "assets/spawn-template.json").read_text(encoding="utf-8"))
         self.assertEqual(template["use_when"], list(MODULE.USE_WHEN))

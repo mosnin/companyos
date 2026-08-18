@@ -58,6 +58,9 @@ SKILL_MARKERS = (
     "peer sol managers",
     "not a parent hop",
     "four names do not require four agent layers",
+    "tokens follow the global bottleneck",
+    "do not spawn a manager, reviewer, or llm audit loop",
+    "$govern-outcome-execution",
 )
 
 

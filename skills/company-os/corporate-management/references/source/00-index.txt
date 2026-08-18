@@ -21,5 +21,8 @@ Shared operating rules
   role and not a parent hop. Middle and low-level are peer Sol managers.
   Staff are Luna workers.
 - Do not invent headcount, authority, or a second orchestrator.
+- Tokens follow the global bottleneck, not the org chart. Do not spawn an
+  audit manager or paste this pack into prompts. `$govern-outcome-execution`
+  still wins for spend.
 
 End of index.

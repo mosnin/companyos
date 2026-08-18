@@ -32,6 +32,8 @@ Staff / Luna worker
 
 Cycle rule
 Every accepted outcome still needs the full cycle. The missing function is
-the management bottleneck. Do not add a meeting to hide a missing function.
+the management bottleneck. Do not add a meeting, extra manager, or LLM
+audit loop to hide a missing function. Control is one named check against
+the standard. Audits are sensors; they are not accepted outcomes.
 
 End of file.

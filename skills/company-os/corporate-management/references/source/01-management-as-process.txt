@@ -19,8 +19,12 @@ Inclusion
   accepted Company OS outcomes.
 
 Company OS rule
-This overlay does not own authority, leases, fabric, or completion.
-`$manage-company-program` still wins. Rejected commands must not mutate
+This overlay does not own authority, leases, fabric, spend, or completion.
+`$manage-company-program` still wins for delivery. `$govern-outcome-execution`
+still wins for time, tokens, and cost. Tokens follow the global bottleneck,
+not the org chart. Do not spawn an audit or review manager. Control is one
+named check, not a meeting. The controller `audit` command is a local
+verifier; it is not an LLM review loop. Rejected commands must not mutate
 governed state.
 
 End of file.
