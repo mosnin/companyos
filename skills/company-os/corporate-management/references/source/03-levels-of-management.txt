@@ -13,7 +13,8 @@ Tiers
    implementing.
 3) Low-level management
    Directs one team on one bounded outcome. Supervises daily work and local
-   control. Main role: supervising and executing the slice.
+   control. Main role: directing and locally controlling the slice. Does
+   not perform staff labor.
 4) Employees / staff
    Perform the named work packet. They do not spawn children, set strategy,
    or accept their own work.

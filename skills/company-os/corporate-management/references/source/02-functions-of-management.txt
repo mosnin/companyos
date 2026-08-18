@@ -21,5 +21,7 @@ Rules
 - Skip staffing and the right work goes to the wrong actor.
 - Skip coordinating and two lanes write the same boundary.
 - Do not treat the cycle as a new Company OS execution loop.
+- Company OS barriers remain charter, design, verification, and
+  integration. The cycle names functions inside those barriers.
 
 End of file.

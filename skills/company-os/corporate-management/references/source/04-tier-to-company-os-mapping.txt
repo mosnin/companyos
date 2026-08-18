@@ -19,14 +19,20 @@ Mapping
   ownership, or authority.
 - Low-level management = Sol manager of one slice or worker team.
   Same fabric role as middle management. Narrower charter: direct the team,
-  control local evidence, escalate blockers. Not a new runtime role.
+  control local evidence, escalate blockers. Not a new runtime role and
+  not a parent under middle management.
 - Employees / staff = Luna workers.
   Use `$execute-bounded-task`. One packet, one write boundary, one receipt.
   Worker completion is never acceptance.
 
 Rules
+- Middle and low-level are peer Sol managers. Both report to master.
+  Wider vs narrower charter is not a parent hop.
 - Do not spawn a manager to sit between master and manager.
+- Do not spawn a manager under a manager.
 - Do not spawn a worker to act as low-level management.
+- Four names do not require four agent layers. A bounded pilot may have
+  two peer managers.
 - Derive manager count from independently accountable outcomes, not a
   fixed 1:1:1:N headcount slogan.
 

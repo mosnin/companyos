@@ -6,6 +6,7 @@ Assign the management cycle without letting every tier do every function.
 Senior / master
 - Primary: planning and decision making.
 - Also: organizing the program contract and controlling at barriers.
+- Owns the global bottleneck and which resources follow it.
 - Does not: perform staff labor or rewrite worker packets after dispatch
   except to stop, replace, or re-scope.
 
@@ -13,13 +14,17 @@ Middle / department or program Sol manager
 - Primary: organizing, coordinating, and implementing.
 - Also: staffing its Luna team and controlling slice evidence before
   reporting upward.
-- Does not: set company strategy or accept its own integration.
+- Reports a local view of the bottleneck. Does not redirect program
+  resources away from the master's named bottleneck.
+- Does not: set company strategy, command a peer manager, or accept its
+  own integration.
 
 Low-level / slice Sol manager
 - Primary: directing and local controlling.
 - Also: staffing the next packet when the charter already allows it.
-- Does not: open a new department, change the program contract, or skip
-  independent review.
+- Same reporting destination as middle: master. Not a child of middle.
+- Does not: open a new department, change the program contract, skip
+  independent review, or perform staff labor.
 
 Staff / Luna worker
 - Primary: execute the named packet.

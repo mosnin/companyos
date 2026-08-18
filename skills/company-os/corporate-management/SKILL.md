@@ -17,9 +17,9 @@ Before spawning or directing a multi-tier program, answer these:
 
 1. Name the tier. Senior is the Company OS master. Sol managers are middle or low-level. Luna workers are staff.
 2. Name the function in cycle: plan, organize, staff, direct, coordinate, control. Do not skip control.
-3. Senior owns strategy, policy, the global bottleneck, and barrier decisions. Managers may not change those.
-4. Middle coordinates a department or program. Low-level directs one worker team on one slice. Same fabric role; different charter width.
-5. Pause if this is a fourth executable hop, a worker setting strategy, or a manager acting as master.
+3. Senior owns strategy, policy, the global bottleneck, and barrier decisions. Managers report a local view; they may not redirect program resources.
+4. Middle and low-level are peer Sol managers under master. Wider vs narrower charter is not a parent hop.
+5. Pause if this is a fourth executable hop, a manager under a manager, a worker setting strategy, or a manager acting as master.
 
 Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable the scheduler or runtime from this overlay.
 
@@ -28,6 +28,8 @@ Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable
 - Management turns potential into performance. Unowned resources are not accepted outcomes.
 - Functions are a cycle, not a seventh execution loop.
 - Executable delegation stays master → manager → worker. Low-level management is a narrower Sol-manager charter, not a new runtime role.
+- Four names do not require four agent layers. A bounded pilot may have two peer managers.
+- Any manager escalates to master. A peer notice of a collision is not command.
 - Staff execute one packet. They do not spawn children or accept their own work.
 - Derive manager count from independently accountable outcomes, not a 1:1:1:N slogan.
 - Do not enable the Company OS scheduler or runtime from this overlay.

@@ -392,8 +392,8 @@
     },
     {
       "path": "company-os/corporate-management/SKILL.md",
-      "sha256": "23f59dff5e52843d906ca29afbb13b6a49c5ba5f01424ff788fbe5d8f59469ab",
-      "size": 3057
+      "sha256": "7a50c7f7e08b58e45eba0e657a10211f39bf7e40cacbaa0f3a1b3ed60b8590c8",
+      "size": 3264
     },
     {
       "path": "company-os/corporate-management/agents/claude.yaml",
@@ -417,8 +417,8 @@
     },
     {
       "path": "company-os/corporate-management/references/source/00-index.txt",
-      "sha256": "69b62107b80a4b3dfa60469b3fcd3c83d0c0653ce23bd445cdabdb4260e0b408",
-      "size": 1119
+      "sha256": "3ccf5b069aeef272fd1a6ba50443c8881ba2931e79666fb396b57f91f0e1d8ec",
+      "size": 1186
     },
     {
       "path": "company-os/corporate-management/references/source/01-management-as-process.txt",
@@ -427,33 +427,33 @@
     },
     {
       "path": "company-os/corporate-management/references/source/02-functions-of-management.txt",
-      "sha256": "14b5fc665e3987432ecfec3e9e1f118e8070cfac8fa2b872145c8aad9e0b92b7",
-      "size": 1020
+      "sha256": "ef59f758c0b11ff28f8f37ab6ce973c487c4ec922fc984a82b0a068211f042b7",
+      "size": 1148
     },
     {
       "path": "company-os/corporate-management/references/source/03-levels-of-management.txt",
-      "sha256": "9b26b6839756b6e083bed48622cec2123d007b945b5daef0bc393539be71d3f5",
-      "size": 940
+      "sha256": "f7b40564754eded59f71782e4d328f2c4ef36fac61e1c7204be4813591e97839",
+      "size": 981
     },
     {
       "path": "company-os/corporate-management/references/source/04-tier-to-company-os-mapping.txt",
-      "sha256": "e013214bde9670ee022a53d74691e3b0f93aae661686523da71d45efe04671e7",
-      "size": 1495
+      "sha256": "13ccee4e29b78c66acef7364428f3cea18b9a007f46f3941b8d2277c14cff382",
+      "size": 1791
     },
     {
       "path": "company-os/corporate-management/references/source/05-function-by-tier.txt",
-      "sha256": "089c674b1f7adfea1f3ff6b89df596990badd5136ae82507064b0769482bbcaf",
-      "size": 1179
+      "sha256": "748361719fc3953ac4d98376838619875a0455ee82130ec785bc5279fd6f3bae",
+      "size": 1479
     },
     {
       "path": "company-os/corporate-management/references/source/06-charter-and-escalation.txt",
-      "sha256": "1368dcab7c737da88ef2c15b8f2a9acb8f9b50d06b56feffd208e081ca241cd3",
-      "size": 1137
+      "sha256": "aa345ed2a2c93e80e0e953a9ef36858e1ef6565ca6bc34bbfebc0c1127b2789d",
+      "size": 1215
     },
     {
       "path": "company-os/corporate-management/scripts/validate_corporate_management.py",
-      "sha256": "648a2e5c433255684696a9bbd144fa74150372e1feacb062f56f5b202d9cf928",
-      "size": 5704
+      "sha256": "ee920bde0a2d687461dec2058b546c6c012968e224a2f68e6e12b93f4654efa6",
+      "size": 5804
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",

@@ -4,19 +4,20 @@ Purpose
 Make the tier and the owned functions visible on the charter before work
 starts.
 
-Name these in the compact mission charter or work packet text. Do not add a
-new schema field, preflight capability, or fabric role.
+Name the tier and owned functions in compact mission-charter or work-packet
+text. Fill the existing `reporting_destination` field. Do not add a
+management_tier schema field, preflight capability, or fabric role.
 - management tier: senior | middle | low_level | staff
 - owned functions: the subset of the cycle this actor may perform
-- reporting destination: master for managers; parent manager for staff
+- reporting destination: master for every manager; parent manager for staff
 - escalation: the first blocker that leaves this tier
 
 Escalation
 - Staff stop and report to the parent manager.
-- Low-level managers escalate strategy, authority, budget, or cross-lane
-  collisions to middle or to master when no middle exists.
-- Middle managers escalate barrier decisions, authority changes, and the
-  global bottleneck to master.
+- Every Sol manager escalates strategy, authority, budget, barrier
+  decisions, and the global bottleneck to master.
+- A peer manager may be notified of a cross-lane collision. Notification
+  is not command and not a parent hop.
 - Senior / master does not escalate to a manager. It decides, stops, or
   asks the operator.
 

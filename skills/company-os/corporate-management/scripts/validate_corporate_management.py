@@ -55,6 +55,9 @@ SKILL_MARKERS = (
     "master → manager → worker",
     "not a claim of personal identity",
     "narrower sol-manager charter",
+    "peer sol managers",
+    "not a parent hop",
+    "four names do not require four agent layers",
 )
 
 
