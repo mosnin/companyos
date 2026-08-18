@@ -24,11 +24,15 @@ Customer acquisition cost, conversion to a Sales-accepted qualified
 lead, and payback against contribution. Vanity reach is not the object.
 
 Forced moves
+- Load `$marketing-os` on the marketing manager. Pipeline is research
+  packet → brief contract → copy packet → review receipt. Do not spawn
+  an orchestrator.
 - Define a qualified lead with Sales before spending.
 - Run campaigns as experiments with a kill rule.
 - Separate brand-cohesion work (`$brand-creative-system`) from demand
-  tests. Brand Creative owns the system; Marketing uses it.
-- Load playbooks `demand-generation` and `campaign-review`.
+  tests. Brand Creative owns the system; Marketing uses locators.
+- Load playbooks `audience-profile`, `campaign-brief`,
+  `copy-production`, `demand-generation`, and `campaign-review`.
 - Approval is required for customer communication, public publishing,
   and pricing claims.
 

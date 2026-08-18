@@ -165,6 +165,18 @@ class CorporateDepartmentsTests(unittest.TestCase):
         )
         self.assertNotIn("commercial-growth", departments)
         self.assertIn("demand-generation", departments["marketing"]["capabilities"])
+        self.assertIn("marketing-os", departments["marketing"]["skills"])
+        marketing_slots = {slot["id"] for slot in departments["marketing"]["agent_slots"]}
+        self.assertEqual(
+            {
+                "marketing-brief-worker",
+                "marketing-campaign-manager",
+                "marketing-copy-worker",
+                "marketing-manager",
+                "marketing-research-worker",
+            },
+            marketing_slots,
+        )
         self.assertIn("revenue-growth", departments["sales"]["capabilities"])
         self.assertNotIn("revenue-growth", departments["marketing"]["capabilities"])
         self.assertIn("hiring", departments["human-resources"]["capabilities"])
@@ -201,7 +213,7 @@ class CorporateDepartmentsTests(unittest.TestCase):
                 department_ids,
             )
             registry = json.loads((root / "compiled/agent-registry.json").read_text())
-            self.assertEqual(24, len(registry["slots"]))
+            self.assertEqual(27, len(registry["slots"]))
 
     def test_revenue_growth_selects_sales_not_a_combined_commercial_pack(self) -> None:
         blueprint = json.loads(EXAMPLE.read_text(encoding="utf-8"))

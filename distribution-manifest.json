@@ -272,8 +272,8 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "f92ffa63a278d05871e2d6a881e0265fa47d25bf10dad3afee4f24987364c1c2",
-      "size": 4275
+      "sha256": "7a8a9c5aace633c749c3a17029fd9a144b02d284aee6a40ec94a4ad155d6872b",
+      "size": 4341
     },
     {
       "path": "company-os/company-blueprint/agents/claude.yaml",
@@ -302,13 +302,13 @@
     },
     {
       "path": "company-os/company-blueprint/assets/department-packs.json",
-      "sha256": "bc25b9583e196e08e0b6b753a9dca5249d8120c711dc07429c989b17f87bbd2a",
-      "size": 31258
+      "sha256": "b2c55ab3a91dd3b4210db5f723ec3fd5652fcc23f45dadab45844ef6ef39c8c1",
+      "size": 33324
     },
     {
       "path": "company-os/company-blueprint/assets/playbook-library.json",
-      "sha256": "a78ce80348bbb98bf8ca77a7847b6519b4a2451a0e00a0fb531b0eb006a3066f",
-      "size": 11412
+      "sha256": "e658683b9bb710cb6c25222abdac3390cc16abd2292111a480af5e284e437723",
+      "size": 13224
     },
     {
       "path": "company-os/company-blueprint/references/company-blueprint-contract.md",
@@ -332,8 +332,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "065a3bfa66916928563b8f840b190f3dc3f072e109a7045b2cf91b492e59755e",
-      "size": 16781
+      "sha256": "80f199bc2ad717a868071f5b3ffcf07ae3548c0b159282b1e5f4d99bbce39396",
+      "size": 16901
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",
@@ -397,8 +397,8 @@
     },
     {
       "path": "company-os/corporate-departments/SKILL.md",
-      "sha256": "888b18b566c312c52473bca8d7192b619af745204589d6ebf7ca56596b068593",
-      "size": 3758
+      "sha256": "e88763c0d1074d7b8625c13aac3456d4c5f652b22cefc3a2152d5948c6044a65",
+      "size": 3800
     },
     {
       "path": "company-os/corporate-departments/agents/claude.yaml",
@@ -432,8 +432,8 @@
     },
     {
       "path": "company-os/corporate-departments/references/source/02-marketing.txt",
-      "sha256": "9f772b626b95a278d9b03d144ec29ceca5da6a5950a747e0a374d112a9647117",
-      "size": 1605
+      "sha256": "62e2189a03fa0b5d2a819b7cb0c1d9880d926227e655c28b18544a622143c422",
+      "size": 1837
     },
     {
       "path": "company-os/corporate-departments/references/source/03-sales.txt",
@@ -462,8 +462,8 @@
     },
     {
       "path": "company-os/corporate-departments/references/source/08-preset-departments.txt",
-      "sha256": "16acb2681f83c46304f5513ddff6d910ea37fd5e6f052ed3877aad84df0c9ad2",
-      "size": 2029
+      "sha256": "1e3822b1d40e1deca69e6870a20c732f7fe3603241a1f9e2510376a1d967c1f7",
+      "size": 2051
     },
     {
       "path": "company-os/corporate-departments/scripts/validate_corporate_departments.py",
@@ -547,8 +547,8 @@
     },
     {
       "path": "company-os/department-charters/SKILL.md",
-      "sha256": "214bab54420ce99d83eea438ff7d7ead9f5485842b2120cf49b048e5dde420de",
-      "size": 2841
+      "sha256": "4ba0fabe3c16095c1841e70616546df6c1581615bb4d8e692a575a3b7e75431e",
+      "size": 2900
     },
     {
       "path": "company-os/department-charters/agents/claude.yaml",
@@ -1119,6 +1119,106 @@
       "path": "company-os/manage-company-program/scripts/compile_program_preflight.py",
       "sha256": "37f0a148ad05eaf2682de1bf2bc7026770825751242004618499d9024d5fcfd8",
       "size": 105788
+    },
+    {
+      "path": "company-os/marketing-os/SKILL.md",
+      "sha256": "124e909b4ec7ad9b9066c81e46bfc8b95acd75eabb309f31e605be264005acab",
+      "size": 3687
+    },
+    {
+      "path": "company-os/marketing-os/agents/claude.yaml",
+      "sha256": "db43b7c47edc09a13518c2c28159d47c6b8e50d45a73edb90c270ace34b1a530",
+      "size": 417
+    },
+    {
+      "path": "company-os/marketing-os/agents/grok.yaml",
+      "sha256": "db43b7c47edc09a13518c2c28159d47c6b8e50d45a73edb90c270ace34b1a530",
+      "size": 417
+    },
+    {
+      "path": "company-os/marketing-os/agents/openai.yaml",
+      "sha256": "db43b7c47edc09a13518c2c28159d47c6b8e50d45a73edb90c270ace34b1a530",
+      "size": 417
+    },
+    {
+      "path": "company-os/marketing-os/assets/examples/audience-profile.json",
+      "sha256": "3acd590eb09b2c32b03111ec2ac26293309e133379eb7429846d83c58e96479b",
+      "size": 749
+    },
+    {
+      "path": "company-os/marketing-os/assets/examples/campaign-brief.json",
+      "sha256": "746db9cae4b84fd71148cad37335c36c56b4900ac3a55faa0134dd38610ad58a",
+      "size": 1427
+    },
+    {
+      "path": "company-os/marketing-os/assets/examples/copy-packet.json",
+      "sha256": "10a3f6ace28c33c1cb7b8cd0744a9396fed366993a600058876731b9a05bed92",
+      "size": 651
+    },
+    {
+      "path": "company-os/marketing-os/assets/examples/research-report.json",
+      "sha256": "7a1ab130bce5adde98461ef78075fc5944c07f39e5c6ac9f600be5d4e955f965",
+      "size": 606
+    },
+    {
+      "path": "company-os/marketing-os/assets/spawn-template.json",
+      "sha256": "6783be93653cbb61be22de5a450bd6e448798674166e6b21d1ed4c439fba8f17",
+      "size": 484
+    },
+    {
+      "path": "company-os/marketing-os/references/source/00-index.txt",
+      "sha256": "58027c13287f0750a529038238dc9429c60b3763d20ab03abe7c489d74d58a6d",
+      "size": 1405
+    },
+    {
+      "path": "company-os/marketing-os/references/source/01-pipeline.txt",
+      "sha256": "4ed64ef73a05495ab2c046b2843cbb072273cdb5343d8e49a49e06d8dfa3fb49",
+      "size": 1600
+    },
+    {
+      "path": "company-os/marketing-os/references/source/02-artifact-contracts.txt",
+      "sha256": "b5fb1f7cd184cc296e690cc16e5bfa7442076cbb5fdeeac365c1b7a50d408daf",
+      "size": 1427
+    },
+    {
+      "path": "company-os/marketing-os/references/source/03-scale.txt",
+      "sha256": "6dfd784963c9e58e8a8eb670a1dd46cd8b5f5bfb7c600121709a25e91168da9a",
+      "size": 1537
+    },
+    {
+      "path": "company-os/marketing-os/references/source/04-context-and-memory.txt",
+      "sha256": "a6a75971722a14d53c80bec8f79feb69d43d0265da0b0bbea61d1455ffff0ba5",
+      "size": 1321
+    },
+    {
+      "path": "company-os/marketing-os/references/source/05-quality-and-authority.txt",
+      "sha256": "3612bee2a0385e37c985ccaa03886b4e432a74a142779d91ee238015c1d3a701",
+      "size": 1523
+    },
+    {
+      "path": "company-os/marketing-os/schemas/audience-profile.schema.json",
+      "sha256": "aac8c99c03fe70f279ab24a9236440d42740211dfdba8161bbec2f91a47703e2",
+      "size": 1425
+    },
+    {
+      "path": "company-os/marketing-os/schemas/campaign-brief.schema.json",
+      "sha256": "8e5e164851ea742bb8379495d0fbcfc0cfecb866311fe992a5bf7578613cd471",
+      "size": 2737
+    },
+    {
+      "path": "company-os/marketing-os/schemas/copy-packet.schema.json",
+      "sha256": "76f9d194536a7b7f8c5067d7be49b9a07ca61868859de57427232e8c974cd44f",
+      "size": 1161
+    },
+    {
+      "path": "company-os/marketing-os/schemas/research-report.schema.json",
+      "sha256": "18f69607a922283f04dddb2b982f6d52e74c8383fee5459bb9d516737fc1ea00",
+      "size": 1201
+    },
+    {
+      "path": "company-os/marketing-os/scripts/validate_marketing_os.py",
+      "sha256": "9e1ebb18fc7280ed2558b28cfc691b7d4b82b349d8f3059c21e92522150555aa",
+      "size": 17902
     },
     {
       "path": "company-os/materialize-outcome-stack/SKILL.md",

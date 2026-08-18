@@ -63,7 +63,7 @@ class CompanyBlueprintTests(unittest.TestCase):
             self.assertTrue(all(item["steps"] and item["evidence"] for item in capabilities["playbooks"]))
             registry = json.loads((first_root / "compiled/agent-registry.json").read_text())
             self.assertEqual("templates-not-running-agents", registry["activation_policy"])
-            self.assertEqual(24, len(registry["slots"]))
+            self.assertEqual(27, len(registry["slots"]))
             self.assertTrue(all(item["status"] in {"template", "stored"} for item in registry["slots"]))
             self.assertTrue(all(item["role"] in {"manager", "worker"} for item in registry["slots"]))
 

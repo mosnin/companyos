@@ -50,8 +50,9 @@ derived later from the accepted work graph.
 Preset corporate packs are Strategy, Program Management, Product, Engineering,
 Brand, Marketing, Sales, Customer Success, Finance, Operations, Human
 Resources, and Security/Legal. Marketing and Sales are separate decision
-rights. Load `$corporate-departments` on the department manager. Do not send
-`$corporate-departments` to Luna workers.
+rights. Load `$corporate-departments` on the department manager. Load
+`$marketing-os` on the Marketing manager. Do not send `$corporate-departments`
+or `$marketing-os` to Luna workers.
 
 ## Operating planes
 

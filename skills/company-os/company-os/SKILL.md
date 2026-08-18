@@ -85,8 +85,10 @@ or work packet instead of repeating the operating system in every prompt.
 When compiling a company or spawning a multi-manager program, also send
 `$corporate-management` and name each actor as senior, middle, low-level, or
 staff. When compiling named departments, also send `$corporate-departments`
-to the department manager. Do not send `$corporate-management` to workers or
-use it as the master persona. Do not send `$corporate-departments` to workers.
+to the department manager. When compiling Marketing, also send
+`$marketing-os` to that department manager. Do not send `$corporate-management`
+to workers or use it as the master persona. Do not send `$corporate-departments`
+to workers. Do not send `$marketing-os` to workers.
 Executable delegation stays master → manager → worker.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated

@@ -26,7 +26,7 @@ Do not hire, spend, mutate HRIS or CRM, publish, or enable the scheduler or runt
 ## Forced moves
 
 - Preset packs are Strategy, Program Management, Product, Engineering, Brand, Marketing, Sales, Customer Success, Finance, Operations, Human Resources, and Security/Legal.
-- Marketing creates demand and meaning. Sales converts qualified demand into revenue. Do not merge their decision rights.
+- Marketing creates demand and meaning. Sales converts qualified demand into revenue. Do not merge their decision rights. Marketing execution uses `$marketing-os`.
 - Operations keeps flow reliable. Finance keeps cash and allocation true. People acquire and align capability.
 - Issue trees before workplans. Mutually exclusive branches. Collectively exhaustive coverage. Hypothesis and kill rule before analysis.
 - Unit economics before scale. Pipeline is not revenue. Brand is not a campaign. Headcount is not a capability.

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.marketing-research-report.v1",
+  "title": "Company OS Marketing Research Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "report_id", "question", "findings", "confidence", "gaps"],
+  "properties": {
+    "$schema": {"const": "company-os.marketing-research-report.v1"},
+    "report_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "question": {"type": "string", "minLength": 1},
+    "findings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding", "source", "confidence", "implication"],
+        "properties": {
+          "finding": {"type": "string", "minLength": 1},
+          "source": {"type": "string", "minLength": 1},
+          "confidence": {"enum": ["high", "medium", "low"]},
+          "implication": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "gaps": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  }
+}

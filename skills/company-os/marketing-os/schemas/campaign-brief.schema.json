@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.marketing-campaign-brief.v1",
+  "title": "Company OS Marketing Campaign Brief v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "brief_id", "status", "goal", "audience_profile_digest",
+    "promise", "differentiator", "proof", "deliverables", "constraints",
+    "kill_rule", "qualified_lead", "brand_locator", "voice_locator",
+    "measurement"
+  ],
+  "properties": {
+    "$schema": {"const": "company-os.marketing-campaign-brief.v1"},
+    "brief_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "status": {"enum": ["draft", "ready-for-review", "accepted", "stopped"]},
+    "goal": {"type": "string", "minLength": 1},
+    "audience_profile_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "promise": {"type": "string", "minLength": 1},
+    "differentiator": {"type": "string", "minLength": 1},
+    "proof": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim", "source"],
+        "properties": {
+          "claim": {"type": "string", "minLength": 1},
+          "source": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["format", "quantity", "cta"],
+        "properties": {
+          "format": {"enum": ["linkedin-post", "email-sequence", "landing-page", "ad-copy", "other"]},
+          "quantity": {"type": "integer", "minimum": 1, "maximum": 12},
+          "cta": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["never_claim", "required_approvals"],
+      "properties": {
+        "never_claim": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "required_approvals": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "kill_rule": {"type": "string", "minLength": 1},
+    "qualified_lead": {"type": "string", "minLength": 1},
+    "brand_locator": {"type": "string", "minLength": 1},
+    "voice_locator": {"type": "string", "minLength": 1},
+    "client_locator": {"type": ["string", "null"]},
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_kpi", "target"],
+      "properties": {
+        "primary_kpi": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

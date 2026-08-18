@@ -18,7 +18,7 @@ Preset packs
   Doctrine: 02-marketing.txt for demand meaning; brand skill still wins
   for craft.
 - marketing: demand generation, campaigns, market research.
-  Doctrine: 02-marketing.txt
+  Doctrine: 02-marketing.txt plus `$marketing-os`.
 - sales: qualification, pipeline, revenue conversion.
   Doctrine: 03-sales.txt
 - customer-success: value realized, retention, voice of customer.

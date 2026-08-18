@@ -30,7 +30,7 @@ Common foundations include:
 - **Strategy & Product:** direction, research, portfolio, customer outcomes.
 - **Program Management:** roadmaps, dependencies, plans, decision records.
 - **Engineering & Quality:** implementation, testing, reliability, security review.
-- **Marketing:** demand, campaigns, positioning; separate from Sales.
+- **Marketing:** demand, campaigns, positioning; separate from Sales. Load `$marketing-os` for the research-brief-copy pipeline.
 - **Sales:** qualification, pipeline, revenue conversion.
 - **Operations:** service health, incidents, process, cost/capacity.
 - **Finance:** cash truth, forecast, allocation.

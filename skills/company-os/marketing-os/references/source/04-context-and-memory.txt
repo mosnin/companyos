@@ -1,0 +1,34 @@
+MARKETING OS — SECTION 04: Context and Memory
+
+Purpose
+Compound brand and campaign learning without re-explaining the company
+every session and without pasting memory files into prompts.
+
+Locators, not essays
+- Brand system: asset locator from `$brand-creative-system` /
+  `$company-blueprint` brand references.
+- Voice: compact always/never tokens plus two approved examples.
+  Bind a digest. Do not paste the voice file.
+- Audience profile: digest of the current profile artifact.
+- Campaign history: knowledge source id. Load only the rows that
+  match this segment or channel.
+- Working queue: the manager charter and work graph. Do not keep a
+  second markdown task OS.
+
+Write-back
+After review, record what ran, what evidence said, and the continue /
+change / stop decision as a knowledge or asset record with a digest.
+Corrections become durable rules only after they are written as
+accepted knowledge, not as chat residue.
+
+Isolation
+Each Company OS project instance keeps its own marketing context
+inside `.company-os/`. Do not mix client ledgers. Do not store
+credentials in brand or voice files.
+
+Token rule
+The worker packet may include the schema id, the required locators,
+and the upstream digest. It may not include this source pack,
+`$company-os`, `$elastic-company-os`, or a brand essay.
+
+End of file.

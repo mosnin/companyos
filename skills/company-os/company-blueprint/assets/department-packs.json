@@ -511,6 +511,7 @@
           "role": "manager",
           "skills": [
             "manage-company-program",
+            "marketing-os",
             "commercial-customer-system",
             "corporate-departments"
           ],
@@ -520,25 +521,81 @@
         {
           "forbidden_roles": [
             "master",
+            "worker"
+          ],
+          "id": "marketing-campaign-manager",
+          "management_tier": "low_level",
+          "origin": "catalog",
+          "outcome": "Manage one independently accountable campaign or client slice",
+          "requested_model": "gpt-5.6-sol",
+          "role": "manager",
+          "skills": [
+            "manage-company-program",
+            "marketing-os",
+            "commercial-customer-system"
+          ],
+          "source_slot_id": "marketing-campaign-manager",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
             "manager"
           ],
-          "id": "marketing-worker",
+          "id": "marketing-research-worker",
           "management_tier": "staff",
           "origin": "catalog",
-          "outcome": "Produce one bounded marketing artifact packet",
+          "outcome": "Produce one audience-profile or research-report packet",
           "requested_model": "gpt-5.6-luna",
           "role": "worker",
           "skills": [
             "execute-bounded-task"
           ],
-          "source_slot_id": "marketing-worker",
+          "source_slot_id": "marketing-research-worker",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "marketing-brief-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one campaign-brief packet",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "marketing-brief-worker",
+          "status": "template"
+        },
+        {
+          "forbidden_roles": [
+            "master",
+            "manager"
+          ],
+          "id": "marketing-copy-worker",
+          "management_tier": "staff",
+          "origin": "catalog",
+          "outcome": "Produce one copy packet bound to a brief digest",
+          "requested_model": "gpt-5.6-luna",
+          "role": "worker",
+          "skills": [
+            "execute-bounded-task"
+          ],
+          "source_slot_id": "marketing-copy-worker",
           "status": "template"
         }
       ],
       "capabilities": [
         "demand-generation",
         "campaign-execution",
-        "market-research"
+        "market-research",
+        "audience-research",
+        "campaign-briefing",
+        "marketing-copy"
       ],
       "decision_rights": [
         "propose-campaign",
@@ -563,19 +620,28 @@
         "qualified-demand",
         "campaign-conversion",
         "customer-acquisition-cost",
-        "share-of-demand"
+        "share-of-demand",
+        "brief-to-copy-lead-time"
       ],
       "mission": "Create ethical, measurable demand and market meaning",
       "outputs": [
+        "audience-profiles",
+        "campaign-briefs",
+        "copy-packets",
         "campaigns",
         "demand-plans",
         "market-evidence",
         "positioning-briefs"
       ],
       "playbooks": [
-        "market-research",
+        "audience-profile",
+        "marketing-research-report",
+        "campaign-brief",
+        "copy-production",
         "demand-generation",
-        "campaign-review"
+        "campaign-review",
+        "marketing-debrief",
+        "market-research"
       ],
       "required_approvals": [
         "customer-communication",
@@ -590,6 +656,7 @@
         }
       ],
       "skills": [
+        "marketing-os",
         "commercial-customer-system",
         "corporate-departments"
       ],
