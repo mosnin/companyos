@@ -57,6 +57,14 @@ class CompanyBlueprintTests(unittest.TestCase):
             routines = json.loads((first_root / "compiled/routine-plan.json").read_text())
             self.assertTrue(routines["routines"])
             self.assertTrue(all(item["activation_state"] == "planned" for item in routines["routines"]))
+            self.assertEqual(
+                {
+                    "daily": "operations-exception-review",
+                    "weekly": "portfolio-and-program-review",
+                    "monthly": "company-operating-review",
+                },
+                routines["company_cadence"],
+            )
             capabilities = json.loads((first_root / "compiled/capabilities.json").read_text())
             self.assertTrue(all(item["status"] == "requires-host-preflight" for item in capabilities["skills"]))
             self.assertTrue(all(item["status"] == "requires-host-preflight" for item in capabilities["tools"]))
@@ -143,6 +151,46 @@ class CompanyBlueprintTests(unittest.TestCase):
                 {"neon", "supabase", "amazon-rds", "google-cloud-sql", "self-managed-postgresql"},
                 set(storage["portability"]),
             )
+
+    def test_company_cadence_must_bind_selected_routines_and_matching_periods(self) -> None:
+        cases = [
+            (
+                lambda blueprint: blueprint["cadence"].update(daily="not-a-compiled-routine"),
+                "not in the compiled organization",
+            ),
+            (
+                lambda blueprint: blueprint["cadence"].update(daily="weekly-program-preflight"),
+                "runs on a weekly cadence",
+            ),
+            (
+                lambda blueprint: (
+                    blueprint["operating_model"]["department_overrides"].append(
+                        {
+                            "department_id": "security-compliance",
+                            "enabled": False,
+                            "reason": "Operator declined security",
+                        }
+                    ),
+                    blueprint["cadence"].update(monthly="risk-and-control-review"),
+                ),
+                "not in the compiled organization",
+            ),
+            (
+                lambda blueprint: blueprint["cadence"].update(
+                    daily="portfolio-and-program-review",
+                    weekly="portfolio-and-program-review",
+                ),
+                "distinct routines",
+            ),
+        ]
+        for mutation, expected in cases:
+            blueprint = self.load_example()
+            mutation(blueprint)
+            with self.subTest(expected=expected):
+                with tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    with self.assertRaisesRegex(compiler.BlueprintError, expected):
+                        compiler.compile_blueprint(self.write_blueprint(root, blueprint), root / "compiled")
 
     def test_compiled_artifact_drift_and_extra_files_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

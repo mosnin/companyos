@@ -15,6 +15,8 @@ from typing import Any
 SCHEMA = "company-os.company-blueprint.v1"
 COMPILED_SCHEMA = "company-os.compiled-company.v1"
 ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
+CRON_FIELD_RE = re.compile(r"^[0-9*,\-/]+$")
+CADENCE_PERIODS = ("daily", "weekly", "monthly")
 SECRET_RE = re.compile(
     r"(?:api[_-]?key|access[_-]?token|secret|password|private[_-]?key)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{8,}",
     re.IGNORECASE,
@@ -62,6 +64,25 @@ def require_text(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise BlueprintError(f"{label} must be a non-empty string")
     return value.strip()
+
+
+def parse_cron(value: Any, label: str) -> tuple[str, str, str, str, str]:
+    raw = require_text(value, label)
+    parts = raw.split()
+    if len(parts) != 5 or any(CRON_FIELD_RE.fullmatch(part) is None for part in parts):
+        raise BlueprintError(f"{label} must be a 5-field cron expression")
+    return parts[0], parts[1], parts[2], parts[3], parts[4]
+
+
+def cron_period(value: Any, label: str) -> str:
+    _minute, _hour, day_of_month, _month, day_of_week = parse_cron(value, label)
+    if day_of_month != "*" and day_of_week == "*":
+        return "monthly"
+    if day_of_week != "*" and day_of_month == "*":
+        return "weekly"
+    if day_of_month == "*" and day_of_week == "*":
+        return "daily"
+    raise BlueprintError(f"{label} is ambiguous about daily, weekly, or monthly period")
 
 
 def require_string_list(value: Any, label: str, *, nonempty: bool = False) -> list[str]:
@@ -117,7 +138,7 @@ def validate_department_catalog(value: dict[str, Any]) -> dict[str, dict[str, An
             if routine_id in routine_ids:
                 raise BlueprintError(f"duplicate routine id: {routine_id}")
             routine_ids.add(routine_id)
-            require_text(routine["cadence"], f"routine {routine_id}.cadence")
+            cron_period(routine["cadence"], f"routine {routine_id}.cadence")
             require_id(routine["playbook"], f"routine {routine_id}.playbook")
             if routine["playbook"] not in department["playbooks"]:
                 raise BlueprintError(f"routine {routine_id} references a playbook outside its department")
@@ -263,10 +284,11 @@ def validate_blueprint(value: dict[str, Any]) -> None:
             raise BlueprintError(f"integration {integration_id}.credential_reference must name an environment variable")
 
     cadence = value.get("cadence")
-    if not isinstance(cadence, dict) or set(cadence) != {"daily", "weekly", "monthly"}:
+    if not isinstance(cadence, dict) or set(cadence) != set(CADENCE_PERIODS):
         raise BlueprintError("blueprint.cadence must define daily, weekly, and monthly")
-    for field in ("daily", "weekly", "monthly"):
-        require_id(cadence.get(field), f"cadence.{field}")
+    cadence_ids = [require_id(cadence.get(field), f"cadence.{field}") for field in CADENCE_PERIODS]
+    if len(set(cadence_ids)) != len(cadence_ids):
+        raise BlueprintError("blueprint.cadence must name distinct routines")
 
     storage = value.get("storage")
     if not isinstance(storage, dict) or set(storage) != {"adapter", "dsn_env", "schema"}:
@@ -413,9 +435,25 @@ def compile_artifacts(
                 }
             )
     routines.sort(key=lambda item: item["id"])
+    routine_by_id = {item["id"]: item for item in routines}
+    company_cadence: dict[str, str] = {}
+    for period in CADENCE_PERIODS:
+        routine_id = blueprint["cadence"][period]
+        named = routine_by_id.get(routine_id)
+        if named is None:
+            raise BlueprintError(
+                f"cadence.{period} names a routine that is not in the compiled organization: {routine_id}"
+            )
+        observed = cron_period(named["cadence"], f"routine {routine_id}.cadence")
+        if observed != period:
+            raise BlueprintError(
+                f"cadence.{period} names {routine_id} which runs on a {observed} cadence"
+            )
+        company_cadence[period] = routine_id
     routine_plan = {
         "$schema": "company-os.compiled-routine-plan.v1",
         "activation_policy": "feature-off-until-runtime-scheduler-and-cancellation-gates-pass",
+        "company_cadence": company_cadence,
         "company_id": company_id,
         "routines": routines,
     }

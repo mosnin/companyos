@@ -52,9 +52,10 @@ quotas.
 ## Activation boundary
 
 Compilation is planning, not runtime activation. Recurring routines are emitted
-as `planned`. Enable them only after the project controller, database,
-cancellation, idempotency, permissions, and scheduler gates pass. External
-writes retain the operator's approval policy.
+as `planned`. Company daily, weekly, and monthly cadence must name distinct
+compiled routines whose cron period matches the slot. Enable them only after
+the project controller, database, cancellation, idempotency, permissions, and
+scheduler gates pass. External writes retain the operator's approval policy.
 
 ## Acceptance
 

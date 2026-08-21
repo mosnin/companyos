@@ -153,12 +153,21 @@ def choose_primary(request: dict[str, Any], by_id: dict[str, dict[str, Any]]) ->
     scores["bounded-evidence-loop"] = 10
     if family in {"software_delivery", "product_delivery"}:
         scores["contract-delivery-loop"] += 35
-    if family == "software_delivery" and shape["code_mutation"] and shape["parallel_lanes"] > 1:
+    if (
+        family == "software_delivery"
+        and shape["code_mutation"]
+        and shape["parallel_lanes"] > 1
+        and shape["recurrence"] == "one_off"
+    ):
         scores["recursive-worktree-loop"] += 55 + min(shape["parallel_lanes"], 20)
-    if family in {"creative_exploration", "product_delivery"} and shape["novelty_need"] == "high":
+    if (
+        family in {"creative_exploration", "product_delivery"}
+        and shape["novelty_need"] == "high"
+        and shape["recurrence"] == "one_off"
+    ):
         scores["bounded-divergent-exploration-loop"] += 60
     if shape["recurrence"] == "recurring":
-        scores["recurring-operations-loop"] += 70
+        scores["recurring-operations-loop"] += 90
     if shape["recurrence"] == "event_driven" and request["evidence"]["durable_event_source"]:
         scores["event-reaction-loop"] += 80
     if shape["failure_cost"] == "high":
@@ -197,6 +206,11 @@ def select_plan(request: dict[str, Any], catalog: dict[str, Any]) -> dict[str, A
     adapters = adapters[:3]
     selected = [primary_id, *adapters]
     controls = sorted({control for strategy_id in selected for control in by_id[strategy_id]["required_controls"]})
+    if request["shape"]["recurrence"] == "recurring":
+        controls = sorted(set(controls) | set(by_id["recurring-operations-loop"]["required_controls"]))
+        scheduler_reason = "recurring work requires due-state, health, and missed-run reconciliation"
+        if scheduler_reason not in reasons:
+            reasons.append(scheduler_reason)
     metrics = sorted({metric for strategy_id in selected for metric in by_id[strategy_id]["metrics"]})
     terminals = sorted({state for strategy_id in selected for state in by_id[strategy_id]["terminal_states"]})
     sources = sorted({source for strategy_id in selected for source in by_id[strategy_id]["source_ids"]})

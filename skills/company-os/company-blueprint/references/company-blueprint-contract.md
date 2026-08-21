@@ -18,8 +18,9 @@ prompt, transcript, credential file, or project status report.
    a separate host and budget decision.
 7. Database configuration names an environment variable. Secrets never enter
    the blueprint or compiled artifacts.
-8. Scheduled routines compile as planned desired state. Runtime activation is
-   a separate governed decision.
+8. Scheduled routines compile as planned desired state. Company daily, weekly,
+   and monthly cadence must name distinct compiled routines whose cron period
+   matches the slot. Runtime activation is a separate governed decision.
 9. Every compiled file is canonical JSON and content-addressed in one manifest.
 10. Recompiling identical inputs produces identical bytes.
 

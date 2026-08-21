@@ -257,8 +257,8 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
-      "size": 3151
+      "sha256": "dc794c9233aadbb3ac051c2452ddb4c8ef7ef62be8585eae9158740af2f8fcfe",
+      "size": 3267
     },
     {
       "path": "company-os/company-blueprint/agents/grok.yaml",
@@ -292,8 +292,8 @@
     },
     {
       "path": "company-os/company-blueprint/references/company-blueprint-contract.md",
-      "sha256": "137a36328ccf30ad927835d9b827171998e663a3260dfb0838ab71c2c078bc3e",
-      "size": 2011
+      "sha256": "1060332a72d595d3c616f3ffdd4b75b1b8b82e20f9e728e9b76f262e55a1347a",
+      "size": 2130
     },
     {
       "path": "company-os/company-blueprint/schemas/company-blueprint.schema.json",
@@ -302,8 +302,8 @@
     },
     {
       "path": "company-os/company-blueprint/scripts/compile_company_blueprint.py",
-      "sha256": "5807874c895e3496e74b508dc785e62ada47affdbdc7b07aecd6e6b390e30a05",
-      "size": 31368
+      "sha256": "2b9df544347a40fc28d16911f22039079f990887a25c91dc6087389b1cfd0ef5",
+      "size": 33129
     },
     {
       "path": "company-os/company-os/SKILL.md",
@@ -972,8 +972,8 @@
     },
     {
       "path": "company-os/mission-execution-control/references/scheduler-contract.md",
-      "sha256": "484c3628c07452b0fdde4b885c1e184254b71da407758a1e01610b4b148d350f",
-      "size": 761
+      "sha256": "3d0cc104206d8b5f5aec71ac2f4ab6a9fac1d5613adce5f17a1cd73a888e2e2b",
+      "size": 1033
     },
     {
       "path": "company-os/mission-execution-control/references/work-admission.md",
@@ -992,8 +992,8 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/mission_control.py",
-      "sha256": "8b46c8e31d7848b26c4c9040255f2200624d31c84a1432e3d12934ad6927e582",
-      "size": 61237
+      "sha256": "2ccaca08bc948a0fe444bd1781aeef7e7ce1165460bf0d20315342182310f2a5",
+      "size": 64875
     },
     {
       "path": "company-os/navigation-control/SKILL.md",
@@ -1087,8 +1087,8 @@
     },
     {
       "path": "company-os/select-execution-loop/references/selection-contract.md",
-      "sha256": "3a572b8fe6adbab86b6bfe0773da9cc40fe4a0fee88876c98d6ffee609fbab20",
-      "size": 1887
+      "sha256": "689f1477013720471975d1944dcae56e2818853e0e9081359282087a954a0e84",
+      "size": 2044
     },
     {
       "path": "company-os/select-execution-loop/references/source-essence.md",
@@ -1097,8 +1097,8 @@
     },
     {
       "path": "company-os/select-execution-loop/scripts/select_execution_loop.py",
-      "sha256": "2249fb66be779654ec556bf469dd3577f918c42b74598598a4fdb23c8f9b4512",
-      "size": 13270
+      "sha256": "6b3f757815de3c567b9f51556fac9eceba1a279fa840169abff8c5b50e2ebba8",
+      "size": 13765
     },
     {
       "path": "company-os/synthesize-outcome-model/SKILL.md",
