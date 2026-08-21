@@ -17,11 +17,17 @@ prompt, transcript, credential file, or project status report.
 6. Capacity is derived from accepted outcomes and DAGs. Active concurrency is
    a separate host and budget decision.
 7. Database configuration names an environment variable. Secrets never enter
-   the blueprint or compiled artifacts.
-8. Scheduled routines compile as planned desired state. Runtime activation is
-   a separate governed decision.
-9. Every compiled file is canonical JSON and content-addressed in one manifest.
+   the blueprint or compiled artifacts. JSON secret keys, URI userinfo, and
+   PEM private keys are secret material.
+8. Scheduled routines compile as planned desired state. Blueprint cadence IDs
+   must name routines in the selected organization. Runtime activation is a
+   separate governed decision.
+9. Every compiled file is canonical JSON and content-addressed in one
+   manifest. Verification requires that exact artifact set; an empty or
+   partial manifest must not verify.
 10. Recompiling identical inputs produces identical bytes.
+11. Extra fields, duplicate unknown IDs, and conflicting department overrides
+    fail closed before any compiled output is accepted.
 
 ## Operator intake
 

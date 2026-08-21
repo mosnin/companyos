@@ -29,9 +29,13 @@ Run:
 `python3 scripts/compile_company_blueprint.py --blueprint path/to/blueprint.json --output path/to/compiled`
 
 The compiler selects composable department packs from the accepted archetypes
-and requested capabilities. It emits a content-addressed organization,
-capability map, routine plan, work graph, knowledge graph, asset registry,
-integration registry, storage plan, and manifest.
+and requested capabilities. Daily, weekly, and monthly cadence IDs must name
+routines in that selected organization. Extra fields, conflicting overrides,
+duplicate unknowns, URI userinfo, PEM material, and JSON secret keys fail
+closed. It emits a content-addressed organization, capability map, routine
+plan, work graph, knowledge graph, asset registry, integration registry,
+storage plan, and manifest. Verification accepts only that complete
+canonical set.
 
 Department count is not fixed. Create departments only when they own a distinct
 outcome, decision boundary, or operating system. Manager and Luna capacity is

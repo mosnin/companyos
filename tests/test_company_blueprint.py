@@ -57,6 +57,12 @@ class CompanyBlueprintTests(unittest.TestCase):
             routines = json.loads((first_root / "compiled/routine-plan.json").read_text())
             self.assertTrue(routines["routines"])
             self.assertTrue(all(item["activation_state"] == "planned" for item in routines["routines"]))
+            self.assertEqual(
+                {"daily": "operations-exception-review", "monthly": "company-operating-review", "weekly": "portfolio-and-program-review"},
+                routines["cadence"],
+            )
+            routine_ids = {item["id"] for item in routines["routines"]}
+            self.assertTrue(set(routines["cadence"].values()) <= routine_ids)
             capabilities = json.loads((first_root / "compiled/capabilities.json").read_text())
             self.assertTrue(all(item["status"] == "requires-host-preflight" for item in capabilities["skills"]))
             self.assertTrue(all(item["status"] == "requires-host-preflight" for item in capabilities["tools"]))
@@ -111,9 +117,35 @@ class CompanyBlueprintTests(unittest.TestCase):
         secret = self.load_example()
         secret["identity"]["thesis"] = "api_key=sk-test-secret-value"
         cases.append((secret, "secret material"))
+        json_key = self.load_example()
+        json_key["identity"]["thesis"] = "Keep credentials in env vars, never password"
+        json_key["identity"]["password"] = "supersecretpassword"
+        cases.append((json_key, "fields differ from the contract"))
+        dsn_thesis = self.load_example()
+        dsn_thesis["identity"]["thesis"] = "connect with postgresql://user:s3cretpass@host/db"
+        cases.append((dsn_thesis, "secret material"))
+        pem = self.load_example()
+        pem["identity"]["thesis"] = "-----BEGIN RSA PRIVATE KEY----- MIIEowIBAAKCAQEA0Z3examplekeymaterial"
+        cases.append((pem, "secret material"))
         dsn = self.load_example()
         dsn["storage"]["dsn_env"] = "postgresql://user:password@host/db"
         cases.append((dsn, "must name an environment variable"))
+        locator = self.load_example()
+        locator["assets"] = [
+            {"id": "prod-db", "kind": "database", "locator": "postgresql://ops:hunter2secret@db.internal/company"}
+        ]
+        cases.append((locator, "secret material"))
+        leaked_token = self.load_example()
+        leaked_token["integrations"] = [
+            {
+                "id": "customer-crm",
+                "kind": "mcp",
+                "locator": "mcp://crm",
+                "permission_mode": "read_only",
+                "api_token": "sk-abcdefghijklmnop",
+            }
+        ]
+        cases.append((leaked_token, "fields differ from the contract"))
         for blueprint, expected in cases:
             with tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
@@ -152,6 +184,77 @@ class CompanyBlueprintTests(unittest.TestCase):
             artifact.write_bytes(artifact.read_bytes() + b" ")
             with self.assertRaisesRegex(compiler.BlueprintError, "drifted"):
                 compiler.verify_compiled(root / "compiled")
+
+    def test_verify_rejects_empty_or_malformed_manifests(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            empty = root / "empty"
+            empty.mkdir()
+            (empty / "manifest.json").write_bytes(
+                compiler.canonical_bytes(
+                    {
+                        "$schema": "company-os.compiled-company-manifest.v1",
+                        "blueprint_sha256": "a" * 64,
+                        "blueprint_version": 1,
+                        "company_id": "forged-company",
+                        "files": [],
+                    }
+                )
+            )
+            with self.assertRaisesRegex(compiler.BlueprintError, "files must be a non-empty list"):
+                compiler.verify_compiled(empty)
+
+            malformed = root / "malformed"
+            malformed.mkdir()
+            (malformed / "manifest.json").write_bytes(
+                compiler.canonical_bytes(
+                    {
+                        "$schema": "company-os.compiled-company-manifest.v1",
+                        "blueprint_sha256": "a" * 64,
+                        "blueprint_version": 1,
+                        "company_id": "forged-company",
+                        "files": "not-a-list",
+                    }
+                )
+            )
+            with self.assertRaisesRegex(compiler.BlueprintError, "files must be a non-empty list"):
+                compiler.verify_compiled(malformed)
+
+    def test_cadence_must_resolve_to_selected_routines(self) -> None:
+        invented = self.load_example()
+        invented["cadence"]["daily"] = "totally-invented-routine"
+        disabled = self.load_example()
+        disabled["operating_model"]["department_overrides"] = [
+            {"department_id": "operations", "enabled": False, "reason": "Operator declined operations"}
+        ]
+        for blueprint, expected in (
+            (invented, "outside the selected organization"),
+            (disabled, "outside the selected organization"),
+        ):
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with self.assertRaisesRegex(compiler.BlueprintError, expected):
+                    compiler.compile_blueprint(self.write_blueprint(root, blueprint), root / "compiled")
+
+    def test_duplicate_unknowns_and_overrides_fail_closed(self) -> None:
+        duplicates = self.load_example()
+        duplicates["unknowns"] = [
+            {"id": "gap-one", "question": "A?", "blocking": False, "owner": "operator", "resolution": "Ask later"},
+            {"id": "gap-one", "question": "B?", "blocking": False, "owner": "operator", "resolution": "Ask later"},
+        ]
+        overrides = self.load_example()
+        overrides["operating_model"]["department_overrides"] = [
+            {"department_id": "finance", "enabled": False, "reason": "Remove finance"},
+            {"department_id": "finance", "enabled": True, "reason": "Keep finance"},
+        ]
+        for blueprint, expected in (
+            (duplicates, "duplicate unknown id"),
+            (overrides, "duplicate department override"),
+        ):
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with self.assertRaisesRegex(compiler.BlueprintError, expected):
+                    compiler.compile_blueprint(self.write_blueprint(root, blueprint), root / "compiled")
 
     def test_postgres_blueprint_storage_is_portable_and_append_only(self) -> None:
         sql = SQL.read_text(encoding="utf-8")

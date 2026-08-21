@@ -257,8 +257,8 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
-      "size": 3151
+      "sha256": "da26e1f1326603396e9e5a3048339ba569f67cfe4d5eaab7c1d0854d24ad5313",
+      "size": 3414
     },
     {
       "path": "company-os/company-blueprint/agents/grok.yaml",
@@ -292,18 +292,18 @@
     },
     {
       "path": "company-os/company-blueprint/references/company-blueprint-contract.md",
-      "sha256": "137a36328ccf30ad927835d9b827171998e663a3260dfb0838ab71c2c078bc3e",
-      "size": 2011
+      "sha256": "830f1b2a844cde50f2d0d7bc36db178582cf8200141f3add7c43a2e3f7604910",
+      "size": 2395
     },
     {
       "path": "company-os/company-blueprint/schemas/company-blueprint.schema.json",
-      "sha256": "1c9d007ef9abbd6c1a10d56254a7be69b87c5c6fd8693bf3a7bd68abe0e02dd1",
-      "size": 4020
+      "sha256": "4d539f37611dcd321891b43ab1f86768354e89d96731e9edb4981faf963d52e7",
+      "size": 7036
     },
     {
       "path": "company-os/company-blueprint/scripts/compile_company_blueprint.py",
-      "sha256": "5807874c895e3496e74b508dc785e62ada47affdbdc7b07aecd6e6b390e30a05",
-      "size": 31368
+      "sha256": "86eedab026c4e42bcedd830e4e648405e042a763ef59a200269642523c983038",
+      "size": 38574
     },
     {
       "path": "company-os/company-os/SKILL.md",
