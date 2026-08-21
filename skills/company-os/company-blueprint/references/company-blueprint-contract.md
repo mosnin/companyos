@@ -16,8 +16,8 @@ prompt, transcript, credential file, or project status report.
    distinct registries with explicit references.
 6. Capacity is derived from accepted outcomes and DAGs. Active concurrency is
    a separate host and budget decision.
-7. Database configuration names an environment variable. Secrets never enter
-   the blueprint or compiled artifacts.
+7. Database configuration names an environment variable. Secrets and DSN URIs
+   never enter the blueprint, catalogs, or compiled artifacts.
 8. Scheduled routines compile as planned desired state. Runtime activation is
    a separate governed decision.
 9. Every compiled file is canonical JSON and content-addressed in one manifest.

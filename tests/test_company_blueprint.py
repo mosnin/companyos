@@ -114,11 +114,70 @@ class CompanyBlueprintTests(unittest.TestCase):
         dsn = self.load_example()
         dsn["storage"]["dsn_env"] = "postgresql://user:password@host/db"
         cases.append((dsn, "must name an environment variable"))
+        thesis_dsn = self.load_example()
+        thesis_dsn["identity"]["thesis"] = "postgresql://operator:hunter2secret@db.internal/company"
+        cases.append((thesis_dsn, "secret material"))
+        asset_dsn = self.load_example()
+        asset_dsn["assets"] = [
+            {"id": "prod-dump", "kind": "database", "locator": "postgres://operator:hunter2secret@db.internal/company"}
+        ]
+        cases.append((asset_dsn, "secret material"))
+        integration_dsn = self.load_example()
+        integration_dsn["integrations"] = [
+            {
+                "id": "prod-db",
+                "kind": "database",
+                "locator": "mysql://root:hunter2secret@db.internal/company",
+                "permission_mode": "read_only",
+            }
+        ]
+        cases.append((integration_dsn, "secret material"))
+        knowledge_dsn = self.load_example()
+        knowledge_dsn["knowledge"]["sources"] = ["mongodb://operator:hunter2secret@db.internal/company"]
+        cases.append((knowledge_dsn, "secret material"))
+        token = self.load_example()
+        token["identity"]["thesis"] = "sk-proj-abcdefghijklmnopqrstuvwxyz012345"
+        cases.append((token, "secret material"))
         for blueprint, expected in cases:
             with tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 with self.assertRaisesRegex(compiler.BlueprintError, expected):
                     compiler.compile_blueprint(self.write_blueprint(root, blueprint), root / "compiled")
+                self.assertFalse((root / "compiled").exists())
+
+    def test_catalog_and_compiled_dsn_material_fail_closed_before_write(self) -> None:
+        playbooks = json.loads(
+            (ROOT / "skills/company-os/company-blueprint/assets/playbook-library.json").read_text(encoding="utf-8")
+        )
+        playbooks["playbooks"][0]["steps"][0] = "connect postgresql://operator:hunter2secret@db.internal/company"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            catalog = root / "playbooks.json"
+            catalog.write_text(json.dumps(playbooks), encoding="utf-8")
+            with self.assertRaisesRegex(compiler.BlueprintError, "playbook catalog.*secret material"):
+                compiler.compile_blueprint(
+                    self.write_blueprint(root, self.load_example()),
+                    root / "compiled",
+                    playbook_catalog_path=catalog,
+                )
+            self.assertFalse((root / "compiled").exists())
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            compiler.compile_blueprint(self.write_blueprint(root, self.load_example()), root / "compiled")
+            path = root / "compiled/storage-plan.json"
+            storage = json.loads(path.read_text(encoding="utf-8"))
+            storage["note"] = "postgresql://operator:hunter2secret@db.internal/company"
+            raw = compiler.canonical_bytes(storage)
+            path.write_bytes(raw)
+            manifest = json.loads((root / "compiled/manifest.json").read_text(encoding="utf-8"))
+            for item in manifest["files"]:
+                if item["path"] == "storage-plan.json":
+                    item["sha256"] = compiler.digest_bytes(raw)
+                    item["size"] = len(raw)
+            (root / "compiled/manifest.json").write_bytes(compiler.canonical_bytes(manifest))
+            with self.assertRaisesRegex(compiler.BlueprintError, "compiled artifact storage-plan.json.*secret material"):
+                compiler.verify_compiled(root / "compiled")
 
     def test_assets_integrations_knowledge_graph_and_portable_storage_are_bound(self) -> None:
         blueprint = self.load_example()

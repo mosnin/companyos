@@ -292,8 +292,8 @@
     },
     {
       "path": "company-os/company-blueprint/references/company-blueprint-contract.md",
-      "sha256": "137a36328ccf30ad927835d9b827171998e663a3260dfb0838ab71c2c078bc3e",
-      "size": 2011
+      "sha256": "63b6555aa38e61901e4b3d234f74ac27f0261fa3c5a4350459d1e62b643ad338",
+      "size": 2035
     },
     {
       "path": "company-os/company-blueprint/schemas/company-blueprint.schema.json",
@@ -302,8 +302,8 @@
     },
     {
       "path": "company-os/company-blueprint/scripts/compile_company_blueprint.py",
-      "sha256": "5807874c895e3496e74b508dc785e62ada47affdbdc7b07aecd6e6b390e30a05",
-      "size": 31368
+      "sha256": "ac6626b788b1cf98aaf5d4713150bd325470d944bfc3015ab39b70b390a65d1a",
+      "size": 32881
     },
     {
       "path": "company-os/company-os/SKILL.md",

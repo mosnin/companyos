@@ -15,10 +15,30 @@ from typing import Any
 SCHEMA = "company-os.company-blueprint.v1"
 COMPILED_SCHEMA = "company-os.compiled-company.v1"
 ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
-SECRET_RE = re.compile(
-    r"(?:api[_-]?key|access[_-]?token|secret|password|private[_-]?key)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{8,}",
+SECRET_ASSIGNMENT_RE = re.compile(
+    r"(?:api[_-]?key|access[_-]?token|secret|password|passwd|pwd|private[_-]?key)\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{8,}",
     re.IGNORECASE,
 )
+DSN_RE = re.compile(
+    r"(?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\+srv)?|redis|rediss|amqps?|"
+    r"mssql|sqlserver|cockroach(?:db)?|cassandra|jdbc:[a-z0-9]+)://",
+    re.IGNORECASE,
+)
+URI_USERINFO_RE = re.compile(
+    r"[a-z][a-z0-9+.-]*://[^\s/:@]+:[^\s/:@]+@",
+    re.IGNORECASE,
+)
+PEM_PRIVATE_KEY_RE = re.compile(r"-----BEGIN (?:[A-Z]+ )?PRIVATE KEY-----")
+TOKEN_RE = re.compile(
+    r"(?<![A-Za-z0-9])(?:"
+    r"sk-(?:proj-|svc-|live-|test-)?[A-Za-z0-9_-]{10,}"
+    r"|ghp_[A-Za-z0-9]{20,}"
+    r"|github_pat_[A-Za-z0-9_]{20,}"
+    r"|AKIA[0-9A-Z]{16}"
+    r"|xox[baprs]-[A-Za-z0-9-]{10,}"
+    r")",
+)
+BEARER_RE = re.compile(r"bearer\s+[A-Za-z0-9._\-+/=]{16,}", re.IGNORECASE)
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DEPARTMENTS = ROOT / "assets" / "department-packs.json"
 DEFAULT_ARCHETYPES = ROOT / "assets" / "company-archetypes.json"
@@ -56,6 +76,20 @@ def require_id(value: Any, label: str) -> str:
     if not isinstance(value, str) or ID_RE.fullmatch(value) is None:
         raise BlueprintError(f"{label} must be a canonical kebab-case identifier")
     return value
+
+
+def reject_secret_material(value: Any, label: str) -> None:
+    """Fail closed when a blueprint or compiled artifact contains secrets or DSNs."""
+    serialized = canonical_bytes(value).decode("utf-8")
+    if (
+        SECRET_ASSIGNMENT_RE.search(serialized)
+        or DSN_RE.search(serialized)
+        or URI_USERINFO_RE.search(serialized)
+        or PEM_PRIVATE_KEY_RE.search(serialized)
+        or TOKEN_RE.search(serialized)
+        or BEARER_RE.search(serialized)
+    ):
+        raise BlueprintError(f"{label} appears to contain secret material")
 
 
 def require_text(value: Any, label: str) -> str:
@@ -296,9 +330,7 @@ def validate_blueprint(value: dict[str, Any]) -> None:
     if blocking:
         raise BlueprintError("execution-ready blueprint contains blocking unknowns")
 
-    serialized = canonical_bytes(value).decode("utf-8")
-    if SECRET_RE.search(serialized):
-        raise BlueprintError("blueprint appears to contain secret material")
+    reject_secret_material(value, "blueprint")
 
 
 def select_departments(
@@ -550,10 +582,15 @@ def compile_blueprint(
     blueprint = read_json(blueprint_path, "blueprint")
     validate_blueprint(blueprint)
     departments = read_json(department_catalog_path, "department catalog")
+    reject_secret_material(departments, "department catalog")
     archetypes = read_json(archetype_catalog_path, "archetype catalog")
+    reject_secret_material(archetypes, "archetype catalog")
     playbooks = read_json(playbook_catalog_path, "playbook catalog")
+    reject_secret_material(playbooks, "playbook catalog")
     selected, required = select_departments(blueprint, departments, archetypes)
     artifacts = compile_artifacts(blueprint, selected, required, playbooks)
+    for name, artifact in artifacts.items():
+        reject_secret_material(artifact, f"compiled artifact {name}")
     output.mkdir(parents=True, exist_ok=True)
     if output.is_symlink() or not output.is_dir():
         raise BlueprintError("output must be a real directory")
@@ -595,6 +632,7 @@ def verify_compiled(output: Path) -> dict[str, Any]:
         parsed = json.loads(raw)
         if raw != canonical_bytes(parsed):
             raise BlueprintError(f"compiled artifact is not canonical: {item['path']}")
+        reject_secret_material(parsed, f"compiled artifact {item['path']}")
     return {"ok": True, "company_id": manifest["company_id"], "files": len(manifest["files"])}
 
 
