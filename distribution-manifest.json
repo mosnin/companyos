@@ -301,6 +301,11 @@
       "size": 4020
     },
     {
+      "path": "company-os/company-blueprint/scripts/assert_chippi_north_star.py",
+      "sha256": "662b4bdefa71de6ec4d5f01a06b4994d5e090397795ffc357d0e319a9ed88c44",
+      "size": 6586
+    },
+    {
       "path": "company-os/company-blueprint/scripts/compile_company_blueprint.py",
       "sha256": "5807874c895e3496e74b508dc785e62ada47affdbdc7b07aecd6e6b390e30a05",
       "size": 31368
