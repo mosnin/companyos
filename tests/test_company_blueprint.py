@@ -25,6 +25,7 @@ class CompanyBlueprintTests(unittest.TestCase):
         return json.loads(EXAMPLE.read_text(encoding="utf-8"))
 
     def write_blueprint(self, root: Path, value: dict) -> Path:
+        root.mkdir(parents=True, exist_ok=True)
         path = root / "blueprint.json"
         path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
         return path
@@ -143,6 +144,85 @@ class CompanyBlueprintTests(unittest.TestCase):
                 {"neon", "supabase", "amazon-rds", "google-cloud-sql", "self-managed-postgresql"},
                 set(storage["portability"]),
             )
+
+    def _paying_teams_blueprint(self, company_id: str, target: str) -> dict:
+        blueprint = self.load_example()
+        blueprint["company_id"] = company_id
+        blueprint["identity"]["legal_name"] = f"{company_id} LLC"
+        blueprint["identity"]["operating_name"] = company_id
+        blueprint["objectives"] = [
+            {
+                "baseline": "0 paying Team or Team Plus brokerage accounts as of 2026-08-15",
+                "horizon": "2026-12-31",
+                "id": "objective-paying-teams",
+                "metric": "Paying Team or Team Plus brokerage accounts",
+                "outcome": "Tens of thousands of paying Team or Team Plus brokerage accounts",
+                "priority": 1,
+                "target": target,
+            }
+        ]
+        return blueprint
+
+    def _objective_node(self, compiled: Path, objective_id: str) -> dict:
+        graph = json.loads((compiled / "knowledge-graph.json").read_text(encoding="utf-8"))
+        node = next(item for item in graph["nodes"] if item["id"] == f"objective:{objective_id}")
+        return node
+
+    def test_compile_preserves_objective_target_and_refuses_foreign_company_overwrite(self) -> None:
+        chippi_target = "At least 10000 paying Team or Team Plus brokerage accounts"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            compiled = root / "compiled"
+            blueprint_path = self.write_blueprint(root, self._paying_teams_blueprint("chippi", chippi_target))
+            compiler.compile_blueprint(blueprint_path, compiled)
+            compiler.compile_blueprint(blueprint_path, compiled)
+            node = self._objective_node(compiled, "objective-paying-teams")
+            self.assertEqual(node["target"], chippi_target)
+            self.assertEqual(node["label"], "Tens of thousands of paying Team or Team Plus brokerage accounts")
+            before = (compiled / "knowledge-graph.json").read_bytes()
+            substitute = self._paying_teams_blueprint(
+                "other-broker",
+                "1000 paying Team or Team Plus brokerage accounts",
+            )
+            with self.assertRaisesRegex(compiler.BlueprintError, "already bound to company chippi"):
+                compiler.compile_blueprint(self.write_blueprint(root / "other", substitute), compiled)
+            self.assertEqual((compiled / "knowledge-graph.json").read_bytes(), before)
+            self.assertEqual(self._objective_node(compiled, "objective-paying-teams")["target"], chippi_target)
+
+    def test_compile_does_not_write_through_artifact_symlink(self) -> None:
+        chippi_target = "At least 10000 paying Team or Team Plus brokerage accounts"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            chippi = root / "chippi" / "compiled"
+            attacker = root / "attacker" / "compiled"
+            compiler.compile_blueprint(
+                self.write_blueprint(root / "chippi", self._paying_teams_blueprint("chippi", chippi_target)),
+                chippi,
+            )
+            before = (chippi / "knowledge-graph.json").read_bytes()
+            attacker.mkdir(parents=True)
+            for name in (
+                "asset-registry.json",
+                "capabilities.json",
+                "integration-registry.json",
+                "organization.json",
+                "routine-plan.json",
+                "storage-plan.json",
+                "work-graph.json",
+                "manifest.json",
+            ):
+                (attacker / name).write_bytes((chippi / name).read_bytes())
+            (attacker / "knowledge-graph.json").symlink_to(chippi / "knowledge-graph.json")
+            substitute = self._paying_teams_blueprint(
+                "chippi",
+                "1000 paying Team or Team Plus brokerage accounts",
+            )
+            with self.assertRaisesRegex(compiler.BlueprintError, "symlink"):
+                compiler.compile_blueprint(self.write_blueprint(root / "attacker", substitute), attacker)
+            self.assertTrue((chippi / "knowledge-graph.json").is_file())
+            self.assertFalse((chippi / "knowledge-graph.json").is_symlink())
+            self.assertEqual((chippi / "knowledge-graph.json").read_bytes(), before)
+            self.assertEqual(self._objective_node(chippi, "objective-paying-teams")["target"], chippi_target)
 
     def test_compiled_artifact_drift_and_extra_files_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

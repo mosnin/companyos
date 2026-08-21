@@ -302,8 +302,8 @@
     },
     {
       "path": "company-os/company-blueprint/scripts/compile_company_blueprint.py",
-      "sha256": "5807874c895e3496e74b508dc785e62ada47affdbdc7b07aecd6e6b390e30a05",
-      "size": 31368
+      "sha256": "89f95579ad6a31696ef9261493a75e4fe865f85f8cae20400fe80d008fee41c9",
+      "size": 33648
     },
     {
       "path": "company-os/company-os/SKILL.md",
@@ -432,8 +432,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "e4361ecb2eb07b5a7f6557e852065ca10a9fbacfff6386f157f68464a7179aac",
-      "size": 62438
+      "sha256": "1e0fd414aef5a1e76356a6b82cfa746ec09bdf5e6aa25934fbca167211ba1722",
+      "size": 63488
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
@@ -497,8 +497,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "32b49e5cb396028b7eadb51de89926fed93b6038c4b27b7c719d388353c17712",
-      "size": 74611
+      "sha256": "4d7614b38e980aa4165f4648e286c67449566cf1e57195a63599fc7fba4b8073",
+      "size": 78677
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",

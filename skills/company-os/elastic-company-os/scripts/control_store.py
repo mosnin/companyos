@@ -50,22 +50,33 @@ def governance_digest(state: dict[str, Any]) -> str:
     ):
         controller.pop(field, None)
     payload.get("instance", {}).pop("status", None)
-    encoded = json.dumps(
-        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
-    )
-    return sha256_bytes(encoded.encode("utf-8"))
+    return sha256_bytes(canonical_json(payload).encode("utf-8"))
+
+
+def _store_layout(project: Path, *, require_database: bool = False) -> tuple[Path, Path]:
+    """Bind one project to a real, non-symlink control directory and database."""
+    project = project.resolve()
+    directory = project / ".company-os"
+    if directory.is_symlink():
+        raise StoreError("control store directory must not be a symlink")
+    path = directory / DATABASE_NAME
+    if path.is_symlink():
+        raise StoreError("transactional control store path must not be a symlink")
+    if require_database and not path.is_file():
+        raise StoreError("transactional control store does not exist")
+    return directory, path
 
 
 def database_path(project: Path) -> Path:
-    return project.resolve() / ".company-os" / DATABASE_NAME
+    return _store_layout(project)[1]
 
 
 def exists(project: Path) -> bool:
-    return database_path(project).is_file()
+    return _store_layout(project)[1].is_file()
 
 
 def connect(project: Path) -> sqlite3.Connection:
-    path = database_path(project)
+    path = _store_layout(project, require_database=True)[1]
     connection = sqlite3.connect(f"file:{path}?mode=rw", uri=True, timeout=10.0)
     return _configure_connection(connection, journal_mode="WAL")
 
@@ -421,8 +432,8 @@ def _read_legacy_events(project: Path, project_id: str) -> list[tuple[int, str, 
 
 def initialize(project: Path, state: dict[str, Any], event: dict[str, Any]) -> int:
     project = project.resolve()
-    path = database_path(project)
-    if path.exists():
+    directory, path = _store_layout(project)
+    if path.is_file():
         revision, existing = load(project)
         if canonical_json(existing) != canonical_json(state):
             raise StoreError("transactional control store already exists with different state")
@@ -433,7 +444,11 @@ def initialize(project: Path, state: dict[str, Any], event: dict[str, Any]) -> i
         raise StoreError("cannot initialize a control store without a project ID")
     if state.get("instance", {}).get("project_root") != str(project):
         raise StoreError("cannot initialize a control store for a different project root")
-    path.parent.mkdir(parents=True, exist_ok=True)
+    if directory.exists() and not directory.is_dir():
+        raise StoreError("control store directory must be a real directory")
+    directory.mkdir(parents=True, exist_ok=True)
+    if directory.is_symlink() or not directory.is_dir():
+        raise StoreError("control store directory must be a real directory")
     legacy = _read_legacy_events(project, project_id)
     temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.initializing")
     connection = _configure_connection(
@@ -710,9 +725,11 @@ def _export_values(connection: sqlite3.Connection) -> tuple[bytes, bytes, int]:
 
 
 def _atomic_bytes(path: Path, value: bytes) -> None:
+    if path.is_symlink():
+        raise StoreError(f"refusing to write through symlink: {path.name}")
     temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
     try:
-        with temporary.open("wb") as handle:
+        with temporary.open("xb") as handle:
             handle.write(value)
             handle.flush()
             os.fsync(handle.fileno())
@@ -729,13 +746,16 @@ def _atomic_bytes(path: Path, value: bytes) -> None:
 
 def repair_exports(project: Path) -> dict[str, Any]:
     project = project.resolve()
+    directory, _ = _store_layout(project, require_database=True)
     connection = connect(project)
     try:
         _assert_binding(connection, project)
         state_bytes, events_bytes, revision = _export_values(connection)
     finally:
         connection.close()
-    directory = project / ".company-os"
+    for name in ("control.json", "events.jsonl"):
+        if (directory / name).is_symlink():
+            raise StoreError(f"{name} must not be a symlink")
     _atomic_bytes(directory / "control.json", state_bytes)
     _atomic_bytes(directory / "events.jsonl", events_bytes)
     return {"revision": revision, "state_sha256": sha256_bytes(state_bytes), "events_sha256": sha256_bytes(events_bytes)}
@@ -1407,8 +1427,7 @@ def inspect_outbox(
 ) -> list[dict[str, Any]]:
     """Return hash-verified outbox rows scoped to exactly one project store."""
     project = project.resolve()
-    if not database_path(project).is_file():
-        raise StoreError("transactional control store does not exist")
+    _store_layout(project, require_database=True)
     connection = connect(project)
     try:
         metadata = _assert_binding(connection, project)

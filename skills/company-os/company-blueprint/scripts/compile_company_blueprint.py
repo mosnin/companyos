@@ -6,8 +6,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -31,9 +33,57 @@ class BlueprintError(RuntimeError):
 
 def canonical_bytes(value: Any) -> bytes:
     return (
-        json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
         + "\n"
     ).encode("utf-8")
+
+
+def atomic_write_bytes(path: Path, value: bytes) -> None:
+    """Replace one compiled file without following a symlink into another instance."""
+    if path.is_symlink():
+        raise BlueprintError(f"refusing to write through symlink: {path.name}")
+    if path.exists() and not path.is_file():
+        raise BlueprintError(f"compiled artifact must be a regular file: {path.name}")
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        with temporary.open("xb") as handle:
+            handle.write(value)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+
+
+def require_real_output(output: Path) -> Path:
+    output.mkdir(parents=True, exist_ok=True)
+    if output.is_symlink() or not output.is_dir():
+        raise BlueprintError("output must be a real directory")
+    return output
+
+
+def assert_output_company_binding(output: Path, company_id: str) -> None:
+    manifest_path = output / "manifest.json"
+    if not manifest_path.exists() and not manifest_path.is_symlink():
+        return
+    existing = read_json(manifest_path, "existing compiled manifest")
+    bound = existing.get("company_id")
+    if isinstance(bound, str) and bound and bound != company_id:
+        raise BlueprintError(
+            f"output is already bound to company {bound}; refusing to overwrite with {company_id}"
+        )
 
 
 def digest_bytes(value: bytes) -> str:
@@ -464,7 +514,18 @@ def compile_artifacts(
     edges: list[dict[str, str]] = []
     for objective in sorted(blueprint["objectives"], key=lambda item: item["id"]):
         node_id = f"objective:{objective['id']}"
-        nodes.append({"id": node_id, "kind": "objective", "label": objective["outcome"]})
+        nodes.append(
+            {
+                "baseline": objective["baseline"],
+                "horizon": objective["horizon"],
+                "id": node_id,
+                "kind": "objective",
+                "label": objective["outcome"],
+                "metric": objective["metric"],
+                "priority": objective["priority"],
+                "target": objective["target"],
+            }
+        )
         edges.append({"from": f"company:{company_id}", "kind": "pursues", "to": node_id})
     for department in selected:
         node_id = f"department:{department['id']}"
@@ -554,16 +615,22 @@ def compile_blueprint(
     playbooks = read_json(playbook_catalog_path, "playbook catalog")
     selected, required = select_departments(blueprint, departments, archetypes)
     artifacts = compile_artifacts(blueprint, selected, required, playbooks)
-    output.mkdir(parents=True, exist_ok=True)
-    if output.is_symlink() or not output.is_dir():
-        raise BlueprintError("output must be a real directory")
-    unexpected = sorted(path.name for path in output.iterdir() if path.name not in set(artifacts) | {"manifest.json"})
+    output = require_real_output(output)
+    assert_output_company_binding(output, blueprint["company_id"])
+    unexpected = sorted(
+        path.name
+        for path in output.iterdir()
+        if path.name not in set(artifacts) | {"manifest.json"} and not path.name.startswith(".")
+    )
     if unexpected:
         raise BlueprintError(f"output contains unexpected files: {unexpected}")
+    for name in (*artifacts, "manifest.json"):
+        if (output / name).is_symlink():
+            raise BlueprintError(f"refusing to write through symlink: {name}")
     files: list[dict[str, Any]] = []
     for name, artifact in sorted(artifacts.items()):
         raw = canonical_bytes(artifact)
-        (output / name).write_bytes(raw)
+        atomic_write_bytes(output / name, raw)
         files.append({"path": name, "sha256": digest_bytes(raw), "size": len(raw)})
     blueprint_raw = canonical_bytes(blueprint)
     manifest = {
@@ -573,7 +640,8 @@ def compile_blueprint(
         "company_id": blueprint["company_id"],
         "files": files,
     }
-    (output / "manifest.json").write_bytes(canonical_bytes(manifest))
+    atomic_write_bytes(output / "manifest.json", canonical_bytes(manifest))
+    verify_compiled(output)
     return manifest
 
 
