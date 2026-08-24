@@ -1,0 +1,91 @@
+CIVILIZATION BUILDER ARCHITECT — SECTION 07: Metrics, Instrumentation, and Diagnostics
+
+Purpose
+Define how a builder grade system is measured, diagnosed, and improved.
+
+Measurement philosophy
+The goal is not vanity metrics. The goal is to measure whether the system is becoming a more durable, scalable, and indispensable layer.
+
+Metric categories
+1. Constraint metrics
+- time lost to bottleneck
+- cost imposed by bottleneck
+- failure frequency caused by bottleneck
+
+2. Infrastructure metrics
+- capacity
+- utilization
+- reliability
+- uptime
+- coverage
+
+3. Production metrics
+- throughput
+- defect rate
+- cycle time
+- marginal cost decline
+- inventory turns
+
+4. Platform metrics
+- number of downstream use cases
+- developer or partner adoption
+- API or interface usage
+- interoperability rate
+
+5. Ecosystem metrics
+- complement creation
+- retention
+- switching cost proxies
+- cross product usage
+- ecosystem revenue share
+
+6. Institutional metrics
+- compliance rate
+- reporting latency
+- auditability
+- standard adoption
+- coordination span
+
+Diagnostic questions
+- Is the bottleneck actually moving
+- Is reliability improving faster than complexity
+- Are unit costs falling with scale
+- Are others building on top of the system
+- Is the system becoming harder to replace
+
+Signal interpretation
+High adoption with low reliability = scaling too early.
+High reliability with low adoption = distribution or value perception problem.
+Low complement growth = not a real platform yet.
+High cost with low learning curve improvement = poor process design.
+High dependency fragility = excessive external reliance.
+
+Dashboard template
+North star outcome:
+Current bottleneck:
+Leading indicators:
+Lagging indicators:
+Weekly review cadence:
+Escalation thresholds:
+
+Decision thresholds
+Scale up when:
+- reliability is above acceptable threshold
+- marginal cost trend is declining
+- user or operator retention is strengthening
+- complements or integration demand is rising
+
+Redesign when:
+- the bottleneck moved elsewhere
+- system complexity rises faster than performance
+- standards remain ambiguous
+- governance overhead swallows value creation
+
+Experiment log template
+Hypothesis:
+System layer targeted:
+Constraint addressed:
+Change made:
+Metric expected to move:
+Actual result:
+Decision:

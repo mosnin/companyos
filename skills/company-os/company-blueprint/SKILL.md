@@ -9,6 +9,15 @@ Company OS is an organization compiler. Do not dispatch managers until the
 company blueprint is concrete enough to explain what the organization is,
 which outcomes matter, what it may access, and what it must not do.
 
+When the blueprint is a company, platform, or ecosystem operating system
+spanning infrastructure, production, governance, and digital layers, load
+`$civilization-builder` as the systems overlay. Do not send
+`$civilization-builder` to Luna workers.
+
+When the blueprint includes headcount, role design, or a people operating
+model, load `$hr-architect` as the HR overlay.
+Do not send `$hr-architect` to Luna workers.
+
 ## Intake
 
 Ask the operator focused questions about identity, customer, offer, operating
@@ -29,19 +38,40 @@ Run:
 `python3 scripts/compile_company_blueprint.py --blueprint path/to/blueprint.json --output path/to/compiled`
 
 The compiler selects composable department packs from the accepted archetypes
-and requested capabilities. It emits a content-addressed organization,
-capability map, routine plan, work graph, knowledge graph, asset registry,
-integration registry, storage plan, and manifest.
+and requested capabilities. Daily, weekly, and monthly cadence IDs must name
+distinct routines in that selected organization whose cron periods match.
+Extra fields, conflicting overrides, duplicate unknowns, URI userinfo, DSN
+URIs, PEM material, JSON secret keys, and token material fail closed. It emits
+a content-addressed organization, capability map, agent registry, routine plan,
+work graph, knowledge graph, asset registry, integration registry, storage
+plan, and manifest. Verification accepts only that complete canonical set.
+
+Each department pack is a reusable module. It stores agent slots: one middle
+or low-level Sol-manager template and staff Luna-worker templates. Created
+agents are stored by cloning a slot into a project-local catalog. Slots are
+templates, not running threads. Department labels are not dispatch quotas.
+
+Store a created agent without mutating the shared core unless that catalog is
+the explicit output:
+
+`python3 scripts/compile_company_blueprint.py --store-agent path/to/slot.json --department engineering-quality --departments path/to/project-department-packs.json --output path/to/project-department-packs.json`
 
 Department count is not fixed. Create departments only when they own a distinct
 outcome, decision boundary, or operating system. Manager and Luna capacity is
-derived later from the accepted work graph; department labels are not agent
-quotas.
+derived later from the accepted work graph.
+
+Preset corporate packs are Strategy, Program Management, Product, Engineering,
+Brand, Marketing, Sales, Customer Success, Finance, Operations, Human
+Resources, and Security/Legal. Marketing and Sales are separate decision
+rights. Load `$corporate-departments` on the department manager. Load
+`$marketing-os` on the Marketing manager. Do not send `$corporate-departments`
+or `$marketing-os` to Luna workers.
 
 ## Operating planes
 
 - **Identity plane:** mission, thesis, customers, offers, objectives, values.
-- **Organization plane:** departments, interfaces, decision rights, metrics.
+- **Organization plane:** departments, interfaces, decision rights, metrics, reusable agent slots. When compiling the organization, load `$corporate-management` and name senior, middle, low-level, and staff tiers.
+Do not send `$corporate-management` to Luna workers.
 - **Capability plane:** skills, tools, playbooks, models, permissions.
 - **Execution plane:** programs, DAGs, leases, budgets, acceptance, recovery.
 - **Context plane:** knowledge, brand, assets, content and style references.
@@ -49,12 +79,16 @@ quotas.
 - **Learning plane:** execution receipts, business outcomes, exceptions, and
   framework adaptations.
 
+When compiling customers and offers, load `$value-creation-delivery` as the value-creation and delivery overlay.
+Do not send `$value-creation-delivery` to Luna workers.
+
 ## Activation boundary
 
 Compilation is planning, not runtime activation. Recurring routines are emitted
-as `planned`. Enable them only after the project controller, database,
-cancellation, idempotency, permissions, and scheduler gates pass. External
-writes retain the operator's approval policy.
+as `planned`. Company daily, weekly, and monthly cadence must name distinct
+compiled routines whose cron period matches the slot. Enable them only after
+the project controller, database, cancellation, idempotency, permissions, and
+scheduler gates pass. External writes retain the operator's approval policy.
 
 ## Acceptance
 

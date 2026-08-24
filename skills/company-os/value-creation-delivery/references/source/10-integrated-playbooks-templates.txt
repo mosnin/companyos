@@ -1,0 +1,43 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 10: Integrated Playbooks and Template Pack
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+This file binds the system into reusable playbooks.
+
+Playbook A: Market → Offer → Proof
+1) Score market (10-factor)
+2) Map drives and status
+3) Choose value form
+4) Choose top levers and trade-offs
+5) Build offer blueprint and proof plan
+
+Playbook B: Validation loop
+Assumption log → shadow test → MVP offer → field test → experiment report → iterate
+
+Playbook C: Delivery build-out
+Value stream map → acceptance criteria → QA gates → expectations → metrics dashboard
+
+Playbook D: Scaling
+Duplicate → systemize → multiply → accumulate assets → amplify distribution → strengthen barriers
+
+Template pack (copy-paste)
+1) Market scorecard
+2) Demand driver map
+3) Offer blueprint
+4) Value lever test plan
+5) Assumption log
+6) Experiment report
+7) Value stream map
+8) QA gate checklist
+9) Metrics dashboard
+10) Scale readiness checklist
+
+End of file.

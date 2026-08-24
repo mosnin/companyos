@@ -1,0 +1,56 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 04: Forms of Value and Offer Architecture
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• Twelve standard forms of value (product, service, shared resource, subscription, resale, lease, agency, audience aggregation, loan, option, insurance, capital)
+• Perceived value
+• Modularity
+• Bundling and unbundling
+• Intermediation and disintermediation
+• Alternatives
+• Trade-offs
+
+Twelve standard forms of value (kept)
+product, service, shared resource, subscription, resale, lease, agency, audience aggregation, loan, option, insurance, capital
+
+Offer architecture (added)
+• Core outcome
+• Scope boundaries
+• Modules
+• Terms
+• Proof
+
+Perceived value (kept, clarified)
+Increases with outcome clarity, proof, reduced risk, reduced effort, and status or identity benefits.
+
+Modularity (kept)
+Use modules to reduce delivery cost, increase pricing flexibility, speed iteration.
+
+Bundling and unbundling (kept)
+Bundle to simplify and increase total value; unbundle to reduce friction and match segment needs.
+
+Intermediation and disintermediation (kept)
+Intermediation reduces friction; disintermediation reduces cost and increases speed/control.
+
+Alternatives and trade-offs (kept)
+Compete against direct competitors, substitutes, doing nothing. Make trade-offs explicit.
+
+Template: Offer blueprint
+• Customer and job
+• Value form
+• Core outcome and scope
+• Modules and bundles
+• Price and terms
+• Proof assets
+• Trade-offs vs top 2 alternatives
+
+End of file.

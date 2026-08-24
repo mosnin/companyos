@@ -1,0 +1,6 @@
+interface:
+  display_name: "Marketing Architect"
+  short_description: "Force market-first demand and GTM system design"
+  default_prompt: "Use $marketing-architect with $manage-company-program and one compact mission charter for market strategy, segmentation, go-to-market, advertising, or growth lifecycle work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

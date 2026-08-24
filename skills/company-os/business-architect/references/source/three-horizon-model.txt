@@ -1,0 +1,227 @@
+file_name: three_horizon_model_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime Three Horizons Model used to manage
+  innovation, growth, and transformation across different time horizons.
+  This file preserves the canonical Three Horizons framework while extending it
+  into portfolio management, execution discipline, and capital allocation.
+
+what_this_is:
+  definition: >
+    The Three Horizons Model segments initiatives by time horizon and maturity
+    to balance short-term performance with long-term growth.
+  primary_goal: >
+    Prevent organizations from over-investing in the present
+    at the expense of future relevance.
+  not_this:
+    - "A project roadmap"
+    - "A product backlog"
+    - "A single-horizon growth plan"
+
+canonical_format:
+  horizons:
+    horizon_1: Core Business
+    horizon_2: Emerging Growth
+    horizon_3: Future Options
+  invariant_rule: >
+    Each horizon has different goals, metrics, and management styles.
+    Treating them the same destroys value.
+
+spatial_logic:
+  time_axis:
+    description: "Near-term → Mid-term → Long-term"
+  certainty_axis:
+    description: "High certainty → Medium certainty → High uncertainty"
+  portfolio_logic: >
+    The model is a portfolio of bets, not a linear progression.
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke Three Horizons Model"
+    - "Run Three Horizons analysis"
+    - "Three Horizons for <business / portfolio>"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Build a best-effort horizon portfolio using assumptions where required.
+  balance_constraint:
+    rule: >
+      All three horizons must be populated.
+      Empty horizons signal strategic imbalance.
+
+input_contract:
+  user_input_template: |
+    THREE HORIZONS INPUT
+    Business / Portfolio:
+    Industry:
+    Stage: (early, scaling, mature)
+    Strategy Intent:
+    Risk Appetite: (low / medium / high)
+    Capital Constraints:
+    Evidence Available: (none, metrics, financials)
+  minimum_viable_input:
+    description: >
+      If only a business name and industry are provided,
+      infer typical horizon distributions for that industry
+      and mark all inferred items as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Scope and Strategic Intent"
+    - "2. Horizon Definitions"
+    - "3. Horizon Portfolio"
+    - "4. Investment and Resource Allocation"
+    - "5. Metrics and Governance"
+    - "6. Assumptions Ledger"
+    - "7. Risks and Failure Modes"
+    - "8. Transition Triggers"
+
+scope_and_strategic_intent:
+  rules:
+    - "One business or portfolio per model"
+    - "Explicit time horizon definitions"
+  why_this_matters: >
+    Without clear horizon definitions,
+    teams confuse innovation with optimization.
+
+horizon_definitions:
+
+  horizon_1:
+    label: "Core Business"
+    time_frame: "0–12 months (sometimes up to 24)"
+    objective: >
+      Defend and extend the existing core.
+    characteristics:
+      - "Established customers"
+      - "Proven business model"
+      - "Predictable cash flows"
+    success_criteria:
+      - "Revenue stability or growth"
+      - "Margin protection"
+    management_style:
+      - "Operational excellence"
+      - "Efficiency and execution focus"
+    failure_modes:
+      - "Over-optimization"
+      - "Ignoring disruption"
+
+  horizon_2:
+    label: "Emerging Growth"
+    time_frame: "12–36 months"
+    objective: >
+      Build new growth engines that can scale.
+    characteristics:
+      - "Partial validation"
+      - "New customers or use cases"
+      - "Hybrid business models"
+    success_criteria:
+      - "Repeatable traction"
+      - "Clear path to scale"
+    management_style:
+      - "Experimentation with discipline"
+      - "Milestone-based funding"
+    failure_modes:
+      - "Starving initiatives too early"
+      - "Treating like Horizon 1 too soon"
+
+  horizon_3:
+    label: "Future Options"
+    time_frame: "36+ months"
+    objective: >
+      Explore transformative opportunities and options.
+    characteristics:
+      - "High uncertainty"
+      - "Unproven technologies or markets"
+      - "Option value over near-term revenue"
+    success_criteria:
+      - "Learning"
+      - "Strategic optionality"
+    management_style:
+      - "Exploration"
+      - "Tolerance for failure"
+    failure_modes:
+      - "Expecting immediate ROI"
+      - "Killing ideas prematurely"
+
+horizon_portfolio:
+  composition_rules:
+    description: >
+      Each horizon should contain multiple initiatives
+      to diversify risk.
+  example_distribution:
+    horizon_1: "60–70% of resources"
+    horizon_2: "20–30% of resources"
+    horizon_3: "5–10% of resources"
+  adjustment_rule: >
+    Allocation should shift based on industry volatility
+    and competitive pressure.
+
+investment_and_resource_allocation:
+  capital_allocation:
+    principle: >
+      Fund horizons differently based on risk and certainty.
+    rules:
+      - "H1 funded for efficiency and returns"
+      - "H2 funded by milestones"
+      - "H3 funded as options"
+  talent_allocation:
+    rule: >
+      Assign different talent profiles to each horizon.
+  failure_modes:
+    - "Using H1 metrics to judge H3"
+    - "Underfunding transition periods"
+
+metrics_and_governance:
+  horizon_1_metrics:
+    examples:
+      - "Revenue"
+      - "Margin"
+      - "Cash flow"
+  horizon_2_metrics:
+    examples:
+      - "Customer traction"
+      - "Unit economics"
+      - "Scalability indicators"
+  horizon_3_metrics:
+    examples:
+      - "Learning velocity"
+      - "Option value"
+      - "Strategic insight"
+  governance_rule: >
+    Each horizon requires separate review cadence
+    and decision criteria.
+
+assumptions_ledger:
+  categories:
+    market_timing_assumptions:
+      description: "Beliefs about when opportunities mature"
+    technology_assumptions:
+      description: "Beliefs about feasibility and readiness"
+    organizational_assumptions:
+      description: "Beliefs about execution capability"
+    capital_assumptions:
+      description: "Beliefs about funding availability"
+
+risks_and_failure_modes:
+  portfolio_level:
+    - "Over-investment in Horizon 1"
+    - "Innovation theater in Horizon 3"
+  execution_level:
+    - "Poor handoff from H2 to H1"
+    - "Cultural resistance to new horizons"
+  cognitive_level:
+    - "Short-term bias"
+    - "Fear of cannibalization"
+
+transition_triggers:
+  horizon_3_to_2:
+    signals:
+      - "Technical feasibility proven"
+      - "Clear customer pain identified"
+  horizon_2_to_1:
+    signals:
+      - "Repeatable revenue"
+      - "Operational scalability"
+  governance_rule: >
+    Promotions between horizons must be explicit decisions,
+    not gradual drift.

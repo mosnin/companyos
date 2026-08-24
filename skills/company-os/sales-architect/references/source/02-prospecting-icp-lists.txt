@@ -1,0 +1,98 @@
+SALES ARCHITECT DOCTRINE — SECTION 02: Prospecting: ICP, Lead Sources, List Building, and Prioritization
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+How to build a prospecting engine: ICP, triggers, list sources, enrichment, prioritization, and lead routing.
+
+1) ICP: The “Who” That Makes Sales Easy
+ICP dimensions (choose the few that matter):
+• Firmographics: industry, size, geography, revenue, headcount
+• Technographics: tools in use (stack)
+• Workflow maturity: “how they do it today”
+• Constraints: compliance, timelines, budgets
+• Buying motion: self-serve vs sales-led
+• Success profile: who retains and expands
+
+ICP Output: A 1-paragraph ICP statement + 5 disqualifiers.
+
+2) Buying Triggers and Intent Signals (The “Why Now”)
+Examples:
+• hiring growth
+• new funding or budget cycle
+• leadership change
+• product launch
+• compliance deadline
+• outage or incident
+• cost-cutting mandate
+• competitor switch
+• public initiative (press releases)
+Classify triggers:
+A) structural triggers (slow)
+B) event triggers (fast)
+C) behavioral triggers (high intent: inbound actions)
+
+3) Lead Sources
+Owned
+• existing customers (expansion)
+• referrals
+• newsletter/community
+Inbound
+• website leads, content, SEO, webinars
+Outbound
+• directories, databases, job postings, press releases, event attendee lists
+Partnerships
+• agencies, consultants, vendors with adjacency
+
+4) List Building and Enrichment
+Minimum viable lead record:
+• company, website, industry, size
+• primary contact, title, email, phone, LinkedIn
+• hypothesis: pain + trigger + why now
+• first-touch channel and personalization angle
+
+5) Prioritization: Scoring Without Fantasy
+Priority score = Fit × Urgency × Access
+Fit
+• matches ICP and disqualifier filters
+Urgency
+• trigger evidence + timeline signal
+Access
+• reachable decision-maker path
+
+6) Lead Routing (How Work Moves)
+Routing rules:
+• inbound high intent: immediate response SLA
+• outbound: sequence assignment by segment
+• recycle: closed lost with nurture path
+• no response: park in long-cycle nurture
+
+Deliverables
+1) ICP statement + disqualifiers
+2) trigger library for your category
+3) lead record schema
+4) prioritization score model
+5) routing rules (inbound/outbound/recycle)
+
+End of file.

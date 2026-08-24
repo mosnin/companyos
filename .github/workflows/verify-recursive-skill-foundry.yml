@@ -1,0 +1,53 @@
+name: Verify Recursive Skill Foundry
+
+on:
+  push:
+    paths:
+      - "skills/company-os/recursive-skill-foundry/**"
+      - "skills/company-os/compile-outcome-organization/**"
+      - "skills/company-os/company-os/SKILL.md"
+      - "skills/company-os/manage-company-program/SKILL.md"
+      - "skills/company-os/assign-capability-skills/SKILL.md"
+      - "skills/company-os/navigation-control/SKILL.md"
+      - "skills/autonomy-suite/execute-bounded-task/SKILL.md"
+      - "tests/test_recursive_skill_foundry.py"
+      - "tests/test_recursive_skill_foundry_safety.py"
+      - "tests/test_recursive_skill_foundry_organization.py"
+      - ".github/workflows/verify-recursive-skill-foundry.yml"
+  pull_request:
+    paths:
+      - "skills/company-os/recursive-skill-foundry/**"
+      - "skills/company-os/compile-outcome-organization/**"
+      - "tests/test_recursive_skill_foundry.py"
+      - "tests/test_recursive_skill_foundry_safety.py"
+      - "tests/test_recursive_skill_foundry_organization.py"
+      - ".github/workflows/verify-recursive-skill-foundry.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify role and distribution contracts
+        run: |
+          python3 scripts/validate_role_skills.py
+          python3 scripts/distribution.py verify-manifest
+      - name: Verify recursive lifecycle, safety, and automatic assignment
+        run: |
+          python3 -m unittest \
+            tests.test_recursive_skill_foundry \
+            tests.test_recursive_skill_foundry_safety \
+            tests.test_recursive_skill_foundry_organization \
+            tests.test_outcome_organization \
+            tests.test_role_skills \
+            -v
+      - name: Run disposable works versus blocks simulation
+        run: |
+          python3 skills/company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py \
+            --output /tmp/recursive-skill-foundry-simulation.json

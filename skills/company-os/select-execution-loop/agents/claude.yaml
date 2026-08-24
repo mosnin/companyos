@@ -1,0 +1,4 @@
+interface:
+  display_name: "Select Execution Loop"
+  short_description: "Choose a bounded execution loop from task evidence."
+  default_prompt: "Select and bind the best execution loop for this outcome before dispatch."

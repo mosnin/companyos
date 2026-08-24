@@ -1,0 +1,63 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 08: Forecasting and Demand Planning: From Baselines to Bias Control
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Forecasting reduces uncertainty to improve operational decisions. It is measured by out-of-sample accuracy and bias control.
+
+1) Forecasting Pipeline
+1) define demand signal: orders, shipments, consumption
+2) clean data: promotions, stockouts, one-offs
+3) build baseline model
+4) evaluate accuracy and bias
+5) add causal inputs only if they improve out-of-sample performance
+6) translate forecast into capacity and inventory decisions
+
+2) Baseline Methods
+1) naive
+2) moving average
+3) exponential smoothing
+4) seasonal decomposition
+
+Rule
+If a complex model cannot beat a baseline out-of-sample, do not use it.
+
+3) Accuracy and Bias
+Track both. Bias can be more damaging than moderate error.
+
+4) Uncertainty Bands
+Plan with scenarios, not points.
+Use P10, P50, P90 bands for inventory and capacity risk control.
+
+5) Bullwhip Control
+Mitigations
+1) share true demand signals
+2) shorten planning cycles
+3) stabilize ordering policies
+4) reduce batch ordering and long lead times
+
+Deliverables
+1) baseline model and evaluation
+2) bias tracking and correction rule
+3) scenario bands
+4) policy translation: how forecasts change inventory and capacity
+
+End of file.

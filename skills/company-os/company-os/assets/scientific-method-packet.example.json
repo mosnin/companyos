@@ -1,0 +1,31 @@
+{
+  "authority": "overlay",
+  "binding": {
+    "field_id": "target-platform",
+    "kind": "outcome_request",
+    "record_id": "viral-game",
+    "record_sha256": null
+  },
+  "cap": {
+    "max_cost_usd": 25.0,
+    "max_time_minutes": 120,
+    "max_variants": 3
+  },
+  "disconfirm_condition": "A held-out candidate runs on the chosen platform without the claimed constraints.",
+  "evidence": [],
+  "experiment_class": "outcome",
+  "hypothesis": "The target platform imposes runtime, input, packaging, and performance constraints.",
+  "hypothesis_id": "target-platform",
+  "loop": {
+    "activation_state": "planned",
+    "primary": "bounded-divergent-exploration-loop"
+  },
+  "next_action": "close_outcome_discovery",
+  "packet_id": "smp-target-platform",
+  "schema": "company-os.scientific-method-packet.v1",
+  "status": "hypothesis",
+  "test": {
+    "kind": "evaluator",
+    "rule": "Held-out evaluator must discriminate poor, intermediate, and excellent on the claimed constraints."
+  }
+}

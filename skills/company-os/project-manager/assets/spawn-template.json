@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.project-manager-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "project-manager"
+  ],
+  "source_pack": "references/source",
+  "template_id": "project-manager",
+  "use_when": [
+    "execution_workflow",
+    "phase_planning",
+    "project_scoping",
+    "risk_management",
+    "task_decomposition"
+  ]
+}

@@ -34,8 +34,9 @@ packet; do not request the root transcript or repeat the Company OS manual.
    Report those milestones to the manager with exact evidence; never write the
    manager-owned force log.
    When the compiled packet declares `work_domains: ["ui_design"]`, load
-   `$ui-design-quality` before editing, use the vendored design suite it routes,
-   and return every required UI state and visual/interaction evidence. A UI
+   `$ui-design-quality` and `$interface-design` before editing, use the
+   vendored design suites they route, and return every required UI state
+   and visual/interaction evidence. A UI
    source path without the domain or capability is a preflight defect; stop
    rather than silently bypassing the gate.
    When the capability slice contains an external skill assignment, use
@@ -58,3 +59,9 @@ Use [assets/work-packet.json](assets/work-packet.json) as the compact input
 shape. Record only metadata the host or checks actually expose. Requested model
 is intent; observed model, tokens, cost, and cancellation acknowledgement stay
 unavailable unless independently exposed. Record elapsed duration when present.
+
+## Reusable mechanism return
+
+When the work packet includes a verified project skill assignment, load only the exact bound entrypoints in the declared order and verify each digest before use. Do not discover or load unassigned project skills.
+
+When the task reveals a genuinely reusable mechanism, return a concise `reusable_mechanism` record containing the trigger, outcome, exact evidence path, regression case, and expected reuse context. Do not forge or promote the skill unless the work packet explicitly authorizes `$recursive-skill-foundry`. One successful task is evidence, not promotion.

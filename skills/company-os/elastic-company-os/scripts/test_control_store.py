@@ -1653,6 +1653,99 @@ class ControlStoreTests(unittest.TestCase):
         finally:
             shutil.rmtree(other)
 
+    def test_symlink_control_dir_cannot_overwrite_another_company_instance(self) -> None:
+        chippi_star = (
+            "Tens of thousands of paying Team or Team Plus brokerage accounts "
+            "by 2026-12-31 (at least 10000)"
+        )
+        chippi = Path(tempfile.mkdtemp()).resolve()
+        other = Path(tempfile.mkdtemp()).resolve()
+        try:
+            self.assertEqual(
+                controller.init_instance(
+                    type(
+                        "Args",
+                        (),
+                        {
+                            "project": str(chippi),
+                            "name": "Chippi",
+                            "project_type": "software",
+                            "north_star": chippi_star,
+                        },
+                    )()
+                ),
+                0,
+            )
+            before_db = store.database_path(chippi).read_bytes()
+            before_control = (chippi / ".company-os" / "control.json").read_bytes()
+            before_state = store.load(chippi)[1]
+            self.assertEqual(before_state["strategy"]["north_star"], chippi_star)
+
+            (other / ".company-os").symlink_to(chippi / ".company-os")
+            other_state = deepcopy(before_state)
+            other_state["instance"]["project_id"] = "other-company"
+            other_state["instance"]["project_root"] = str(other)
+            other_state["instance"]["name"] = "Other"
+            other_state["strategy"]["north_star"] = "1000 paying Team accounts"
+            other_state["strategy"]["program_fingerprint"] = controller.strategy_fingerprint(
+                other_state["strategy"]
+            )
+            with self.assertRaises(store.StoreError):
+                store.exists(other)
+            with self.assertRaises(store.StoreError):
+                store.initialize(
+                    other,
+                    other_state,
+                    {
+                        "at": controller.utc_now(),
+                        "type": "instance_initialized",
+                        "project_id": other_state["instance"]["project_id"],
+                        "program_version": 1,
+                    },
+                )
+            with self.assertRaises(store.StoreError):
+                store.repair_exports(other)
+            self.assertEqual(store.database_path(chippi).read_bytes(), before_db)
+            self.assertEqual((chippi / ".company-os" / "control.json").read_bytes(), before_control)
+            self.assertEqual(store.load(chippi)[1]["strategy"]["north_star"], chippi_star)
+            self.assertFalse((chippi / ".company-os").is_symlink())
+        finally:
+            shutil.rmtree(chippi)
+            shutil.rmtree(other)
+
+    def test_symlink_control_db_cannot_alias_another_company_instance(self) -> None:
+        chippi = Path(tempfile.mkdtemp()).resolve()
+        other = Path(tempfile.mkdtemp()).resolve()
+        try:
+            self.assertEqual(
+                controller.init_instance(
+                    type(
+                        "Args",
+                        (),
+                        {
+                            "project": str(chippi),
+                            "name": "Chippi",
+                            "project_type": "software",
+                            "north_star": "At least 10000 paying Team or Team Plus brokerage accounts",
+                        },
+                    )()
+                ),
+                0,
+            )
+            (other / ".company-os").mkdir()
+            (other / ".company-os" / "control.db").symlink_to(store.database_path(chippi))
+            with self.assertRaises(store.StoreError):
+                store.connect(other)
+            with self.assertRaises(store.StoreError):
+                store.load(other)
+            self.assertEqual(
+                store.load(chippi)[1]["strategy"]["north_star"],
+                "At least 10000 paying Team or Team Plus brokerage accounts",
+            )
+        finally:
+            shutil.rmtree(chippi)
+            shutil.rmtree(other)
+
 
 if __name__ == "__main__":
     unittest.main()

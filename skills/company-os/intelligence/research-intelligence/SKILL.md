@@ -30,3 +30,7 @@ Before searching, define decision, scope, audience, cutoff date, affected users,
 ## Handoff
 
 Send approved conclusions to Strategy Pillar as a decision memo. Convert accepted recommendations into a portfolio bet or project only after the evidence, confidence, and risk are recorded.
+
+When the next step is a testable belief, bind a
+`company-os.scientific-method-packet.v1` using the Company OS scientific-method
+playbook. Research remains a sensor and does not own completion.

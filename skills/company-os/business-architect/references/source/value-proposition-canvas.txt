@@ -1,0 +1,275 @@
+file_name: value_proposition_canvas_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime Value Proposition Canvas (VPC) definition that
+  maps customer reality to product/service design with precision.
+  This file enforces the canonical VPC format while adding execution,
+  assumptions, validation logic, and failure analysis.
+
+what_this_is:
+  definition: >
+    The Value Proposition Canvas zooms into the fit between:
+    - a specific Customer Segment
+    - and a specific Value Proposition
+  scope: >
+    This canvas is NOT a business model.
+    It is a problem-solution fit instrument.
+    One Value Proposition Canvas = ONE customer segment only.
+
+canonical_format:
+  structure:
+    left_side: Customer Profile
+    right_side: Value Map
+  invariant_rule: >
+    Do not mix multiple customer segments in one canvas.
+    If there are multiple segments, create multiple canvases.
+
+spatial_logic:
+  customer_profile:
+    components_order:
+      - Customer Jobs
+      - Pains
+      - Gains
+  value_map:
+    components_order:
+      - Products & Services
+      - Pain Relievers
+      - Gain Creators
+  fit_principle: >
+    Products & Services address Jobs
+    Pain Relievers address Pains
+    Gain Creators address Gains
+    Anything else is noise.
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke Value Proposition Canvas"
+    - "Build VPC for <customer segment>"
+    - "Value Proposition Canvas for <product + segment>"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Build a best-effort canvas using assumptions and mark them explicitly.
+  honesty_constraint:
+    rule: >
+      Never invent certainty.
+      If something is unknown, label it as an assumption and attach a test.
+
+input_contract:
+  user_input_template: |
+    VALUE PROP INPUT
+    Product / Service Name:
+    Customer Segment:
+    Context of Use:
+    Problem / Motivation:
+    Current Alternatives:
+    Pricing Level (if known):
+    Stage: (idea, MVP, live)
+    Evidence Available: (none, anecdotes, data)
+  minimum_viable_input:
+    description: >
+      If only a product name and customer segment are provided,
+      infer likely jobs, pains, and gains from first principles,
+      then mark all inferred items as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Canvas Scope"
+    - "2. Customer Profile"
+    - "3. Value Map"
+    - "4. Fit Assessment"
+    - "5. Assumptions Ledger"
+    - "6. Failure Modes"
+    - "7. Validation & Experiments"
+    - "8. Iteration Hooks"
+
+canvas_scope:
+  rules:
+    - "Exactly one customer segment"
+    - "Exactly one product or offer"
+    - "Explicit context of use"
+  why_this_matters: >
+    Jobs, pains, and gains change by context.
+    A commuter, a buyer, and a decision-maker are not the same customer.
+
+customer_profile:
+  customer_jobs:
+    definition: >
+      What the customer is trying to get done.
+      Jobs are NOT features or solutions.
+    categories:
+      functional:
+        description: "Practical tasks or problems to solve"
+      emotional:
+        description: "How the customer wants to feel or avoid feeling"
+      social:
+        description: "How the customer wants to be perceived by others"
+    depth_rules:
+      - "Write jobs in the customer’s language"
+      - "Avoid solution framing"
+      - "Prefer verbs over nouns"
+    metrics:
+      - "Job frequency"
+      - "Job importance"
+      - "Job dissatisfaction with current solutions"
+    failure_modes:
+      - "Confusing jobs with pains"
+      - "Listing too many low-importance jobs"
+
+  pains:
+    definition: >
+      Anything that annoys, frustrates, blocks, risks, or disappoints
+      the customer before, during, or after trying to get a job done.
+    types:
+      - "undesired outcomes"
+      - "obstacles"
+      - "risks"
+      - "negative emotions"
+    severity_scale:
+      1: minor inconvenience
+      3: meaningful friction
+      5: deal-breaker
+    metrics:
+      - "Pain intensity"
+      - "Pain frequency"
+      - "Switching cost tolerance"
+    failure_modes:
+      - "Generic pains"
+      - "Internal pains instead of customer pains"
+
+  gains:
+    definition: >
+      The outcomes and benefits the customer wants.
+      Gains can be required, expected, desired, or unexpected.
+    types:
+      required:
+        description: "Table stakes; must exist"
+      expected:
+        description: "What customers assume will happen"
+      desired:
+        description: "What customers explicitly want"
+      unexpected:
+        description: "Delighters that exceed expectations"
+    metrics:
+      - "Gain importance"
+      - "Current satisfaction level"
+    failure_modes:
+      - "Over-indexing on delight instead of relief"
+      - "Confusing gains with features"
+
+value_map:
+  products_and_services:
+    definition: >
+      The concrete things you offer.
+      This is a list, not a pitch.
+    include:
+      - "Core product"
+      - "Supporting services"
+      - "Ancillary tools"
+    constraints:
+      - "No benefits here"
+      - "No marketing language"
+    metrics:
+      - "Adoption"
+      - "Usage frequency"
+    failure_modes:
+      - "Overloaded product list"
+      - "Undefined core offer"
+
+  pain_relievers:
+    definition: >
+      How the product explicitly alleviates customer pains.
+    rules:
+      - "Each reliever must map to a specific pain"
+      - "Relief can be partial or complete"
+    strength_levels:
+      weak: "nice-to-have relief"
+      strong: "meaningful reduction"
+      critical: "eliminates deal-breaker"
+    metrics:
+      - "Pain reduction delta"
+      - "Time saved"
+      - "Risk reduced"
+    failure_modes:
+      - "Vague relief claims"
+      - "Relievers that don’t match real pains"
+
+  gain_creators:
+    definition: >
+      How the product creates or amplifies customer gains.
+    rules:
+      - "Do not invent gains customers don’t care about"
+      - "Prioritize required and expected gains first"
+    mechanisms:
+      - "Speed"
+      - "Convenience"
+      - "Status"
+      - "Confidence"
+      - "Economic upside"
+    metrics:
+      - "Gain realization rate"
+      - "Delight signals"
+    failure_modes:
+      - "Feature-driven gains"
+      - "Delight without necessity"
+
+fit_assessment:
+  fit_levels:
+    no_fit:
+      description: "Jobs, pains, and gains are not addressed"
+    weak_fit:
+      description: "Some jobs addressed, major pains remain"
+    strong_fit:
+      description: "Critical pains relieved, core gains created"
+  diagnostic_questions:
+    - "Are we solving a must-have job?"
+    - "Are we removing a top-3 pain?"
+    - "Would customers notice if this disappeared?"
+
+assumptions_ledger:
+  categories:
+    customer_truths:
+      description: "Beliefs about customer behavior or motivation"
+    problem_severity:
+      description: "Beliefs about how painful the problem really is"
+    solution_effectiveness:
+      description: "Beliefs about how well the product works"
+    willingness_to_pay:
+      description: "Beliefs about pricing and value perception"
+
+failure_modes:
+  strategic:
+    - "Building for non-urgent jobs"
+    - "Solving internal instead of customer problems"
+  execution:
+    - "Over-engineering before validation"
+    - "Premature scaling"
+  signal_issues:
+    - "Vanity feedback"
+    - "Polite lies from users"
+
+validation_and_experiments:
+  principles:
+    - "Test pains before solutions"
+    - "Behavior beats opinions"
+  experiment_types:
+    - "Problem interviews"
+    - "Smoke tests"
+    - "Landing page tests"
+    - "Concierge MVP"
+  success_metrics:
+    - "Engagement"
+    - "Retention"
+    - "Willingness to pay"
+    - "Replacement of alternatives"
+
+iteration_hooks:
+  when_to_iterate:
+    - "Low engagement"
+    - "Weak retention"
+    - "Price resistance"
+  iteration_axes:
+    - "Customer segment"
+    - "Job focus"
+    - "Pain priority"
+    - "Delivery mechanism"

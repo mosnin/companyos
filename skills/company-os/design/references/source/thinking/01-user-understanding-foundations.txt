@@ -1,0 +1,130 @@
+DESIGN THINKING DOCTRINE — SECTION 01: User Understanding Foundations
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+Tools to understand users before solutioning:
+User Profile Canvas, Empathy Map, AEIOU observations, Jobs To Be Done, Hook Model, and ambiguity management (groan cycle).
+
+A. User Profile Canvas (Persona + JTBD + Pains/Gains + Use Cases)
+Purpose
+Capture who the user is, what progress they want, and what blocks them.
+
+Template
+1) Persona Description
+   • Context: where they operate, constraints, stakes
+   • Identity: role, sophistication, vocabulary
+   • Motivation: what success means to them
+2) Jobs To Be Done
+   • Functional job: what they must accomplish
+   • Emotional job: how they want to feel
+   • Social job: how they want to be perceived
+3) Pains
+   • Frictions, anxieties, risks, switching costs
+4) Gains
+   • Desired outcomes, bonuses, delights, status outcomes
+5) Use Cases
+   • High-frequency scenarios
+   • High-stakes scenarios
+   • Edge cases (failure states)
+
+Quality Criteria
+• Jobs stated as “make progress from A to B” not product features
+• Pains and gains are observable or testable
+• Use cases include context and triggers, not just actions
+
+B. Empathy Map
+Purpose
+Force a first-person view and separate what you know from what you assume.
+
+Map Fields
+1) Sees: cues in their environment
+2) Hears: influences, authority, peers
+3) Says/Does: observable behavior and language
+4) Thinks/Feels: inferred motives and fears (marked as inference)
+5) Pains: what costs time, money, status, certainty
+6) Gains: what they celebrate and measure
+
+Technique
+• Split every entry into Observed vs Inferred
+• Use direct quotes when possible
+
+C. AEIOU (Observation Framework)
+Purpose
+Capture context with enough fidelity to design correctly.
+
+AEIOU Prompts
+1) Activities: sequences, workarounds, routines
+2) Environment: physical, digital, social constraints
+3) Interactions: people and systems touched, handoffs
+4) Objects: tools, files, forms, devices, artifacts
+5) Users: segments, roles, incentives
+
+Deliverable
+• One-page Context Snapshot with task flow
+
+D. Jobs To Be Done (JTBD) Deep Structure
+Core Idea
+Users do not want products, they want progress in a situation.
+
+Interview Prompts
+1) Trigger: what started the search for a new solution?
+2) Last straw: what forced attention now?
+3) Alternatives tried: what failed and why?
+4) Anxieties: what could go wrong?
+5) Influences: who matters in the decision?
+6) Success: what does “done” look like at multiple horizons?
+
+Forces Model
+• Push of the situation (pain)
+• Pull of the new solution (progress)
+• Anxiety of the new (risk)
+• Habit of the present (inertia)
+
+Deliverable
+• Job statement: “When [situation], I want to [motivation], so I can [expected outcome].”
+
+E. Hook Model (Behavior Loop)
+Purpose
+Design repeatable engagement without guessing.
+
+Hook Loop
+1) Trigger: external or internal
+2) Action: simplest behavior in anticipation of reward
+3) Variable Reward: tribe, hunt, self
+4) Investment: data, effort, commitment that increases future likelihood
+
+Constraint
+• Hook must align with JTBD progress, not replace it
+
+F. Groan Cycle (Ambiguity Handling)
+Stages
+1) Divergence: explore widely, map uncertainties
+2) Groan: ambiguity rises, resist premature solutions
+3) Emergence: patterns cluster
+4) Convergence: commit with rationale and next tests
+
+Minimum Artifact Bundle
+1) Persona + JTBD + pains/gains + use cases
+2) Empathy map with observed vs inferred
+3) AEIOU snapshot and task flow
+4) JTBD forces summary
+5) Hook mapping for one core use case
+6) Risk-ranked uncertainty list
+
+End of file.

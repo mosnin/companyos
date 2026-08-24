@@ -1,0 +1,46 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 09: System Image and Mental Models
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+9) System image: what users actually learn from the design
+1) The designer has a model.
+2) The system exposes an image of that model through the interface.
+3) The user constructs a mental model from the system image.
+
+Design objective:
+1) Make the system image accurately teach the right mental model.
+
+Implementation guidance
+A) Teach the model through structure
+• consistent information architecture
+• stable objects and verbs
+• predictable cause and effect
+
+B) Teach the model through language
+• define nouns and verbs consistently
+• avoid internal jargon
+• align labels with user goals
+
+C) Teach the model through feedback and mapping
+• show what changed
+• show relationships between objects
+• keep mapping natural and spatially compatible
+
+D) Mental model testing (added)
+• ask users to explain how it works after using it
+• compare explanations to the intended model
+• revise system image where misunderstandings occur
+
+Deliverables
+1) product conceptual model diagram in words (objects, states, actions)
+2) vocabulary map: approved nouns and verbs
+3) mental model test script and scoring rubric
+
+End of file.

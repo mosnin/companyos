@@ -1,0 +1,116 @@
+MARKETING ARCHITECT DOCTRINE — SECTION 01: Market Strategy Foundations: Markets, Competition, Advantage
+
+Purpose
+Design and execute marketing systems that create demand, capture value, and compound brand equity.
+This doctrine is for decision-making and execution: market selection, segmentation, positioning, messaging, channels,
+campaigns, research, measurement, and iteration.
+
+Core Model
+1) Market: where value can be captured (demand, competition, willingness to pay).
+2) Offer: value proposition + proof + pricing and packaging.
+3) Message: positioning translated into clear, testable claims.
+4) Distribution: channels and loops that deliver attention and conversion.
+5) Measurement: feedback that prevents self-deception.
+
+Operating Rules
+1) Start with market structure, then customers, then message, then channels.
+2) Targeting and positioning are choices; clarity beats breadth.
+3) Behavior beats opinions. Experiments beat debates.
+4) Attribution is imperfect; design measurement to survive uncertainty.
+5) Brand is a long-term asset; performance is short-term optimization. Balance both.
+
+============================================================
+Scope
+Market selection and competitive structure determine how hard marketing will be.
+This section covers: defining markets, supply and demand, comparative advantage, business models, competitive analysis,
+Porter’s Five Forces, SWOT, 7Cs Compass, Ansoff Matrix, Blue Ocean Strategy, and economic divides.
+
+1) Defining the Market (Do Not Skip)
+A “market” is a specific set of buyers with similar jobs, constraints, and willingness to pay.
+Define by:
+1) Buyer: who pays and who uses
+2) Job: progress they want
+3) Context: when and why the job becomes urgent
+4) Alternatives: how they solve it today
+5) Pricing bands: what is “normal” spend and why
+
+Deliverable: Market Definition Card
+• Segment name
+• Job and urgency triggers
+• Buyer and user
+• Alternatives
+• Price anchors and buying friction
+• Distribution channels that reach them
+
+2) Supply, Demand, and Elasticity
+Basics
+• Demand curve: willingness to pay at different prices
+• Supply curve: willingness and ability to provide at different costs
+• Elasticity: how price affects quantity demanded
+Marketing implications
+1) In elastic categories, differentiation and value communication matter more
+2) In inelastic categories, availability, trust, and distribution dominate
+
+3) Comparative Advantage (Strategic Edge)
+Comparative advantage is what you can do at lower opportunity cost than competitors.
+Sources
+1) Distribution advantage: cheaper attention or better access
+2) Production advantage: lower costs, higher quality, faster delivery
+3) Information advantage: better data, better targeting
+4) Brand advantage: trust, preference, recall
+5) Switching advantage: lock-in, integration, habit
+
+4) Business Models and Economic Divides
+Common models
+1) Transactional (one-time purchase)
+2) Subscription (recurring)
+3) Usage-based
+4) Marketplace and platform
+5) Freemium
+6) Services and retainers
+7) Licensing
+Marketing must match model:
+• Subscription: retention, activation, habit
+• Marketplace: liquidity, trust, supply and demand balancing
+• Services: proof, authority, risk reversal, sales process
+
+5) Competitive Structure Tools
+A) Porter’s Five Forces
+1) Rivalry
+2) Threat of substitutes
+3) Threat of new entrants
+4) Buyer power
+5) Supplier power
+Use: identify where profit is captured and where marketing must compensate.
+
+B) SWOT (Marketing Use)
+• Strengths and weaknesses: internal capabilities and constraints
+• Opportunities and threats: external market forces
+Use: to pick strategies you can actually execute.
+
+C) 7Cs Compass Model (Orientation)
+Customer, Competitor, Company
+Complementors, Collaborators
+Context, Channels
+Use: ensure you are not missing ecosystem forces.
+
+6) Strategy Frameworks for Growth
+A) Ansoff Matrix
+1) Market penetration
+2) Market development
+3) Product development
+4) Diversification
+Use: choose growth vector and risk level.
+
+B) Blue Ocean Strategy
+Goal: shift from competing in a crowded space to creating uncontested demand.
+Levers: eliminate, reduce, raise, create (ERRC grid).
+
+Deliverables
+1) Market definition card
+2) Porter + 7Cs snapshot
+3) SWOT tied to strategy choices
+4) Ansoff growth path selection
+5) Blue Ocean ERRC grid (optional)
+
+End of file.

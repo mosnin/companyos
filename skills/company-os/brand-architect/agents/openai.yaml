@@ -1,0 +1,6 @@
+interface:
+  display_name: "Brand Architect"
+  short_description: "Force brand-system positioning and proof"
+  default_prompt: "Use $brand-architect with $manage-company-program and one compact mission charter for brand system, positioning, identity, voice, or presence work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,25 @@
+PROJECT MANAGER — SOURCE PACK INDEX
+
+This kit is a compiled Company OS thinking overlay. It is not a claim to be
+PMI, PMBOK, Agile Alliance, or any named firm. Load one primary file for the
+named decision. Do not stack every method as decoration.
+
+Decision -> file
+- Choose a method from the constraint -> project-management-methods.txt
+- Map the project type -> project-typology-framework.txt
+- Write inclusions, exclusions, and success criteria -> project-scoping-template.txt
+- Sequence phases and parallel work -> phase-architecture-patterns.txt
+- Split work to executable tasks -> task-granularity-standards.txt
+- Name risks, dependencies, and constraints -> risk-dependency-constraint-library.txt
+- Build a 24-72h action workflow -> execution-workflow-playbook.txt
+
+Shared operating rules
+- Name the outcome, the constraint, and the next executable task.
+- Pick one primary methodology. Hybrids need a recorded reason.
+- Discovery precedes definition. Testing precedes deployment.
+- A task is one owner, one outcome, one check. Split if it needs two
+  skill sets, more than 2-3 days, or multiple decisions.
+- Percent-complete is not progress. Blocked dependencies are.
+- Do not invent dates, capacity, or stakeholder approvals.
+
+End of index.

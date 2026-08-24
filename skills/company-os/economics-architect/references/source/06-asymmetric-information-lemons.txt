@@ -1,0 +1,69 @@
+ECONOMICS ARCHITECT DOCTRINE — SECTION 06: Information Economics: Asymmetric Information, Lemons, Moral Hazard, and Solutions
+
+Purpose
+Translate microeconomics and macroeconomics into operating decisions for building and scaling businesses.
+This doctrine is action-oriented: pricing, incentives, product strategy, market selection, capacity planning,
+competitive dynamics, and macro-aware forecasting.
+
+Core Economic Lens for Business
+1) Scarcity and tradeoffs: every choice has an opportunity cost.
+2) Incentives and behavior: systems produce outcomes.
+3) Margins: decisions happen at the margin (marginal cost vs marginal benefit).
+4) Markets: prices coordinate supply and demand under constraints.
+5) Information: asymmetric information creates failures and opportunities.
+6) Externalities: costs/benefits often spill over beyond the transaction.
+7) Cycles: macro conditions shift demand, costs, and risk.
+
+Operating Rules
+1) Always define the unit of analysis (customer, order, cohort, market segment, time period).
+2) Convert narratives into numbers: demand curves, elasticities, unit economics, and constraints.
+3) Separate price from value: price is a lever; value is the driver.
+4) Use experiments to estimate uncertain parameters (elasticity, willingness to pay, churn response).
+5) Keep models simple enough to guide decisions, strict enough to falsify.
+
+============================================================
+Scope
+How information gaps create failures, and how businesses design trust systems.
+
+1) Asymmetric Information
+Forms:
+• adverse selection: bad types select in
+• moral hazard: behavior changes after contract
+• principal-agent problem: incentives misaligned
+Results:
+• market failure, low trust, underinvestment
+
+2) Lemons Problem
+If buyers cannot tell quality, they pay an average price, pushing high-quality sellers out.
+Business translation:
+• new brands suffer a trust discount
+• high-quality offers need proof to avoid the average-price trap
+
+3) Screening and Signaling
+Signaling: informed party credibly signals quality.
+Examples:
+• warranties, guarantees
+• certifications, audits
+• transparent case studies and benchmarks
+• references
+Screening: uninformed party designs mechanisms to reveal type.
+Examples:
+• trials with usage milestones
+• tiered onboarding requiring effort
+• application processes for high-touch service
+• performance-based pricing where feasible
+
+4) Trust Mechanisms
+• escrow and milestones
+• SLAs and penalties
+• audits and logs
+• reputational systems
+• security posture and compliance evidence
+
+Deliverables
+1) asymmetric info map (where trust breaks)
+2) signaling asset plan
+3) screening mechanisms plan
+4) risk-reduction checklist for sales and onboarding
+
+End of file.

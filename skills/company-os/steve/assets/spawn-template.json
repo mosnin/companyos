@@ -1,0 +1,22 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.steve-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "steve"
+  ],
+  "source_pack": "references/source",
+  "template_id": "steve",
+  "use_when": [
+    "branding",
+    "customer_experience",
+    "product_design",
+    "user_experience"
+  ]
+}

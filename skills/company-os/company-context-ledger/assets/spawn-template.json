@@ -1,0 +1,22 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.company-context-ledger-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "company-context-ledger"
+  ],
+  "source_pack": "references/source",
+  "template_id": "company-context-ledger",
+  "use_when": [
+    "architecture_write",
+    "harness_context",
+    "hosted_ledger",
+    "run_record"
+  ]
+}

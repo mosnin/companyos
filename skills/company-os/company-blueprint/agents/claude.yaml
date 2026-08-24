@@ -1,0 +1,5 @@
+interface:
+  display_name: Company Blueprint
+  short_description: Compile a company into an elastic operating organization
+policy:
+  allow_implicit_invocation: true

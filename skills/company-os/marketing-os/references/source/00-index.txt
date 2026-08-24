@@ -1,0 +1,32 @@
+MARKETING OS — SOURCE PACK INDEX
+
+This kit is a compiled Company OS thinking overlay for the Marketing
+department. It compiles the useful architecture of the public
+marketing-os-starter repository: a research → brief → copy pipeline,
+structured handoffs, and compounding brand context.
+
+It is not a copy of that repository's prompts, agent souls, hook
+formulas, or growth-playbook text. It is not an affiliation with its
+authors or agency. Load one primary file for the named decision. Do
+not invent a fourth executable hop.
+
+Decision -> file
+- Pipeline and stage gates -> 01-pipeline.txt
+- Artifact contracts and digests -> 02-artifact-contracts.txt
+- How marketing scales -> 03-scale.txt
+- Context locators and memory -> 04-context-and-memory.txt
+- Quality, sales handoff, authority -> 05-quality-and-authority.txt
+
+Shared operating rules
+- The playbook routes. Do not spawn an orchestrator agent.
+- Research packet → brief contract → copy packet → review receipt.
+- Staff slots are research, brief, and copy. They are Luna workers.
+- Scale by work-graph width, not by named specialist agents.
+- Pass locators and digests. Do not paste this pack.
+- Awareness is not a KPI. Qualified demand is.
+- Do not fabricate proofs. Do not publish, send, or spend from this
+  overlay.
+- `$manage-company-program` still wins for delivery.
+- `$force-first-execution` still wins for motion.
+
+End of index.

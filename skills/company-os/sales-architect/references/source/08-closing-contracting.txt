@@ -1,0 +1,72 @@
+SALES ARCHITECT DOCTRINE — SECTION 08: Closing, Contracting, and Procurement: Getting to Signed
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+Closing is a sequence of commitments, not a single moment. This section makes closing predictable.
+
+1) Closing Models
+A) Mutual action plan (MAP)
+• timeline with steps, owners, dates
+B) “Next step” close
+• always end with a calendarized next action
+C) Decision close
+• confirm decision criteria are met and ask for decision
+
+2) Common Close Blockers
+• unclear success criteria
+• missing economic buyer
+• hidden stakeholders
+• procurement delays
+• unaddressed risk
+Fix by:
+• confirming stakeholders
+• documenting criteria and proof
+• using a MAP
+• pre-empting paper process early
+
+3) Contracting Checklist
+• scope and deliverables
+• pricing and payment terms
+• start date and timeline
+• change control
+• data and confidentiality terms
+• cancellation terms
+• acceptance criteria
+
+4) Follow-up Discipline
+Every call ends with:
+• recap
+• open questions
+• next step scheduled
+• responsibilities assigned
+If no next step, treat as a stall and re-qualify.
+
+Deliverables
+1) mutual action plan template
+2) closing scripts (decision close, MAP close)
+3) contracting checklist and term guardrails
+4) follow-up templates (email + call recap)
+
+End of file.

@@ -1,0 +1,255 @@
+file_name: value_builder_system_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime Value Builder System that decomposes enterprise
+  value creation into controllable drivers and sub-drivers.
+  This file preserves canonical value-based management logic while making it
+  executable for strategy, operations, and capital allocation.
+
+what_this_is:
+  definition: >
+    The Value Builder System explains how business decisions translate into
+    enterprise value (cash flow, ROIC, valuation).
+    It connects strategy to financial outcomes.
+  primary_goal: >
+    Identify which levers most increase long-term value
+    and where management attention should focus.
+  not_this:
+    - "A budgeting tool"
+    - "A market analysis"
+    - "A product design framework"
+
+canonical_foundation:
+  value_equation:
+    formula: >
+      Enterprise Value is driven by:
+      - Cash Flow
+      - Growth
+      - Return on Invested Capital (ROIC)
+      - Cost of Capital
+  invariant_rule: >
+    All value creation ultimately flows through cash flows
+    discounted by risk and time.
+
+system_structure:
+  layers:
+    level_1: Enterprise Value
+    level_2: Core Value Drivers
+    level_3: Operational Value Builders
+    level_4: Execution Metrics
+  direction_of_logic: >
+    Strategy decisions → Operational levers → Financial outcomes → Valuation
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke Value Builder"
+    - "Run Value Builder analysis"
+    - "Value Builder for <business>"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Build a best-effort Value Builder using assumptions where required.
+  prioritization_bias:
+    rule: >
+      Focus on the few levers with outsized value impact (80/20).
+
+input_contract:
+  user_input_template: |
+    VALUE BUILDER INPUT
+    Business Name:
+    Industry:
+    Stage: (early, scaling, mature)
+    Strategy Intent: (growth / margin / efficiency / hybrid)
+    Revenue Model:
+    Capital Intensity: (low / medium / high)
+    Evidence Available: (none, financials, KPIs)
+  minimum_viable_input:
+    description: >
+      If only a business name and industry are provided,
+      infer standard value drivers for that industry
+      and mark all inferred items as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Scope and Strategic Intent"
+    - "2. Value Builder Hierarchy"
+    - "3. Key Value Levers"
+    - "4. Metrics and KPIs"
+    - "5. Assumptions Ledger"
+    - "6. Bottlenecks and Value Leakage"
+    - "7. Value Creation Initiatives"
+    - "8. Review Cadence"
+
+scope_and_strategic_intent:
+  rules:
+    - "One business unit per Value Builder"
+    - "Explicit value creation priority"
+  why_this_matters: >
+    Different stages demand different value builders.
+    Growth-first and efficiency-first strategies are not interchangeable.
+
+value_builder_hierarchy:
+
+  level_1_enterprise_value:
+    definition: >
+      The total economic value of the business.
+    influenced_by:
+      - "Free Cash Flow"
+      - "Growth duration"
+      - "Risk profile"
+
+  level_2_core_value_drivers:
+
+    revenue_growth:
+      definition: >
+        The rate and durability of revenue expansion.
+      sub_drivers:
+        - "Market growth"
+        - "Market share change"
+        - "Pricing power"
+      value_logic: >
+        Sustainable growth increases future cash flows
+        and extends competitive advantage periods.
+
+    operating_margin:
+      definition: >
+        Profitability per unit of revenue.
+      sub_drivers:
+        - "Gross margin"
+        - "Operating leverage"
+        - "Cost discipline"
+      value_logic: >
+        Higher margins amplify cash generation from growth.
+
+    capital_efficiency:
+      definition: >
+        How efficiently capital is deployed to generate returns.
+      sub_drivers:
+        - "Working capital efficiency"
+        - "Fixed asset productivity"
+      value_logic: >
+        Less capital tied up means higher ROIC.
+
+    investment_rate:
+      definition: >
+        How much capital is reinvested to sustain growth.
+      value_logic: >
+        Value is destroyed when returns on new investment
+        fall below the cost of capital.
+
+    cost_of_capital:
+      definition: >
+        The risk-adjusted rate used to discount cash flows.
+      sub_drivers:
+        - "Business risk"
+        - "Financial leverage"
+        - "Market perception"
+      value_logic: >
+        Lower perceived risk increases valuation multiples.
+
+  level_3_operational_value_builders:
+
+    growth_builders:
+      examples:
+        - "Customer acquisition efficiency"
+        - "Retention and expansion"
+        - "New product introduction"
+      metrics:
+        - "Revenue growth rate"
+        - "Net revenue retention"
+
+    margin_builders:
+      examples:
+        - "Pricing optimization"
+        - "Cost structure optimization"
+        - "Mix improvement"
+      metrics:
+        - "Gross margin"
+        - "Contribution margin"
+
+    efficiency_builders:
+      examples:
+        - "Inventory turns"
+        - "Receivables management"
+        - "Capex discipline"
+      metrics:
+        - "ROIC"
+        - "Cash conversion cycle"
+
+    risk_builders:
+      examples:
+        - "Revenue diversification"
+        - "Customer concentration reduction"
+        - "Operational resilience"
+      metrics:
+        - "Revenue concentration ratio"
+        - "Volatility of cash flows"
+
+  level_4_execution_metrics:
+    principle: >
+      Metrics must be controllable, leading, and actionable.
+    examples:
+      - "CAC payback"
+      - "Utilization rate"
+      - "On-time delivery"
+      - "Churn"
+
+key_value_levers:
+  identification_rule: >
+    Identify 3–5 levers with the highest impact on ROIC and growth.
+  prioritization_criteria:
+    - "Magnitude of impact"
+    - "Speed of realization"
+    - "Management control"
+  failure_modes:
+    - "Too many levers"
+    - "Tracking without acting"
+
+metrics_and_kpis:
+  hierarchy:
+    leading_indicators:
+      description: "Predict future value creation"
+    lagging_indicators:
+      description: "Confirm results"
+  rule: >
+    Every strategic initiative must map to at least one value metric.
+
+assumptions_ledger:
+  categories:
+    growth_assumptions:
+      description: "Beliefs about demand and pricing power"
+    margin_assumptions:
+      description: "Beliefs about cost behavior"
+    capital_assumptions:
+      description: "Beliefs about reinvestment needs"
+    risk_assumptions:
+      description: "Beliefs about volatility and durability"
+
+bottlenecks_and_value_leakage:
+  common_sources:
+    - "Growth without profitability"
+    - "Capital trapped in working capital"
+    - "Underpriced risk"
+    - "Low-return investments"
+  diagnostic_rule: >
+    Identify where effort does not translate into cash flow.
+
+value_creation_initiatives:
+  output_definition: >
+    A short list of initiatives directly tied to value drivers.
+  example:
+    - "Improve pricing discipline to expand gross margin by X%"
+    - "Reduce working capital days by Y"
+  success_metrics:
+    - "ROIC improvement"
+    - "Free cash flow growth"
+
+review_cadence:
+  recommended:
+    early_stage: "Quarterly"
+    scaling: "Quarterly"
+    mature: "Biannual"
+  trigger_events:
+    - "Capital raise"
+    - "Strategic pivot"
+    - "Major investment decision"

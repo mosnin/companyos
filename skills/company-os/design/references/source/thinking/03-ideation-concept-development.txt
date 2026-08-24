@@ -1,0 +1,63 @@
+DESIGN THINKING DOCTRINE — SECTION 03: Ideation and Concept Development
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+Generate solution directions that trace back to user needs and are structured for testing.
+
+A. Ideation Modes
+1) Divergent: quantity and variety
+2) Convergent: selection and synthesis
+3) Hybrid: generate, cluster, refine
+
+B. Inputs Required
+Minimum
+• Problem statements
+• JTBD forces
+• Pains and gains
+• Task flow and constraints
+• Edge cases
+
+C. Practitioner Techniques
+1) HMW rounds (timeboxed)
+2) Constraint inversion
+3) Assumption smashing
+4) Analogies
+5) Concept mashups
+
+D. Concept Card (Make It Testable)
+1) Name
+2) Target user and use case
+3) Value proposition (one sentence)
+4) Mechanism (why it works)
+5) Primary assumption
+6) Failure mode
+7) Minimal test
+
+E. Selection Filters
+1) Desirability
+2) Feasibility
+3) Viability
+
+Deliverables
+1) Raw idea set
+2) 5 to 10 concept cards
+3) 1 to 3 shortlisted concepts with assumptions
+4) Test plan outline for each
+
+End of file.

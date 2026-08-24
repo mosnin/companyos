@@ -1,0 +1,114 @@
+SALES ARCHITECT DOCTRINE — SECTION 03: Cold Outreach Systems: Phone, Email, LinkedIn, DM, and Cadences
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+Multi-channel outbound built for meetings: cadences, scripts, personalization, follow-ups, and compliance basics.
+
+1) The Outbound Equation
+Meetings = Prospects × (Contact rate) × (Conversation rate) × (Meeting conversion)
+Improve by isolating the constraint:
+• low contact rate: data quality and channel choice
+• low conversation rate: opener and relevance
+• low meeting conversion: offer + qualification and control
+
+2) Cadence Design (Multi-Channel)
+A cadence is a planned sequence of touches across channels with a goal per step.
+Cadence principles:
+• one clear ask per message
+• follow-ups add value or new angle
+• vary channel and format
+• keep intervals consistent
+Cadence template (example)
+Day 1: email 1
+Day 2: call + voicemail
+Day 4: LinkedIn connect + short note
+Day 6: call
+Day 8: email 2 (new proof)
+Day 12: email 3 (low-commitment CTA)
+Day 16: breakup email + permission to close loop
+
+3) Cold Call Frameworks
+A) Permission-based opener
+1) introduce yourself and reason for calling
+2) ask for 20–30 seconds
+3) deliver relevance line
+4) ask a simple question
+B) Problem-first opener
+1) name common pain in their role
+2) ask if relevant
+C) Trigger-based opener
+1) reference a real trigger
+2) connect to likely outcome
+3) ask for quick confirmation
+
+Cold call structure
+1) opener (earn attention)
+2) relevance (why them)
+3) question (discover)
+4) value (what you change)
+5) close for meeting (next step)
+
+4) Cold Email Architecture
+Subject: neutral and specific
+Body:
+1) personalization or trigger (1 line)
+2) problem hypothesis (1 line)
+3) credibility/proof (1 line)
+4) clear CTA (one option)
+5) signature
+Follow-up rule:
+• do not “bump”
+• add proof, insight, or alternative CTA
+
+5) LinkedIn and DMs
+Principles
+• short, context-first
+• do not pitch immediately after connecting
+• use questions that reduce commitment
+Sequence: connect → value note → question → invite to call
+
+6) Networking as Pipeline Creation
+Networking outputs:
+• introductions
+• credibility transfer
+• insider info on decision process
+Rules
+• give first (introductions, insights)
+• keep a “referral loop” running
+• track relationships like accounts (CRM)
+
+7) Compliance Basics (Outbound)
+Email rules differ by country. In the U.S., commercial email must follow CAN-SPAM: clear identification, truthful headers/subjects,
+a visible opt-out, and honoring opt-outs promptly. (Do not treat this as legal advice; implement compliance per your jurisdiction.)
+
+Deliverables
+1) cadence templates by segment
+2) cold call scripts by opener type
+3) cold email template library
+4) LinkedIn/DM sequences
+5) networking system and tracking fields
+6) compliance checklist
+
+End of file.

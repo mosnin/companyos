@@ -1,0 +1,29 @@
+file_name: flywheel_model_invoker.txt
+framework: Flywheel Model
+
+purpose: >
+  Identify and design self-reinforcing growth loops
+  that compound advantage over time.
+
+flywheel_definition:
+  description: >
+    A flywheel is a closed-loop system where outputs
+    reinforce inputs, increasing momentum with each cycle.
+
+components:
+  nodes:
+    description: Key activities or outcomes in the loop.
+  links:
+    description: How one node strengthens the next.
+
+design_rules:
+  principles:
+    - "Customer value must increase each cycle"
+    - "Friction must be reduced continuously"
+    - "Momentum compounds non-linearly"
+
+analysis_outputs:
+  - flywheel_diagram_nodes
+  - reinforcing_loops
+  - friction_points
+  - compounding_metrics

@@ -1,0 +1,37 @@
+file_name: core_context_framework_invoker.txt
+framework: Core–Context Framework
+
+purpose: >
+  Distinguish between activities that create competitive advantage (Core)
+  and those that are necessary but non-differentiating (Context),
+  to optimize resource allocation and execution focus.
+
+definitions:
+  core:
+    description: >
+      Activities that directly drive competitive advantage,
+      differentiation, and long-term value creation.
+    characteristics:
+      - strategically_unique
+      - hard_to_copy
+      - value_driving
+  context:
+    description: >
+      Activities required to run the business but not sources
+      of differentiation.
+    characteristics:
+      - necessary
+      - operational
+      - easily_outsourced
+
+classification_rules:
+  questions:
+    - "Does this activity create customer-perceived differentiation?"
+    - "Would losing excellence here destroy advantage?"
+    - "Can competitors replicate this easily?"
+
+outputs:
+  - core_activities
+  - context_activities
+  - invest_or_optimize_decisions
+  - outsource_or_automate_recommendations

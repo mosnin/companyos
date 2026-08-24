@@ -252,8 +252,46 @@ class MissionExecutionControlTests(unittest.TestCase):
                 wake_key=wake["idempotency_key"],
             ),
         )
+        self.assertEqual(consumed["scheduler"]["wake_count"], 1)
+        self.assertEqual(consumed["consumed_wake_keys"], [wake["idempotency_key"]])
         replay = MODULE.admit_wake(consumed, wake, now=start_time() + timedelta(minutes=6))
         self.assertFalse(replay["admitted"])
+        with self.assertRaisesRegex(MODULE.MissionControlError, "already consumed"):
+            MODULE.record_event(
+                consumed,
+                MODULE.make_event(
+                    "wake-consumed-again",
+                    "wake_consumed",
+                    occurred_at=MODULE.format_time(start_time() + timedelta(minutes=6)),
+                    wake_key=wake["idempotency_key"],
+                ),
+            )
+
+    def test_scheduler_lease_drift_and_revocation_fail_closed(self):
+        current = state()
+        drifted = dict(current)
+        drifted["scheduler"] = {**current["scheduler"], "generation": current["generation"] + 1}
+        with self.assertRaisesRegex(MODULE.MissionControlError, "generation drifted"):
+            MODULE.verify_state(MODULE.seal(drifted))
+        count_drift = dict(current)
+        count_drift["scheduler"] = {**current["scheduler"], "wake_count": 3}
+        with self.assertRaisesRegex(MODULE.MissionControlError, "wake_count drifted"):
+            MODULE.verify_state(MODULE.seal(count_drift))
+        expired = MODULE.refresh_governor(
+            current,
+            now=start_time() + timedelta(minutes=current["duration_minutes"]),
+        )
+        self.assertEqual(expired["status"], "expired")
+        self.assertEqual(expired["scheduler"]["status"], "revoked")
+        self.assertEqual(expired["scheduler"]["generation"], expired["generation"])
+        with self.assertRaisesRegex(MODULE.MissionControlError, "inactive scheduler"):
+            MODULE.make_wake(
+                expired,
+                wake_id="late-wake",
+                not_before=MODULE.format_time(start_time() + timedelta(minutes=5)),
+                reason="continue after expiry",
+                expected_state_sha256=expired["state_sha256"],
+            )
 
     def test_checkpoint_is_required_for_user_usable_reality(self):
         current = state()

@@ -32,7 +32,9 @@ an execution loop because it cannot distinguish progress from activity.
 - a catalog revision and selected-source provenance.
 
 The plan is canonical JSON. Its SHA-256 is the manager/worker binding. Selection
-never activates a scheduler, tool, integration, or external runtime.
+never activates a scheduler, tool, integration, or external runtime. Recurring
+work always carries scheduler admission, frequency guard, lease/heartbeat, and
+missed-run reconciliation, even when another primary scores higher.
 
 ## Runtime receipt
 

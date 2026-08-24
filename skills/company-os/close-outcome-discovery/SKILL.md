@@ -37,3 +37,6 @@ still supports closure. Every proposed domain hypothesis must carry source bindi
 
 Do not silently change the original objective. Do not choose implementation technology merely
 because one source mentions it. Preserve alternatives as hypotheses until evidence closes them.
+When a domain hypothesis is under test, bind a
+`company-os.scientific-method-packet.v1` to the same `domain_id`. The packet
+cannot close unknowns; this skill still requires citations.

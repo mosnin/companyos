@@ -1,0 +1,17 @@
+{
+  "$schema": "company-os.marketing-research-report.v1",
+  "confidence": "medium",
+  "findings": [
+    {
+      "confidence": "medium",
+      "finding": "Buyers compare tools when a report they promised an operator is late",
+      "implication": "Lead with a first-report time-to-value, not a category definition",
+      "source": "Fixture decision-stage pattern, not live market sizing"
+    }
+  ],
+  "gaps": [
+    "No priced competitor sample in this fixture"
+  ],
+  "question": "What evidence would make an operations director accept a sales conversation?",
+  "report_id": "acme-ops-decision-evidence"
+}

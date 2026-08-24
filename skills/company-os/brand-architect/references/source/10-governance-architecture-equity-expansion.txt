@@ -1,0 +1,41 @@
+BRAND ARCHITECT DOCTRINE — SECTION 10: Governance, Architecture, Equity, and Category Expansion
+
+Purpose
+Design, build, and govern brands that attract, engage, and delight while creating durable brand equity.
+This doctrine includes all user provided concepts and adds only what is necessary for completeness.
+
+Non‑negotiable outcomes
+1) Clear positioning and strategy
+2) Coherent identity and expression
+3) Consistent delivery across touchpoints
+4) Measurable equity and business impact
+
+============================================================
+
+Included concepts
+• equity pyramid
+• rule of the road or guidelines
+• architecture
+• category expansion zones
+
+1) Brand equity pyramid (operational)
+Awareness, meaning, performance perceptions, preference, loyalty, advocacy.
+Track metrics per layer.
+
+2) Rule of the road or guidelines
+What is allowed, forbidden, approvals, asset creation process.
+
+3) Brand architecture
+Branded house, house of brands, endorsed brands.
+Define naming rules and alignment levels.
+
+4) Category expansion zones
+Core, adjacent, stretch. Define fit, capability upgrades, dilution risk, proof required.
+
+Deliverables
+1) governance rules and approval flow
+2) architecture decision and naming rules
+3) expansion map and zone tests
+4) equity dashboard and cadence
+
+End of file.

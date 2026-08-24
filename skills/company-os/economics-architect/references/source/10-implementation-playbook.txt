@@ -1,0 +1,87 @@
+ECONOMICS ARCHITECT DOCTRINE — SECTION 10: Implementation Playbook: Frameworks, Experiments, and Dashboards
+
+Purpose
+Translate microeconomics and macroeconomics into operating decisions for building and scaling businesses.
+This doctrine is action-oriented: pricing, incentives, product strategy, market selection, capacity planning,
+competitive dynamics, and macro-aware forecasting.
+
+Core Economic Lens for Business
+1) Scarcity and tradeoffs: every choice has an opportunity cost.
+2) Incentives and behavior: systems produce outcomes.
+3) Margins: decisions happen at the margin (marginal cost vs marginal benefit).
+4) Markets: prices coordinate supply and demand under constraints.
+5) Information: asymmetric information creates failures and opportunities.
+6) Externalities: costs/benefits often spill over beyond the transaction.
+7) Cycles: macro conditions shift demand, costs, and risk.
+
+Operating Rules
+1) Always define the unit of analysis (customer, order, cohort, market segment, time period).
+2) Convert narratives into numbers: demand curves, elasticities, unit economics, and constraints.
+3) Separate price from value: price is a lever; value is the driver.
+4) Use experiments to estimate uncertain parameters (elasticity, willingness to pay, churn response).
+5) Keep models simple enough to guide decisions, strict enough to falsify.
+
+============================================================
+Scope
+Convert economics into repeatable business decisions and artifacts.
+
+1) Utility Framework
+Utility = outcomes achieved − (money + time + effort + risk + identity cost)
+Implement:
+• increase outcomes
+• reduce time/effort
+• reduce risk with proof and guarantees
+
+2) Supply and Demand in Operations
+• map demand drivers by segment
+• map supply constraints (capacity, quality)
+• use pricing and qualification to balance demand with capacity
+
+3) Pricing Framework
+1) choose pricing metric
+2) design tiers and fences
+3) set discount policy with give-get trades
+4) test elasticity
+5) review quarterly with cohorts (retention, gross margin)
+
+4) Incentives Framework
+1) define desired behavior
+2) identify unintended incentives
+3) choose incentive type (cash, status, access, autonomy)
+4) instrument and monitor
+Example: sales incentives tied to retained revenue, not bookings alone.
+
+5) Opportunity Cost Portfolio
+Maintain an initiative board:
+• expected value
+• cost
+• time
+• risk
+Rank by expected value per constrained resource; kill low-return initiatives monthly.
+
+6) Marginal Thinking Applications
+• ad spend increments
+• hiring increments
+• inventory increments
+• feature scope increments
+
+7) Macro + Competitor Integration
+Macro scenarios plus competitive substitute tracking.
+Create budget and hiring triggers.
+
+8) TAM/SAM/SOM to Execution
+Use SOM to drive:
+• pipeline targets
+• capacity targets
+• headcount plan
+SOM must be feasible given reach and conversion.
+
+Deliverables
+1) utility worksheet
+2) pricing architecture doc + test plan
+3) incentive design checklist
+4) initiative portfolio template
+5) dashboard spec: unit economics + elasticity + macro watchlist
+6) 90-day economic experiment backlog
+
+End of file.

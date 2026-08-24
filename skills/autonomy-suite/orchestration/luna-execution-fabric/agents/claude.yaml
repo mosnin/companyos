@@ -1,0 +1,4 @@
+interface:
+  display_name: "Luna Execution Fabric"
+  short_description: "Run Sol-managed teams of efficient Luna workers"
+  default_prompt: "Use $luna-execution-fabric to divide this outcome across Sol managers and bounded GPT-5.6 Luna worker teams."

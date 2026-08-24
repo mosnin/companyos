@@ -49,7 +49,10 @@ compatible adapters justified by the task.
   credential, production, and external-message activation remain separately
   gated.
 - Divergent exploration must use a held-out acceptance gate so novelty does not
-  replace usefulness.
+  replace usefulness. High novelty selects
+  `bounded-divergent-exploration-loop`. Do not invent another primary loop for
+  a scientific-method or RIOCL TC overlay. Bottleneck optimization stays a
+  `company-os.riocl-tc-packet.v1` checklist on the selected loop.
 - No strategy is infinite. Success, clean no-op, blocked, approval-required,
   exhausted, and stagnated are always terminal outcomes.
 
@@ -60,4 +63,3 @@ The catalog adapts mechanisms from pinned public projects. Read
 strategy or evaluating an upstream update. External repositories are evidence,
 not executable dependencies. Company OS does not install their shell scripts,
 plugins, runtimes, or credentials through this skill.
-

@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.economics-architect-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "economics-architect"
+  ],
+  "source_pack": "references/source",
+  "template_id": "economics-architect",
+  "use_when": [
+    "market_sizing",
+    "market_structure",
+    "opportunity_cost",
+    "pricing",
+    "unit_economics"
+  ]
+}

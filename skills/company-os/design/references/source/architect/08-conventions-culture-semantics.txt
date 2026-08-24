@@ -1,0 +1,36 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 08: Conventions, Culture, and Naturalness
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+8) Conventions, culture, and “naturalness”
+
+8.1 Conventions are learned, but powerful
+1) Many “intuitive” interfaces are intuitive only because they match conventions.
+2) Breaking conventions requires compensating signifiers and onboarding.
+
+8.2 Semantic meaning matters
+1) Controls should match the meaning of the action and context.
+2) Grouping and labeling should reflect real world categories users expect.
+
+Implementation guidance
+A) Convention decision rule
+• follow platform defaults unless there is a measurable reason not to
+• if breaking, add signifiers, preview, and onboarding
+• test comprehension with first‑time users
+
+B) Semantic grouping
+• group by user goal, not by internal architecture
+• name groups by user outcomes
+
+Deliverables
+1) convention audit: which patterns you follow and where you intentionally diverge
+2) grouping and labeling plan mapped to user mental categories
+
+End of file.

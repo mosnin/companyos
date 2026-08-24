@@ -1,0 +1,34 @@
+CORPORATE MANAGEMENT — SOURCE PACK INDEX
+
+This kit is a compiled Company OS thinking overlay. It is not a claim to be
+Fayol, Koontz, or any named MBA school. Load one primary file for the named
+decision. Do not invent a fourth executable hop.
+
+Decision -> file
+- Management as a continuous process -> 01-management-as-process.txt
+- Functions of management -> 02-functions-of-management.txt
+- Four corporate tiers -> 03-levels-of-management.txt
+- Map tiers onto Company OS roles -> 04-tier-to-company-os-mapping.txt
+- Which functions each tier owns -> 05-function-by-tier.txt
+- Charter fields and escalation -> 06-charter-and-escalation.txt
+
+Shared operating rules
+- Management turns potential into performance. Resources without a named
+  owner, plan, and check are not an accepted outcome.
+- Functions form a cycle: plan, organize, staff, direct, coordinate, control.
+- Executable delegation stays master → manager → worker.
+- Low-level management is a narrower Sol-manager charter, not a new runtime
+  role and not a parent hop. Middle and low-level are peer Sol managers.
+  Staff are Luna workers.
+- Do not invent headcount, authority, or a second orchestrator.
+- Tokens follow the global bottleneck, not the org chart. Do not spawn an
+  audit manager or paste this pack into prompts. `$govern-outcome-execution`
+  still wins for spend.
+- Control scores outputs. `$execute-outcome-evaluator` and
+  `$run-outcome-loop` still win. A manager score is not a score.
+- A score is correct only after `$calibrate-outcome-evaluator` strictly
+  ranks known-quality candidates and the executor is not a producer.
+- `$force-first-execution` still wins for motion. Plans and audits are
+  not progress.
+
+End of index.

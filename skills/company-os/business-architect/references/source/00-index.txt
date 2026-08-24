@@ -1,0 +1,35 @@
+BUSINESS ARCHITECT — FRAMEWORK INVOKER INDEX
+
+This kit is a compiled Company OS thinking overlay. It is not a claim to be
+McKinsey, Porter, Jobs, Strategyzer, or any named firm. Load one primary
+invoker for the named decision. Do not stack the whole kit.
+
+Decision -> file
+- Known or operating business model -> business-model-canvas.txt
+- Early, uncertain, or problem-unknown model -> lean-canvas.txt
+- One customer segment value fit -> value-proposition-canvas.txt
+- Causal customer progress / switching -> jobs-to-be-done.txt
+- Industry rivalry and power -> porters-five-forces.txt
+- Macro / nonmarket context -> pestel-analysis.txt
+- Competitive factor comparison -> strategy-canvas.txt
+- Eliminate / reduce / raise / create -> four-actions-framework.txt
+- Horizon allocation of bets -> three-horizon-model.txt
+- Internal alignment of the seven S factors -> mckinsey-7s.txt
+- Compounding growth loop -> flywheel-model.txt
+- Core advantage vs context work -> core-context-framework.txt
+- Promise, delivery, and proof -> promise-model.txt
+- Transferable enterprise-value drivers -> value-builder-system.txt
+- Customer-value leading metric -> north-star-metric.txt
+- Ranked material risks -> risk-register.txt
+- Decision quality and hindsight control -> decision-tree-journal.txt
+
+Shared operating rules from the invokers
+- Never invent business facts. Mark assumptions and the test that would
+  falsify them.
+- Do not ask clarifying questions by default. Produce a best-effort model
+  plus an assumptions ledger.
+- Keep one customer, job, or segment unless the framework is industry-level.
+- A North Star must reflect customer value and carry guardrails.
+- Name the bottleneck. A canvas without a decision is decoration.
+
+End of index.

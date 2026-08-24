@@ -1,0 +1,65 @@
+ECONOMICS ARCHITECT DOCTRINE — SECTION 07: Externalities, Public Goods, Regulation, and Ecosystems
+
+Purpose
+Translate microeconomics and macroeconomics into operating decisions for building and scaling businesses.
+This doctrine is action-oriented: pricing, incentives, product strategy, market selection, capacity planning,
+competitive dynamics, and macro-aware forecasting.
+
+Core Economic Lens for Business
+1) Scarcity and tradeoffs: every choice has an opportunity cost.
+2) Incentives and behavior: systems produce outcomes.
+3) Margins: decisions happen at the margin (marginal cost vs marginal benefit).
+4) Markets: prices coordinate supply and demand under constraints.
+5) Information: asymmetric information creates failures and opportunities.
+6) Externalities: costs/benefits often spill over beyond the transaction.
+7) Cycles: macro conditions shift demand, costs, and risk.
+
+Operating Rules
+1) Always define the unit of analysis (customer, order, cohort, market segment, time period).
+2) Convert narratives into numbers: demand curves, elasticities, unit economics, and constraints.
+3) Separate price from value: price is a lever; value is the driver.
+4) Use experiments to estimate uncertain parameters (elasticity, willingness to pay, churn response).
+5) Keep models simple enough to guide decisions, strict enough to falsify.
+
+============================================================
+Scope
+Costs and benefits beyond the buyer-seller pair: externalities and ecosystem design.
+
+1) Externalities
+External benefit: others gain from your transaction.
+External cost: others bear a cost.
+Business examples:
+• positive: referrals, community knowledge, network effects
+• negative: spam, abuse, misinformation, support burden
+Business use:
+• amplify positive spillovers
+• mitigate negative spillovers with governance
+
+2) Internalizing Externalities
+Tools:
+• pricing: charge for resource use that creates costs
+• rules: enforce standards
+• incentives: reward beneficial behavior
+• partnerships: align ecosystem incentives
+
+3) Public Goods and Common Resources
+Public goods: non-excludable and non-rival.
+Common resources: rival but hard to exclude.
+Business implications:
+• community content can behave like a public good; requires moderation and governance
+• attention is a commons; avoid over-messaging and channel fatigue
+
+4) Ecosystem Governance
+If you run a platform or community:
+• entry standards
+• quality enforcement
+• dispute resolution
+• reputation signals
+
+Deliverables
+1) externality map
+2) internalization plan (pricing/rules/incentives)
+3) ecosystem governance rules
+4) risk register for negative externalities
+
+End of file.

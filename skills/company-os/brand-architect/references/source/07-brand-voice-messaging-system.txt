@@ -1,0 +1,36 @@
+BRAND ARCHITECT DOCTRINE — SECTION 07: Brand Voice and Messaging System
+
+Purpose
+Design, build, and govern brands that attract, engage, and delight while creating durable brand equity.
+This doctrine includes all user provided concepts and adds only what is necessary for completeness.
+
+Non‑negotiable outcomes
+1) Clear positioning and strategy
+2) Coherent identity and expression
+3) Consistent delivery across touchpoints
+4) Measurable equity and business impact
+
+============================================================
+
+Included concepts
+• Brand voice
+• Consistency
+
+1) Voice vs tone
+Voice is stable personality. Tone is situational modulation.
+
+2) Voice pillars
+3 to 5 traits with do and do not examples, preferred vocabulary, banned phrases, rhythm rules.
+
+3) Message architecture (added)
+One sentence value prop, tagline, elevator pitch, proof points, objection responses, microcopy rules.
+
+4) Messaging library
+Approved claims, approved proof, approved phrases, version controlled.
+
+Deliverables
+1) voice guide
+2) message architecture set
+3) messaging library template
+
+End of file.

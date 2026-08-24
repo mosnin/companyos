@@ -1,0 +1,39 @@
+file_name: risk_register_invoker.txt
+framework: Risk Register / Risk Heat Map
+
+purpose: >
+  Systematically identify, assess, prioritize, and manage risks
+  that could materially impact business objectives.
+
+risk_structure:
+  risk_entry:
+    fields:
+      - risk_description
+      - category
+      - likelihood
+      - impact
+      - mitigation_strategy
+      - owner
+      - status
+
+risk_categories:
+  - strategic
+  - operational
+  - financial
+  - regulatory
+  - reputational
+  - technological
+
+scoring:
+  likelihood_scale: [Low, Medium, High]
+  impact_scale: [Low, Medium, High]
+
+prioritization:
+  rule: >
+    Risks with High Impact and High Likelihood
+    require immediate mitigation plans.
+
+outputs:
+  - ranked_risk_register
+  - risk_heat_map
+  - mitigation_action_plan

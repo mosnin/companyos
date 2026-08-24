@@ -1,0 +1,53 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 05: Knowledge in the World vs Knowledge in the Head
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+5) Knowledge in the world vs knowledge in the head
+
+5.1 Knowledge in the world
+1) External cues, labels, layout, instructions, signifiers.
+2) Benefits:
+1) Reduces memory burden
+2) Supports recognition over recall
+3) More resilient under stress
+
+5.2 Knowledge in the head
+1) Memory, learned procedures, internalized conventions.
+2) Risks:
+1) Users forget
+2) Users misremember
+3) Users transfer habits incorrectly from other systems
+
+Design direction:
+1) Prefer knowledge in the world when possible.
+2) Use knowledge in the head when it is a stable, widely shared convention.
+
+Implementation guidance
+A) Recognition over recall defaults
+• show examples and defaults
+• autocomplete and suggestions
+• visible history and recent items
+• inline definitions and tooltips where needed
+
+B) When to rely on knowledge in the head
+• platform conventions (common icons, gestures, shortcuts)
+• domain conventions for expert tools (only if audience is expert)
+Rule: if the audience is mixed, expose knowledge in the world.
+
+C) Stress test
+Under time pressure, users revert to recognition, not memory.
+Design for the stress case, not the calm case.
+
+Deliverables
+1) recall to recognition conversion checklist
+2) onboarding map: what must be taught vs what is conventional
+3) contextual help policy: when and where help appears
+
+End of file.

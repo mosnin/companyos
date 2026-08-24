@@ -1,0 +1,6 @@
+interface:
+  display_name: "Economics Architect"
+  short_description: "Force opportunity-cost, pricing, and unit-econ thinking"
+  default_prompt: "Use $economics-architect with $manage-company-program and one compact mission charter for opportunity cost, unit economics, pricing, market sizing, or market structure work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

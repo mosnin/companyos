@@ -1,0 +1,85 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 08: Culture, Engagement, Retention, and Offboarding
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Retention is designed: culture, growth, fairness, manager quality, and predictable offboarding.
+
+1) Culture as Behavior
+Define:
+1) decision principles
+2) norms (communication, ownership, speed)
+3) rituals (weekly reviews, retrospectives)
+Culture is enforced by:
+1) who gets hired
+2) who gets promoted
+3) what behavior is rewarded
+
+2) Engagement Drivers
+Common drivers:
+1) meaningful work and clarity
+2) autonomy with accountability
+3) growth and recognition
+4) manager support
+5) fair pay and workload
+6) psychological safety for truth-telling
+
+3) Retention System
+Preventable attrition levers:
+1) role clarity and workload management
+2) career pathways and skill growth
+3) compensation band and equity reviews
+4) manager training
+Early warnings:
+1) missed 1:1s
+2) stalled growth
+3) disengagement behaviors
+
+4) Offboarding
+Goals:
+1) protect systems and data
+2) capture knowledge
+3) preserve relationships for alumni/referrals
+Exit interviews:
+1) focus on patterns
+2) document actionable drivers
+
+5) Alumni and Boomerang Hires
+Maintain:
+1) periodic check-ins for high performers
+2) referral pathways
+3) contractor pathways when appropriate
+
+Deliverables
+1) culture principles document
+2) engagement pulse cadence
+3) retention playbook and early-warning dashboard
+4) offboarding checklist and exit interview template
+5) alumni and referral loop
+
+End of file.

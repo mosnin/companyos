@@ -1,0 +1,42 @@
+CORPORATE MANAGEMENT — SECTION 05: Function by Tier
+
+Purpose
+Assign the management cycle without letting every tier do every function.
+
+Senior / master
+- Primary: planning and decision making.
+- Also: organizing the program contract and controlling at barriers.
+- Owns the global bottleneck and which resources follow it.
+- Does not: perform staff labor or rewrite worker packets after dispatch
+  except to stop, replace, or re-scope.
+
+Middle / department or program Sol manager
+- Primary: organizing, coordinating, and implementing.
+- Also: staffing its Luna team and controlling slice evidence before
+  reporting upward.
+- Reports a local view of the bottleneck. Does not redirect program
+  resources away from the master's named bottleneck.
+- Does not: set company strategy, command a peer manager, or accept its
+  own integration.
+
+Low-level / slice Sol manager
+- Primary: directing and local controlling.
+- Also: staffing the next packet when the charter already allows it.
+- Same reporting destination as middle: master. Not a child of middle.
+- Does not: open a new department, change the program contract, skip
+  independent review, or perform staff labor.
+
+Staff / Luna worker
+- Primary: execute the named packet.
+- Does not: plan the company, organize other workers, or control acceptance.
+
+Cycle rule
+Every accepted outcome still needs the full cycle. The missing function is
+the management bottleneck. Do not add a meeting, extra manager, or LLM
+audit loop to hide a missing function. Control is a calibrated evaluator
+receipt or controller `score-quality` bound to artifact bytes. A manager
+score is not a score. An uncalibrated number is not a correct score.
+Audits are sensors; they are not accepted outcomes. Plans are not
+progress until a candidate exists and runs.
+
+End of file.

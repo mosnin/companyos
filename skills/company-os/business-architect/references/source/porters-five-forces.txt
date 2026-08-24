@@ -1,0 +1,51 @@
+file_name: porters_five_forces_invoker.txt
+framework: Porter's Five Forces
+
+purpose: >
+  Analyze the structural attractiveness and long-term profitability
+  of an industry by examining five competitive forces.
+
+forces:
+  threat_of_new_entrants:
+    description: Barriers that prevent or enable new competitors.
+    factors:
+      - capital_requirements
+      - economies_of_scale
+      - switching_costs
+      - regulation
+      - brand_loyalty
+    metrics:
+      - time_to_enter
+      - upfront_capital
+
+  bargaining_power_of_suppliers:
+    description: Ability of suppliers to raise prices or reduce quality.
+    factors:
+      - supplier_concentration
+      - input_uniqueness
+      - switching_costs
+
+  bargaining_power_of_buyers:
+    description: Ability of customers to demand lower prices or higher value.
+    factors:
+      - buyer_concentration
+      - price_sensitivity
+      - alternative_options
+
+  threat_of_substitutes:
+    description: Availability of alternative solutions that satisfy the same job.
+    factors:
+      - substitute_price_performance
+      - switching_ease
+
+  competitive_rivalry:
+    description: Intensity of competition among existing players.
+    factors:
+      - number_of_competitors
+      - industry_growth_rate
+      - differentiation_level
+
+output:
+  - force_by_force_assessment
+  - industry_profitability_outlook
+  - strategic_implications

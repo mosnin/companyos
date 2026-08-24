@@ -1,0 +1,56 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 10: Practical Evaluation Checklist and Testing Protocol
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+10) Practical evaluation checklist (compressed)
+
+10.1 Before action
+1) Are the possible actions discoverable?
+2) Are signifiers clear and unambiguous?
+3) Do labels match user language and goals?
+4) Can the user predict outcome?
+
+10.2 During action
+1) Is mapping natural and consistent?
+2) Are constraints preventing the most likely errors?
+3) Are modes visible if modes exist?
+
+10.3 After action
+1) Is feedback immediate and meaningful?
+2) Is system state visible and interpretable?
+3) Can the user recover easily?
+4) Is undo available for consequential actions?
+
+Testing protocol (added)
+A) First‑time user test
+• measure time to first correct action
+• record misclicks and hesitations
+• ask “what do you think will happen if you click that?”
+
+B) Task success test
+• define task, success criteria, and time limit
+• capture where the gulf occurs (execution vs evaluation)
+
+C) Error recovery test
+• intentionally induce common errors
+• measure recovery time and emotional friction
+
+D) Accessibility and resilience check (added)
+• keyboard navigation and focus order
+• contrast and text resizing
+• error messages readable by assistive tech
+• resilient under stress: interruptions, low attention, small screens
+
+Deliverables
+1) evaluation scorecard built from 10.1, 10.2, 10.3
+2) test plan template and results format
+3) prioritized fix list with evidence and severity
+
+End of file.

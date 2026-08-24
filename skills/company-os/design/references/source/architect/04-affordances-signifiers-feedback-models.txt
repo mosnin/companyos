@@ -1,0 +1,78 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 04: Fundamental Interaction Ingredients
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+4) The fundamental interaction ingredients
+
+4.1 Affordances
+1) What actions are physically or digitally possible.
+2) Affordances are real possibilities, not labels.
+Key point:
+1) An affordance that cannot be perceived is useless.
+
+4.2 Signifiers
+1) Perceivable cues that indicate where actions are possible and how to do them.
+2) Examples: a handle shape, a raised button, a highlighted link, a “+” icon.
+Rule:
+1) Designers design signifiers, not affordances.
+
+4.3 Feedback
+1) Information returned to the user about what action was taken and what happened.
+2) Feedback must be:
+1) Immediate enough to connect cause and effect
+2) Informative enough to explain state
+3) Proportional to the importance of the action
+
+4.4 Conceptual models
+1) The user’s mental explanation of how the system works.
+2) Good design supplies a good conceptual model through:
+1) Structure
+2) Language
+3) Mappings
+4) Feedback
+5) Consistency
+
+4.5 Mappings
+1) The relationship between controls and their effects.
+2) Good mapping is:
+1) Natural
+2) Spatially compatible
+3) Consistent with common conventions
+
+4.6 Constraints
+Constraints limit actions to prevent error and guide behavior.
+Four main types:
+1) Physical constraints
+2) Semantic constraints (meaning based)
+3) Cultural constraints (conventions)
+4) Logical constraints (reasoning, layout, exclusivity)
+
+Implementation guidance
+A) Affordance and signifier audit
+• list every intended action
+• verify the signifier exists, is perceivable, and implies the correct action
+• remove false signifiers that suggest unavailable actions
+
+B) Feedback ladder by action cost
+• low cost: subtle confirmation
+• medium cost: explicit state change + brief message
+• high cost: strong confirmation + undo path + audit entry
+
+C) Constraints as “guardrails”
+• prevent invalid inputs inline
+• disable impossible actions with an explanation
+• use previews and interlocks for irreversible actions
+
+Deliverables
+1) affordance‑signifier map per screen
+2) feedback spec per action (timing, content, modality)
+3) constraint catalog and where each is applied
+
+End of file.

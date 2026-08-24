@@ -1,0 +1,103 @@
+SALES ARCHITECT DOCTRINE — SECTION 10: Sales Operations, Quotas, Forecasting, Slumps, and Management
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+Systems that scale sales: CRM design, lead storage, forecasting, quotas, performance management, and leadership.
+
+1) Where to Store Leads (Data System)
+Avoid “inbox CRM”. Use a single source of truth:
+A) CRM (recommended): HubSpot, Salesforce, Pipedrive, Close, etc.
+B) Spreadsheet (temporary): must mirror CRM fields and be migrated.
+Minimum fields
+• contact and company identifiers
+• source and segment
+• last touch and next step date
+• stage and stage-entered date
+• notes (discovery, objections, stakeholders)
+• deal value and close date estimate
+
+2) CRM and Pipeline Hygiene
+Rules
+• every deal must have next step scheduled or be closed/recycled
+• stage changes require evidence notes
+• no “Proposal sent” without a follow-up meeting on calendar
+Dashboards
+• meetings booked and held
+• stage conversion rates
+• cycle time by stage
+• win/loss reasons
+
+3) Forecasting Methods (Practical)
+• Stage-weighted pipeline: probability by stage × deal value
+• Historical conversion: volume × win rate × ACV
+• Commit/best-case/pipeline bands: conservative forecasting categories
+Forecast hygiene
+• stage definitions strict
+• close dates updated weekly
+• probabilities tied to evidence, not optimism
+
+4) Quotas, Activity Targets, and Slumps
+Quota math
+Quota attainment ≈ (activities × conversion rates × deal size)
+To fix a slump:
+1) check list quality (fit and triggers)
+2) check activity volume (outreach and follow-ups)
+3) check meeting conversion (scripts)
+4) check stage conversion (discovery and proof)
+5) check close (stakeholders, MAP, paper process)
+
+5) Scaling Scripts and Playbooks
+Formats
+• “call script” (openers, questions, closes)
+• “talk track” (themes, not verbatim)
+• “objection matrix” (objection × response × proof)
+• “sequence library” (email/call/LinkedIn cadence)
+Store in:
+• a shared playbook doc + version control
+• CRM snippets/templates (where supported)
+• call recording library with tagged examples
+
+6) Moving Into Management
+Manager responsibilities
+• hiring and onboarding
+• territory and quota design
+• pipeline reviews and forecasting accuracy
+• coaching via call reviews
+• process enforcement and continuous improvement
+Coaching cadence
+• weekly 1:1 (skills + pipeline)
+• bi-weekly deal reviews
+• monthly skill training
+• quarterly performance and territory review
+
+Deliverables
+1) CRM schema and required fields
+2) dashboards and reporting spec
+3) forecasting model and definitions
+4) slump diagnosis checklist
+5) playbook storage and versioning plan
+6) management cadence and coaching templates
+
+End of file.

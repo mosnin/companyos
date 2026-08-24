@@ -58,6 +58,18 @@ EVENT_KINDS = {
     "manager_replaced",
 }
 STATUS_VALUES = {"active", "accepted", "blocked", "expired", "cancelled"}
+SCHEDULER_STATUSES = {"active", "revoked"}
+TERMINAL_MISSION_STATUSES = {"accepted", "expired", "cancelled"}
+SCHEDULER_FIELDS = {
+    "mission_id",
+    "generation",
+    "owner_id",
+    "started_at",
+    "expires_at",
+    "max_wakes",
+    "wake_count",
+    "status",
+}
 
 
 class MissionControlError(ValueError):
@@ -504,6 +516,41 @@ def initialize_state(
     return refresh_governor(seal(state), now=start)
 
 
+def verify_scheduler(state: Mapping[str, Any]) -> dict[str, Any]:
+    scheduler = state.get("scheduler")
+    if not isinstance(scheduler, Mapping) or not SCHEDULER_FIELDS.issubset(scheduler):
+        raise MissionControlError("E_SCHEDULER", "mission scheduler lease is missing required fields")
+    if scheduler.get("mission_id") != state.get("mission_id"):
+        raise MissionControlError("E_SCHEDULER", "scheduler mission_id drifted from the mission")
+    if integer(scheduler.get("generation"), "scheduler.generation", minimum=1) != integer(
+        state.get("generation"), "generation", minimum=1
+    ):
+        raise MissionControlError("E_SCHEDULER", "scheduler generation drifted from the mission")
+    if scheduler.get("started_at") != state.get("started_at"):
+        raise MissionControlError("E_SCHEDULER", "scheduler started_at drifted from the mission")
+    if scheduler.get("expires_at") != state.get("expires_at"):
+        raise MissionControlError("E_SCHEDULER", "scheduler expires_at drifted from the mission")
+    text(scheduler.get("owner_id"), "scheduler.owner_id")
+    if scheduler.get("status") not in SCHEDULER_STATUSES:
+        raise MissionControlError("E_SCHEDULER", "scheduler status is invalid")
+    if state.get("status") == "active" and scheduler.get("status") != "active":
+        raise MissionControlError("E_SCHEDULER", "active mission has a revoked scheduler lease")
+    if state.get("status") in TERMINAL_MISSION_STATUSES and scheduler.get("status") != "revoked":
+        raise MissionControlError("E_SCHEDULER", "terminal mission did not revoke the scheduler lease")
+    max_wakes = integer(scheduler.get("max_wakes"), "scheduler.max_wakes", minimum=1)
+    wake_count = integer(scheduler.get("wake_count"), "scheduler.wake_count", minimum=0)
+    consumed = state.get("consumed_wake_keys")
+    if not isinstance(consumed, list) or any(not isinstance(item, str) or not item.strip() for item in consumed):
+        raise MissionControlError("E_SCHEDULER", "consumed wake keys are invalid")
+    if len(consumed) != len(set(consumed)):
+        raise MissionControlError("E_SCHEDULER", "consumed wake keys drifted")
+    if wake_count != len(consumed):
+        raise MissionControlError("E_SCHEDULER", "scheduler wake_count drifted from consumed keys")
+    if wake_count > max_wakes:
+        raise MissionControlError("E_SCHEDULER", "scheduler wake_count exceeds max_wakes")
+    return dict(scheduler)
+
+
 def verify_state(raw: Mapping[str, Any]) -> dict[str, Any]:
     value = verify_seal(raw)
     if value.get("$schema") != STATE_SCHEMA or value.get("schema_version") != 2:
@@ -516,6 +563,7 @@ def verify_state(raw: Mapping[str, Any]) -> dict[str, Any]:
     parse_time(value.get("expires_at"), "expires_at")
     if not isinstance(value.get("capabilities"), list) or not value["capabilities"]:
         raise MissionControlError("E_SCHEMA", "mission capabilities are missing")
+    verify_scheduler(value)
     if value.get("navigation") is not None:
         try:
             navigation_module().verify(value["navigation"])
@@ -987,10 +1035,15 @@ def record_event(raw_state: Mapping[str, Any], raw_event: Mapping[str, Any]) -> 
             raise MissionControlError("E_CHECKPOINT", "checkpoint event is missing checkpoint")
         state["checkpoint"] = verify_checkpoint(checkpoint)
     if kind == "wake_consumed":
+        if state["scheduler"].get("status") != "active":
+            raise MissionControlError("E_SCHEDULER", "revoked scheduler cannot consume a wake")
         wake_key = text(event.get("wake_key"), "wake_key")
-        if wake_key not in state["consumed_wake_keys"]:
-            state["consumed_wake_keys"].append(wake_key)
-        state["scheduler"]["wake_count"] = int(state["scheduler"].get("wake_count", 0)) + 1
+        if wake_key in state["consumed_wake_keys"]:
+            raise MissionControlError("E_SCHEDULER", "wake was already consumed")
+        if int(state["scheduler"].get("wake_count", 0)) >= int(state["scheduler"].get("max_wakes", 0)):
+            raise MissionControlError("E_SCHEDULER", "mission wake limit is exhausted")
+        state["consumed_wake_keys"].append(wake_key)
+        state["scheduler"]["wake_count"] = len(state["consumed_wake_keys"])
     state["events"].append(event)
     state = reconcile_deadlines(seal(state), now=parse_time(event["occurred_at"], "occurred_at"))
     signals = reality_signals(state)
@@ -1160,17 +1213,22 @@ def make_wake(
     expected_state_sha256: str,
 ) -> dict[str, Any]:
     state = verify_state(raw_state)
-    scheduler = state["scheduler"]
+    scheduler = verify_scheduler(state)
+    if state["status"] != "active" or scheduler["status"] != "active":
+        raise MissionControlError("E_SCHEDULER", "inactive scheduler cannot mint a wake")
+    if int(scheduler["wake_count"]) >= int(scheduler["max_wakes"]):
+        raise MissionControlError("E_SCHEDULER", "mission wake limit is exhausted")
+    generation = integer(scheduler["generation"], "scheduler.generation", minimum=1)
     wake = {
         "$schema": WAKE_SCHEMA,
         "wake_id": text(wake_id, "wake_id"),
-        "mission_id": state["mission_id"],
-        "generation": state["generation"],
+        "mission_id": scheduler["mission_id"],
+        "generation": generation,
         "not_before": format_time(parse_time(not_before, "not_before")),
-        "expires_at": state["expires_at"],
+        "expires_at": scheduler["expires_at"],
         "reason": text(reason, "reason"),
         "expected_state_sha256": sha256(expected_state_sha256, "expected_state_sha256"),
-        "idempotency_key": digest({"mission_id": state["mission_id"], "generation": state["generation"], "wake_id": wake_id}),
+        "idempotency_key": digest({"mission_id": scheduler["mission_id"], "generation": generation, "wake_id": wake_id}),
         "wake_sha256": None,
     }
     wake["wake_sha256"] = digest(wake)
@@ -1188,20 +1246,21 @@ def admit_wake(raw_state: Mapping[str, Any], raw_wake: Mapping[str, Any], *, now
         raise MissionControlError("E_DIGEST", "wake changed")
     wake["wake_sha256"] = observed
     current = now or now_utc()
+    scheduler = verify_scheduler(state)
     blockers = []
-    if state["status"] != "active" or state["scheduler"].get("status") != "active":
+    if state["status"] != "active" or scheduler.get("status") != "active":
         blockers.append("mission scheduler is inactive")
-    if wake.get("mission_id") != state["mission_id"] or wake.get("generation") != state["generation"]:
+    if wake.get("mission_id") != scheduler.get("mission_id") or wake.get("generation") != scheduler.get("generation"):
         blockers.append("wake mission or generation is stale")
     if current < parse_time(wake.get("not_before"), "not_before"):
         blockers.append("wake is early")
-    if current >= parse_time(wake.get("expires_at"), "expires_at"):
+    if current >= parse_time(wake.get("expires_at"), "expires_at") or current >= parse_time(scheduler.get("expires_at"), "scheduler.expires_at"):
         blockers.append("wake is expired")
     if wake.get("expected_state_sha256") != state["state_sha256"]:
         blockers.append("wake expected state is stale")
     if wake.get("idempotency_key") in state["consumed_wake_keys"]:
         blockers.append("wake was already consumed")
-    if int(state["scheduler"].get("wake_count", 0)) >= int(state["scheduler"].get("max_wakes", 0)):
+    if int(scheduler.get("wake_count", 0)) >= int(scheduler.get("max_wakes", 0)):
         blockers.append("mission wake limit is exhausted")
     return {
         "admitted": not blockers,

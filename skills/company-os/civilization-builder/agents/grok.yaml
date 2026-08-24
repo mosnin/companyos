@@ -1,0 +1,6 @@
+interface:
+  display_name: "Civilization Builder"
+  short_description: "Force ecosystem and civilization-scale system design"
+  default_prompt: "Use $civilization-builder with $manage-company-program and one compact mission charter for civilizational system, infrastructure network, industrial production, technological platform, or digital ecosystem work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

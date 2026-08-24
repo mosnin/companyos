@@ -1,0 +1,26 @@
+Connect every harness to the same company-os-web MCP URL.
+
+Claude Code and Claude Cowork use .mcp.json:
+
+{
+  "mcpServers": {
+    "companyos": {
+      "url": "https://YOUR_DOMAIN/api/mcp",
+      "headers": { "Authorization": "Bearer cos_…" }
+    }
+  }
+}
+
+ChatGPT Work adds a remote MCP connector to that URL with the same bearer
+scheme. Grok bot uses the URL plus Authorization: Bearer cos_….
+
+Mint a token per harness when lanes matter. Example: claude-code writes
+engineering-quality. chatgpt-work writes operations. Both call config.pull
+and see the same shared architecture.
+
+Operators sign in to the web app with email and password. Agents never use
+that session. Agents use a company-scoped cos_ token. A token may be
+read-only, department-bound, or writeShared.
+
+First tool: whoami, then config.pull. Do not invent the company from
+memory when the ledger answers.

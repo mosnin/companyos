@@ -1,0 +1,37 @@
+MARKETING OS — SECTION 02: Artifact Contracts
+
+Purpose
+Handoffs are content-addressed JSON contracts, not pasted chat. A
+downstream packet names the upstream digest. If the digest is missing
+or drifted, the packet is invalid.
+
+Contracts
+- `company-os.marketing-audience-profile.v1`
+  Who, job, pains, quoted language with sources, alternatives,
+  confidence, gaps. Compact. Decision-useful fields only.
+- `company-os.marketing-research-report.v1`
+  One research question. At most five ranked findings. Each finding
+  has source, confidence, and a strategic implication.
+- `company-os.marketing-campaign-brief.v1`
+  Goal that is not awareness. Audience digest. Promise.
+  Differentiator. Proof. Deliverables. Constraints. Kill rule.
+  Qualified-lead definition. Brand and voice locators.
+- `company-os.marketing-copy-packet.v1`
+  Brief digest. One format. Body. Claims with sources. CTA. Voice
+  check against the voice locator.
+
+Validate with
+`python3 scripts/validate_marketing_os.py --root <skill-root>`
+
+Rules
+- Do not hand a worker the previous packet's prose. Hand the digest
+  and the exact schema id.
+- Do not invent extra required fields to look complete. Completeness
+  is for the decision.
+- A brief without a kill rule is not a brief.
+- A copy packet whose brief digest does not match current brief bytes
+  is rejected.
+- Examples live in `assets/examples/`. They are fixtures, not live
+  campaigns.
+
+End of file.

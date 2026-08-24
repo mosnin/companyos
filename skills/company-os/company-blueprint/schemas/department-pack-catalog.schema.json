@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-os.department-pack-catalog.v2",
+  "title": "Company OS Department Pack Catalog v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "catalog_version", "departments"],
+  "properties": {
+    "$schema": {"const": "company-os.department-pack-catalog.v2"},
+    "catalog_version": {"const": 2},
+    "departments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id", "mission", "capabilities", "decision_rights", "inputs", "outputs",
+          "interfaces", "metrics", "playbooks", "required_approvals", "routines",
+          "skills", "tools", "agent_slots"
+        ],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+          "mission": {"type": "string", "minLength": 1},
+          "capabilities": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "decision_rights": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "inputs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "outputs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "interfaces": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "metrics": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "playbooks": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "required_approvals": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "routines": {"type": "array"},
+          "skills": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "tools": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "agent_slots": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id", "role", "management_tier", "outcome", "skills",
+                "forbidden_roles", "requested_model", "origin", "status",
+                "source_slot_id"
+              ],
+              "properties": {
+                "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+                "role": {"enum": ["manager", "worker"]},
+                "management_tier": {"enum": ["middle", "low_level", "staff"]},
+                "outcome": {"type": "string", "minLength": 1},
+                "skills": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+                "forbidden_roles": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+                "requested_model": {"type": "string", "minLength": 1},
+                "origin": {"enum": ["catalog", "stored"]},
+                "status": {"enum": ["template", "stored"]},
+                "source_slot_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

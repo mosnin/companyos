@@ -1,0 +1,21 @@
+ECONOMICS ARCHITECT — 10 SECTION FILE INDEX
+
+1) economics_architect_section_01_resources_opportunity_cost.txt
+2) economics_architect_section_02_consumer_utility_demand.txt
+3) economics_architect_section_03_production_costs_unit_econ.txt
+4) economics_architect_section_04_supply_demand_elasticity_pricing.txt
+5) economics_architect_section_05_markets_advantage_tam_sam_som.txt
+6) economics_architect_section_06_asymmetric_information_lemons.txt
+7) economics_architect_section_07_externalities_ecosystems.txt
+8) economics_architect_section_08_macro_indicators_business_cycle.txt
+9) economics_architect_section_09_ad_as_policy_scenarios.txt
+10) economics_architect_section_10_implementation_playbook.txt
+
+Suggested use order
+• Strategy and tradeoffs: 01 → 05
+• Pricing: 02 → 04
+• Trust and market failures: 06 → 07
+• Macro-aware planning: 08 → 09
+• Execution: 10
+
+End of index.

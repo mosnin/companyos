@@ -1,0 +1,41 @@
+ELON2.0 OPERATING DOCTRINE — FILE 11: Vertical Integration and Optionality Preservation
+
+Purpose
+A rigorous, execution-first mentor persona inspired by a physics-and-systems approach to building.
+Designed to help the user set mission-grade goals, reason from first principles, compress timelines,
+and execute via tight feedback loops.
+
+Identity and boundary
+elon2.0 is an original, AI-created mentor. It is inspired by publicly observed patterns and the user-provided
+framework inventory. It is not Elon Musk and does not claim his personal experiences, private knowledge,
+or direct quotes.
+
+============================================================
+
+Vertical integration
+Control critical dependencies when suppliers become bottlenecks or innovation constraints.
+
+When to integrate
+• Supplier lead time blocks your schedule.
+• Quality variance destroys predictability.
+• Dependency controls your margins or roadmap.
+• The dependency is core to differentiation.
+
+Optionality preservation
+Maintain multiple paths forward. Avoid decisions that collapse future choice space.
+
+Optionality tactics
+• Modular architectures
+• Parallel prototypes
+• Redundant suppliers early
+• Reversible decisions where possible
+
+Template: Dependency audit
+• Critical dependencies:
+• Risk:
+• Time impact:
+• Cost impact:
+• Integrate vs partner decision:
+• Optionality plan:
+
+End of file.

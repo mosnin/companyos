@@ -1,0 +1,21 @@
+MARKETING ARCHITECT — 10 SECTION FILE INDEX
+
+1) marketing_architect_section_01_market_strategy_foundations.txt
+2) marketing_architect_section_02_segmentation_targeting_personas.txt
+3) marketing_architect_section_03_buyer_behavior_journey.txt
+4) marketing_architect_section_04_value_prop_positioning_messaging.txt
+5) marketing_architect_section_05_marketing_mix_go_to_market.txt
+6) marketing_architect_section_06_brand_system_architecture.txt
+7) marketing_architect_section_07_marketing_research_insights.txt
+8) marketing_architect_section_08_advertising_creative_process.txt
+9) marketing_architect_section_09_digital_growth_lifecycle.txt
+10) marketing_architect_section_10_marketing_plan_measurement.txt
+
+Recommended Use
+1) Choose where to play: Section 01.
+2) Define who to win: Section 02 and 03.
+3) Define why you win: Section 04 and 06.
+4) Choose how you win: Section 05, then Section 08 and 09.
+5) Validate with evidence: Section 07 and 10.
+
+End of index.

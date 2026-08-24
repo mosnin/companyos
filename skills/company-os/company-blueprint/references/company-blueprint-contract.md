@@ -16,12 +16,25 @@ prompt, transcript, credential file, or project status report.
    distinct registries with explicit references.
 6. Capacity is derived from accepted outcomes and DAGs. Active concurrency is
    a separate host and budget decision.
-7. Database configuration names an environment variable. Secrets never enter
-   the blueprint or compiled artifacts.
-8. Scheduled routines compile as planned desired state. Runtime activation is
-   a separate governed decision.
+7. Database configuration names an environment variable. Secrets and DSN URIs
+   never enter the blueprint, catalogs, or compiled artifacts. JSON secret
+   keys, URI userinfo, PEM private keys, and recognized token material are
+   secret material.
+8. Scheduled routines compile as planned desired state. Company daily, weekly,
+   and monthly cadence must name distinct compiled routines whose cron period
+   matches the slot. Runtime activation is a separate governed decision.
 9. Every compiled file is canonical JSON and content-addressed in one manifest.
+   Verification requires the exact artifact set; an empty or partial manifest
+   must not verify.
 10. Recompiling identical inputs produces identical bytes.
+11. Extra fields, duplicate unknown IDs, and conflicting department overrides
+    fail closed before any compiled output is accepted.
+12. Department packs store reusable agent slots. Created agents are stored as
+    cloned slots (`origin=stored`). Slots are templates, not running threads.
+    Senior / master is never a department slot. Capacity is still derived from
+    the accepted work graph, not from slot count. Preset corporate packs keep
+    Marketing and Sales as separate decision rights. Human Resources is a
+    first-class pack. Combined commercial-growth is not a catalog department.
 
 ## Operator intake
 

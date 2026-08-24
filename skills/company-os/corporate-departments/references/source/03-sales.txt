@@ -1,0 +1,43 @@
+CORPORATE DEPARTMENTS — SECTION 03: Sales
+
+Purpose
+Convert qualified demand into ethical, repeatable revenue. Sales owns
+pipeline truth, qualification, and the close. It does not own brand or
+unqualified lead volume.
+
+Governing question
+Which opportunities deserve time, what next decision moves each one, and
+what forecast is honest given stage evidence?
+
+Issue tree seeds
+- Is there a customer problem in their words, not ours?
+- Who has economic authority, and what is the buying process?
+- Do the economics beat the customer's substitute, after implementation
+  cost?
+- Is timing real, with a dated next decision?
+- Is the offer true, scoped, and priced for the value?
+
+Qualification
+Admit an opportunity only when problem, authority, economics, and timing
+are evidenced. Pipeline that fails any leaf is not a forecast input.
+Disqualification is a successful control action.
+
+Economic object
+Qualified pipeline, win rate, cycle time, and collected revenue.
+Activity counts, call volume, and slideware are not the object.
+
+Forced moves
+- Reconcile the pipeline before forecasting.
+- Every live opportunity has one next action and one owner.
+- Use playbooks `sales-qualification`, `offer-design`,
+  `proposal-production`, and `pipeline-review`.
+- Hand accepted customers to Customer Success with the promised outcome.
+- Approval is required for customer communication, pricing change, and
+  contract offer.
+
+Do not
+- Treat pipeline as revenue.
+- Discount to hide a weak offer.
+- Mutate CRM or send customer communications from this overlay.
+
+End of file.

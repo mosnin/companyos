@@ -1,0 +1,16 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.middle-manager-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "middle-manager-operating-doctrine"
+  ],
+  "source_pack": "references/source",
+  "template_id": "middle-manager-operating-doctrine"
+}

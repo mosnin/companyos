@@ -1,0 +1,73 @@
+SALES ARCHITECT DOCTRINE — SECTION 07: Objections and Negotiation: Risk, Resistance, and Decision Dynamics
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+Handle objections as information, then negotiate without destroying trust or margin.
+
+1) Objections: Categories
+A) No pain: “We don’t need this.”
+B) No trust: “Not sure you can deliver.”
+C) No urgency: “Not now.”
+D) No authority: “I’m not the decision maker.”
+E) No money: “No budget.”
+F) No fit: “Not the right solution.”
+
+2) Objection Handling Frameworks
+A) LAER
+Listen → Acknowledge → Explore → Respond
+B) Clarify then confirm
+• “When you say X, do you mean Y or Z?”
+C) Label + question
+• “Sounds like timing is the concern. What’s driving that?”
+D) Evidence ladder
+Claim → proof → peer proof → guarantee/risk reversal
+
+3) Negotiation Fundamentals (Professional)
+• BATNA: best alternative to a negotiated agreement
+• ZOPA: zone of possible agreement
+• Trade, don’t concede: every discount gets a term (longer contract, upfront payment, reduced scope)
+• Protect referenceability: bad-fit deals create churn and brand damage
+
+4) Pricing and Discount Policy
+Define in advance:
+• discount bands and required approvals
+• standard give-get trades
+• non-negotiables (scope, payment terms, deliverables)
+
+5) Procurement and Paper Process
+Expect:
+• vendor onboarding
+• security and compliance questionnaires
+• legal review
+• payment terms negotiation
+Treat paper process as a stage with owners and dates.
+
+Deliverables
+1) objection library by category with best responses
+2) negotiation playbook: BATNA, give-get trades, approval rules
+3) pricing policy sheet
+4) procurement checklist + timeline
+
+End of file.

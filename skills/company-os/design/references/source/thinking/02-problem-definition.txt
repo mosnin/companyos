@@ -1,0 +1,81 @@
+DESIGN THINKING DOCTRINE — SECTION 02: Problem Definition
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+Convert insights into precise problem statements and opportunity frames that guide invention.
+
+A. Problem Statement (Correct Form)
+A good problem statement specifies:
+1) User
+2) Situation and constraints
+3) Desired progress
+4) Current obstacles
+5) Stakes
+
+Canonical Format
+• “For [user] in [situation], the main obstacle to [desired progress] is [barrier], which causes [impact].”
+
+Anti-Patterns
+1) Solution in disguise
+2) Too broad or abstract
+3) Unmeasurable language
+4) Organization-centric instead of user-centric
+
+B. Insight to Problem Pipeline
+1) Observation
+2) Interpretation (hypothesis)
+3) Tension
+4) Need
+5) Opportunity
+
+C. Identifying Real Needs
+Signals
+• Workarounds exist
+• Users pay costs to solve it
+• Problem repeats or is high-stakes
+• Anxiety or uncertainty peaks at a specific step
+
+Methods
+1) Task analysis: where it breaks
+2) Pain mapping: time loss, frustration
+3) Outcome mapping: what success means
+4) Constraint mapping: policies, tools, approvals, budgets
+
+D. How Might We (HMW)
+Rules
+• One HMW per need, not per feature
+• Keep it open-ended
+• Include user and context
+
+E. Prioritization
+Score problems on:
+1) Frequency
+2) Severity
+3) Willingness to pay or switch
+4) Strategic leverage
+5) Testability
+
+Deliverables
+1) Top 3 problem statements
+2) Top assumptions per problem
+3) HMW set
+4) Definition of Done for clarity:
+   • user, context, barrier, success metric candidate
+
+End of file.

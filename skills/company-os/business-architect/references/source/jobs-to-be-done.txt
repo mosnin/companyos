@@ -1,0 +1,26 @@
+file_name: jobs_to_be_done_invoker.txt
+framework: Jobs To Be Done
+
+purpose: >
+  Identify the real causal drivers of customer behavior by understanding
+  the progress customers are trying to make.
+
+job_structure:
+  job_statement:
+    format: "When [situation], I want to [motivation], so I can [outcome]."
+
+forces_of_progress:
+  push:
+    description: Pain with the current situation.
+  pull:
+    description: Attraction to a new solution.
+  anxiety:
+    description: Concerns about adopting something new.
+  habit:
+    description: Inertia keeping the customer in place.
+
+analysis_outputs:
+  - primary_job
+  - competing_alternatives
+  - switching_triggers
+  - adoption_barriers

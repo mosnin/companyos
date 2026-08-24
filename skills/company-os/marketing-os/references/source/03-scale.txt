@@ -1,0 +1,37 @@
+MARKETING OS — SECTION 03: Scale
+
+Purpose
+Grow marketing output without growing an agent org chart. Scale by
+work-graph width: independently accountable outcomes and worker packets.
+
+What does not scale
+- One orchestrator plus three named specialists as always-on agents.
+- A new agent per channel, client, or content format.
+- Pasting brand, voice, history, and wisdom into every prompt.
+- Implicit skill invocation.
+- Cloning the whole Marketing OS per client.
+
+What does scale
+- One middle marketing manager per department outcome.
+- One low-level campaign manager only when a campaign or client has
+  its own acceptance, budget, and kill rule. Peer Sol managers under
+  master. Not a parent hop.
+- Staff templates: research, brief, copy. Clone a slot per packet.
+  Slot count is not a dispatch quota. The accepted work graph decides
+  how many packets run.
+- Parallel campaigns isolate context by digest. Campaign A must not
+  receive Campaign B's brief.
+- Multi-brand: one `client_locator` and `brand_locator` per packet.
+  Do not stand up a second operating system.
+- New channels are playbook variants or later skills, not new fabric
+  roles. Paid, SEO, and CRO wait until the base pipeline produces
+  accepted artifacts.
+- Live analytics and CRM stay integrations with
+  `requires-host-preflight`. Unchecked tools are unavailable.
+
+Admission
+Do not open a second campaign manager until the first campaign has a
+brief digest and a named bottleneck. Tokens follow the global
+bottleneck, not the number of channels.
+
+End of file.

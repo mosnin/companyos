@@ -1,0 +1,19 @@
+SALES ARCHITECT — 10 SECTION FILE INDEX
+
+1) sales_architect_section_01_sales_fundamentals_pipeline.txt
+2) sales_architect_section_02_prospecting_icp_lists.txt
+3) sales_architect_section_03_outreach_sequences_multichannel.txt
+4) sales_architect_section_04_appointments_qualification.txt
+5) sales_architect_section_05_discovery_needs_roi.txt
+6) sales_architect_section_06_pitch_demo_presentation.txt
+7) sales_architect_section_07_objections_negotiation.txt
+8) sales_architect_section_08_closing_contracting.txt
+9) sales_architect_section_09_referrals_expansion_accounts.txt
+10) sales_architect_section_10_sales_ops_management.txt
+
+Frameworks included
+• SPIN questioning, Sandler pain funnel, Challenger (teach-tailor-take control)
+• Qualification: BANT, GPCTBA/C&I, NEAT, MEDDIC/MEDDPICC
+• Pipeline stages, forecasting (stage-weighted), mutual action plans
+
+End of index.

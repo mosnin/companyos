@@ -37,8 +37,13 @@
     },
     {
       "path": "company-os/assign-capability-skills/SKILL.md",
-      "sha256": "c4dd263604102b3a2619ffcb6df7dd765228a1afa5f356220f67df9602971197",
-      "size": 5932
+      "sha256": "94f59c89d2e4f8f1a18e078d4eb24cdddcd4f778f4c13953ece505c18a0bbbcf",
+      "size": 6497
+    },
+    {
+      "path": "company-os/assign-capability-skills/agents/claude.yaml",
+      "sha256": "a65f89f5e220a8d81425261e9168a365937503ad43e4b650d64fbf817e186f89",
+      "size": 292
     },
     {
       "path": "company-os/assign-capability-skills/agents/grok.yaml",
@@ -181,9 +186,99 @@
       "size": 19447
     },
     {
+      "path": "company-os/brand-architect/SKILL.md",
+      "sha256": "d66a5a3776759f09dfc2bc273da8df70671628879c7cc74c40e4cbc6779440a4",
+      "size": 3535
+    },
+    {
+      "path": "company-os/brand-architect/agents/claude.yaml",
+      "sha256": "bb0ebf037ca38111ec9a60bc880597f090e8d63c6c20d6204210e7b1727354b5",
+      "size": 377
+    },
+    {
+      "path": "company-os/brand-architect/agents/grok.yaml",
+      "sha256": "bb0ebf037ca38111ec9a60bc880597f090e8d63c6c20d6204210e7b1727354b5",
+      "size": 377
+    },
+    {
+      "path": "company-os/brand-architect/agents/openai.yaml",
+      "sha256": "bb0ebf037ca38111ec9a60bc880597f090e8d63c6c20d6204210e7b1727354b5",
+      "size": 377
+    },
+    {
+      "path": "company-os/brand-architect/assets/spawn-template.json",
+      "sha256": "2bc9b60afdb81ffa845fb7454284c79e3528126319fbe2d3d11dd66ee445d569",
+      "size": 501
+    },
+    {
+      "path": "company-os/brand-architect/references/source/00-index.txt",
+      "sha256": "f3efc96094f9ca121764fc9e230647948ac50eacf29c6401a5369badb9e01184",
+      "size": 970
+    },
+    {
+      "path": "company-os/brand-architect/references/source/01-brand-system-strategy-framework.txt",
+      "sha256": "7d73282701988d90eafa1b437ed647602a6353a64afe68735266783fac37800d",
+      "size": 1714
+    },
+    {
+      "path": "company-os/brand-architect/references/source/02-positioning-category-differentiation.txt",
+      "sha256": "008f07c2c9c6c23aca2fc25837df89998984b52f475791ead1276590c648c485",
+      "size": 1458
+    },
+    {
+      "path": "company-os/brand-architect/references/source/03-target-audience-intelligence.txt",
+      "sha256": "5ce63918b23a3589bd02254318ac214fc3b184d04797111e38277a2170abbe8b",
+      "size": 1385
+    },
+    {
+      "path": "company-os/brand-architect/references/source/04-brand-pillars-identity-credibility-visibility.txt",
+      "sha256": "0394af9a9f9ef0c70ecdd620fa88c93717a5ed9712d6fed9fe3c2cfa07794cfb",
+      "size": 1238
+    },
+    {
+      "path": "company-os/brand-architect/references/source/05-storytelling-emotional-appeal.txt",
+      "sha256": "82ee0b80aba560f69ed1dff1fd825534029bc113908495b9d637f2314de069cd",
+      "size": 1025
+    },
+    {
+      "path": "company-os/brand-architect/references/source/06-visual-identity-logo-color-typography.txt",
+      "sha256": "a0a4de31b215db5dfb535819d5d1be1f089f4a9ea6c8ef9032ea642183968b7b",
+      "size": 1296
+    },
+    {
+      "path": "company-os/brand-architect/references/source/07-brand-voice-messaging-system.txt",
+      "sha256": "8f807b80864f27518465c53dddf01d0993b250a1513abaf2d06e8b7e9773398e",
+      "size": 1101
+    },
+    {
+      "path": "company-os/brand-architect/references/source/08-experience-principles-delivery-design.txt",
+      "sha256": "8b3ca002232a1d0e81e0547a7c1ee0844c1050f6f1bcdbc8a7e2c4bfd1fbfa56",
+      "size": 1136
+    },
+    {
+      "path": "company-os/brand-architect/references/source/09-brand-presence-social-distribution.txt",
+      "sha256": "2b4a38364ed61df7f12bdec5ef430b780f5ceceb2c9df92f43e090709ba1477c",
+      "size": 1096
+    },
+    {
+      "path": "company-os/brand-architect/references/source/10-governance-architecture-equity-expansion.txt",
+      "sha256": "2ba470700dec7a38a240142197372808bc9c4acdd90448520f833aa1a00c812c",
+      "size": 1314
+    },
+    {
+      "path": "company-os/brand-architect/scripts/validate_brand_architect.py",
+      "sha256": "3686379836e612cfec0203594b32eaf347de91f73523f7277a5538ffe72e9ecb",
+      "size": 5788
+    },
+    {
       "path": "company-os/brand-creative-system/SKILL.md",
-      "sha256": "d202f89899a6597be1eb04c89f1648242628fcd627a9a1fff6f0b59550d818ca",
-      "size": 2216
+      "sha256": "f2a6548f2166e4b6960659f2b0cebf37d3aed0e9ba086b16af9e76a2393bc567",
+      "size": 2446
+    },
+    {
+      "path": "company-os/brand-creative-system/agents/claude.yaml",
+      "sha256": "586da8cfa61b91af6631105772291fe6fb788802bb96ff39b382711577abacdd",
+      "size": 229
     },
     {
       "path": "company-os/brand-creative-system/agents/grok.yaml",
@@ -204,6 +299,126 @@
       "path": "company-os/build-outcome-evaluators/scripts/compile_evaluator_build_fabric.py",
       "sha256": "2cc8417270ffdaff03682ed59d863ff7f13623601607958b8fea44a2ec4eb577",
       "size": 16259
+    },
+    {
+      "path": "company-os/business-architect/SKILL.md",
+      "sha256": "b57a7879cf289c08a40b8fc41de3a7f0b5f83fae35200d958709cb44790e221b",
+      "size": 3689
+    },
+    {
+      "path": "company-os/business-architect/agents/claude.yaml",
+      "sha256": "537908d7ea3b2dae551980b6a19ad3c5c0950333574fb5a264d56c0020781d63",
+      "size": 430
+    },
+    {
+      "path": "company-os/business-architect/agents/grok.yaml",
+      "sha256": "537908d7ea3b2dae551980b6a19ad3c5c0950333574fb5a264d56c0020781d63",
+      "size": 430
+    },
+    {
+      "path": "company-os/business-architect/agents/openai.yaml",
+      "sha256": "537908d7ea3b2dae551980b6a19ad3c5c0950333574fb5a264d56c0020781d63",
+      "size": 430
+    },
+    {
+      "path": "company-os/business-architect/assets/spawn-template.json",
+      "sha256": "92d6a14df21133f2a2c16f772e27bd40608ee4886ae4836fcd3d2fc5f71b7fbc",
+      "size": 505
+    },
+    {
+      "path": "company-os/business-architect/references/source/00-index.txt",
+      "sha256": "95880e9d5788040b826f8d553b919a8b5703eb2ce9f558bd691c684f7072b6db",
+      "size": 1740
+    },
+    {
+      "path": "company-os/business-architect/references/source/business-model-canvas.txt",
+      "sha256": "a522e276dafa7c686e447b13c670d6c6b95c080f9db7b84c229026839047d819",
+      "size": 5629
+    },
+    {
+      "path": "company-os/business-architect/references/source/core-context-framework.txt",
+      "sha256": "f9faded96a1790011ee397e3d34e15c6d16765e36efe67b474fc8ba8f1df0f80",
+      "size": 1075
+    },
+    {
+      "path": "company-os/business-architect/references/source/decision-tree-journal.txt",
+      "sha256": "736675c79e41fc11077cad64768d8b9feeb32435a079e0b9444d7226bdc934b8",
+      "size": 592
+    },
+    {
+      "path": "company-os/business-architect/references/source/flywheel-model.txt",
+      "sha256": "0a2420e79fa1f136306688bd52bdbc0d98102a74f8b155dab1c9790cfb9df506",
+      "size": 730
+    },
+    {
+      "path": "company-os/business-architect/references/source/four-actions-framework.txt",
+      "sha256": "ec2dab76745fc51a5829fe37d012e96fe0ce12832cc77e377226c4ec6a167a67",
+      "size": 6049
+    },
+    {
+      "path": "company-os/business-architect/references/source/jobs-to-be-done.txt",
+      "sha256": "7bec191575567dcac0b8c0cd43ddf39514cc94b255012958b4380221f2be6cfc",
+      "size": 677
+    },
+    {
+      "path": "company-os/business-architect/references/source/lean-canvas.txt",
+      "sha256": "d2ed4e9d00c4a251ba4bda2fb1f8b31103422edd6b9ef0dbad126c654884e3a0",
+      "size": 7616
+    },
+    {
+      "path": "company-os/business-architect/references/source/mckinsey-7s.txt",
+      "sha256": "78dfea3290e9286d53b007e36f33295b7c4591f900c491508c321f5e859fd3d3",
+      "size": 6799
+    },
+    {
+      "path": "company-os/business-architect/references/source/north-star-metric.txt",
+      "sha256": "b001b13029bb149b3122e51562a53de206e40d20260ce796dbb67e5b466b48f3",
+      "size": 645
+    },
+    {
+      "path": "company-os/business-architect/references/source/pestel-analysis.txt",
+      "sha256": "df0918898822d2249f43f865521ea0be6841b32bbb2cfbb8a7d165d5b9a41afa",
+      "size": 6780
+    },
+    {
+      "path": "company-os/business-architect/references/source/porters-five-forces.txt",
+      "sha256": "7c1fb2e998aaa61c5d10ab6acac7ead42b6349d2b8b3503bc085d3f1b2700f16",
+      "size": 1381
+    },
+    {
+      "path": "company-os/business-architect/references/source/promise-model.txt",
+      "sha256": "579652fcba076e6726de245ea895bbafa388e8a36fd2f801e55c903e88d502d8",
+      "size": 5692
+    },
+    {
+      "path": "company-os/business-architect/references/source/risk-register.txt",
+      "sha256": "fbbdc6d7309f6e55aa326eaef844f6e0fd2d82edb960309a9768f258e0facf5f",
+      "size": 773
+    },
+    {
+      "path": "company-os/business-architect/references/source/strategy-canvas.txt",
+      "sha256": "ac0f8506fd4f18782de75b14f5afed50b559d010ff7ac1fe005b980c994fddd6",
+      "size": 5699
+    },
+    {
+      "path": "company-os/business-architect/references/source/three-horizon-model.txt",
+      "sha256": "1076c2dffb33e8265d5a0c6e7615ea09a0f104b9125ec21ce0b9803ca5e66300",
+      "size": 6647
+    },
+    {
+      "path": "company-os/business-architect/references/source/value-builder-system.txt",
+      "sha256": "50097fe295a811d526f4212512b5773f3db98364462c4f36c70e9dfa83bb8300",
+      "size": 7262
+    },
+    {
+      "path": "company-os/business-architect/references/source/value-proposition-canvas.txt",
+      "sha256": "e5651c9651a1fa173f5db7a40d6e12291de83703b59e208e41387f633ac027a7",
+      "size": 7813
+    },
+    {
+      "path": "company-os/business-architect/scripts/validate_business_architect.py",
+      "sha256": "26c49e1350286ee854b9088a16a5ae544c60d3cae31c18a797d9df053b99a09e",
+      "size": 5962
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/SKILL.md",
@@ -231,9 +446,94 @@
       "size": 22348
     },
     {
+      "path": "company-os/civilization-builder/SKILL.md",
+      "sha256": "3da77ee6392c99c9ab200419ba330155b5e5bfbf3106b886c5954197e16b09de",
+      "size": 3693
+    },
+    {
+      "path": "company-os/civilization-builder/agents/claude.yaml",
+      "sha256": "47c8eab5bbbca2070a5c521ddcdcc43bac20b2bb10d410fa57ed8913eb1711ff",
+      "size": 458
+    },
+    {
+      "path": "company-os/civilization-builder/agents/grok.yaml",
+      "sha256": "47c8eab5bbbca2070a5c521ddcdcc43bac20b2bb10d410fa57ed8913eb1711ff",
+      "size": 458
+    },
+    {
+      "path": "company-os/civilization-builder/agents/openai.yaml",
+      "sha256": "47c8eab5bbbca2070a5c521ddcdcc43bac20b2bb10d410fa57ed8913eb1711ff",
+      "size": 458
+    },
+    {
+      "path": "company-os/civilization-builder/assets/spawn-template.json",
+      "sha256": "df3b19377061d617b7642c77e878949bf12337f902bc213a03b6b9c9a6803860",
+      "size": 540
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/00-index.txt",
+      "sha256": "f0cd3b635a26e3285a3cac9c1f6159a405b7a97c3adfe68b06f188564b3222b8",
+      "size": 2177
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/01-foundation-and-definitions.txt",
+      "sha256": "e2986dc00b519f919dc4768ac6be4e719588f97ebfca2b6daedeb21e2a0c0c24",
+      "size": 5034
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/02-taxonomy-of-builders-and-systems.txt",
+      "sha256": "bd8282fd6aef37feae145823e45beba59d680ca1effbef7e64cb0726394883ef",
+      "size": 3958
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/03-core-principles-and-invariants.txt",
+      "sha256": "b99ba735e78b1752afb97e262161b989e2c91524d34d39cb1abc87cd01835d97",
+      "size": 3501
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/04-frameworks-and-mental-models.txt",
+      "sha256": "6405dabe89e4d8c0be9f20ab68373b962b7c7b2bb4371e54d0cf349ec6d8eec1",
+      "size": 3038
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/05-processes-and-workflows.txt",
+      "sha256": "2d0da3ddc8985922d6ba8047dd361b5a3aae1e9d569af4b309051a081f03d2f8",
+      "size": 2538
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/06-templates-checklists-and-rubrics.txt",
+      "sha256": "f07d792b3027786bdd16179731707a93af7a7b53a90f7383205ecc9ceb097c64",
+      "size": 2491
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/07-metrics-instrumentation-and-diagnostics.txt",
+      "sha256": "572282dcb66ff9827f06bc6869a80c71b6cba4190b7f61776761114fcdaa32a3",
+      "size": 2277
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/08-edge-cases-failure-modes-and-safeguards.txt",
+      "sha256": "58e8f624d039ead8197dbea9e3a80faf9ace59e46a9a96e8346265a37f1afd77",
+      "size": 2429
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/09-scaling-systemization-and-governance.txt",
+      "sha256": "c2864705e94564fcf9639bba9b97f571a8d7182d84181f05e793f9b69abfb47b",
+      "size": 2060
+    },
+    {
+      "path": "company-os/civilization-builder/references/source/10-worked-examples-exercises-and-drills.txt",
+      "sha256": "7150ec10899c4ce7d6f8acb7389d6c5bbae6ab51295b935c1cfb512974bf3976",
+      "size": 3364
+    },
+    {
+      "path": "company-os/civilization-builder/scripts/validate_civilization_builder.py",
+      "sha256": "ab0c22014c5fc316f8188f91a7c0d8b5106a5c9383a8cdc798a88060f33b0134",
+      "size": 5895
+    },
+    {
       "path": "company-os/close-outcome-discovery/SKILL.md",
-      "sha256": "441ca3415abd290c6b2580ff4d7550f2cc143e852fe0a175b9183800e3630d70",
-      "size": 1756
+      "sha256": "33160f355cd05dd41043fcbbbdf7a45ee65505e83ee2f2cc8b85cb72536a5609",
+      "size": 1940
     },
     {
       "path": "company-os/close-outcome-discovery/scripts/close_outcome_discovery.py",
@@ -242,8 +542,13 @@
     },
     {
       "path": "company-os/commercial-customer-system/SKILL.md",
-      "sha256": "85edf0bb76e4393b3977245cadcb0eabdb91f48a1bfe5d70ec1e1eab022af5b2",
-      "size": 2143
+      "sha256": "4c74292933670257e3abf02b90dbebd66982d43c3c88b2b0437bb998cdf7d86a",
+      "size": 2952
+    },
+    {
+      "path": "company-os/commercial-customer-system/agents/claude.yaml",
+      "sha256": "9906278da85eb690854813713833827aee6fec4e9dc13f903145532e652bd8a6",
+      "size": 229
     },
     {
       "path": "company-os/commercial-customer-system/agents/grok.yaml",
@@ -257,8 +562,13 @@
     },
     {
       "path": "company-os/company-blueprint/SKILL.md",
-      "sha256": "4841c20ce0ac5275fc37d7dd79d89cdaf8b297821a1560320eebe80b013a6705",
-      "size": 3151
+      "sha256": "b9917c492e08c43e0bc4cd36cbeba3d8d7d4d23e9726faab24b4ef84506b6a1d",
+      "size": 5366
+    },
+    {
+      "path": "company-os/company-blueprint/agents/claude.yaml",
+      "sha256": "9eee390e6760b6a0fd676a5a1a4025164e69eb97f136785f3f4a404352787fb3",
+      "size": 165
     },
     {
       "path": "company-os/company-blueprint/agents/grok.yaml",
@@ -272,8 +582,8 @@
     },
     {
       "path": "company-os/company-blueprint/assets/company-archetypes.json",
-      "sha256": "9b31050bfa4a6c59caa7d8b2d97fe6947a6233bd0481d517c8925394999f5bbc",
-      "size": 1562
+      "sha256": "992a0ae8edd71616eb4282a324bf965ec28fc57104f5beff93fbd2287e4232c5",
+      "size": 1603
     },
     {
       "path": "company-os/company-blueprint/assets/company-blueprint.example.json",
@@ -282,33 +592,98 @@
     },
     {
       "path": "company-os/company-blueprint/assets/department-packs.json",
-      "sha256": "72038ac6c7cc8c523d312a3581fd00da45a8c204cc494fb525ac99e7d345dcd4",
-      "size": 10729
+      "sha256": "b2c55ab3a91dd3b4210db5f723ec3fd5652fcc23f45dadab45844ef6ef39c8c1",
+      "size": 33324
     },
     {
       "path": "company-os/company-blueprint/assets/playbook-library.json",
-      "sha256": "5a07cb08628f6dad60959994b21b82fcb31538bba2938eddfc499bf801e85505",
-      "size": 9216
+      "sha256": "e658683b9bb710cb6c25222abdac3390cc16abd2292111a480af5e284e437723",
+      "size": 13224
     },
     {
       "path": "company-os/company-blueprint/references/company-blueprint-contract.md",
-      "sha256": "137a36328ccf30ad927835d9b827171998e663a3260dfb0838ab71c2c078bc3e",
-      "size": 2011
+      "sha256": "0ef671a72cb887f32a7d493cac250d594ee902eda9f8528e7caaa94e3d0f76dd",
+      "size": 2958
     },
     {
       "path": "company-os/company-blueprint/schemas/company-blueprint.schema.json",
-      "sha256": "1c9d007ef9abbd6c1a10d56254a7be69b87c5c6fd8693bf3a7bd68abe0e02dd1",
-      "size": 4020
+      "sha256": "4d539f37611dcd321891b43ab1f86768354e89d96731e9edb4981faf963d52e7",
+      "size": 7036
+    },
+    {
+      "path": "company-os/company-blueprint/schemas/department-pack-catalog.schema.json",
+      "sha256": "45ef554bc51812a215ef311f9682eb111950608bcc25a9e2fe84a1e5e201835f",
+      "size": 3128
+    },
+    {
+      "path": "company-os/company-blueprint/scripts/assert_chippi_north_star.py",
+      "sha256": "662b4bdefa71de6ec4d5f01a06b4994d5e090397795ffc357d0e319a9ed88c44",
+      "size": 6586
     },
     {
       "path": "company-os/company-blueprint/scripts/compile_company_blueprint.py",
-      "sha256": "5807874c895e3496e74b508dc785e62ada47affdbdc7b07aecd6e6b390e30a05",
-      "size": 31368
+      "sha256": "fea5698eb35bf50ca377b4d9121a76f53ea8d6066e2c637f7449b905369eccbf",
+      "size": 52501
+    },
+    {
+      "path": "company-os/company-context-ledger/SKILL.md",
+      "sha256": "019c74656d95d6130bf6d2bb3f05a9efc821b400637bc99da55971656998aa49",
+      "size": 2409
+    },
+    {
+      "path": "company-os/company-context-ledger/agents/claude.yaml",
+      "sha256": "5db8da39fd4cb7572230f99c4446f1c3e401359c92f4ddeecdb38bad4c07c5c5",
+      "size": 430
+    },
+    {
+      "path": "company-os/company-context-ledger/agents/grok.yaml",
+      "sha256": "5db8da39fd4cb7572230f99c4446f1c3e401359c92f4ddeecdb38bad4c07c5c5",
+      "size": 430
+    },
+    {
+      "path": "company-os/company-context-ledger/agents/openai.yaml",
+      "sha256": "5db8da39fd4cb7572230f99c4446f1c3e401359c92f4ddeecdb38bad4c07c5c5",
+      "size": 430
+    },
+    {
+      "path": "company-os/company-context-ledger/assets/spawn-template.json",
+      "sha256": "6a1fdc391fff64369e9c1a000e7f044b110a43cc052d1421c80ced2102b7a6ff",
+      "size": 484
+    },
+    {
+      "path": "company-os/company-context-ledger/references/source/00-index.txt",
+      "sha256": "a06c0f39ac22a3cfca7cd433563c34afb1f6fec8082203b910550041ec6c0527",
+      "size": 374
+    },
+    {
+      "path": "company-os/company-context-ledger/references/source/01-what-it-is.txt",
+      "sha256": "a405625f8ee3cc63525ab4ff7a0b631d185e6a77a2e25fccddf774e6fbcbd472",
+      "size": 1020
+    },
+    {
+      "path": "company-os/company-context-ledger/references/source/02-connect-harnesses.txt",
+      "sha256": "34dc8ef4a799510d21499b3f11f265e6ab97608cd476f1ea275ea4d9b00f4ff9",
+      "size": 874
+    },
+    {
+      "path": "company-os/company-context-ledger/references/source/03-write-contract.txt",
+      "sha256": "6ca21514f025cd1e8f79979abf378e9766fc644ddc91679c23c393c858d90622",
+      "size": 1163
+    },
+    {
+      "path": "company-os/company-context-ledger/scripts/validate_company_context_ledger.py",
+      "sha256": "015a90f755101ae4ad67ce5ed09eccdd0d04370da8a51090f2fd6b22aa23f65d",
+      "size": 5564
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "022c92a0f52e348248627b421b50895e2b559b36abe85c6dd7c640c22224f40a",
-      "size": 16265
+      "sha256": "8f96ce1f761133a08c5d14d6b8466040a75838345999df091fad32dc9260399b",
+      "size": 21706
+    },
+    {
+      "path": "company-os/company-os/agents/claude.yaml",
+      "sha256": "75c04429548e05c9ba1124e2d657d3bc814ff6007a101a551f26c2eaa7444229",
+      "size": 211
     },
     {
       "path": "company-os/company-os/agents/grok.yaml",
@@ -319,6 +694,41 @@
       "path": "company-os/company-os/agents/openai.yaml",
       "sha256": "75c04429548e05c9ba1124e2d657d3bc814ff6007a101a551f26c2eaa7444229",
       "size": 211
+    },
+    {
+      "path": "company-os/company-os/assets/riocl-tc-packet.example.json",
+      "sha256": "5506859ca56123f14fc057317cedab0be70b1042eab62210af0c235e90acc777",
+      "size": 1033
+    },
+    {
+      "path": "company-os/company-os/assets/scientific-method-packet.example.json",
+      "sha256": "d11b5853d83f3631053ec3d4ef2ff50edcfa692f9be0b08a59e1e976692e7c83",
+      "size": 989
+    },
+    {
+      "path": "company-os/company-os/references/riocl-tc.md",
+      "sha256": "d93d3f3655cdb7025573b286b8e6f3a47f6a97b64635107dde00f948d42168e0",
+      "size": 3394
+    },
+    {
+      "path": "company-os/company-os/references/scientific-method.md",
+      "sha256": "3ff121d31faf92dc997a4ccc16c88b88370b1696becab6e2ffffe0faad0cb2b7",
+      "size": 3896
+    },
+    {
+      "path": "company-os/company-os/references/source/riocl-tc-master-algorithm.txt",
+      "sha256": "38a263cbfea9bf26b7fb108c0c0f5dfad718c52ad57b031aebea8bd41c329eab",
+      "size": 13596
+    },
+    {
+      "path": "company-os/company-os/scripts/validate_riocl_tc_packet.py",
+      "sha256": "4a441b4e780e501b2a30c4c7a057be0376f09e76bef7fcce7bb3f5802b306232",
+      "size": 8370
+    },
+    {
+      "path": "company-os/company-os/scripts/validate_scientific_method_packet.py",
+      "sha256": "12f58d591c6a71b3a66a8368e983a1cd487e05e43ff8d2fad5ffc1d43b1ebd45",
+      "size": 12498
     },
     {
       "path": "company-os/compile-outcome-benchmarks/SKILL.md",
@@ -362,8 +772,148 @@
     },
     {
       "path": "company-os/compile-outcome-organization/scripts/compile_outcome_organization.py",
-      "sha256": "6bc7a3b9f0ba426547708e08c0b9b3507567a232898883ee9549e16a87489641",
-      "size": 35515
+      "sha256": "34e19d6ef6209dc006e06ad6e3607d0b45b3eaa0b94f96ef690001ec11440c46",
+      "size": 37834
+    },
+    {
+      "path": "company-os/corporate-departments/SKILL.md",
+      "sha256": "e88763c0d1074d7b8625c13aac3456d4c5f652b22cefc3a2152d5948c6044a65",
+      "size": 3800
+    },
+    {
+      "path": "company-os/corporate-departments/agents/claude.yaml",
+      "sha256": "ff3295c02d6c1d97462c160b4d70c0413e5f8a80fa867fa351f616d82b324d2f",
+      "size": 427
+    },
+    {
+      "path": "company-os/corporate-departments/agents/grok.yaml",
+      "sha256": "ff3295c02d6c1d97462c160b4d70c0413e5f8a80fa867fa351f616d82b324d2f",
+      "size": 427
+    },
+    {
+      "path": "company-os/corporate-departments/agents/openai.yaml",
+      "sha256": "ff3295c02d6c1d97462c160b4d70c0413e5f8a80fa867fa351f616d82b324d2f",
+      "size": 427
+    },
+    {
+      "path": "company-os/corporate-departments/assets/spawn-template.json",
+      "sha256": "753dcb7b02be2c89ba2b58b2be00af47521984ef0d01b7664e3aa1661eaedf5b",
+      "size": 586
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/00-index.txt",
+      "sha256": "93b93174443721fe4eb499da4de5b00a0d703600b7f8f1d1f6354a281787bff0",
+      "size": 1477
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/01-issue-trees.txt",
+      "sha256": "8ff5f446adbb8543a8c5884d5c35d2600b6629060eb97c9fd79b5c56f41d6659",
+      "size": 1883
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/02-marketing.txt",
+      "sha256": "62e2189a03fa0b5d2a819b7cb0c1d9880d926227e655c28b18544a622143c422",
+      "size": 1837
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/03-sales.txt",
+      "sha256": "20e858c68b3dda4474259a4965bbaca67cf86fb3cad0ba8fff9141f2bd5a1490",
+      "size": 1559
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/04-operations.txt",
+      "sha256": "20b867156d15b5eb39ee99ee77d3545a228365becbd8e14c2c8f6465f8841fba",
+      "size": 1441
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/05-finance.txt",
+      "sha256": "dacd4236ef41c03e2ba052860a65c58d339ddcd72b12cf1d7a6ebd8eea7afed9",
+      "size": 1324
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/06-people.txt",
+      "sha256": "a102723d299b2c82efef6917d69b6a3879d0499b623ebe1c2f24e324fe8c7d93",
+      "size": 1632
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/07-strategy-product.txt",
+      "sha256": "d04ddaa5bd411b2d1dc4b8d212a9448ab92c39b150eba6ce5ede68e140fb1754",
+      "size": 1634
+    },
+    {
+      "path": "company-os/corporate-departments/references/source/08-preset-departments.txt",
+      "sha256": "1e3822b1d40e1deca69e6870a20c732f7fe3603241a1f9e2510376a1d967c1f7",
+      "size": 2051
+    },
+    {
+      "path": "company-os/corporate-departments/scripts/validate_corporate_departments.py",
+      "sha256": "db7b4ba4e8b4b030885e90cab0f3e2e05ae4aa3b64506929d7a60a46c56e6736",
+      "size": 6111
+    },
+    {
+      "path": "company-os/corporate-management/SKILL.md",
+      "sha256": "f1e01fef4f159dcd081e0519cc6a2ab5eea62d1b0becdce756ec140803376641",
+      "size": 4682
+    },
+    {
+      "path": "company-os/corporate-management/agents/claude.yaml",
+      "sha256": "cfda9bc1e8285986fe16e27aa60ba15785d32d28f1787ad73de5553e8b9cf15b",
+      "size": 454
+    },
+    {
+      "path": "company-os/corporate-management/agents/grok.yaml",
+      "sha256": "cfda9bc1e8285986fe16e27aa60ba15785d32d28f1787ad73de5553e8b9cf15b",
+      "size": 454
+    },
+    {
+      "path": "company-os/corporate-management/agents/openai.yaml",
+      "sha256": "cfda9bc1e8285986fe16e27aa60ba15785d32d28f1787ad73de5553e8b9cf15b",
+      "size": 454
+    },
+    {
+      "path": "company-os/corporate-management/assets/spawn-template.json",
+      "sha256": "fb500eda55f108d2076ab778473d87e14cbabb7259729341c733f99a8c37f77f",
+      "size": 525
+    },
+    {
+      "path": "company-os/corporate-management/references/source/00-index.txt",
+      "sha256": "5964924dbf97a1bc9c88f77a6eff378cdb16660e6f2c0aac6f23743750f71502",
+      "size": 1713
+    },
+    {
+      "path": "company-os/corporate-management/references/source/01-management-as-process.txt",
+      "sha256": "e2baf255f39691ffad4de3ca19bf0f466f908c3c4214a76aa65e9c1257b463b4",
+      "size": 1405
+    },
+    {
+      "path": "company-os/corporate-management/references/source/02-functions-of-management.txt",
+      "sha256": "ad37500574da7931db105afa870cdb6940c876e24abfc37ff2b22b03fcd2dbd8",
+      "size": 1608
+    },
+    {
+      "path": "company-os/corporate-management/references/source/03-levels-of-management.txt",
+      "sha256": "f7b40564754eded59f71782e4d328f2c4ef36fac61e1c7204be4813591e97839",
+      "size": 981
+    },
+    {
+      "path": "company-os/corporate-management/references/source/04-tier-to-company-os-mapping.txt",
+      "sha256": "cc7567d5438f40f8ccb1e1b85b6b8ac014d53fef5950ebc6318f511c176ac178",
+      "size": 1889
+    },
+    {
+      "path": "company-os/corporate-management/references/source/05-function-by-tier.txt",
+      "sha256": "8f2c182de42a2fadb64d345b2219a207e274e3958961cdf2f428fe3983a67e96",
+      "size": 1799
+    },
+    {
+      "path": "company-os/corporate-management/references/source/06-charter-and-escalation.txt",
+      "sha256": "aa345ed2a2c93e80e0e953a9ef36858e1ef6565ca6bc34bbfebc0c1127b2789d",
+      "size": 1215
+    },
+    {
+      "path": "company-os/corporate-management/scripts/validate_corporate_management.py",
+      "sha256": "3cd83227a43932407800387c289ca9a710d4fbee5dc2c4b0648fa9ae25c779e7",
+      "size": 6246
     },
     {
       "path": "company-os/define-outcome-artifacts/SKILL.md",
@@ -377,8 +927,13 @@
     },
     {
       "path": "company-os/department-charters/SKILL.md",
-      "sha256": "beee9af7b9ce04b7f35608baca0808d77868d104862de0ef2a7eff068ece588a",
-      "size": 2087
+      "sha256": "73939c83d75aecd7345c5baa86acea0a5b80bce1cc4d134e8a71e10d1d41623b",
+      "size": 3108
+    },
+    {
+      "path": "company-os/department-charters/agents/claude.yaml",
+      "sha256": "682dd8b19d55779619ce1a5ac5a4adb20edae341e047886a7a079352039dff64",
+      "size": 108
     },
     {
       "path": "company-os/department-charters/agents/grok.yaml",
@@ -391,6 +946,151 @@
       "size": 108
     },
     {
+      "path": "company-os/design/SKILL.md",
+      "sha256": "15a75f62f6d49a5215984c273f361d1dd8c96441c46f4a1e67d44713c199d186",
+      "size": 3330
+    },
+    {
+      "path": "company-os/design/agents/claude.yaml",
+      "sha256": "f8bc63361d083d7e5c0b2a3201f9f823fb140c03a52b2b58ab0d162f69c5a9fa",
+      "size": 401
+    },
+    {
+      "path": "company-os/design/agents/grok.yaml",
+      "sha256": "f8bc63361d083d7e5c0b2a3201f9f823fb140c03a52b2b58ab0d162f69c5a9fa",
+      "size": 401
+    },
+    {
+      "path": "company-os/design/agents/openai.yaml",
+      "sha256": "f8bc63361d083d7e5c0b2a3201f9f823fb140c03a52b2b58ab0d162f69c5a9fa",
+      "size": 401
+    },
+    {
+      "path": "company-os/design/assets/spawn-template.json",
+      "sha256": "dfa1ff9bc3545b3c8a5edefd53138e8d15150ae709b97137efb55e314ac7e946",
+      "size": 464
+    },
+    {
+      "path": "company-os/design/references/source/architect/00-index.txt",
+      "sha256": "46fb15ed4d3b43563d30d9af466bd4248e886cdefaa5de07aa9bb30dc3850218",
+      "size": 927
+    },
+    {
+      "path": "company-os/design/references/source/architect/01-thesis-discoverability-understanding.txt",
+      "sha256": "6e3fb170d50b569de389c137d7cd94d53a3a6ea69c11b924e51ebda5d93b60c9",
+      "size": 2002
+    },
+    {
+      "path": "company-os/design/references/source/architect/02-gulfs-of-execution-and-evaluation.txt",
+      "sha256": "d6889449326150db1ef76d61ff39df0129ac6bb3040dab9566af5a4e314cec26",
+      "size": 1761
+    },
+    {
+      "path": "company-os/design/references/source/architect/03-seven-stages-of-action.txt",
+      "sha256": "1b75d2e730b3e891d49cf821bf8d1871ac62e30805f2821e7546c32a78d8da32",
+      "size": 1965
+    },
+    {
+      "path": "company-os/design/references/source/architect/04-affordances-signifiers-feedback-models.txt",
+      "sha256": "b43bd1ac13c5139e479efbcdc13a688260983165331b51a399dc61fd7a1789a8",
+      "size": 2610
+    },
+    {
+      "path": "company-os/design/references/source/architect/05-knowledge-world-vs-head.txt",
+      "sha256": "5814b50742d323327355451b7a8a62fc3b2cf5f08de90a7eed1aa4b1ac62e066",
+      "size": 1853
+    },
+    {
+      "path": "company-os/design/references/source/architect/06-human-error-slips-mistakes-recovery.txt",
+      "sha256": "5dfbc9a6892a37e1025974d4e0e1c6267fd00f2acc2d3668c3aef697af2e3a20",
+      "size": 2389
+    },
+    {
+      "path": "company-os/design/references/source/architect/07-design-principles-visibility-mapping-consistency.txt",
+      "sha256": "711ebc86cfb399e061256c9dc0dc6ef9a1086310672bcf08839c5e947e03c5a7",
+      "size": 2040
+    },
+    {
+      "path": "company-os/design/references/source/architect/08-conventions-culture-semantics.txt",
+      "sha256": "99f5e3addc74285220ef379836d00177792bc286627469df11957b89c956d5cb",
+      "size": 1436
+    },
+    {
+      "path": "company-os/design/references/source/architect/09-system-image-mental-models.txt",
+      "sha256": "2dd5e0eed8f650289ce0eb732b0cb9f971c18fcb2b5268f807451b92d56f53b1",
+      "size": 1639
+    },
+    {
+      "path": "company-os/design/references/source/architect/10-evaluation-checklist-testing-protocol.txt",
+      "sha256": "18979828ccf11350007d5c72e83b9f85a4f3c2eb22d6927ba01c8514885ebbf4",
+      "size": 1928
+    },
+    {
+      "path": "company-os/design/references/source/design-system-tokens.md",
+      "sha256": "fbb98bf28599cfc7f90bcb5530d9bfeda01557f27847abaa011400c262452925",
+      "size": 1454
+    },
+    {
+      "path": "company-os/design/references/source/thinking/00-index.txt",
+      "sha256": "02fe995619daf61dc1bb3830a607a43ac5abb119e4a91f322e42256fe3aa6c38",
+      "size": 1107
+    },
+    {
+      "path": "company-os/design/references/source/thinking/01-user-understanding-foundations.txt",
+      "sha256": "73dabb837fb2a1e21ec1378190bcc4a01fe10240a0c86614f83c2da7a06f483f",
+      "size": 4281
+    },
+    {
+      "path": "company-os/design/references/source/thinking/02-problem-definition.txt",
+      "sha256": "8007ce0e60fdfad74e4e789152ff5d477efb7fb47c593ddfc3360e9d42bd1ce2",
+      "size": 2176
+    },
+    {
+      "path": "company-os/design/references/source/thinking/03-ideation-concept-development.txt",
+      "sha256": "db6e4ad65071172ccb495d4767f41c37b85b4e59bd96ac51fe1a8078992a683e",
+      "size": 1643
+    },
+    {
+      "path": "company-os/design/references/source/thinking/04-prototyping-testing.txt",
+      "sha256": "0c9b31a9a1cb5b5b8edb3cd92ce796163b3841bab0c40fe1aaabda685e94cf64",
+      "size": 2046
+    },
+    {
+      "path": "company-os/design/references/source/thinking/05-lean-startup-integration.txt",
+      "sha256": "9624c9b22e6bded512877dac04afca87e38ab678f3d1fb89e434ee9846e81ff3",
+      "size": 1750
+    },
+    {
+      "path": "company-os/design/references/source/thinking/06-scale-ecosystem-design.txt",
+      "sha256": "01a29faa3dfa6d0567bbf8b97ee65369477b55183a9583d21965b9a79b550f96",
+      "size": 1729
+    },
+    {
+      "path": "company-os/design/references/source/thinking/07-service-design-experience-excellence.txt",
+      "sha256": "305435f534cb6fb502767de12dde62912c83ae30884f0d198eacf7ca560e5ee9",
+      "size": 1719
+    },
+    {
+      "path": "company-os/design/references/source/thinking/08-problem-to-growth-scale-framework.txt",
+      "sha256": "c5ac4b08004692049652cd230c2a3aa2880348b514a604fd22cb151d2b18b141",
+      "size": 1531
+    },
+    {
+      "path": "company-os/design/references/source/thinking/09-desirability-feasibility-viability-bridge.txt",
+      "sha256": "744e3187126a4654ac8d2ea4595a4559589e007631b256c5fece8d448eb21cf3",
+      "size": 1912
+    },
+    {
+      "path": "company-os/design/references/source/thinking/10-iteration-experiment-reporting-system.txt",
+      "sha256": "51d9d3409bfe4938108c7846241e78852ce468e593729c5e0d32cb0bb649302d",
+      "size": 1880
+    },
+    {
+      "path": "company-os/design/scripts/validate_design.py",
+      "sha256": "5fd0897170dfb22514d26a7d999734e2bdd14ff43f1fbe2bfbc5533fc0791b7a",
+      "size": 6478
+    },
+    {
       "path": "company-os/direct-outcome/SKILL.md",
       "sha256": "4c60feff5d03bb3dead28dd3ff5aa34cb882141cf6b311ab6be9e52ff2bdad60",
       "size": 3817
@@ -401,9 +1101,99 @@
       "size": 64199
     },
     {
+      "path": "company-os/economics-architect/SKILL.md",
+      "sha256": "b66b3006e484e5bd9c23c28a30a742dfd140006aa911313c58ba421d8d407532",
+      "size": 3593
+    },
+    {
+      "path": "company-os/economics-architect/agents/claude.yaml",
+      "sha256": "9859cc92ae8cf49f1b36b9893a05dda279c4110c8dff84bfab9e952638a1664c",
+      "size": 422
+    },
+    {
+      "path": "company-os/economics-architect/agents/grok.yaml",
+      "sha256": "9859cc92ae8cf49f1b36b9893a05dda279c4110c8dff84bfab9e952638a1664c",
+      "size": 422
+    },
+    {
+      "path": "company-os/economics-architect/agents/openai.yaml",
+      "sha256": "9859cc92ae8cf49f1b36b9893a05dda279c4110c8dff84bfab9e952638a1664c",
+      "size": 422
+    },
+    {
+      "path": "company-os/economics-architect/assets/spawn-template.json",
+      "sha256": "70a0d5eaac6a8fc7b06da08c0c4b511a456a68ea27aa6b7ef7cfe3b57a864db3",
+      "size": 493
+    },
+    {
+      "path": "company-os/economics-architect/references/source/00-index.txt",
+      "sha256": "89ea68b672cab43e6d509dd6abf2e509aa26d3992684903281e559c2dd210e5b",
+      "size": 895
+    },
+    {
+      "path": "company-os/economics-architect/references/source/01-resources-opportunity-cost.txt",
+      "sha256": "e2c0f1acfc4178a0c24b4b44c5cd4d12cde76e336ab13d75fa9bd4dd66630708",
+      "size": 3730
+    },
+    {
+      "path": "company-os/economics-architect/references/source/02-consumer-utility-demand.txt",
+      "sha256": "f387c963979bf7f6766631bf427e228e4c1a00f9ac92ca22d408fbc72eab8697",
+      "size": 3234
+    },
+    {
+      "path": "company-os/economics-architect/references/source/03-production-costs-unit-econ.txt",
+      "sha256": "1ae24d663712be472ecaaa51d7eb86e849accd491662fb728f2fb4c1a0e72421",
+      "size": 3361
+    },
+    {
+      "path": "company-os/economics-architect/references/source/04-supply-demand-elasticity-pricing.txt",
+      "sha256": "15a6e0d779922074f35932f8d6a09fa421b42c151a765c6d10c3fc4a3b0b731a",
+      "size": 3790
+    },
+    {
+      "path": "company-os/economics-architect/references/source/05-markets-advantage-tam-sam-som.txt",
+      "sha256": "2d11504381903316546252069567a9f391969baee6033645753c42e07b491575",
+      "size": 3020
+    },
+    {
+      "path": "company-os/economics-architect/references/source/06-asymmetric-information-lemons.txt",
+      "sha256": "4721d8ea5e8db7ca8e25d445ec7503f0afc2e5a666f362ad53ee9400779a2946",
+      "size": 2766
+    },
+    {
+      "path": "company-os/economics-architect/references/source/07-externalities-ecosystems.txt",
+      "sha256": "0a153ee874fdaca0c9ad8eee95a460fcfe1c68e6578a12b5381acf9f6b2a32c8",
+      "size": 2674
+    },
+    {
+      "path": "company-os/economics-architect/references/source/08-macro-indicators-business-cycle.txt",
+      "sha256": "48db64c7af30e45b5eac2dae182f71641d1c8205e4acf09271bb9077b654dd92",
+      "size": 2271
+    },
+    {
+      "path": "company-os/economics-architect/references/source/09-ad-as-policy-scenarios.txt",
+      "sha256": "dcf2e335fbc744b52636841f66d2c15cb71b30b396d63347088a9c4098be1001",
+      "size": 2561
+    },
+    {
+      "path": "company-os/economics-architect/references/source/10-implementation-playbook.txt",
+      "sha256": "ab3ec3f2cccc89a9962dd93cc601d5e67104f70a9a082034eff1543485748933",
+      "size": 3168
+    },
+    {
+      "path": "company-os/economics-architect/scripts/validate_economics_architect.py",
+      "sha256": "63218cc0c25938edf0f16e0332d90c086cd30ea8e7b3415373cae4f9c50c1fbd",
+      "size": 5730
+    },
+    {
       "path": "company-os/elastic-company-os/SKILL.md",
       "sha256": "69de562da2f8654d5963a06f2a418e3ba05e2a6d662b7c68f9f06288273cf952",
       "size": 18808
+    },
+    {
+      "path": "company-os/elastic-company-os/agents/claude.yaml",
+      "sha256": "fbe6a02106c83ba2b973f7cc5f68596da6d7deee8deea316152616ebf0921f1d",
+      "size": 247
     },
     {
       "path": "company-os/elastic-company-os/agents/grok.yaml",
@@ -427,13 +1217,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "9ace65084823118b94f36c98a8332ed4b55e286443369ef14597b7ebbd20c8b6",
-      "size": 425324
+      "sha256": "c2632f24788ed7b2a449cb5792a083f7c413a0291280b09649da0046b21ad77c",
+      "size": 429228
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "e4361ecb2eb07b5a7f6557e852065ca10a9fbacfff6386f157f68464a7179aac",
-      "size": 62438
+      "sha256": "1e0fd414aef5a1e76356a6b82cfa746ec09bdf5e6aa25934fbca167211ba1722",
+      "size": 63488
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
@@ -492,13 +1282,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "34b444d9131d02d7aa7840d3666805e2dfd061addd14642826b29c2ea2ea35b3",
-      "size": 225659
+      "sha256": "2fd178c106393756ebe09d880d04db02ed2cb20aa07cba0c65b72c7caf367008",
+      "size": 233294
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "32b49e5cb396028b7eadb51de89926fed93b6038c4b27b7c719d388353c17712",
-      "size": 74611
+      "sha256": "4d7614b38e980aa4165f4648e286c67449566cf1e57195a63599fc7fba4b8073",
+      "size": 78677
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",
@@ -569,6 +1359,11 @@
       "path": "company-os/force-first-execution/SKILL.md",
       "sha256": "8576deb7a090dc7b576bdc9fc18422aecbc652c62187c83d8d20b52dddac3b0a",
       "size": 6136
+    },
+    {
+      "path": "company-os/force-first-execution/agents/claude.yaml",
+      "sha256": "d90e922142248728aa6fc60fb8c308be2e192a4bf0a29aad3fee65898d16e6fd",
+      "size": 117
     },
     {
       "path": "company-os/force-first-execution/agents/grok.yaml",
@@ -687,8 +1482,8 @@
     },
     {
       "path": "company-os/govern-outcome-execution/SKILL.md",
-      "sha256": "43f3d555893f16e4641ade74f523f8c57e6ef3e16b1af1f61204c265ac35176a",
-      "size": 5280
+      "sha256": "50522cbbf4fc93e4d01498df83b2b752211c4a084f2017319ea1f09a89a04d39",
+      "size": 5576
     },
     {
       "path": "company-os/govern-outcome-execution/scripts/executive_governor.py",
@@ -696,9 +1491,99 @@
       "size": 12289
     },
     {
+      "path": "company-os/hr-architect/SKILL.md",
+      "sha256": "8d819054a0e6181bf66eb9e8d08f657f5b558fca2d9158e8ddbbd5a6b5ae6eed",
+      "size": 3489
+    },
+    {
+      "path": "company-os/hr-architect/agents/claude.yaml",
+      "sha256": "5fcd5116e3c6f8ab2dec3e037ea64ca0811e216113f04adbfd4e9356902b9fe5",
+      "size": 392
+    },
+    {
+      "path": "company-os/hr-architect/agents/grok.yaml",
+      "sha256": "5fcd5116e3c6f8ab2dec3e037ea64ca0811e216113f04adbfd4e9356902b9fe5",
+      "size": 392
+    },
+    {
+      "path": "company-os/hr-architect/agents/openai.yaml",
+      "sha256": "5fcd5116e3c6f8ab2dec3e037ea64ca0811e216113f04adbfd4e9356902b9fe5",
+      "size": 392
+    },
+    {
+      "path": "company-os/hr-architect/assets/spawn-template.json",
+      "sha256": "6605bef755f5ea08a5fe6b0f05dbbf7975a875b8b6fb1cd822fde921583ef2ce",
+      "size": 464
+    },
+    {
+      "path": "company-os/hr-architect/references/source/00-index.txt",
+      "sha256": "030d6afcf9915257991d0604ebed350a97f50aa93a56bccfbb055187ee9e6a6e",
+      "size": 1017
+    },
+    {
+      "path": "company-os/hr-architect/references/source/01-hr-operating-model.txt",
+      "sha256": "60cb488f43dc83a057027e8e3a338af3bec86174a089159ac82357f70d3d4c4b",
+      "size": 3353
+    },
+    {
+      "path": "company-os/hr-architect/references/source/02-org-design-roles.txt",
+      "sha256": "245fd49bc1c73bcb34dcc89e44372ff29b023b48266866621e487897b54ae0ec",
+      "size": 3193
+    },
+    {
+      "path": "company-os/hr-architect/references/source/03-recruiting-sourcing.txt",
+      "sha256": "f1450ebd2adb3cd1263a670ce835255ebe49ab1ad319db729e4825132e6851bc",
+      "size": 3512
+    },
+    {
+      "path": "company-os/hr-architect/references/source/04-selection-interviews-assessments.txt",
+      "sha256": "365281871a60a20dd96c77cfcc778e7ab48773ec9fe4b767354fdc0c2fdf0bb9",
+      "size": 3550
+    },
+    {
+      "path": "company-os/hr-architect/references/source/05-comp-offers-classification.txt",
+      "sha256": "223a86078c1dcfd0fb1b26124506fb4aae9ed2ae3968bd36093e8b83a7bffad4",
+      "size": 3438
+    },
+    {
+      "path": "company-os/hr-architect/references/source/06-onboarding-enablement.txt",
+      "sha256": "b26da476d658a00ab3d5d394345c12bc1e7aba8046fd8c192b81bd228c4f3b6b",
+      "size": 2957
+    },
+    {
+      "path": "company-os/hr-architect/references/source/07-performance-management.txt",
+      "sha256": "ae613cc06bba1a9781c392dc46a67a116370f93d37c8879a84065389a075603b",
+      "size": 3146
+    },
+    {
+      "path": "company-os/hr-architect/references/source/08-culture-retention-offboarding.txt",
+      "sha256": "4baa97e76ab7f4d14d0e28a7be7b1a9ee426c2974c00a0cf375cf97b3bb2eb5a",
+      "size": 3062
+    },
+    {
+      "path": "company-os/hr-architect/references/source/09-hr-ops-compliance.txt",
+      "sha256": "ae1f65fa6a50494349ebc8ab316b52a2474f12f6eedeadf116ff106f3cc3eb2d",
+      "size": 3001
+    },
+    {
+      "path": "company-os/hr-architect/references/source/10-ai-agents-hr-tech-analytics.txt",
+      "sha256": "90d1cd2c4d33da8a29336aed100f27f4bfa610014e3e98d3428aff9be76c450f",
+      "size": 3535
+    },
+    {
+      "path": "company-os/hr-architect/scripts/validate_hr_architect.py",
+      "sha256": "37de39754d0fc0e7909ebb09de6ab916458ec85d50837d0ab0b94cebaf5362ed",
+      "size": 5689
+    },
+    {
       "path": "company-os/intelligence/company-scorecard/SKILL.md",
       "sha256": "a88f429bfaffd2639edc5ddafa09c549a06c4a0dfb5699a517daa0cb921de52e",
       "size": 5459
+    },
+    {
+      "path": "company-os/intelligence/company-scorecard/agents/claude.yaml",
+      "sha256": "06d7cbda0698baffdeb7da5ea64a5344d1c83e4bc2d464e9bcdfecc0be0e4d81",
+      "size": 239
     },
     {
       "path": "company-os/intelligence/company-scorecard/agents/grok.yaml",
@@ -747,8 +1632,13 @@
     },
     {
       "path": "company-os/intelligence/evidence-research-campaign/SKILL.md",
-      "sha256": "1a5ea14ccbe44c1741427c68fe62917326b94da1630427bfe4a0351f3fe68b10",
-      "size": 1762
+      "sha256": "afbaa761dcf345ed3f525011fdce8dfc919c88d8e7cb4a2bf6448664993ecf58",
+      "size": 1877
+    },
+    {
+      "path": "company-os/intelligence/evidence-research-campaign/agents/claude.yaml",
+      "sha256": "009b562626f059e822273f613851d461e36ba290fd069a0d540147e27a8d8ec9",
+      "size": 122
     },
     {
       "path": "company-os/intelligence/evidence-research-campaign/agents/grok.yaml",
@@ -762,8 +1652,13 @@
     },
     {
       "path": "company-os/intelligence/innovation-bets/SKILL.md",
-      "sha256": "af8d4941e328452bb66244065755ff2f7b8d303eb797b77fc4f33368001e43d9",
-      "size": 1326
+      "sha256": "b00b934371706f0f54d2504a4f6089c350b9dcbc4c50fd7d0c0c3a6fbf50d0fe",
+      "size": 1626
+    },
+    {
+      "path": "company-os/intelligence/innovation-bets/agents/claude.yaml",
+      "sha256": "8d6de2c6fa76be8daf82333d7b9fee00611c298ef7d7d09c8f50d469836d33fa",
+      "size": 100
     },
     {
       "path": "company-os/intelligence/innovation-bets/agents/grok.yaml",
@@ -777,8 +1672,13 @@
     },
     {
       "path": "company-os/intelligence/research-intelligence/SKILL.md",
-      "sha256": "9894d2ef028d87c04a94be2240f273ef7cd806ec9976672b3b8a9b1b3458c46e",
-      "size": 2439
+      "sha256": "62cecacaea2d87bec2b304782023f267fa5945a81fb9f411db9b0a6f317471e4",
+      "size": 2633
+    },
+    {
+      "path": "company-os/intelligence/research-intelligence/agents/claude.yaml",
+      "sha256": "678009f4d69d9b7df1443f5a4b7abddbdd3f66660a09ae231a8982a2034c6899",
+      "size": 112
     },
     {
       "path": "company-os/intelligence/research-intelligence/agents/grok.yaml",
@@ -796,6 +1696,11 @@
       "size": 1118
     },
     {
+      "path": "company-os/intelligence/technology-radar/agents/claude.yaml",
+      "sha256": "a7cef9c241224d0bf31fcd03c2974e1019e033ee50ec59d85d1cd35c9bd3688a",
+      "size": 102
+    },
+    {
       "path": "company-os/intelligence/technology-radar/agents/grok.yaml",
       "sha256": "a7cef9c241224d0bf31fcd03c2974e1019e033ee50ec59d85d1cd35c9bd3688a",
       "size": 102
@@ -811,6 +1716,11 @@
       "size": 1309
     },
     {
+      "path": "company-os/intelligence/voice-of-customer/agents/claude.yaml",
+      "sha256": "261b58dbe9af48e3f5d8d72cf80b06d8450f986f33def9accae95bd8956ce652",
+      "size": 104
+    },
+    {
       "path": "company-os/intelligence/voice-of-customer/agents/grok.yaml",
       "sha256": "261b58dbe9af48e3f5d8d72cf80b06d8450f986f33def9accae95bd8956ce652",
       "size": 104
@@ -821,9 +1731,269 @@
       "size": 104
     },
     {
+      "path": "company-os/interface-design/LICENSE.upstream",
+      "sha256": "ed1dfe988fc40511b4845ccd9050a143a2002fee3bedc8064c47fa342b5d8d4f",
+      "size": 1069
+    },
+    {
+      "path": "company-os/interface-design/SKILL.md",
+      "sha256": "afefa7625a957346dda357faedb3f4d055ec72d46c0d7da81d33f1641379e4ff",
+      "size": 3253
+    },
+    {
+      "path": "company-os/interface-design/UPSTREAM.json",
+      "sha256": "8bf15b38c86c7dd5c8578da007f9708ef4c3aa766fee1e5f36916ad9245c89d4",
+      "size": 5361
+    },
+    {
+      "path": "company-os/interface-design/agents/claude.yaml",
+      "sha256": "bbcf7ac2cc7d10e05985fcb628d846193204c85df39614b90cb639ee7aa6627a",
+      "size": 403
+    },
+    {
+      "path": "company-os/interface-design/agents/grok.yaml",
+      "sha256": "bbcf7ac2cc7d10e05985fcb628d846193204c85df39614b90cb639ee7aa6627a",
+      "size": 403
+    },
+    {
+      "path": "company-os/interface-design/agents/openai.yaml",
+      "sha256": "bbcf7ac2cc7d10e05985fcb628d846193204c85df39614b90cb639ee7aa6627a",
+      "size": 403
+    },
+    {
+      "path": "company-os/interface-design/references/source/frontend-design/LICENSE.txt",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174
+    },
+    {
+      "path": "company-os/interface-design/references/source/frontend-design/SKILL.md",
+      "sha256": "1608ea77fbb6fc30d13a97d12cfa8ebf31358d40f0dd97beed24829d6b3f45dd",
+      "size": 8260
+    },
+    {
+      "path": "company-os/interface-design/references/source/frontend-design/UPSTREAM.json",
+      "sha256": "63537279e25a37268af9f77c81046cdf10658b7ac63da5e46d06a8e1e3a3392f",
+      "size": 608
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/SKILL.md",
+      "sha256": "f07ca17ccb78950cb8bf913af3f4c49bf383fc3d9ae5644fff3b7550716447f1",
+      "size": 9599
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/focus-and-keyboard.md",
+      "sha256": "c3a06d4f3002760a459da608fd74832a1445476c7fd76c848499ebe2ad031019",
+      "size": 6581
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/forms.md",
+      "sha256": "71813142e2056d5acfc3ebdd32c8c6951552e0b8f46c168b86fec7e4cfa53eb4",
+      "size": 3844
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/hit-areas.md",
+      "sha256": "98afb43572a6a149d8278969294ddcbedf76709ab1456a31179a3c5178ce8fc8",
+      "size": 4060
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/motion-and-zoom.md",
+      "sha256": "d55df6cf91cb42106944bed13c5a3ed7a442add2c7fe4e8810d781d2fb470e4d",
+      "size": 4008
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/review-output.md",
+      "sha256": "fe5201659f113d1d7aeed0227b0b0f34d213961e20c1c71f8da781868c27c346",
+      "size": 3359
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/screen-readers.md",
+      "sha256": "4ee2ac09a35678406bd1af4220a72706f8a052d0d8d12067dd436e42633c6ee5",
+      "size": 5087
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-accessibility/semantics-and-aria.md",
+      "sha256": "7bb7385ff90d8d090cbd4dc4ad01b2f8708f987939b7951208a08165691ee533",
+      "size": 5642
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/SKILL.md",
+      "sha256": "f2f1a376376ac6fba6ec92d25fe052d39913b21c2fdf435374eca00d402bf994",
+      "size": 8557
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/color-formats.md",
+      "sha256": "f14e0b40c3345a8a3bab7edde40a851a1610fe3cdeeebaee7c64a00329bf70d8",
+      "size": 5042
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/color-usage.md",
+      "sha256": "4a60c45ef4a90ab6de2f9a3addd2a0f36b30c327b75d189a3c98f48e5f824932",
+      "size": 6955
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/contrast.md",
+      "sha256": "18404eadb09849deb41a7955bd4e8591c0ff570a12974a130a398561d04931d6",
+      "size": 5003
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/palette-generation.md",
+      "sha256": "382deba08679c85a8b4a9da45aed3c3f8cc288ca15854b74ab9dc29c543d8783",
+      "size": 6567
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/palette-structure.md",
+      "sha256": "3619976783797fd8bd23b2e6594cc926dd7a6bac21b03a4e6f9d3fa8da4f0a07",
+      "size": 6065
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/review-output.md",
+      "sha256": "df4f2eb166f78bbb155166f1af5e7a960da9561acb635930c47475fb46cb3764",
+      "size": 2785
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-colors/token-naming.md",
+      "sha256": "25a8f27bd8030aa163c4cec711f8c32510a1d46b9556731294405dfaf15ce35b",
+      "size": 5702
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-interface/SKILL.md",
+      "sha256": "e4d664467c5fd05b5f7d0feb1c24b1a81d49d04f48aa5bca4c051edb1dbf051e",
+      "size": 13421
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-layout/SKILL.md",
+      "sha256": "2597bbd7e39dd2b74cdd9fefda1062e4492c3c2d64f31b74846bdc8d8b8e7bb3",
+      "size": 6216
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-layout/grouping-and-alignment.md",
+      "sha256": "9e619838e3175cafb7837a52ca83a9a9fbe91a88001fde606a73adba6f0fee90",
+      "size": 5701
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-layout/review-output.md",
+      "sha256": "895f81c32cf078125563a3a226fd1e82ad82af6be9253c76d53921a443b936d1",
+      "size": 2505
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-layout/spacing-and-adaptivity.md",
+      "sha256": "3204ff8756b452989c6d713964e91f7f9293394ffc82ba4b920db599bf10b6e5",
+      "size": 6771
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/SKILL.md",
+      "sha256": "551ef128ded6071163ebba6cd74e519dbfbf646dbee6ccaad2c98fa158effbde",
+      "size": 12886
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/choosing-fonts.md",
+      "sha256": "90a7c4f93e5d82a1f59aef20bfaec8f9297a63018b4ab8523e4eb8bfbda6dd8c",
+      "size": 3258
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/css-cheat-sheet.md",
+      "sha256": "45c77f0d1954e12e76c3903361f52703cb4f4287d54c651710f60926247165fb",
+      "size": 3952
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/details-and-accessibility.md",
+      "sha256": "b7ea09ce9165269aa7ce3db2de0f4fef8b04541f4359caa09b272d5ab47d424e",
+      "size": 5656
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/review-output.md",
+      "sha256": "5baa2f68a64ce66c7548dc50df1ec2cb05355bb3a07701dfcce5a05939bc011b",
+      "size": 2514
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/spacing-and-sizing.md",
+      "sha256": "df78e8fcf74953e5762340d7f793dcc9823b614f0e2ef7e67234ffb9ad3a5aba",
+      "size": 4889
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/variable-fonts-and-opentype.md",
+      "sha256": "5aa349721fa1f667ce4a9515199e866d83b9fd8eb1d815e6265f092201a44dfe",
+      "size": 4369
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-typography/wrapping-and-punctuation.md",
+      "sha256": "8717deaab5b71c9531f936b9f6ea53de2df776f52f188e5cabff1b78f724f745",
+      "size": 3579
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/SKILL.md",
+      "sha256": "3da5341327a7c0f0b14b12ed0fb7ac63b5bd9bcd8b0c91dffeb8a7caf380c961",
+      "size": 8269
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/animations.md",
+      "sha256": "287bcaa59af3fc9dc1cde4f8c0a75f710113425ee457818e54c3420870f13994",
+      "size": 7546
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/enter-exit.md",
+      "sha256": "da5b5955729659b33cf0e3dc9e5a6b426f5f416ddfba9e0908c6f60065a40514",
+      "size": 3991
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/icon-transitions.md",
+      "sha256": "8c53478a2dcfd6201e9d55a8902b71211b09a44296ecddc4532146d0676f61f7",
+      "size": 4314
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/icons.md",
+      "sha256": "2b6738cc445636d7f6ee7bc3549f791f524a04755f42db2b84035a2ba64143e1",
+      "size": 4434
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/performance.md",
+      "sha256": "8450bd42fa61ee425a07de94abba0815119e7ee481eba53ef4ff42e70ca81de5",
+      "size": 3014
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/review-output.md",
+      "sha256": "2e2ee44cc4748541e36b7f2e51ca28840f66af99b6f3c60224e67582f9e96705",
+      "size": 2524
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-ui/surfaces.md",
+      "sha256": "b0276679502ab5cf3de64a65c5bc196c92b362bde04ded74c4304e711fdaecfd",
+      "size": 6518
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-writing/SKILL.md",
+      "sha256": "413b41c7ef5f9614fa96716d47065ad6bb28e9338441e064e538cf2d472f659c",
+      "size": 7810
+    },
+    {
+      "path": "company-os/interface-design/vendor/better-writing/review-output.md",
+      "sha256": "f7b4980ac3e4a70dd0b4febc187c7ece73fd7fa6f96bee9da5d7d06ac2c01029",
+      "size": 2476
+    },
+    {
+      "path": "company-os/interface-design/vendor/interface-review/SKILL.md",
+      "sha256": "990922d6e92eb99a2ca0fb77547ccddf4fa4532c6a8fce9f8da736d96171e2ac",
+      "size": 10227
+    },
+    {
+      "path": "company-os/interface-design/vendor/interface-review/removed-signals.md",
+      "sha256": "3ed84d21292d865a7ec6ed13d3262ce6455e5f2b9bef5c2914a8daceb0b0eacf",
+      "size": 2961
+    },
+    {
+      "path": "company-os/interface-design/vendor/interface-review/scope-resolution.md",
+      "sha256": "bca469a11a3c9f4fd1cb7d2bc19f2d09be200ef57282ef60a5c3ba255afdc8dd",
+      "size": 11294
+    },
+    {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "353414f5a3070b83cfa322cee0e36fa5ab62f6ebd3daf1f651f2cb526406e638",
-      "size": 4979
+      "sha256": "66c64d44807964ab7d1fe0d8a189f3e05046773ba7130927d605db6bbe2c1317",
+      "size": 5464
+    },
+    {
+      "path": "company-os/manage-company-program/agents/claude.yaml",
+      "sha256": "4c2417a4abdd2b8a77bd2ac08b9f2dad7dd8f12bf7f8ac75b0d5ff442b7820c8",
+      "size": 278
     },
     {
       "path": "company-os/manage-company-program/agents/grok.yaml",
@@ -872,8 +2042,8 @@
     },
     {
       "path": "company-os/manage-company-program/references/manager-contract.md",
-      "sha256": "1977db793664157c9f8c4923d58f8b7f486035ade7989c85897d8b4881af6988",
-      "size": 5891
+      "sha256": "19332e233c4064ed351f5967988daf45db757bfed522de83be585ea52a2c2f21",
+      "size": 5964
     },
     {
       "path": "company-os/manage-company-program/schemas/compiled-preflight.schema.json",
@@ -901,6 +2071,191 @@
       "size": 105788
     },
     {
+      "path": "company-os/marketing-architect/SKILL.md",
+      "sha256": "80bd760450a6abea85f84eee8094a9d6a1a0c0ec56528fbf0642afa1ad2e0eff",
+      "size": 3700
+    },
+    {
+      "path": "company-os/marketing-architect/agents/claude.yaml",
+      "sha256": "0416b2d56f7e186c3b50b16ef117588501a8ac6ee9b53be87e7c0e9fed2bf951",
+      "size": 414
+    },
+    {
+      "path": "company-os/marketing-architect/agents/grok.yaml",
+      "sha256": "0416b2d56f7e186c3b50b16ef117588501a8ac6ee9b53be87e7c0e9fed2bf951",
+      "size": 414
+    },
+    {
+      "path": "company-os/marketing-architect/agents/openai.yaml",
+      "sha256": "0416b2d56f7e186c3b50b16ef117588501a8ac6ee9b53be87e7c0e9fed2bf951",
+      "size": 414
+    },
+    {
+      "path": "company-os/marketing-architect/assets/spawn-template.json",
+      "sha256": "ed710819b0479264cd59a003ca5dd150a49eb7221aca14a3c90d71fec1bf1113",
+      "size": 493
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/00-index.txt",
+      "sha256": "c4844bd521ae8efa0e4a1183c8a5943bac692256d1772e93e290b7e64416125d",
+      "size": 963
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/01-market-strategy-foundations.txt",
+      "sha256": "067d2514085163f81d51425556f879d6e56804294e3f727ad93518941ec71e47",
+      "size": 4356
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/02-segmentation-targeting-personas.txt",
+      "sha256": "dea057114b28dbfaa0c471cedc4240aec2301234d379520b6e5012e1149505b8",
+      "size": 3614
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/03-buyer-behavior-journey.txt",
+      "sha256": "370ae24bda77d0dcaa07d406b7d13cf40819b63c49b4c500f9668e33c331097a",
+      "size": 3298
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/04-value-prop-positioning-messaging.txt",
+      "sha256": "f0471e463e759e957ef2a1bbe2286a4abdfc60bce890e1a78c9d6c18e1306ee9",
+      "size": 2990
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/05-marketing-mix-go-to-market.txt",
+      "sha256": "404b29e08c0640b01890c65f0695ac475b3e6afe2fad7754f338639b8968a6f9",
+      "size": 2729
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/06-brand-system-architecture.txt",
+      "sha256": "eaa5fd5e3755aa8dc8ca66a0298c56470ecf632e260e4729a716eae6da09948e",
+      "size": 2707
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/07-marketing-research-insights.txt",
+      "sha256": "5ef91da85a4ddf5e8ea47bfe07a75a90b5f23a0aee568d2e42f8499f37efa464",
+      "size": 2867
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/08-advertising-creative-process.txt",
+      "sha256": "4a22ee1a3e17ca0461aa6a934d0ab3142270f741526533f38be92ad44104e967",
+      "size": 2465
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/09-digital-growth-lifecycle.txt",
+      "sha256": "acf2c0bcef81f491505bb262cade50ef3bc4df9eee74ac21a3a2d99727496760",
+      "size": 2529
+    },
+    {
+      "path": "company-os/marketing-architect/references/source/10-marketing-plan-measurement.txt",
+      "sha256": "625132a71cd9d2923c0c513672f2c3e41fb1362c83e1c83fbb36ad24740bfbea",
+      "size": 2657
+    },
+    {
+      "path": "company-os/marketing-architect/scripts/validate_marketing_architect.py",
+      "sha256": "f68e0d10db1ded473e8265ca939ea8e84d5ec113fb5be966b020a0aedc190e3f",
+      "size": 5775
+    },
+    {
+      "path": "company-os/marketing-os/SKILL.md",
+      "sha256": "124e909b4ec7ad9b9066c81e46bfc8b95acd75eabb309f31e605be264005acab",
+      "size": 3687
+    },
+    {
+      "path": "company-os/marketing-os/agents/claude.yaml",
+      "sha256": "db43b7c47edc09a13518c2c28159d47c6b8e50d45a73edb90c270ace34b1a530",
+      "size": 417
+    },
+    {
+      "path": "company-os/marketing-os/agents/grok.yaml",
+      "sha256": "db43b7c47edc09a13518c2c28159d47c6b8e50d45a73edb90c270ace34b1a530",
+      "size": 417
+    },
+    {
+      "path": "company-os/marketing-os/agents/openai.yaml",
+      "sha256": "db43b7c47edc09a13518c2c28159d47c6b8e50d45a73edb90c270ace34b1a530",
+      "size": 417
+    },
+    {
+      "path": "company-os/marketing-os/assets/examples/audience-profile.json",
+      "sha256": "3acd590eb09b2c32b03111ec2ac26293309e133379eb7429846d83c58e96479b",
+      "size": 749
+    },
+    {
+      "path": "company-os/marketing-os/assets/examples/campaign-brief.json",
+      "sha256": "746db9cae4b84fd71148cad37335c36c56b4900ac3a55faa0134dd38610ad58a",
+      "size": 1427
+    },
+    {
+      "path": "company-os/marketing-os/assets/examples/copy-packet.json",
+      "sha256": "10a3f6ace28c33c1cb7b8cd0744a9396fed366993a600058876731b9a05bed92",
+      "size": 651
+    },
+    {
+      "path": "company-os/marketing-os/assets/examples/research-report.json",
+      "sha256": "7a1ab130bce5adde98461ef78075fc5944c07f39e5c6ac9f600be5d4e955f965",
+      "size": 606
+    },
+    {
+      "path": "company-os/marketing-os/assets/spawn-template.json",
+      "sha256": "6783be93653cbb61be22de5a450bd6e448798674166e6b21d1ed4c439fba8f17",
+      "size": 484
+    },
+    {
+      "path": "company-os/marketing-os/references/source/00-index.txt",
+      "sha256": "58027c13287f0750a529038238dc9429c60b3763d20ab03abe7c489d74d58a6d",
+      "size": 1405
+    },
+    {
+      "path": "company-os/marketing-os/references/source/01-pipeline.txt",
+      "sha256": "4ed64ef73a05495ab2c046b2843cbb072273cdb5343d8e49a49e06d8dfa3fb49",
+      "size": 1600
+    },
+    {
+      "path": "company-os/marketing-os/references/source/02-artifact-contracts.txt",
+      "sha256": "b5fb1f7cd184cc296e690cc16e5bfa7442076cbb5fdeeac365c1b7a50d408daf",
+      "size": 1427
+    },
+    {
+      "path": "company-os/marketing-os/references/source/03-scale.txt",
+      "sha256": "6dfd784963c9e58e8a8eb670a1dd46cd8b5f5bfb7c600121709a25e91168da9a",
+      "size": 1537
+    },
+    {
+      "path": "company-os/marketing-os/references/source/04-context-and-memory.txt",
+      "sha256": "a6a75971722a14d53c80bec8f79feb69d43d0265da0b0bbea61d1455ffff0ba5",
+      "size": 1321
+    },
+    {
+      "path": "company-os/marketing-os/references/source/05-quality-and-authority.txt",
+      "sha256": "3612bee2a0385e37c985ccaa03886b4e432a74a142779d91ee238015c1d3a701",
+      "size": 1523
+    },
+    {
+      "path": "company-os/marketing-os/schemas/audience-profile.schema.json",
+      "sha256": "aac8c99c03fe70f279ab24a9236440d42740211dfdba8161bbec2f91a47703e2",
+      "size": 1425
+    },
+    {
+      "path": "company-os/marketing-os/schemas/campaign-brief.schema.json",
+      "sha256": "8e5e164851ea742bb8379495d0fbcfc0cfecb866311fe992a5bf7578613cd471",
+      "size": 2737
+    },
+    {
+      "path": "company-os/marketing-os/schemas/copy-packet.schema.json",
+      "sha256": "76f9d194536a7b7f8c5067d7be49b9a07ca61868859de57427232e8c974cd44f",
+      "size": 1161
+    },
+    {
+      "path": "company-os/marketing-os/schemas/research-report.schema.json",
+      "sha256": "18f69607a922283f04dddb2b982f6d52e74c8383fee5459bb9d516737fc1ea00",
+      "size": 1201
+    },
+    {
+      "path": "company-os/marketing-os/scripts/validate_marketing_os.py",
+      "sha256": "9e1ebb18fc7280ed2558b28cfc691b7d4b82b349d8f3059c21e92522150555aa",
+      "size": 17902
+    },
+    {
       "path": "company-os/materialize-outcome-stack/SKILL.md",
       "sha256": "10495af9bb6d7fcfa10674c4ff854cfcdf0ecfabe0cb1fd14dddbc722ad7d4b9",
       "size": 1835
@@ -911,9 +2266,114 @@
       "size": 13338
     },
     {
+      "path": "company-os/middle-manager-operating-doctrine/SKILL.md",
+      "sha256": "48bcda5249630728aa1a1faaa40c2f9b73b4c5c4f4cb9015f0d90b49a3925339",
+      "size": 3459
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/agents/claude.yaml",
+      "sha256": "c97ac5736d60b5a3a754ed0f83290642a7666c76e0ad0ba29705ad56b1de88a3",
+      "size": 350
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/agents/grok.yaml",
+      "sha256": "c97ac5736d60b5a3a754ed0f83290642a7666c76e0ad0ba29705ad56b1de88a3",
+      "size": 350
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/agents/openai.yaml",
+      "sha256": "c97ac5736d60b5a3a754ed0f83290642a7666c76e0ad0ba29705ad56b1de88a3",
+      "size": 350
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/assets/spawn-template.json",
+      "sha256": "e861710c48c745fc6d70e19a3455a4ed93513678e79c597eb454a8c549658de8",
+      "size": 390
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/00-index.txt",
+      "sha256": "788a1b598fedf34aa9ba1c16c60761f9edcce4e29a8c113a01a8bfef2fdbf77d",
+      "size": 845
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/01-charter-ground-rules.txt",
+      "sha256": "b175dea4df770e9d79b89fe44978527de05de2994d7d13500f12846380d31fed",
+      "size": 1767
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/02-first-principles-engine.txt",
+      "sha256": "559e80ad1fc943f02590605eda425ed4c9e683d5248dd459116da5ad0c6869b0",
+      "size": 1657
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/03-systems-engineering-feedback-loops.txt",
+      "sha256": "4093bf24d637ef88557cfef57a8206c285187564024575b9dc229027833c19ac",
+      "size": 1488
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/04-bottleneck-theory-constraint-playbook.txt",
+      "sha256": "b0db6f3198f3f39ac448a29240eec1f07eab1e3e921fabf0db4792e538964bfb",
+      "size": 1511
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/05-five-step-algorithm-execution.txt",
+      "sha256": "28eb42469c42ea54bdde1922cf64ab83300708a57ecc91b8408589e12a5f53fa",
+      "size": 1619
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/06-physics-based-cost-curves.txt",
+      "sha256": "57e5b88a89a111f792875806c9563b6a310da2db5560575e752f0d6330ce4fee",
+      "size": 1310
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/07-expected-value-risk-asymmetry.txt",
+      "sha256": "fdc66e32b6ac425493136e7c9f7031cb15023a6f1a945e0f060588f5f8ff465d",
+      "size": 1490
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/08-tree-of-knowledge-learning-system.txt",
+      "sha256": "8599d716ec44a45476515a0a915bdc4303d10e355910cdfdbe13ffe26076dfb8",
+      "size": 1351
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/09-time-compression-execution-cadence.txt",
+      "sha256": "5a293eda43797054c5f24383c977f0f620ede3cd815a3fa8fe3856a7008d19c0",
+      "size": 1406
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/10-signal-over-noise-talent-density.txt",
+      "sha256": "e6283657c2c5cedb5bbf90a8dbf84240861a663593084bd97d14dc0d383d84f2",
+      "size": 1333
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/11-vertical-integration-optionality.txt",
+      "sha256": "7400246c362d432eb84b4468f32a633f5717236b74d63a0fd6948d09c46fabac",
+      "size": 1395
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/12-daily-operating-system-mentor-loop.txt",
+      "sha256": "b65ea9c6a1fd71d339977b24cfa288fd1b2f814f5893e5b8aed5d61f16cb81f9",
+      "size": 1631
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/references/source/product-demo-framework.md",
+      "sha256": "1472e1cfd7cbba21252ae4b66b0f6359cbb2c4339586ac314bfb7471d9d8fc42",
+      "size": 4750
+    },
+    {
+      "path": "company-os/middle-manager-operating-doctrine/scripts/validate_middle_manager_doctrine.py",
+      "sha256": "55cf81dee80124fd8a22b8b9ad9582819d3363d623e7eb00fcc0c6486315f422",
+      "size": 5779
+    },
+    {
       "path": "company-os/mission-execution-control/SKILL.md",
       "sha256": "19bd467ea8adbc31831be8e6947edf6a156deff4a6c8025d3fa1ccb8df85ecac",
       "size": 2406
+    },
+    {
+      "path": "company-os/mission-execution-control/agents/claude.yaml",
+      "sha256": "7d5bdc3fc16baf09c5f1ad394863be5464af095f431d4aed76af74195ce28e86",
+      "size": 353
     },
     {
       "path": "company-os/mission-execution-control/agents/grok.yaml",
@@ -972,8 +2432,8 @@
     },
     {
       "path": "company-os/mission-execution-control/references/scheduler-contract.md",
-      "sha256": "484c3628c07452b0fdde4b885c1e184254b71da407758a1e01610b4b148d350f",
-      "size": 761
+      "sha256": "3d0cc104206d8b5f5aec71ac2f4ab6a9fac1d5613adce5f17a1cd73a888e2e2b",
+      "size": 1033
     },
     {
       "path": "company-os/mission-execution-control/references/work-admission.md",
@@ -992,13 +2452,18 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/mission_control.py",
-      "sha256": "8b46c8e31d7848b26c4c9040255f2200624d31c84a1432e3d12934ad6927e582",
-      "size": 61237
+      "sha256": "2ccaca08bc948a0fe444bd1781aeef7e7ce1165460bf0d20315342182310f2a5",
+      "size": 64875
     },
     {
       "path": "company-os/navigation-control/SKILL.md",
-      "sha256": "33682fed55b5d907c03dced67b009965eb4a7ca778c351b25b29b9e30bb82ec3",
-      "size": 2004
+      "sha256": "1114a4abc8b6f6bbd920baf3e909dbc17b7a5a7583aaef8f11c23eebcde217de",
+      "size": 2624
+    },
+    {
+      "path": "company-os/navigation-control/agents/claude.yaml",
+      "sha256": "5b5669677e031e139408ffb6e5fd8f31383b2be0c1e90c860d696c18a63e76f5",
+      "size": 423
     },
     {
       "path": "company-os/navigation-control/agents/grok.yaml",
@@ -1017,8 +2482,13 @@
     },
     {
       "path": "company-os/operational-control/SKILL.md",
-      "sha256": "496e34d3b47621a88ad63a1d94ff0fe7383f0d849f1835a6a26f0a31ac3b4d9e",
-      "size": 2048
+      "sha256": "d8eb9c6f0599e078a803cd080262b6f1c7c4ad605174b829a48f73f540b4679d",
+      "size": 2424
+    },
+    {
+      "path": "company-os/operational-control/agents/claude.yaml",
+      "sha256": "d1e0575f69ce477d94b9e6443a4b5841150b9beeca96a512b38d6c57ded1951c",
+      "size": 108
     },
     {
       "path": "company-os/operational-control/agents/grok.yaml",
@@ -1031,9 +2501,169 @@
       "size": 108
     },
     {
+      "path": "company-os/ops-architect/SKILL.md",
+      "sha256": "43ee10d6e40e4fb9fc2e93aaf32d9f927ab4636b54dcc6193fcc9f8c32f13f23",
+      "size": 3514
+    },
+    {
+      "path": "company-os/ops-architect/agents/claude.yaml",
+      "sha256": "fd040caaee45ac195cb7872e90744a537a79c513d37db0e6c59abe95af8ae0eb",
+      "size": 385
+    },
+    {
+      "path": "company-os/ops-architect/agents/grok.yaml",
+      "sha256": "fd040caaee45ac195cb7872e90744a537a79c513d37db0e6c59abe95af8ae0eb",
+      "size": 385
+    },
+    {
+      "path": "company-os/ops-architect/agents/openai.yaml",
+      "sha256": "fd040caaee45ac195cb7872e90744a537a79c513d37db0e6c59abe95af8ae0eb",
+      "size": 385
+    },
+    {
+      "path": "company-os/ops-architect/assets/spawn-template.json",
+      "sha256": "aaffb529a93bf43426aeefaf2218a1986f7d87224aea6f2b9055f48af176f076",
+      "size": 458
+    },
+    {
+      "path": "company-os/ops-architect/references/source/00-index.txt",
+      "sha256": "e5d87d7b0649253626f6aea9359288ba6aa8142c1d70003bf4dbde8bf4f17be0",
+      "size": 945
+    },
+    {
+      "path": "company-os/ops-architect/references/source/01-operations-fundamentals-flow-metrics.txt",
+      "sha256": "d9a5c9a7534cdcf7dcc15733d77743dc9134b22506e9810ac7bbf854bb00b509",
+      "size": 3410
+    },
+    {
+      "path": "company-os/ops-architect/references/source/02-capacity-bottlenecks-constraints.txt",
+      "sha256": "9dcd1c418655eb19f99edac36223647ff807886aa6f0b3950d46c2e20f6427c9",
+      "size": 3016
+    },
+    {
+      "path": "company-os/ops-architect/references/source/03-queueing-systems-littles-law.txt",
+      "sha256": "f47b5a8e4ca3e6993a3c07d6fff06e9481382a046eb040f7f6ad541410810306",
+      "size": 2774
+    },
+    {
+      "path": "company-os/ops-architect/references/source/04-process-structures-layouts.txt",
+      "sha256": "d34588a3cf96fad18e4a5a82d33ce2b3dea9165a2f15b8273d210cf254751b5b",
+      "size": 2849
+    },
+    {
+      "path": "company-os/ops-architect/references/source/05-visual-tools-networks-scheduling.txt",
+      "sha256": "39011ff946fe652296816818f191f562c5477d419597e20c19e6adde9977ff8e",
+      "size": 2611
+    },
+    {
+      "path": "company-os/ops-architect/references/source/06-inventory-economics-costs-benefits.txt",
+      "sha256": "326b07da4d2ea56842118fd845a3134a72bd6816d66af3f4f50972e2abc6e314",
+      "size": 2525
+    },
+    {
+      "path": "company-os/ops-architect/references/source/07-inventory-management-methods.txt",
+      "sha256": "58d3c9af126e19d13d6d33bd7b60a4d218c5d9a9be126e288badeb37ed1e165b",
+      "size": 2855
+    },
+    {
+      "path": "company-os/ops-architect/references/source/08-forecasting-demand-planning.txt",
+      "sha256": "40ae9ad70be586d7cfc2a4a785940541cc32658ff703662b43e523bc8c50827b",
+      "size": 2364
+    },
+    {
+      "path": "company-os/ops-architect/references/source/09-supply-chain-management.txt",
+      "sha256": "9e3583999200c21f623ebfc1ec835bf784ab543d639eef356ebd71b3b631cc84",
+      "size": 2403
+    },
+    {
+      "path": "company-os/ops-architect/references/source/10-project-and-agile-delivery.txt",
+      "sha256": "f1dac71a53c4bbf931f65de0bb91fb30811546a1732f7c78d65ba5253980ed3c",
+      "size": 2623
+    },
+    {
+      "path": "company-os/ops-architect/scripts/validate_ops_architect.py",
+      "sha256": "4e0abee553f86f2a9ee486180078071dffab2dcfce94c83f49318477d12892b8",
+      "size": 5755
+    },
+    {
+      "path": "company-os/project-manager/SKILL.md",
+      "sha256": "f70c8fabaee903461191b947f0584e18ae86c59fcd3da5489b627fdba968b2ab",
+      "size": 3123
+    },
+    {
+      "path": "company-os/project-manager/agents/claude.yaml",
+      "sha256": "53cdd4cd591f862d8e23337eb3dedbfee4aa1620c87dc022b99474280c1b0ab9",
+      "size": 417
+    },
+    {
+      "path": "company-os/project-manager/agents/grok.yaml",
+      "sha256": "53cdd4cd591f862d8e23337eb3dedbfee4aa1620c87dc022b99474280c1b0ab9",
+      "size": 417
+    },
+    {
+      "path": "company-os/project-manager/agents/openai.yaml",
+      "sha256": "53cdd4cd591f862d8e23337eb3dedbfee4aa1620c87dc022b99474280c1b0ab9",
+      "size": 417
+    },
+    {
+      "path": "company-os/project-manager/assets/spawn-template.json",
+      "sha256": "823247dab3e22ee8fb5799bac16195cfdbc55bf15349c52dd5a8664d3ee10ac2",
+      "size": 495
+    },
+    {
+      "path": "company-os/project-manager/references/source/00-index.txt",
+      "sha256": "456cea3343bc4d7f9a433a4e4e3a0f6a0beedb288bcd9947b1eb0f5f7544ca6c",
+      "size": 1251
+    },
+    {
+      "path": "company-os/project-manager/references/source/execution-workflow-playbook.txt",
+      "sha256": "c6e9fdc43ffc1c1fb9d63daafb75a66825dbda05e7311144e5e968a8f3515824",
+      "size": 550
+    },
+    {
+      "path": "company-os/project-manager/references/source/phase-architecture-patterns.txt",
+      "sha256": "ef8b523ab7534dc465ab0daf12eac686df9cbedc6d81a2a2eb5f8d129024ede5",
+      "size": 736
+    },
+    {
+      "path": "company-os/project-manager/references/source/project-management-methods.txt",
+      "sha256": "29fb8395ca5dad735e069f7b54f237743d0fd7d360dc8905af057f7042771d46",
+      "size": 3767
+    },
+    {
+      "path": "company-os/project-manager/references/source/project-scoping-template.txt",
+      "sha256": "4dd00aea60b678df8d04f3f3d9987d4510dbd0bda7baafe75bc62ab42944fae7",
+      "size": 982
+    },
+    {
+      "path": "company-os/project-manager/references/source/project-typology-framework.txt",
+      "sha256": "b46b801eea4adddde4b5c3d05b1c19809217cc7bf62fbd1f99ad78175f31396a",
+      "size": 789
+    },
+    {
+      "path": "company-os/project-manager/references/source/risk-dependency-constraint-library.txt",
+      "sha256": "48be0c8997e56d428897be00fed9521179360958355f2786c281fa9a0d240ef5",
+      "size": 872
+    },
+    {
+      "path": "company-os/project-manager/references/source/task-granularity-standards.txt",
+      "sha256": "1e28e9909b53b679f603c4f3bc0e6d238cb02c16717de7d5a96f4d047fcd8fac",
+      "size": 691
+    },
+    {
+      "path": "company-os/project-manager/scripts/validate_project_manager.py",
+      "sha256": "5e2e9e20e4b85439f10742f8b54cb9e599d647a085f6ec5971592f94885e683c",
+      "size": 5711
+    },
+    {
       "path": "company-os/project-program-management/SKILL.md",
-      "sha256": "d3c3d8ae0681f8e407daa782c304f6e36ec803c7c5e610fc35f2cc08cbd3913d",
-      "size": 7063
+      "sha256": "c4cec80ff6f8211309b7ffcd552e09d591a8bfb89b0f04eba285af44980101af",
+      "size": 7275
+    },
+    {
+      "path": "company-os/project-program-management/agents/claude.yaml",
+      "sha256": "38fd203b7468850adbbf3603956ec061a13e17d1dd402e9c22dfef990441b8c6",
+      "size": 122
     },
     {
       "path": "company-os/project-program-management/agents/grok.yaml",
@@ -1051,6 +2681,51 @@
       "size": 2925
     },
     {
+      "path": "company-os/recursive-skill-foundry/SKILL.md",
+      "sha256": "e4156b0486a4598e702583d146226afc02751c573d714b993c6eef9d66d97909",
+      "size": 7423
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/agents/claude.yaml",
+      "sha256": "b3afdc3a4d16dbd302d4467427c7d7ab4b49c46a3ecc674b94d721c9ab4643f4",
+      "size": 281
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/agents/grok.yaml",
+      "sha256": "b3afdc3a4d16dbd302d4467427c7d7ab4b49c46a3ecc674b94d721c9ab4643f4",
+      "size": 281
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/agents/openai.yaml",
+      "sha256": "b3afdc3a4d16dbd302d4467427c7d7ab4b49c46a3ecc674b94d721c9ab4643f4",
+      "size": 281
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/examples/simulation-cases.json",
+      "sha256": "3bef67f9ee71abab5cb9bc88b34a639a25852b9efa27059c98c1137468e1bcf6",
+      "size": 1166
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/references/beem-adaptation.md",
+      "sha256": "1234945f2c047bb4d0b748249135dae0fca9f82a201793ae2fadf80f39d63ead",
+      "size": 871
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/references/foundry-contract.md",
+      "sha256": "20d2693bb5af7f51bda23b6070338968cf05c73ea117c79dfad74a174bad45cb",
+      "size": 1939
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py",
+      "sha256": "411f36dd5900a7e634882f58cc76742de309c0fc7daf7b435f20226251cea881",
+      "size": 11956
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/scripts/skill_foundry.py",
+      "sha256": "80273d01a7c91851887d0c69fa2eb931459219866931d5cc1d8096a3d00cd65f",
+      "size": 61985
+    },
+    {
       "path": "company-os/register-outcome-evaluators/SKILL.md",
       "sha256": "f94f034b5310ff707de6ff860567aca65c1a82fb815777899d956e6dee39a2ea",
       "size": 1550
@@ -1066,9 +2741,99 @@
       "size": 5002
     },
     {
+      "path": "company-os/sales-architect/SKILL.md",
+      "sha256": "657eed62dfe0fc585c8839615e2b2e50e7ce2972fa830564068100c92f7d84c2",
+      "size": 3462
+    },
+    {
+      "path": "company-os/sales-architect/agents/claude.yaml",
+      "sha256": "30aadb80cbe9c834e37553aba67062cb8c505a38e63c161040da1fcaf69e7f26",
+      "size": 395
+    },
+    {
+      "path": "company-os/sales-architect/agents/grok.yaml",
+      "sha256": "30aadb80cbe9c834e37553aba67062cb8c505a38e63c161040da1fcaf69e7f26",
+      "size": 395
+    },
+    {
+      "path": "company-os/sales-architect/agents/openai.yaml",
+      "sha256": "30aadb80cbe9c834e37553aba67062cb8c505a38e63c161040da1fcaf69e7f26",
+      "size": 395
+    },
+    {
+      "path": "company-os/sales-architect/assets/spawn-template.json",
+      "sha256": "4d08bc3ce193b72a27353a21197f293e6689287e6b9fb596f9caee113dcc76e6",
+      "size": 463
+    },
+    {
+      "path": "company-os/sales-architect/references/source/00-index.txt",
+      "sha256": "f3bd853b2cdefeacb1aa2c1efdbc0fd545e3a8850dbdd2befa3c2329a4026c17",
+      "size": 878
+    },
+    {
+      "path": "company-os/sales-architect/references/source/01-sales-fundamentals-pipeline.txt",
+      "sha256": "8dea6d53521896ea96c54f849636cf9da7573827f040cd60a70746cdf93f28f5",
+      "size": 4250
+    },
+    {
+      "path": "company-os/sales-architect/references/source/02-prospecting-icp-lists.txt",
+      "sha256": "e9d71921dba030b74fdbf58d220a475a7615caa8704033deafacb74e674eb50a",
+      "size": 3626
+    },
+    {
+      "path": "company-os/sales-architect/references/source/03-outreach-sequences-multichannel.txt",
+      "sha256": "bfdc2a694fd08f6a6f917b4daf23be8e31759295575ca5d6989511a920ffb012",
+      "size": 4179
+    },
+    {
+      "path": "company-os/sales-architect/references/source/04-appointments-qualification.txt",
+      "sha256": "8c5b2a1b27b18d08245e60c611442e98149d83813e4adafe14994a53a161dd65",
+      "size": 3539
+    },
+    {
+      "path": "company-os/sales-architect/references/source/05-discovery-needs-roi.txt",
+      "sha256": "f7a86ea3b4acb288a8739d5eaf45b4e79435827ccc2fe2e69567f55b369954db",
+      "size": 3269
+    },
+    {
+      "path": "company-os/sales-architect/references/source/06-pitch-demo-presentation.txt",
+      "sha256": "65a5f3cd654c8baa073c11892d5026a7a61d22010ce51aa2152bd5682eb5323b",
+      "size": 2797
+    },
+    {
+      "path": "company-os/sales-architect/references/source/07-objections-negotiation.txt",
+      "sha256": "620169190ecb7abba23091c22f2e783111b8d69e668b721c582ec80993c761f1",
+      "size": 3057
+    },
+    {
+      "path": "company-os/sales-architect/references/source/08-closing-contracting.txt",
+      "sha256": "e6862ed10a292b9e31140ac274f031ddf22fdae44a7077c97e03fc0b11546e3e",
+      "size": 2658
+    },
+    {
+      "path": "company-os/sales-architect/references/source/09-referrals-expansion-accounts.txt",
+      "sha256": "799233d5626162fa9f86b0db3b6327ebdc1a9c1ea5bd4b8861d60973bf8236c6",
+      "size": 2512
+    },
+    {
+      "path": "company-os/sales-architect/references/source/10-sales-ops-management.txt",
+      "sha256": "cfc54fb0482767ba6acb058c602176f56ca14b183b0e67c98bb4b27e506a959d",
+      "size": 4109
+    },
+    {
+      "path": "company-os/sales-architect/scripts/validate_sales_architect.py",
+      "sha256": "383cb2c95ae7108f6ea7a26f69f95bfcaf270975d35f83d2876bd7afc509a776",
+      "size": 5706
+    },
+    {
       "path": "company-os/select-execution-loop/SKILL.md",
-      "sha256": "c466f166753f2d80923c2fd4a5ca3b9dd911ba68ad35b27a0855c8866dfa7dda",
-      "size": 3084
+      "sha256": "8e0628053fb747db4b5d4ca7a2a945b521765cd7b8eaf01c00647d3f60e27d03",
+      "size": 3324
+    },
+    {
+      "path": "company-os/select-execution-loop/agents/claude.yaml",
+      "sha256": "d93b215d4a16bf75745c08acf3997a2b69edcc42fee85595e7a44de96b512102",
+      "size": 220
     },
     {
       "path": "company-os/select-execution-loop/agents/grok.yaml",
@@ -1087,8 +2852,8 @@
     },
     {
       "path": "company-os/select-execution-loop/references/selection-contract.md",
-      "sha256": "3a572b8fe6adbab86b6bfe0773da9cc40fe4a0fee88876c98d6ffee609fbab20",
-      "size": 1887
+      "sha256": "689f1477013720471975d1944dcae56e2818853e0e9081359282087a954a0e84",
+      "size": 2044
     },
     {
       "path": "company-os/select-execution-loop/references/source-essence.md",
@@ -1097,8 +2862,108 @@
     },
     {
       "path": "company-os/select-execution-loop/scripts/select_execution_loop.py",
-      "sha256": "2249fb66be779654ec556bf469dd3577f918c42b74598598a4fdb23c8f9b4512",
-      "size": 13270
+      "sha256": "6b3f757815de3c567b9f51556fac9eceba1a279fa840169abff8c5b50e2ebba8",
+      "size": 13765
+    },
+    {
+      "path": "company-os/steve/SKILL.md",
+      "sha256": "7b776f807f1d897f36e726f86affec5666e4540b3c3b551e111f273b09c2bcbe",
+      "size": 3789
+    },
+    {
+      "path": "company-os/steve/agents/claude.yaml",
+      "sha256": "29591fa1a5ef04f9ee4e3175a5e6d3b8342d320b76b02d3b833656cd2a797110",
+      "size": 331
+    },
+    {
+      "path": "company-os/steve/agents/grok.yaml",
+      "sha256": "29591fa1a5ef04f9ee4e3175a5e6d3b8342d320b76b02d3b833656cd2a797110",
+      "size": 331
+    },
+    {
+      "path": "company-os/steve/agents/openai.yaml",
+      "sha256": "29591fa1a5ef04f9ee4e3175a5e6d3b8342d320b76b02d3b833656cd2a797110",
+      "size": 331
+    },
+    {
+      "path": "company-os/steve/assets/spawn-template.json",
+      "sha256": "a9809952b6e8f2e75f8016a550773535952cd8af5dd14743470123d65889146a",
+      "size": 433
+    },
+    {
+      "path": "company-os/steve/references/source/00-index.txt",
+      "sha256": "eab485c5565840e66f74ff537e9b9b63eb9911fac6e00cb45129377d670dd910",
+      "size": 931
+    },
+    {
+      "path": "company-os/steve/references/source/01-charter-standards.txt",
+      "sha256": "a4c13828c6ebd71b1ac4f1b742197b5eb7023f700896b8a77b4466b74e70efce",
+      "size": 1426
+    },
+    {
+      "path": "company-os/steve/references/source/02-customer-backwards-method.txt",
+      "sha256": "5dadcd1dfec570d33035bb4cdc4eea85b8a1150075c3e57e2ca5b57470279167",
+      "size": 1587
+    },
+    {
+      "path": "company-os/steve/references/source/03-stick-figure-thought-bubble.txt",
+      "sha256": "4fdec73b7c840785649c0dc42dd816bd3764cc46f8cad00b95f37d9db3a63e07",
+      "size": 1860
+    },
+    {
+      "path": "company-os/steve/references/source/04-via-negativa-simplification.txt",
+      "sha256": "b4389507d41c33bf3d93251b6fb3ffc3658f1a12062b670fb906bc59c8d5740d",
+      "size": 1627
+    },
+    {
+      "path": "company-os/steve/references/source/05-focus-signal-noise-quadrant.txt",
+      "sha256": "771b1316963bda919252795d34663ecf2f20fdf82992390b3424c6ec6fcf3f26",
+      "size": 1542
+    },
+    {
+      "path": "company-os/steve/references/source/06-synthesis-humanities-science.txt",
+      "sha256": "b09ae498377e45a5816982c5e5f9cc7368ec940ef6e947a1d83a9d2938d6cde9",
+      "size": 1480
+    },
+    {
+      "path": "company-os/steve/references/source/07-design-for-intuition-defaults-flow.txt",
+      "sha256": "7ead7ee49cb41b6bce72198237004c615ea996a0457034484a7d8cfaa6caa33b",
+      "size": 1511
+    },
+    {
+      "path": "company-os/steve/references/source/08-craft-details-coherence.txt",
+      "sha256": "552d35ceb490ac5441ed1618cec79f9e44bb899f463008d2a1c3546f6df39865",
+      "size": 1449
+    },
+    {
+      "path": "company-os/steve/references/source/09-product-ecosystem-strategy.txt",
+      "sha256": "e8535084176562315f1eaf2052ebe75205c8199a8d6edb0fa740cb77214367ee",
+      "size": 1784
+    },
+    {
+      "path": "company-os/steve/references/source/10-storytelling-frameworks-scqa-rule3.txt",
+      "sha256": "1e42b4741aaa64f0163a25adcd2b72dba4f7b48f6538e469ea15fac0b82cacfb",
+      "size": 1662
+    },
+    {
+      "path": "company-os/steve/references/source/11-a-players-dri-accountability.txt",
+      "sha256": "e631d33b94404ed864cfd587eac364e8ee8f81c6e8385f47cacd1a5e3c5c3bd9",
+      "size": 1552
+    },
+    {
+      "path": "company-os/steve/references/source/12-rdf-goals-weekly-operating-system.txt",
+      "sha256": "3fdc9e65a0a57188634462aec3dc944de6e5bdab93916fd2df7726af84d58fc3",
+      "size": 1811
+    },
+    {
+      "path": "company-os/steve/references/source/product-demo-framework.md",
+      "sha256": "92332056560a2a0e957dcf087f66d2d39a12154f8dc6b29017c151930cc7ae12",
+      "size": 4729
+    },
+    {
+      "path": "company-os/steve/scripts/validate_steve_doctrine.py",
+      "sha256": "32bdb79eb4040c3f3fd99465954974dc12f46944420c5e10ff976b79bf69a0dd",
+      "size": 6008
     },
     {
       "path": "company-os/synthesize-outcome-model/SKILL.md",
@@ -1117,8 +2982,8 @@
     },
     {
       "path": "company-os/ui-design-quality/SKILL.md",
-      "sha256": "389e69fb9236bd02f2dbd146a78ac6b0d32f111ecb4417b8b0cb8071baeb5b8e",
-      "size": 5381
+      "sha256": "a84966f224a005111cee327d735cda60939526adc751aff7b98cc430afd26426",
+      "size": 5917
     },
     {
       "path": "company-os/ui-design-quality/UPSTREAM.json",
@@ -1186,9 +3051,104 @@
       "size": 9801
     },
     {
+      "path": "company-os/value-creation-delivery/SKILL.md",
+      "sha256": "f5ef37f6305c220c4518028d11e9d71b9a16e998b385e4ab4d11cc3defe23893",
+      "size": 3736
+    },
+    {
+      "path": "company-os/value-creation-delivery/agents/claude.yaml",
+      "sha256": "5dd1c8f1792bf9804c0691c432bc7c04aecf066bb33de516d8bf6028a8898f28",
+      "size": 437
+    },
+    {
+      "path": "company-os/value-creation-delivery/agents/grok.yaml",
+      "sha256": "5dd1c8f1792bf9804c0691c432bc7c04aecf066bb33de516d8bf6028a8898f28",
+      "size": 437
+    },
+    {
+      "path": "company-os/value-creation-delivery/agents/openai.yaml",
+      "sha256": "5dd1c8f1792bf9804c0691c432bc7c04aecf066bb33de516d8bf6028a8898f28",
+      "size": 437
+    },
+    {
+      "path": "company-os/value-creation-delivery/assets/spawn-template.json",
+      "sha256": "b1124018a3d8b11efbac03c97c794d288472d88992cebbf00170494f65fa67d0",
+      "size": 514
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/00-index.txt",
+      "sha256": "24bb35a462d3dcaafc1f0b5fc1ceb2bef2847296cbd016c7c0d7e0f6de82fa36",
+      "size": 1736
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/01-business-model-core.txt",
+      "sha256": "448a31b842ca04f9feae9d177a0e2df473fa49a24abd626d558469e28129ead1",
+      "size": 1825
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/02-market-selection-market-laws.txt",
+      "sha256": "baad372fde72036bda51e7fda75b9181a8447533f04344f45d738d543f9a59fd",
+      "size": 1918
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/03-human-drives-social-status.txt",
+      "sha256": "7e422b74fff5ba25f4e4ba1f59a758180570b5c19aa166696946bac3b6e2f7b6",
+      "size": 1222
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/04-forms-of-value-offer-architecture.txt",
+      "sha256": "afece80a42abd4f7d437a475c1ed6912a8331a304a1c05294bc7f912358641ec",
+      "size": 1907
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/05-value-levers-importance-testing.txt",
+      "sha256": "52a8e55cb37dd77d8ce956a1e117d8931f8fede2c4d2422389c4053bf1409432",
+      "size": 1327
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/06-validation-assumptions-iteration.txt",
+      "sha256": "65952ba550c5341fbf4a7a7248aee3d803d554e702671243ffaa96d8599a8b55",
+      "size": 1648
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/07-value-delivery-streams-expectations.txt",
+      "sha256": "63ba6d3b96d26f7fff36cc946d3107a8a24f694d0352581bc0dd31fb1dc91cde",
+      "size": 1493
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/08-delivery-reliability-quality-metrics.txt",
+      "sha256": "ff6db0cced61cb8779100491563d223d5ee70bf9edd2e4e942ea48f1dbbf362e",
+      "size": 1243
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/09-scaling-systemization-moats.txt",
+      "sha256": "c6ae958765ab10c1b4aefeab1f08c75553c341156b936e691bfad8485418c249",
+      "size": 1517
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/10-integrated-playbooks-templates.txt",
+      "sha256": "ec202bcbc4bf957369986a8e5392680ecb875d2ae0d809b26c66000f23665274",
+      "size": 1361
+    },
+    {
+      "path": "company-os/value-creation-delivery/references/source/cold-start-problem.md",
+      "sha256": "fbbbd34ad0b65bb0624cd36a089bf938630220e1014b89d56d34aaa39317b2e2",
+      "size": 52461
+    },
+    {
+      "path": "company-os/value-creation-delivery/scripts/validate_value_creation_delivery.py",
+      "sha256": "b069f839376f68e8d5f7e65c9ca8fed7f7220b72019269eef4cd8423bd93e3fd",
+      "size": 6055
+    },
+    {
       "path": "autonomy-suite/SKILL.md",
       "sha256": "d70285887a2357c367b774c771cedbd7694b8ecd35fd753c55706934b67b2e16",
       "size": 6489
+    },
+    {
+      "path": "autonomy-suite/agents/claude.yaml",
+      "sha256": "208f8b4149556b550528a06d1bd71077f941245d4a6474ce68afa66fb66e99ad",
+      "size": 232
     },
     {
       "path": "autonomy-suite/agents/grok.yaml",
@@ -1206,6 +3166,11 @@
       "size": 2351
     },
     {
+      "path": "autonomy-suite/delegation/supervised-subagent-tree/agents/claude.yaml",
+      "sha256": "ef50a41b15ed0fc5453a920a8c9504eb506ccdb542f0ea0abb264c90a70a4335",
+      "size": 118
+    },
+    {
       "path": "autonomy-suite/delegation/supervised-subagent-tree/agents/grok.yaml",
       "sha256": "ef50a41b15ed0fc5453a920a8c9504eb506ccdb542f0ea0abb264c90a70a4335",
       "size": 118
@@ -1217,8 +3182,13 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/SKILL.md",
-      "sha256": "a1683dd73003287eadcd12eb3408f45c706d980587b3642101f75fbbdd0bddb7",
-      "size": 4119
+      "sha256": "af1ee0c61d976a0c62c264db575e6caee9e373bdc5fb1b72ebbfe54e46409a68",
+      "size": 4746
+    },
+    {
+      "path": "autonomy-suite/execute-bounded-task/agents/claude.yaml",
+      "sha256": "738af2fdcb12a2680c9184a06a8f502f66ccd3ce2fe8e6b4104991ea02cd76b4",
+      "size": 260
     },
     {
       "path": "autonomy-suite/execute-bounded-task/agents/grok.yaml",
@@ -1237,8 +3207,8 @@
     },
     {
       "path": "autonomy-suite/execute-bounded-task/references/worker-contract.md",
-      "sha256": "aa9b2abea4b863bdc592d1cf185b5f09308b786d5f54aa2127005c12257c50f1",
-      "size": 4839
+      "sha256": "56227b200dd7a2b3925b795f4526e36be5f61f90777eb1216897da5db63a1289",
+      "size": 4884
     },
     {
       "path": "autonomy-suite/loops/bounded-autonomy-loop/SKILL.md",
@@ -1249,6 +3219,11 @@
       "path": "autonomy-suite/orchestration/luna-execution-fabric/SKILL.md",
       "sha256": "3dfc6a1dbf7f97a5c5f02a1d18e801e467bc2121f616acf88b84f38442772f89",
       "size": 15074
+    },
+    {
+      "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/claude.yaml",
+      "sha256": "b0b7ddd7d7a2a6068d47eeb09c22d0f078096de212fc20d46c7d927a14908d72",
+      "size": 251
     },
     {
       "path": "autonomy-suite/orchestration/luna-execution-fabric/agents/grok.yaml",
@@ -1291,6 +3266,11 @@
       "size": 1647
     },
     {
+      "path": "autonomy-suite/quality/verified-work-loop/agents/claude.yaml",
+      "sha256": "c5d10345071c4b078fda1c05a1c8ad4c3cd90f5ff09b8c8838a7b42d9ac4263e",
+      "size": 106
+    },
+    {
       "path": "autonomy-suite/quality/verified-work-loop/agents/grok.yaml",
       "sha256": "c5d10345071c4b078fda1c05a1c8ad4c3cd90f5ff09b8c8838a7b42d9ac4263e",
       "size": 106
@@ -1321,6 +3301,11 @@
       "size": 2574
     },
     {
+      "path": "autonomy-suite/routing/tiered-agent-routing/agents/claude.yaml",
+      "sha256": "8fa4693a40553413094450046186ed1d60dd660bb3d570d33d6c718d0218e97c",
+      "size": 110
+    },
+    {
       "path": "autonomy-suite/routing/tiered-agent-routing/agents/grok.yaml",
       "sha256": "8fa4693a40553413094450046186ed1d60dd660bb3d570d33d6c718d0218e97c",
       "size": 110
@@ -1332,8 +3317,13 @@
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/SKILL.md",
-      "sha256": "c21054af43a0f625ca447312dce1f0035bfa86b1ab37e223e4e783b07a202b27",
-      "size": 1068
+      "sha256": "a80dc05bb7e7ecd735e972f2701cce5e41a5739b4b0766716334ab975c012c4a",
+      "size": 1714
+    },
+    {
+      "path": "autonomy-suite/strategy/portfolio-direction/agents/claude.yaml",
+      "sha256": "16fcefb199e210cb960b6ba6e2619d2f8a00c6f7111d8f64c3de0e4052fca7da",
+      "size": 108
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/agents/grok.yaml",
@@ -1347,8 +3337,13 @@
     },
     {
       "path": "autonomy-suite/strategy/project-kickoff-roadmap/SKILL.md",
-      "sha256": "76f1cca9fee3a255e96aec85eeb7bdf1e995724b6e29126645a6f51ff81f97c5",
-      "size": 888
+      "sha256": "c4081a6af4e0f2189f6a72b9a2f973d909346be5fbc721f9cbbb00a38331fcca",
+      "size": 1072
+    },
+    {
+      "path": "autonomy-suite/strategy/project-kickoff-roadmap/agents/claude.yaml",
+      "sha256": "a1bebc077d3b1f94bc71b470bfd7b42b0c0ef1c67097db7e03f8901629befaa9",
+      "size": 116
     },
     {
       "path": "autonomy-suite/strategy/project-kickoff-roadmap/agents/grok.yaml",
@@ -1362,8 +3357,13 @@
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/SKILL.md",
-      "sha256": "2f260ce77ef4fcbf770340d9a9a7626d120ccc6d85e55017479c07c647f42d40",
-      "size": 1554
+      "sha256": "1f01b9e6ec45cc98bcc9e9bcceba0fa172d30d2c1d0fb6dc990a442ff9af9cf0",
+      "size": 1969
+    },
+    {
+      "path": "autonomy-suite/strategy/strategy-pillar/agents/claude.yaml",
+      "sha256": "aaedea686fe7eb5aabb8552c5944bc15bb46762234ad8e5e68c933934f986904",
+      "size": 100
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/agents/grok.yaml",
@@ -1394,6 +3394,11 @@
       "path": "autonomy-suite/work-graphs/durable-task-dag/SKILL.md",
       "sha256": "64a9f8a460f018229fc4ef8f8be89cdde70a98e24dd774a53761d3e6b647cd1c",
       "size": 2046
+    },
+    {
+      "path": "autonomy-suite/work-graphs/durable-task-dag/agents/claude.yaml",
+      "sha256": "1e0f550de47498c91d82129fd430c84c47ebd33915b6b7d4540502954e783971",
+      "size": 102
     },
     {
       "path": "autonomy-suite/work-graphs/durable-task-dag/agents/grok.yaml",

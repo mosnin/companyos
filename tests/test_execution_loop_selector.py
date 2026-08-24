@@ -69,6 +69,22 @@ class ExecutionLoopSelectorTests(unittest.TestCase):
         self.assertEqual(plan["activation_state"], "planned")
         self.assertIn("stagnated", plan["terminal_states"])
 
+    def test_recurring_parallel_software_keeps_scheduler_controls(self):
+        plan = self.select(request(
+            task_family="software_delivery",
+            shape={"parallel_lanes": 16, "code_mutation": True, "recurrence": "recurring"},
+            limits={"max_concurrency": 4, "max_depth": 2},
+            requirements={"worktree_isolation": True},
+        ))
+        self.assertEqual(plan["primary"]["id"], "recurring-operations-loop")
+        for control in (
+            "scheduler admission",
+            "frequency guard",
+            "lease and heartbeat",
+            "missed-run reconciliation",
+        ):
+            self.assertIn(control, plan["required_controls"])
+
     def test_parallel_code_uses_recursive_worktrees(self):
         plan = self.select(request(
             task_family="software_delivery",

@@ -1,0 +1,81 @@
+MARKETING ARCHITECT DOCTRINE — SECTION 10: Marketing Plans, Budgets, KPIs, Attribution, and Iteration
+
+Purpose
+Design and execute marketing systems that create demand, capture value, and compound brand equity.
+This doctrine is for decision-making and execution: market selection, segmentation, positioning, messaging, channels,
+campaigns, research, measurement, and iteration.
+
+Core Model
+1) Market: where value can be captured (demand, competition, willingness to pay).
+2) Offer: value proposition + proof + pricing and packaging.
+3) Message: positioning translated into clear, testable claims.
+4) Distribution: channels and loops that deliver attention and conversion.
+5) Measurement: feedback that prevents self-deception.
+
+Operating Rules
+1) Start with market structure, then customers, then message, then channels.
+2) Targeting and positioning are choices; clarity beats breadth.
+3) Behavior beats opinions. Experiments beat debates.
+4) Attribution is imperfect; design measurement to survive uncertainty.
+5) Brand is a long-term asset; performance is short-term optimization. Balance both.
+
+============================================================
+Scope
+Turn marketing into an operating system: planning, budgeting, measurement, and iteration.
+
+1) Marketing Plan (One Page Core)
+1) mission statement
+2) target segment and persona summary
+3) positioning and value proposition
+4) competitive frame (primary alternative)
+5) channels and tactics
+6) budget and staffing
+7) timeline and milestones
+8) KPIs and guardrails
+9) learning agenda: top uncertainties
+10) review cadence
+
+2) Campaign Launch Checklist
+1) goals
+2) target audience
+3) budget and pacing
+4) core message/value prop
+5) channels and placements
+6) assets and creative brief
+7) CTA and landing experience
+8) timeline and responsibilities
+9) KPIs and stop rules
+10) reporting cadence
+
+3) KPI Tree
+Build from business outcomes down to channel metrics:
+Revenue and margin
+→ pipeline or orders
+→ conversion rates
+→ traffic and reach
+Also track economics:
+CAC, LTV, payback, retention.
+
+4) Attribution and Incrementality
+Attribution is imperfect. Use triangulation:
+1) platform attribution for optimization
+2) incrementality tests (holdouts) for truth
+3) cohort analysis for trends
+4) blended CAC and payback for financial reality
+
+5) Postmortems and Iteration
+Template
+1) what we expected
+2) what happened
+3) why it happened (evidence)
+4) what changes now
+5) what we test next
+
+Deliverables
+1) one-page marketing plan
+2) KPI tree and dashboard spec
+3) attribution approach and incrementality plan
+4) campaign launch checklist
+5) postmortem template and learning backlog
+
+End of file.

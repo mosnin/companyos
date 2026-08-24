@@ -1,0 +1,71 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 04: Process Structures and Layouts: Job, Batch, Line, Continuous Flow
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Process structure determines cost, flexibility, throughput, and lead time.
+
+1) Job Shop
+High variety, low volume; functional departments; variable routing.
+Pros: flexibility, customization.
+Cons: complex scheduling, high WIP, long lead times under load.
+Levers: standardize routings, reduce setups, strong dispatch rules, WIP limits.
+
+2) Batch Shop
+Work processed in lots; setup costs encourage batching.
+Pros: setup efficiency, scale economies.
+Cons: waiting between batches, obsolescence risk.
+Levers: reduce setup time, shrink batch sizes, prioritize by due dates and constraint minutes.
+
+3) Flow Line and Worker-Paced Assembly
+Sequential steps; people pace the line.
+Pros: predictable flow, simpler planning.
+Cons: balancing sensitivity; stoppages propagate.
+Levers: line balancing, small buffers at joins, cross-training.
+
+4) Machine-Paced Assembly Line
+Mechanized pace and takt time.
+Pros: high throughput, consistency.
+Cons: low flexibility, high disruption cost.
+Levers: maintenance, upstream quality, redundancy at critical equipment.
+
+5) Continuous Flow
+Very high volume, continuous processing.
+Pros: very low unit cost at scale.
+Cons: high switching cost; downtime is expensive.
+Levers: reliability engineering, process control.
+
+6) Selection Logic
+Choose based on
+1) volume and variety
+2) demand and processing variability
+3) customization requirements
+4) capital and skill availability
+5) lead time targets
+6) quality risk
+
+Deliverables
+1) current structure diagnosis
+2) target structure and rationale
+3) transition plan: batching, setups, layout, scheduling
+4) line balance and takt analysis when moving toward flow
+
+End of file.

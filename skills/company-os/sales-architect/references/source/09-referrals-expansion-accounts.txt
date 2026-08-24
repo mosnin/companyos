@@ -1,0 +1,63 @@
+SALES ARCHITECT DOCTRINE — SECTION 09: Referrals, Account Growth, and Relationship Capital
+
+Purpose
+Design and run a sales system that reliably converts attention into revenue. This doctrine covers:
+prospecting, outreach, appointment setting, qualification, discovery, pitching, objection handling,
+closing, referrals, and scaling through process + tools + management.
+
+Core Sales System (End-to-End)
+1) Targeting: define ICP + buying triggers + reachable channels.
+2) Prospecting: build and prioritize lead lists with evidence-based intent signals.
+3) Outreach: run a multi-channel cadence to earn a conversation.
+4) Qualification: confirm fit, urgency, authority, and economic impact.
+5) Discovery: quantify pain and map decision process.
+6) Proposal/Demo: present a tailored solution with proof and clear next steps.
+7) Negotiation/Close: reduce risk, remove friction, finalize terms, get signature.
+8) Post-Sale: drive success, expansion, referrals, and durable relationships.
+
+Operating Rules
+1) Activity is a leading indicator; conversion is the constraint.
+2) Sales is structured learning: every step produces data that improves the next step.
+3) Control is earned via clarity: agenda, next steps, and mutual commitments.
+4) Qualification is disqualification. Saying “no” early increases win rate.
+5) Pipeline is a model. Forecasting improves when stage definitions are strict.
+
+============================================================
+Scope
+Turn wins into compounding growth: referrals, expansion, renewals, and network effects.
+
+1) Referral System (Not Random Asking)
+Referral moments:
+• after a clear win milestone
+• after praise or positive feedback
+• after renewal or expansion
+Referral ask structure
+1) anchor on results achieved
+2) define ICP of the referral
+3) ask for one introduction by name, or permission to name-drop
+
+2) Account Growth (Land and Expand)
+Expansion levers
+• new seats/users
+• new department
+• higher tier or add-on
+• adjacent product
+Expansion requires:
+• success metrics tracked
+• executive alignment
+• champions cultivated in each group
+
+3) Relationship Capital
+Treat relationships as assets:
+• periodic value touches (insights, intros, benchmarks)
+• executive briefings
+• customer councils/community
+• case study development
+
+Deliverables
+1) referral playbook and scripts
+2) expansion plan template (value delivered → next value)
+3) relationship touch cadence
+4) customer proof asset checklist (testimonial, case study)
+
+End of file.

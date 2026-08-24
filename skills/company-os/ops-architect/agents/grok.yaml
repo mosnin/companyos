@@ -1,0 +1,6 @@
+interface:
+  display_name: "Ops Architect"
+  short_description: "Force flow, constraint, and queue-system design"
+  default_prompt: "Use $ops-architect with $manage-company-program and one compact mission charter for process flow, capacity, queueing, inventory, or supply chain work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

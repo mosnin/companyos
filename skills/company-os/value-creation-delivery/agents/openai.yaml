@@ -1,0 +1,6 @@
+interface:
+  display_name: "Value Creation Delivery"
+  short_description: "Force offer design and reliable value delivery"
+  default_prompt: "Use $value-creation-delivery with $manage-company-program and one compact mission charter for value creation, offer architecture, value validation, value delivery, or scaling a delivery system. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

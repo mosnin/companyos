@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.marketing-os-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "marketing-os"
+  ],
+  "source_pack": "references/source",
+  "template_id": "marketing-os",
+  "use_when": [
+    "audience_research",
+    "campaign_brief",
+    "marketing_copy",
+    "marketing_pipeline",
+    "marketing_scale"
+  ]
+}

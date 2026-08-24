@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.sales-architect-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "sales-architect"
+  ],
+  "source_pack": "references/source",
+  "template_id": "sales-architect",
+  "use_when": [
+    "closing",
+    "discovery",
+    "pipeline",
+    "prospecting",
+    "qualification"
+  ]
+}

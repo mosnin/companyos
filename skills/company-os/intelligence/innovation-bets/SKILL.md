@@ -19,3 +19,11 @@ Use innovation to create what customers cannot yet articulate. Treat evidence as
 - Required approvals for external/customer/production exposure.
 
 Favor bets with a clear, differentiated product thesis and a plausible path to an experience people will love, even when direct demand data is absent. Run the fastest test that can change the decision without reducing the vision to a shallow feature poll. Preserve negative results. Promote only a validated or strategically reaffirmed bet into the portfolio; otherwise stop or archive with learning.
+
+Record the live bet as a `company-os.scientific-method-packet.v1` with
+`experiment_class: innovation_bet`. The packet does not replace this contract or
+authorize scale. Validate it from the Company OS skill root:
+
+```bash
+python3 scripts/validate_scientific_method_packet.py path/to/packet.json
+```

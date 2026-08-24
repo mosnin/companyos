@@ -1,0 +1,30 @@
+file_name: decision_tree_journal_invoker.txt
+framework: Decision Tree and Decision Journal
+
+purpose: >
+  Improve decision quality by separating decision logic from outcomes
+  and reducing hindsight bias.
+
+decision_tree:
+  components:
+    - decision_options
+    - probabilities
+    - expected_values
+    - downside_risk
+
+decision_journal:
+  required_fields:
+    - date
+    - decision_context
+    - assumptions
+    - expected_outcomes
+    - confidence_level
+
+review_process:
+  timing:
+    - 30_days
+    - 90_days
+    - 1_year
+  evaluation:
+    - outcome_vs_expectation
+    - assumption_accuracy

@@ -1,0 +1,22 @@
+OPERATIONS ARCHITECT — 10 SECTION FILE INDEX
+
+1) ops_architect_section_01_operations_fundamentals_flow_metrics.txt
+2) ops_architect_section_02_capacity_bottlenecks_constraints.txt
+3) ops_architect_section_03_queueing_systems_littles_law.txt
+4) ops_architect_section_04_process_structures_layouts.txt
+5) ops_architect_section_05_visual_tools_networks_scheduling.txt
+6) ops_architect_section_06_inventory_economics_costs_benefits.txt
+7) ops_architect_section_07_inventory_management_methods.txt
+8) ops_architect_section_08_forecasting_demand_planning.txt
+9) ops_architect_section_09_supply_chain_management.txt
+10) ops_architect_section_10_project_and_agile_delivery.txt
+
+Recommended Use
+1) Model the system: Section 01, then Section 02 and 03.
+2) Choose structure: Section 04.
+3) Instrument and plan: Section 05.
+4) Control buffers: Section 06 and 07.
+5) Plan demand and supply: Section 08 and 09.
+6) Execute change: Section 10.
+
+End of index.

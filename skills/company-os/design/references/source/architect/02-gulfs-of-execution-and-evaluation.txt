@@ -1,0 +1,48 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 02: The Two Gulfs That Define Usability
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+2) The two “gulfs” that define usability
+
+2.1 Gulf of execution
+Gap between:
+1) What the user wants to do
+2) What actions the user can perceive are possible
+Design objective: make possible actions visible and understandable.
+
+2.2 Gulf of evaluation
+Gap between:
+1) What the system did
+2) What the user can perceive and interpret the result to mean
+Design objective: make system state visible, legible, and interpretable.
+
+Implementation guidance
+A) Execution gulf reducers
+• show primary action first
+• provide signifiers at the moment of choice
+• reduce decision load via defaults and progressive disclosure
+• prevent dead ends with constraints and guided flows
+
+B) Evaluation gulf reducers
+• show state changes immediately
+• show “what changed” plus “what to do next”
+• make feedback proportional to action cost
+• expose system status in a stable location (status bar, progress, history)
+
+C) Diagnostic questions
+• if a user fails, is it because they could not find what to do?
+• or because they could not tell what happened after they acted?
+
+Deliverables
+1) gulf diagnosis worksheet per flow step
+2) execution cues plan (signifiers, hierarchy, defaults)
+3) evaluation cues plan (status, feedback, recovery)
+
+End of file.

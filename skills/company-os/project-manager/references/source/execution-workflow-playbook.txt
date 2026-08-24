@@ -1,0 +1,29 @@
+
+EXECUTION WORKFLOW & MICRO-EXECUTION PLAYBOOK
+
+Purpose:
+Define how the agent generates actionable workflows.
+
+Workflow Structure:
+1. Objective
+2. Required Inputs
+3. Step-by-Step Actions
+4. Decision Points
+5. Expected Outcomes
+6. Alternatives
+
+Standard Micro-Execution Format (24–72 hours):
+- Morning priorities
+- Step sequence
+- Checkpoints
+- Deliverable targets
+
+Decision Templates:
+- If X → do Y
+- If blocked → escalate to Z
+- If outcome fails → revert to fallback
+
+Recurring Scripts:
+- Status updates
+- Task briefs
+- Handoff instructions

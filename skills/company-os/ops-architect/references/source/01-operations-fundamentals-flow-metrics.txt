@@ -1,0 +1,79 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 01: Operations Fundamentals, Process Flow, and Flow Metrics
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Operations management is the design and control of systems that transform inputs into outputs.
+This section formalizes process flows and the metrics that govern performance.
+
+1) Process Flow Diagram (PFD)
+Core elements
+1) Flow units: orders, patients, tickets, parts, leads, packages
+2) Activities: work steps, approvals, inspections, transformations
+3) Buffers: waiting areas between activities (queues, inventories, backlogs)
+4) Routing: paths units can take (deterministic or probabilistic)
+5) Rework loops: quality failures returning work upstream
+
+Build a PFD
+1) Define the flow unit precisely
+2) List activities in actual execution order, including handoffs
+3) Insert buffers explicitly at every wait or batching point
+4) Mark routing probabilities and rework rates
+5) Annotate each activity with processing time distribution and capacity
+
+2) The Big 3 Flow Metrics
+1) Inventory (I): number of flow units within the system (WIP or backlog)
+2) Flow time (T): average time a unit spends end-to-end
+3) Flow rate (R): average output rate (throughput)
+
+Little’s Law
+I = R × T
+Use as consistency check and design lever.
+
+3) Capacity and Utilization
+1) Capacity: maximum sustainable output per time, given resources and policies
+2) Utilization (u): load divided by capacity
+
+Key insight
+As u approaches 1, waiting time typically increases nonlinearly under variability.
+
+4) Demand Constrained vs Supply Constrained
+1) Demand constrained: demand below capacity; optimize responsiveness and cost
+2) Supply constrained: demand above capacity; optimize constraint and prioritization
+
+Diagnosis checklist
+1) Persistent backlog and long waits suggests supply constrained
+2) Frequent idleness suggests demand constrained
+3) Volatile lead times suggests variability and queue design problems
+
+5) Data to collect first
+1) Arrival rate by time bucket
+2) Processing time distributions per activity (not only averages)
+3) Rework rate and defect sources
+4) Setup times and batch constraints
+5) WIP levels and queue lengths per buffer
+
+Deliverables
+1) Process flow diagram with activities and buffers
+2) Baseline table for I, T, R, capacity, utilization at each step
+3) Constraint hypothesis and measurement plan
+
+End of file.

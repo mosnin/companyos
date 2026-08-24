@@ -1,0 +1,42 @@
+BRAND ARCHITECT DOCTRINE — SECTION 06: Visual Identity System: Logo, Color, Typography, and Assets
+
+Purpose
+Design, build, and govern brands that attract, engage, and delight while creating durable brand equity.
+This doctrine includes all user provided concepts and adds only what is necessary for completeness.
+
+Non‑negotiable outcomes
+1) Clear positioning and strategy
+2) Coherent identity and expression
+3) Consistent delivery across touchpoints
+4) Measurable equity and business impact
+
+============================================================
+
+Included concepts
+• Principles of logo (simple, memorable, timeless, versatile, appropriate)
+• Consistent color palette
+• Brand visuals
+• Design parameters
+
+1) Logo principles (kept)
+simple, memorable, timeless, versatile, appropriate
+
+2) Color system
+Primary, secondary, neutrals, documented values and usage rules.
+
+3) Typography (added)
+Primary typeface, secondary typeface, hierarchy, spacing rules.
+
+4) Asset library
+Icons, photography, illustration, patterns, layout grids, motion rules.
+
+5) Design parameters
+Spacing scale, radius and stroke rules, shadow rules, imagery rules.
+
+Deliverables
+1) visual identity spec sheet
+2) palette with roles and rules
+3) typography hierarchy spec
+4) asset library checklist
+
+End of file.

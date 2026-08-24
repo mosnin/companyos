@@ -1,0 +1,72 @@
+MARKETING ARCHITECT DOCTRINE — SECTION 05: Marketing Mix and Go-to-Market Design: 4Ps, 7Ps, Channel Strategy
+
+Purpose
+Design and execute marketing systems that create demand, capture value, and compound brand equity.
+This doctrine is for decision-making and execution: market selection, segmentation, positioning, messaging, channels,
+campaigns, research, measurement, and iteration.
+
+Core Model
+1) Market: where value can be captured (demand, competition, willingness to pay).
+2) Offer: value proposition + proof + pricing and packaging.
+3) Message: positioning translated into clear, testable claims.
+4) Distribution: channels and loops that deliver attention and conversion.
+5) Measurement: feedback that prevents self-deception.
+
+Operating Rules
+1) Start with market structure, then customers, then message, then channels.
+2) Targeting and positioning are choices; clarity beats breadth.
+3) Behavior beats opinions. Experiments beat debates.
+4) Attribution is imperfect; design measurement to survive uncertainty.
+5) Brand is a long-term asset; performance is short-term optimization. Balance both.
+
+============================================================
+Scope
+Translate strategy into a coherent system: product, pricing, placement, promotion plus service elements.
+
+1) 4Ps and 7Ps
+4Ps
+1) Product: features, packaging, quality, variants
+2) Price: list price, discounts, bundling, financing, terms
+3) Place: distribution channels, logistics, availability
+4) Promotion: messaging, media, sales enablement
+
+7Ps (services and experience)
+5) People: sales, support, community, training
+6) Process: delivery, onboarding, fulfillment, service recovery
+7) Physical evidence: brand cues, proof assets, environment, UI
+
+2) Channel Strategy (Where demand is captured)
+Channel types
+1) Owned: email list, content, community, SEO
+2) Paid: search, social, display, affiliates
+3) Earned: PR, reviews, word-of-mouth, partnerships
+4) Sales-led: outbound, partnerships, channel sales
+
+Selection criteria
+1) target presence and intent
+2) unit economics (CAC, payback)
+3) creative requirements and speed
+4) measurement feasibility
+5) scalability and saturation risk
+
+3) Offer Design and Packaging
+Offer = value proposition + terms + risk reversal + bonuses + constraints.
+Packaging levers
+• tiers and bundles
+• usage limits
+• add-ons and upgrades
+• trials, guarantees, financing
+
+4) Growth Hacking as Controlled Experimentation
+Rapid hypothesis testing across AARRR:
+acquisition, activation, retention, referral, revenue.
+Rule
+Every “hack” has a metric, guardrails, and a stop rule.
+
+Deliverables
+1) 7Ps mapping
+2) channel strategy table
+3) offer and packaging map
+4) experiment backlog for channels and offers
+
+End of file.

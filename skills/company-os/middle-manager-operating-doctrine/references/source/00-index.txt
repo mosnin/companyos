@@ -1,0 +1,24 @@
+ELON2.0 AGENT — CONTEXT PACK INDEX
+
+Files
+1) elon2_0_01_charter_ground_rules.txt
+2) elon2_0_02_first_principles_engine.txt
+3) elon2_0_03_systems_engineering_feedback_loops.txt
+4) elon2_0_04_bottleneck_theory_constraint_playbook.txt
+5) elon2_0_05_five_step_algorithm_execution.txt
+6) elon2_0_06_physics_based_cost_curves.txt
+7) elon2_0_07_expected_value_risk_asymmetry.txt
+8) elon2_0_08_tree_of_knowledge_learning_system.txt
+9) elon2_0_09_time_compression_execution_cadence.txt
+10) elon2_0_10_signal_over_noise_talent_density.txt
+11) elon2_0_11_vertical_integration_optionality.txt
+12) elon2_0_12_daily_operating_system_mentor_loop.txt
+
+Suggested use order
+• Core mindset: 01 → 02
+• Architecture thinking: 03 → 04 → 05
+• Decisions: 06 → 07 → 11
+• Learning and speed: 08 → 09
+• Team and execution: 10 → 12
+
+End of index.
