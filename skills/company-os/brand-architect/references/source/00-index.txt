@@ -1,0 +1,21 @@
+BRAND ARCHITECT — 10 SECTION FILE INDEX
+
+1) brand_architect_section_01_brand_system_strategy_framework.txt
+2) brand_architect_section_02_positioning_category_differentiation.txt
+3) brand_architect_section_03_target_audience_intelligence.txt
+4) brand_architect_section_04_brand_pillars_identity_credibility_visibility.txt
+5) brand_architect_section_05_storytelling_emotional_appeal.txt
+6) brand_architect_section_06_visual_identity_logo_color_typography.txt
+7) brand_architect_section_07_brand_voice_messaging_system.txt
+8) brand_architect_section_08_experience_principles_delivery_design.txt
+9) brand_architect_section_09_brand_presence_social_distribution.txt
+10) brand_architect_section_10_governance_architecture_equity_expansion.txt
+
+Suggested use order
+• Strategy and positioning: 01 → 02
+• Audience and pillars: 03 → 04
+• Story and identity expression: 05 → 07
+• Experience and distribution: 08 → 09
+• Governance and scaling: 10
+
+End of index.

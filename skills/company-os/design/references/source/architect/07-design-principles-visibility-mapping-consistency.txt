@@ -1,0 +1,58 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 07: Principles That Fall Out of the Above
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+7) Design principles that fall out of the above
+
+7.1 Visibility of system status
+1) Users should always be able to answer:
+1) Where am I
+2) What state is the system in
+3) What can I do next
+4) What just happened
+
+7.2 Good signifiers over “more instructions”
+1) If you need a label that explains a control’s existence, the signifier failed.
+2) Instructions are last resort and should be contextual.
+
+7.3 Natural mapping as default
+1) Arrange controls to mirror outcomes.
+2) Use spatial layouts and direct manipulation where possible.
+
+7.4 Consistency and standards
+1) Internal consistency: same action behaves the same everywhere.
+2) External consistency: follow platform and cultural conventions.
+
+7.5 Constraints as guidance
+1) Use constraints to narrow choices and indicate correct paths.
+2) Good constraints feel like clarity, not restriction.
+
+7.6 Feedback tuned to action cost
+1) High cost actions require strong feedback and reversibility.
+2) Low cost actions require lightweight feedback.
+
+Implementation guidance
+A) Status visibility pattern set
+• breadcrumbs or location indicator
+• persistent state indicator (draft, saved, synced)
+• activity log or recent events
+• progress indicator for multi-step flows
+
+B) Consistency rules
+• one verb, one meaning (create vs add vs new)
+• one color meaning (error, warning, success)
+• one interaction model per component
+
+Deliverables
+1) system status spec for your product
+2) component consistency checklist
+3) feedback strength rubric by action cost
+
+End of file.

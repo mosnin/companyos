@@ -7,6 +7,11 @@ description: Translate a product strategy into a coherent, differentiated brand 
 
 Create a single, living expression system rather than disconnected copy or visual polish.
 
+When a Sol manager owns this lane, load `$brand-architect` as the
+brand-architecture overlay and `$steve` as the product-taste overlay. This
+skill remains the brand operating contract. Do not send either overlay to Luna
+workers.
+
 ## Operating contract
 
 Capture the audience, category tension, point of view, promise, proof, personality, visual/motion principles, language rules, and prohibited patterns. Distinguish evidence from creative conviction. Do not invent customer claims, logos, legal claims, or brand assets.

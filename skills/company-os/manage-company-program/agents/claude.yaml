@@ -1,0 +1,6 @@
+interface:
+  display_name: "Manage Company Program"
+  short_description: "Manage governed Company OS delivery"
+  default_prompt: "Use $manage-company-program with a compact mission charter to supervise one bounded Company OS outcome."
+policy:
+  allow_implicit_invocation: false

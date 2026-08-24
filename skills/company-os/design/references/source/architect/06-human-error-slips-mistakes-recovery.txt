@@ -1,0 +1,74 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 06: Human Error: Slips, Mistakes, and Designing for Recovery
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+6) Human error: treat it as a design problem, not a user problem
+
+6.1 Two families of error
+1) Slips
+1) The goal is correct, the execution is wrong.
+2) Causes: attention lapse, similarity, interruption, time pressure.
+2) Mistakes
+1) The goal or plan is wrong.
+2) Causes: wrong mental model, ambiguity, poor information, misleading signifiers.
+
+6.2 Common slip patterns
+1) Capture slips (habit overrides intention)
+2) Description similarity (two actions look the same)
+3) Memory lapses (forgetting steps)
+4) Mode errors (system state differs from what user assumes)
+
+6.3 Designing for error
+1) Prevent errors where possible:
+1) Constraints
+2) Clear signifiers
+3) Good mappings
+4) Forcing functions
+2) Make errors recoverable:
+1) Undo
+2) Confirmation that is informative, not annoying
+3) Reversible actions
+4) Clear recovery paths
+3) Make the cost of error low:
+1) Draft states
+2) Autosave and versioning
+3) Staging before committing
+
+6.4 Forcing functions
+A design feature that prevents proceeding until a safe or correct condition is met.
+Common forms:
+1) Interlocks (cannot do A until B)
+2) Lock ins (must complete a sequence before leaving)
+3) Lockouts (cannot enter a dangerous state)
+4) Preconditions (requirements before action)
+
+Implementation guidance
+A) Error taxonomy by flow step
+• list top 5 errors per step
+• classify as slip vs mistake
+• choose prevention vs recovery strategy
+
+B) Recovery design standards
+• undo for destructive actions
+• autosave for work states
+• versioning for content edits
+• visible audit trail for consequential actions
+
+C) Confirmation design
+• confirm only high-cost actions
+• include consequence and reversible path
+• avoid generic “Are you sure?”
+
+Deliverables
+1) slip vs mistake matrix
+2) forcing function catalog
+3) recovery standards checklist (undo, autosave, versioning, staging)
+
+End of file.

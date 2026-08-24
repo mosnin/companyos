@@ -1,0 +1,41 @@
+{
+  "$schema": "company-os.marketing-campaign-brief.v1",
+  "audience_profile_digest": "5cdcb6f377819acbaaef67e610d7619205e37b2c2b8289bc72b841d0ab25df54",
+  "brand_locator": "blueprint://brand",
+  "brief_id": "acme-first-report",
+  "client_locator": null,
+  "constraints": {
+    "never_claim": [
+      "Fabricated customer revenue",
+      "Unapproved pricing"
+    ],
+    "required_approvals": [
+      "customer-communication",
+      "public-publishing"
+    ]
+  },
+  "deliverables": [
+    {
+      "cta": "Request a design-partner review",
+      "format": "linkedin-post",
+      "quantity": 1
+    }
+  ],
+  "differentiator": "One accountable operations workspace instead of three report rebuilds",
+  "goal": "Five Sales-accepted design-partner conversations from operations directors",
+  "kill_rule": "Stop if zero Sales-accepted conversations after two reviewed copy packets",
+  "measurement": {
+    "primary_kpi": "Sales-accepted qualified conversations",
+    "target": "5"
+  },
+  "promise": "First connected operations report without rebuilding it by hand",
+  "proof": [
+    {
+      "claim": "This brief is a fixture bound to the example audience digest",
+      "source": "Company OS marketing-os example corpus"
+    }
+  ],
+  "qualified_lead": "Operations director who names a current report they rebuild weekly and will take a Sales conversation",
+  "status": "ready-for-review",
+  "voice_locator": "blueprint://brand/voice"
+}

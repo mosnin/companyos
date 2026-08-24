@@ -1,0 +1,40 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 01: Business Model Core and Definitions
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• A business is a repeatable process that (1. Creates and delivers something of value, 2. That other people want or need, 3. At a price they’re willing to pay, 4. In a way that satisfies the customers needs and expectations, 5. So the business brings in enough profit to make it worthwhile)
+• At the core every business is composed of 5 independent parts (value creation, marketing, sales, value delivery, finance)
+
+Operational definitions (added)
+• Value: measurable improvement in a customer’s state relative to cost, risk, and effort.
+• Offer: packaged promise of value including scope, price, terms, and proof.
+• Delivery: production system that turns inputs into outcomes.
+
+The 5-part model (handoff clarity)
+1) Value creation: decide what to build and why anyone cares.
+2) Marketing: create attention and demand.
+3) Sales: convert demand into commitments with terms.
+4) Value delivery: reliably produce outcomes.
+5) Finance: unit economics and cash flow.
+
+Core artifacts
+• One-page business system map
+• Handoff contracts between creation ↔ marketing ↔ sales ↔ delivery ↔ finance
+
+Template: One-page business system map
+1) Customer and job
+2) Offer and price
+3) Proof and credibility
+4) Delivery workflow summary
+5) Unit economics summary (CAC, gross margin, cost to serve)
+
+End of file.

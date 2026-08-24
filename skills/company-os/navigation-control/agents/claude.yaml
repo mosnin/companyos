@@ -1,0 +1,6 @@
+interface:
+  display_name: Navigation Control
+  short_description: Drive objectives through observe-act-verify-replan while keeping sensors subordinate to motion.
+  default_prompt: Use $navigation-control through the Company OS mission controller to select the next safe state-changing action, measure destination distance and objective velocity, and replan from observed reality.
+policy:
+  allow_implicit_invocation: true

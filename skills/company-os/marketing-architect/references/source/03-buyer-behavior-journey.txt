@@ -1,0 +1,87 @@
+MARKETING ARCHITECT DOCTRINE — SECTION 03: Buyer Behavior and the Decision Journey: AIDA, Funnels, Post-Purchase
+
+Purpose
+Design and execute marketing systems that create demand, capture value, and compound brand equity.
+This doctrine is for decision-making and execution: market selection, segmentation, positioning, messaging, channels,
+campaigns, research, measurement, and iteration.
+
+Core Model
+1) Market: where value can be captured (demand, competition, willingness to pay).
+2) Offer: value proposition + proof + pricing and packaging.
+3) Message: positioning translated into clear, testable claims.
+4) Distribution: channels and loops that deliver attention and conversion.
+5) Measurement: feedback that prevents self-deception.
+
+Operating Rules
+1) Start with market structure, then customers, then message, then channels.
+2) Targeting and positioning are choices; clarity beats breadth.
+3) Behavior beats opinions. Experiments beat debates.
+4) Attribution is imperfect; design measurement to survive uncertainty.
+5) Brand is a long-term asset; performance is short-term optimization. Balance both.
+
+============================================================
+Scope
+Marketing must match how people decide. This section covers the buyer decision process and behavior types.
+
+1) Buyer Decision Process
+Stages
+1) Problem/need recognition
+2) Information search
+3) Evaluation of alternatives
+4) Purchase decision
+5) Post-purchase behavior (use, satisfaction, churn, advocacy)
+
+For each stage define:
+• questions in the buyer’s mind
+• proof required
+• dominant risks
+• best channels and assets
+
+2) Buyer Behavior Types (Consumer Decision Modes)
+1) Habitual buying behavior
+   • low involvement; rely on availability and familiarity
+2) Variety seeking
+   • low involvement but switching for novelty; focus on differentiation, packaging, refresh cycles
+3) Complex buying behavior
+   • high involvement; long evaluation; needs deep proof, comparisons, demos
+4) Dissonance-reducing
+   • high involvement but hard to differentiate; needs reassurance, guarantees, post-purchase support
+
+3) AIDA (Attention → Interest → Desire → Action)
+Use as a copy and funnel diagnostic, not as a rigid model.
+Mapping
+• Attention: hooks, targeting, relevance
+• Interest: clarity, credibility, problem framing
+• Desire: differentiation, proof, value stack
+• Action: friction removal, risk reversal, CTA strength
+
+4) Funnel Architecture (Practical)
+Think in three layers:
+1) Awareness: reach and recall
+2) Consideration: education and proof
+3) Conversion: offer, pricing, risk reversal, friction reduction
+Then add:
+4) Retention: onboarding, habit, success outcomes
+5) Referral: share loops, advocacy assets
+
+Deliverable: Journey Map
+• stage, intent, questions, objections
+• best asset type per stage (ad, landing page, email, case study, demo, trial)
+• measurement per stage
+
+5) Post-Purchase Behavior as Marketing
+Post-purchase drives:
+• reviews, referrals, LTV, and brand equity
+Tools
+1) onboarding sequences
+2) success milestones
+3) community and support
+4) NPS and review asks at high-satisfaction moments
+
+Deliverables
+1) stage-by-stage intent map
+2) objections library by stage
+3) asset map and content plan by stage
+4) retention and referral loop design
+
+End of file.

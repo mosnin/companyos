@@ -1,0 +1,6 @@
+interface:
+  display_name: "Middle Manager Operating Doctrine"
+  short_description: "Force first-principles constraint thinking"
+  default_prompt: "Use $middle-manager-operating-doctrine with $manage-company-program and one compact mission charter. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

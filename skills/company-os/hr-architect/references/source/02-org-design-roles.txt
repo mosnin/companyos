@@ -1,0 +1,84 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 02: Org Design, Role Design, and Scorecards
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Build roles that are measurable: org design, job analysis, competencies, scorecards.
+
+1) Org Design Basics
+Design around:
+1) value streams (how value is created and delivered)
+2) decision rights (who decides what)
+3) coordination costs (communication overhead)
+Common structures:
+1) functional (marketing, sales, ops)
+2) product or portfolio
+3) pods or squads
+4) geographic
+
+2) Role Definition Template
+A role exists to produce outcomes.
+Fields:
+1) mission: why the role exists
+2) outcomes: 3–7 measurable outputs
+3) responsibilities: recurring activities
+4) interfaces: who they work with and how
+5) constraints: boundaries and non-responsibilities
+6) success metrics: leading and lagging
+
+3) Competency Model
+Split into:
+1) must-have skills (technical)
+2) must-have behaviors (operating style)
+3) values alignment (decision principles, ethics, ownership style)
+Avoid personality cloning; prioritize job-related behaviors.
+
+4) Scorecards
+Scorecard includes:
+1) top outcomes
+2) competency signals
+3) disqualifiers
+4) interview questions mapped to competencies
+5) work sample definition
+6) weighting and rating rubric
+
+5) Levels and Career Ladders
+Define levels by:
+1) scope and impact radius
+2) complexity handled
+3) autonomy
+4) leadership and mentorship expectations
+This prevents comp drift and promotion politics.
+
+Deliverables
+1) org chart hypothesis + span-of-control targets
+2) role definition templates
+3) role scorecard + rubric
+4) level framework (IC and manager tracks)
+
+End of file.

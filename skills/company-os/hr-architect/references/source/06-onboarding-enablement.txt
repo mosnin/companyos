@@ -1,0 +1,81 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 06: Onboarding, Training, Enablement, and Documentation
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Time-to-productivity is designed through onboarding, enablement, and documentation.
+
+1) Onboarding Phases
+1) preboarding: access, equipment, paperwork, schedule
+2) orientation: mission, values, systems
+3) role enablement: SOPs, shadowing, first tasks
+4) ramp: milestones with feedback
+
+2) 30/60/90 Day Plan
+Include:
+1) outcomes and deliverables per period
+2) learning goals
+3) key relationships and meetings
+4) first “win” designed for confidence and proof
+
+3) Documentation System
+Doc types:
+1) SOPs: “how we do X”
+2) playbooks: sales, marketing, ops
+3) decision logs: why choices were made
+4) templates: briefs, checklists, emails
+Rules:
+1) owner per doc
+2) version control
+3) review cadence
+4) searchable repository
+
+4) Training System
+1) role skills training
+2) process training (tools and workflows)
+3) security and compliance training
+Use:
+1) short modules
+2) recorded walkthroughs
+3) knowledge checks for critical items
+
+5) Remote Enablement
+Define:
+1) async norms (doc-first, response expectations)
+2) meeting hygiene and notes standards
+3) time zone strategy
+4) security training
+
+Deliverables
+1) onboarding checklist
+2) 30/60/90 templates by role
+3) SOP repository structure
+4) training plan modules
+5) remote norms
+
+End of file.

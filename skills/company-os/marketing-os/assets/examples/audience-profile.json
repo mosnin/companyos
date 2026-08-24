@@ -1,0 +1,24 @@
+{
+  "$schema": "company-os.marketing-audience-profile.v1",
+  "alternatives": [
+    "Spreadsheet reporting",
+    "Three disconnected analytics tools"
+  ],
+  "confidence": "medium",
+  "gaps": [
+    "No first-party interviews in this fixture"
+  ],
+  "job": "Prove marketing spend to a skeptical operator",
+  "primary_pain": "Reports take longer to build than they take to use",
+  "profile_id": "acme-ops-directors",
+  "sources": [
+    "Fixture compiled for Company OS tests, not live research"
+  ],
+  "subject": "Operations directors at independent service businesses",
+  "voice_of_customer": [
+    {
+      "quote": "I rebuild the same weekly report in three tools",
+      "source": "Fixture customer-language example, not a live citation"
+    }
+  ]
+}

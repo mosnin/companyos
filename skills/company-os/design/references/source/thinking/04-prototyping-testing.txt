@@ -1,0 +1,68 @@
+DESIGN THINKING DOCTRINE — SECTION 04: Prototyping and Testing
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+Turn concepts into prototypes designed to answer specific questions, then test them with evidence.
+
+A. Prototype Types
+1) Low fidelity: comprehension, flow
+2) Mid fidelity: usability, task success
+3) High fidelity: behavior, retention, value delivery
+
+Rule
+Prototype is a question, not a product.
+
+B. Test Design
+Define:
+1) Hypothesis
+2) Target segment
+3) Scenario and task
+4) Success metrics
+5) Failure criteria
+6) Data capture method
+7) Decision rule (pivot, persevere, stop)
+
+C. Measurement Priorities
+1) Comprehension: restate value in their words
+2) Task success: complete the core flow
+3) Time to value: first meaningful result
+4) Friction points: hesitation, backtracking
+5) Commitment: invest time, data, or money
+
+D. Neutral Testing Script
+1) Context and current workflow
+2) Task: “Try to accomplish X”
+3) Observe without coaching
+4) Probe expectations: “What did you think would happen?”
+5) Value check: “What would make this a no-brainer?”
+6) Commitment test: “What would you do next if this existed?”
+
+E. Synthesis
+1) Aggregate findings
+2) Cluster issues: comprehension, usability, trust, value
+3) Identify root causes
+4) Update artifacts and next experiment
+
+Deliverables
+1) Prototype plan
+2) Test script
+3) Evidence log
+4) Decision and next iteration steps
+
+End of file.

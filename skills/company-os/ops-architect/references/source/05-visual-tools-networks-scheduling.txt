@@ -1,0 +1,71 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 05: Visual Tools: DSM, Activity-on-Node, Gantt, and Control Charts
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Visual tools expose dependencies and schedule risk, enabling control without guesswork.
+
+1) Design Structure Matrix (DSM)
+Use to map dependencies among tasks, components, or teams.
+Method
+1) list elements on both axes
+2) mark dependencies
+3) cluster to reveal modules and coupling
+4) reorder to minimize feedback loops
+
+Interpretation
+1) dense cluster suggests a module
+2) off-diagonal feedback suggests iteration cycles needing buffers and integration gates
+
+2) Activity-on-Node (AON) Network
+Use for precedence relationships.
+Outputs
+1) critical path
+2) earliest and latest start/finish
+3) slack
+4) critical activities
+
+3) Gantt Chart
+Use as calendar visualization derived from AON.
+Best practices
+1) build precedence first, dates second
+2) show buffers explicitly
+3) track milestones with acceptance criteria
+
+4) Operational Flow Visuals
+1) value stream map for end-to-end flow with times and inventories
+2) swimlanes for ownership and handoffs
+3) service blueprint for frontstage and backstage coordination
+
+5) Statistical Process Control Basics
+Use control charts to separate noise from real change.
+Tools
+1) control charts for cycle time, defects, throughput
+2) run charts for trend detection
+3) Pareto for defect concentration
+
+Deliverables
+1) DSM for dependency-heavy work
+2) AON network for initiatives
+3) Gantt with buffers and milestones
+4) control charts for key operational metrics
+
+End of file.

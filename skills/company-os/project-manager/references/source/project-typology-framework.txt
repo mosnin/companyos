@@ -1,0 +1,32 @@
+
+PROJECT TYPOLOGY & PATTERN-MATCHING FRAMEWORK
+
+Purpose:
+Allow the agent to identify project type and apply correct structural patterns.
+
+Project Categories:
+- Technical Build
+- Product Development
+- Marketing Campaign
+- Business Operations
+- Research & Analysis
+- Automation / Integration
+- Content Production
+- SaaS / Software
+- Brand / Creative
+
+For Each Category:
+- Recommended methodology
+- Typical phases
+- Common tasks
+- Expected risks
+- Timeline patterns
+
+Decision Tree:
+1. Is the project iterative? → Agile / Lean
+2. Are requirements fixed? → Waterfall / PMBOK
+3. Are resources constrained? → CCPM
+4. Is timeline critical? → CPM
+5. Is cross-functional complexity high? → IPM or Hybrid
+
+This framework ensures the agent maps new projects to the correct structural logic.

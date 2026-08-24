@@ -1,0 +1,198 @@
+file_name: promise_model_invoker.txt
+
+purpose: >
+  A reusable, invoke-anytime Promise Model used to define,
+  operationalize, and defend a business’s core promise.
+  This framework ensures alignment between what is promised,
+  how it is delivered, and how trust is maintained over time.
+
+what_this_is:
+  definition: >
+    The Promise Model defines the explicit and implicit commitments
+    a business makes to customers and ensures the organization is
+    structurally capable of delivering them consistently.
+  primary_goal: >
+    Eliminate the gap between expectation and reality.
+  not_this:
+    - "A brand slogan exercise"
+    - "A positioning statement only"
+    - "A marketing copy framework"
+
+canonical_format:
+  core_components:
+    - Promise
+    - Delivery System
+    - Proof
+  invariant_rule: >
+    A promise without delivery destroys trust.
+    Delivery without proof is invisible.
+    Proof without a clear promise is meaningless.
+
+spatial_logic:
+  flow:
+    promise: "Sets expectation"
+    delivery: "Fulfills expectation"
+    proof: "Confirms expectation"
+  trust_loop: >
+    Promise → Delivery → Proof → Reinforced Trust → Repeat
+
+invocation_rules:
+  invocation_phrases:
+    - "Invoke Promise Model"
+    - "Build Promise Model for <business / product>"
+    - "Define the core promise"
+  no_questions_default:
+    rule: >
+      Do not ask clarifying questions by default.
+      Build a best-effort Promise Model using assumptions where required.
+  integrity_constraint:
+    rule: >
+      Never inflate the promise beyond delivery capability.
+
+input_contract:
+  user_input_template: |
+    PROMISE MODEL INPUT
+    Business / Product:
+    Target Customer:
+    Core Outcome Customer Wants:
+    Competitive Context:
+    Stage: (early, scaling, mature)
+    Known Strengths:
+    Known Constraints:
+    Evidence Available: (none, anecdotes, metrics)
+  minimum_viable_input:
+    description: >
+      If only a business or product name is provided,
+      infer a realistic promise based on industry norms
+      and mark all inferred elements as assumptions.
+
+output_spec:
+  section_order:
+    - "1. Scope and Customer Context"
+    - "2. The Promise"
+    - "3. Delivery System"
+    - "4. Proof Mechanisms"
+    - "5. Promise–Delivery Fit Assessment"
+    - "6. Assumptions Ledger"
+    - "7. Failure Modes"
+    - "8. Reinforcement Strategy"
+
+scope_and_customer_context:
+  rules:
+    - "One primary customer segment"
+    - "One core promise"
+  why_this_matters: >
+    Multiple promises dilute trust.
+    Customers remember broken promises more than kept ones.
+
+promise:
+  definition: >
+    A clear, outcome-focused commitment to the customer.
+  characteristics:
+    - "Specific"
+    - "Outcome-oriented"
+    - "Time-bound where possible"
+    - "Emotionally resonant but operationally grounded"
+  formulation_rules:
+    - "State the outcome, not the method"
+    - "Avoid superlatives unless provable"
+  examples:
+    strong:
+      - "Reduce onboarding time by 50% within 30 days"
+    weak:
+      - "Best-in-class experience"
+  failure_modes:
+    - "Overpromising"
+    - "Vague or abstract promises"
+
+delivery_system:
+  definition: >
+    The internal mechanisms that reliably fulfill the promise.
+  components:
+    people:
+      description: "Roles, skills, and accountability"
+    process:
+      description: "Repeatable workflows and standards"
+    technology:
+      description: "Tools and systems enabling delivery"
+    governance:
+      description: "Decision rights and escalation paths"
+  alignment_rule: >
+    Every element of the delivery system must map directly
+    to fulfilling the promise.
+  metrics:
+    - "Delivery consistency"
+    - "Time-to-outcome"
+  failure_modes:
+    - "Manual heroics instead of systems"
+    - "Misaligned incentives"
+
+proof:
+  definition: >
+    Observable evidence that the promise has been fulfilled.
+  types:
+    functional:
+      description: "Measured outcomes or performance data"
+    social:
+      description: "Testimonials, reviews, case studies"
+    behavioral:
+      description: "Retention, referrals, repeat usage"
+  rules:
+    - "Proof must be visible to the customer"
+    - "Proof should be timely"
+  metrics:
+    - "Customer-reported outcomes"
+    - "Retention and advocacy"
+  failure_modes:
+    - "Hidden proof"
+    - "Unverifiable claims"
+
+promise_delivery_fit_assessment:
+  evaluation_questions:
+    - "Can we deliver this promise 90% of the time?"
+    - "What breaks first under scale?"
+    - "What happens if demand doubles?"
+  fit_levels:
+    weak:
+      description: "Promise exceeds delivery capability"
+    aligned:
+      description: "Promise and delivery are matched"
+    conservative:
+      description: "Delivery exceeds promise"
+
+assumptions_ledger:
+  categories:
+    customer_expectation_assumptions:
+      description: "Beliefs about what customers expect"
+    capability_assumptions:
+      description: "Beliefs about operational capacity"
+    perception_assumptions:
+      description: "Beliefs about what customers notice"
+    scaling_assumptions:
+      description: "Beliefs about delivery at scale"
+
+failure_modes:
+  strategic:
+    - "Promise creep over time"
+    - "Marketing-driven promises"
+  operational:
+    - "Inconsistent delivery"
+    - "No ownership of the promise"
+  reputational:
+    - "Broken trust"
+    - "Negative word-of-mouth"
+
+reinforcement_strategy:
+  internal:
+    actions:
+      - "Train teams on the promise"
+      - "Tie incentives to promise fulfillment"
+  external:
+    actions:
+      - "Reinforce proof in customer touchpoints"
+      - "Close the loop with customers"
+  review_cadence:
+    recommended:
+      early_stage: "Quarterly"
+      scaling: "Biannual"
+      mature: "Annual"

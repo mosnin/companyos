@@ -7,17 +7,17 @@
       "required_capabilities": ["company-direction", "customer-success", "financial-control", "program-planning", "revenue-growth"]
     },
     {
-      "default_departments": ["executive-strategy", "program-management", "product", "engineering-quality", "brand-creative", "commercial-growth", "customer-success", "finance", "operations", "security-compliance"],
+      "default_departments": ["executive-strategy", "program-management", "product", "engineering-quality", "brand-creative", "marketing", "sales", "customer-success", "finance", "operations", "human-resources", "security-compliance"],
       "id": "software-company",
       "required_capabilities": ["brand-system", "company-direction", "customer-research", "customer-success", "financial-control", "product-delivery", "program-planning", "revenue-growth", "software-engineering"]
     },
     {
-      "default_departments": ["executive-strategy", "program-management", "brand-creative", "commercial-growth", "customer-success", "finance", "operations"],
+      "default_departments": ["executive-strategy", "program-management", "brand-creative", "marketing", "sales", "customer-success", "finance", "operations"],
       "id": "agency",
       "required_capabilities": ["brand-system", "company-direction", "customer-success", "financial-control", "program-planning", "revenue-growth"]
     },
     {
-      "default_departments": ["executive-strategy", "program-management", "product", "brand-creative", "commercial-growth", "customer-success", "finance", "operations"],
+      "default_departments": ["executive-strategy", "program-management", "product", "brand-creative", "marketing", "sales", "customer-success", "finance", "operations", "human-resources"],
       "id": "commerce-company",
       "required_capabilities": ["brand-system", "company-direction", "customer-success", "financial-control", "product-delivery", "program-planning", "revenue-growth"]
     }

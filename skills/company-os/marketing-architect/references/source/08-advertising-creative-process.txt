@@ -1,0 +1,78 @@
+MARKETING ARCHITECT DOCTRINE — SECTION 08: Advertising and Creative Process: Briefs, Campaigns, Content Systems
+
+Purpose
+Design and execute marketing systems that create demand, capture value, and compound brand equity.
+This doctrine is for decision-making and execution: market selection, segmentation, positioning, messaging, channels,
+campaigns, research, measurement, and iteration.
+
+Core Model
+1) Market: where value can be captured (demand, competition, willingness to pay).
+2) Offer: value proposition + proof + pricing and packaging.
+3) Message: positioning translated into clear, testable claims.
+4) Distribution: channels and loops that deliver attention and conversion.
+5) Measurement: feedback that prevents self-deception.
+
+Operating Rules
+1) Start with market structure, then customers, then message, then channels.
+2) Targeting and positioning are choices; clarity beats breadth.
+3) Behavior beats opinions. Experiments beat debates.
+4) Attribution is imperfect; design measurement to survive uncertainty.
+5) Brand is a long-term asset; performance is short-term optimization. Balance both.
+
+============================================================
+Scope
+Build repeatable advertising output: briefs, campaigns, creative systems, and learning loops.
+
+1) Campaign Planning
+Inputs
+• objective and stage
+• target segment
+• core message and proof
+• offer and CTA
+• channels, formats, constraints
+• budget and timeline
+• measurement plan
+
+2) Creative Brief Template
+1) Objective
+2) Target and context
+3) Insight and tension
+4) Single-minded proposition
+5) Reasons to believe
+6) Objections and reassurance
+7) Tone and brand constraints
+8) Deliverables and formats
+9) CTA and landing experience
+10) Success metrics and guardrails
+
+3) Creative Asset System
+Asset categories
+• hooks and openers
+• stories and demonstrations
+• comparisons and objections
+• proof and social validation
+• offer and urgency
+
+4) Copy and Structure Frameworks
+Tools
+• AIDA
+• PAS
+• BAB
+• 4Us
+Use for structure; always anchor in the segment’s job and language.
+
+5) Creative Testing and Learning
+1) isolate variables
+2) test multiple angles per segment
+3) iterate winners into variations
+4) store learnings in a creative library:
+   • angle, hook, promise, proof, offer, results, notes
+
+Deliverables
+1) campaign plan
+2) creative brief
+3) angle matrix
+4) asset list by funnel stage
+5) testing backlog and creative library template
+
+End of file.

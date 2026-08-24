@@ -7,7 +7,13 @@ description: Mandatory Company OS design-engineering gate for any work that crea
 
 Use this skill for every Company OS work packet classified as `ui_design` and
 for any packet that touches UI source such as HTML, CSS, JSX/TSX, Vue, or
-Svelte. This is a required delivery gate, not optional inspiration.
+Svelte. This is a required delivery gate, not optional inspiration. The
+managing Sol may load `$steve` as taste overlay; this skill remains the
+evidence gate. Do not send `$steve` to Luna workers.
+
+When a Sol manager owns design-process or interaction-architecture work, load
+`$design` as the design overlay. This skill remains the UI evidence gate.
+Do not send `$design` to Luna workers.
 
 The complete upstream suite is vendored under [vendor](vendor) at the immutable
 revision recorded in [UPSTREAM.json](UPSTREAM.json). Its MIT license is in
@@ -85,6 +91,8 @@ Block integration when any of these is true:
 Rework the smallest failing surface, rerun its exact oracle, and then challenge
 the repair in a materially different state or viewport. Do not average a
 critical score below 9 into a passing mean.
+
+When building digital interfaces, also load `$interface-design` for typography, color, layout, writing, accessibility, UI polish, and distinctive visual identity. `$ui-design-quality` remains the UI evidence gate.
 
 ## Trust and side-effect boundary
 

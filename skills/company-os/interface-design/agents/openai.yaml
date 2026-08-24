@@ -1,0 +1,6 @@
+interface:
+  display_name: "Interface Design"
+  short_description: "Apply interface craft when building digital UIs"
+  default_prompt: "Use $interface-design with $ui-design-quality when building or reviewing digital interfaces, including distinctive visual identity. $ui-design-quality remains the evidence gate. Do not use this skill as the master persona."
+policy:
+  allow_implicit_invocation: false

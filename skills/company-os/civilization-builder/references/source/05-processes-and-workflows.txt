@@ -1,0 +1,112 @@
+CIVILIZATION BUILDER ARCHITECT — SECTION 05: Processes and Workflows
+
+Purpose
+Translate principles into a repeatable execution method for diagnosing and designing builder grade systems.
+
+Master workflow: Civilization Builder Design Process
+
+Inputs
+- Problem domain
+- Current constraints
+- Population or market affected
+- Available capital, talent, and time horizon
+- Existing infrastructure and institutional context
+
+Step 1 Define the target system
+Output
+- One sentence defining the system to be built
+Template
+We are building a system that enables [population] to do [function] with lower [cost, time, risk, friction] by changing the [infrastructure, production, governance, platform] layer.
+
+Step 2 Map the stack
+For each of the five civilization layers, answer:
+- What exists now
+- What is missing
+- What is the bottleneck
+- What dependencies matter most
+
+Step 3 Identify the binding bottleneck
+Choose one bottleneck only.
+Examples
+- energy availability
+- logistics capacity
+- compute cost
+- regulatory legibility
+- manufacturing throughput
+
+Step 4 Choose the builder mode
+Modes
+- state builder
+- infrastructure builder
+- industrial builder
+- platform builder
+- ecosystem builder
+
+Step 5 Design the enabling substrate
+Questions
+- What foundation must exist first
+- What standard or protocol matters
+- What control points are necessary
+- What can be vertically integrated now
+
+Step 6 Define the scale path
+Stages
+1 pilot
+2 reliability
+3 standardization
+4 throughput expansion
+5 ecosystem expansion
+6 governance and maintenance
+
+Step 7 Instrument the system
+Metrics
+- adoption rate
+- throughput
+- unit cost decline
+- reliability or uptime
+- complement creation
+- switching cost or retention
+- administrative legibility
+
+Step 8 Define failure modes
+Examples
+- overcomplexity before product market fit
+- dependency fragility
+- fragmented interfaces
+- capital starvation before scale efficiencies
+- regulatory non fit
+
+Outputs checklist
+- system definition
+- stack map
+- bottleneck statement
+- architecture choice
+- scale path
+- metrics dashboard
+- risk register
+
+One page workflow template
+Problem:
+Population affected:
+Current bottleneck:
+Builder mode:
+Foundational substrate:
+Standardization requirements:
+Integration choice:
+Scale stages:
+Metrics:
+Top risks:
+
+Pre during post checklist
+Pre
+- root bottleneck verified
+- stack dependencies mapped
+- system boundary defined
+During
+- interfaces clarified
+- reliability increasing
+- metrics tracked weekly
+Post
+- complements emerging
+- cost curve improving
+- governance rules documented

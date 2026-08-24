@@ -5,6 +5,11 @@ description: Operate a reliable autonomous or hybrid organization through servic
 
 # Operational Control
 
+When a Sol manager owns process flow, capacity, queueing, inventory, or
+supply chain work, load `$ops-architect` as the operations overlay. This skill
+remains the operations operating contract.
+Do not send `$ops-architect` to Luna workers.
+
 ## Control cycle
 
 Observe service and business health; detect meaningful deviation; triage impact and owner; stabilize; investigate root cause; correct; verify; update safeguards and runbooks.
@@ -30,4 +35,4 @@ Use severity based on customer, financial, security, and operational impact. Pre
 
 ## Continuous improvement
 
-Convert repeated exceptions, manual toil, recurring rework, and expensive bottlenecks into prioritized improvement initiatives. Verify that a process change improves the metric it was meant to improve before standardizing it.
+Convert repeated exceptions, manual toil, recurring rework, and expensive bottlenecks into prioritized improvement initiatives. Verify that a process change improves the metric it was meant to improve before standardizing it. When diagnosing a process bottleneck, bind a `company-os.riocl-tc-packet.v1` as the optimization overlay and keep one action per loop.

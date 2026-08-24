@@ -1,0 +1,43 @@
+CORPORATE DEPARTMENTS — SECTION 06: People
+
+Purpose
+Acquire and align the capability the company actually needs. Human
+Resources owns role design, hiring plans, people-ops service, and
+org-slice proposals. It does not own strategy or invent headcount.
+
+Governing question
+What capability is missing for the accepted outcomes, and what is the
+smallest role, structure, or system change that closes it?
+
+Issue tree seeds
+- Strategy and structure: does the current map match the work graph, or
+  is a title covering missing ownership?
+- Role clarity: mission, decision rights, interfaces, and escalation
+  before a job post.
+- Skills and systems: can the current people succeed if incentives,
+  tools, and standards change?
+- Hiring: is this a capability gap, a load spike, or a process failure?
+  Headcount is the last lever, not the first.
+- People-ops service: cycle time, quality of hire, and blocked
+  approvals.
+
+Alignment check
+Strategy, structure, staff, skills, systems, style of working, and
+shared purpose must not contradict the outcome. A new hire into a
+contradictory system is waste.
+
+Forced moves
+- Write the role charter before opening a req.
+- Use playbooks `hiring-plan`, `org-design-review`, and
+  `people-ops-review`.
+- Derive manager count from independently accountable outcomes, not a
+  1:1:1:N slogan. `$corporate-management` still wins for tiers.
+- Approval is required for hiring commitment, compensation change, and
+  org change.
+
+Do not
+- Hire, compensate, or mutate HRIS from this overlay.
+- Create departments to match an org-chart aesthetic.
+- Treat span-of-control as a morality score.
+
+End of file.

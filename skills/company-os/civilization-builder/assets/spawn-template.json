@@ -1,0 +1,23 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.civilization-builder-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "civilization-builder"
+  ],
+  "source_pack": "references/source",
+  "template_id": "civilization-builder",
+  "use_when": [
+    "civilizational_system",
+    "digital_ecosystem",
+    "industrial_production_system",
+    "infrastructure_network",
+    "technological_platform"
+  ]
+}

@@ -22,4 +22,10 @@ Do not start an autonomous build loop until the initiative has a decision record
 
 Run weekly portfolio review and material project checkpoints. Review customer signal, economics, risk, progress, cost, and evidence. Decide continue, expand, pivot, pause, or stop.
 
+When the review turns on opportunity cost, unit economics, pricing, or market structure, load `$economics-architect` as the economics overlay.
+Do not send `$economics-architect` to Luna workers.
+
+When the review turns on business model, competitive strategy, value proposition, or market analysis, load `$business-architect` as the business-architecture overlay.
+Do not send `$business-architect` to Luna workers.
+
 Pass only approved project slices to execution with outcome, constraints, acceptance evidence, budget, action boundaries, rollout/rollback, and feedback signals that can change strategy. Execution returns evidence; it cannot silently expand scope.

@@ -1,6 +1,10 @@
 # Scheduler Lease Contract
 
 Every autonomous mission has exactly one active scheduler lease.
+The lease is part of sealed mission state: `mission_id`, `generation`,
+`started_at`, and `expires_at` must match the mission, `wake_count` must
+equal the unique consumed wake keys, and a terminal mission must revoke
+the lease. A drifted lease cannot mint or admit a wake.
 
 Required mission fields:
 

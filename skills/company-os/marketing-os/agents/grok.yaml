@@ -1,0 +1,6 @@
+interface:
+  display_name: "Marketing OS"
+  short_description: "Scale the marketing research-brief-copy pipeline"
+  default_prompt: "Use $marketing-os with $manage-company-program when compiling or running the Marketing department. Route research, brief, and copy as staff packets with digest-bound schemas. Do not load this skill as the master persona or on Luna workers."
+policy:
+  allow_implicit_invocation: false

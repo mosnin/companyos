@@ -1,0 +1,6 @@
+interface:
+  display_name: "Business Architect"
+  short_description: "Force business-model and strategy framework design"
+  default_prompt: "Use $business-architect with $manage-company-program and one compact mission charter for business model, competitive strategy, value proposition, jobs-to-be-done, or market analysis work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

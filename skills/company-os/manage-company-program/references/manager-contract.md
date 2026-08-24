@@ -53,9 +53,10 @@ match the exact bytes. Never read or include file contents in an error.
 
 Before accepting a UI-bearing definition, require `work_domains: ["ui_design"]`
 and capability `ui_design_quality` on the manager and every UI worker packet.
-Load `$ui-design-quality`, bind its exact vendored revision, evidence states,
-and critical score thresholds into the design report, and fail closed on an
-unclassified UI label, path, source extension, or deliverable. The manager who
+Load `$ui-design-quality` and `$interface-design`, bind the exact vendored
+revisions, evidence states, and critical score thresholds into the design
+report, and fail closed on an unclassified UI label, path, source extension, or
+deliverable. `$ui-design-quality` remains the evidence gate. The manager who
 authors a UI artifact may not perform its final interaction and motion review.
 
 After accepted design and before worker launch, instantiate

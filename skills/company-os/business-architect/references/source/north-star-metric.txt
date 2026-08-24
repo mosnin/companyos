@@ -1,0 +1,26 @@
+file_name: north_star_metric_invoker.txt
+framework: North Star Metric
+
+purpose: >
+  Define the single metric that best captures the core value delivered
+  to customers and drives sustainable growth.
+
+north_star_definition:
+  criteria:
+    - reflects_customer_value
+    - leads_revenue_growth
+    - is_actionable
+    - is_measurable
+
+metric_structure:
+  north_star_metric:
+    description: Primary value metric.
+  input_metrics:
+    description: Levers teams can control daily.
+  guardrail_metrics:
+    description: Metrics that prevent harmful optimization.
+
+outputs:
+  - north_star_metric
+  - supporting_metrics_tree
+  - team_alignment_guidance

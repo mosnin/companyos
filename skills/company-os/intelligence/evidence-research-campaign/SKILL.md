@@ -27,4 +27,4 @@ description: Run finite, evidence-first internet or internal research campaigns 
 
 ## Guardrails
 
-Use direct links and dates. Do not treat search snippets, social proof, copied press releases, or repeated claims as independent evidence. Respect access restrictions, privacy, and platform terms. Stop when the decision threshold is met or new lanes yield little novelty.
+Use direct links and dates. Do not treat search snippets, social proof, copied press releases, or repeated claims as independent evidence. Respect access restrictions, privacy, and platform terms. Stop when the decision threshold is met or new lanes yield little novelty. A named next experiment must bind a scientific-method packet or an innovation bet; this campaign remains a sensor.

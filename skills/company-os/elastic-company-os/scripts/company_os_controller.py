@@ -1972,10 +1972,19 @@ def audit_stored_grant(
             try:
                 verify_asymmetric_signature(encoded, signature)
             except ValueError:
-                # A valid historical grant may have been issued before key
-                # rotation. Without its retained old public key, do not call it
-                # cryptographically replay-verified and do not make history
-                # depend on the currently configured issuer.
+                current_program = state.get("strategy", {}).get("program_version")
+                if required_program == current_program:
+                    # Current-program grants must verify against the live issuer
+                    # or retain their historical public key. A failed live
+                    # signature without retained material is a forgery, not history.
+                    errors.append(
+                        f"{label} signature is not valid under the current decision issuer"
+                    )
+                    return "invalid"
+                # A prior-program grant may have been issued before key rotation.
+                # Without its retained old public key, do not call it
+                # cryptographically replay-verified and do not make archived
+                # history depend on the currently configured issuer.
                 return "retained_legacy"
             else:
                 return "current_issuer"
@@ -1986,6 +1995,15 @@ def audit_stored_grant(
     except ValueError as exc:
         errors.append(f"{label} is not audit-valid: {exc}")
         return "invalid"
+
+
+def require_replayable_grant(status: str, errors: list[str], label: str) -> bool:
+    """Fail closed unless a current-program grant is cryptographically replayable."""
+    if status in {"cryptographic", "current_issuer"}:
+        return True
+    if status == "retained_legacy":
+        errors.append(f"{label} cannot rely on a legacy unverifiable grant")
+    return False
 
 
 def applicable_quality_dimensions(state: dict[str, Any]) -> set[str]:
@@ -2567,21 +2585,25 @@ def validate_execution_fabric_state(
             }
             if decision.get("payload") != expected_payload:
                 errors.append(f"{decision_label}.payload does not match retained state")
-            audit_stored_grant(
-                state,
-                decision.get("master_grant"),
+            require_replayable_grant(
+                audit_stored_grant(
+                    state,
+                    decision.get("master_grant"),
+                    errors,
+                    f"{decision_label}.master_grant",
+                    {
+                        "actor": decision.get("decided_by"),
+                        "action": "fabric-phase-decision",
+                        "resource": f"fabric:{manager_id}:{decision.get('phase')}",
+                        "work_id": str(fabric.get("work_id")),
+                        "cycle_id": str(fabric.get("cycle_id")),
+                        "dimension": "execution-fabric",
+                        "decision": str(decision.get("decision")),
+                        "payload_hash": command_payload_hash("fabric-phase-decision", expected_payload),
+                    },
+                ),
                 errors,
                 f"{decision_label}.master_grant",
-                {
-                    "actor": decision.get("decided_by"),
-                    "action": "fabric-phase-decision",
-                    "resource": f"fabric:{manager_id}:{decision.get('phase')}",
-                    "work_id": str(fabric.get("work_id")),
-                    "cycle_id": str(fabric.get("cycle_id")),
-                    "dimension": "execution-fabric",
-                    "decision": str(decision.get("decision")),
-                    "payload_hash": command_payload_hash("fabric-phase-decision", expected_payload),
-                },
             )
         expected_phase: str | None = "charter"
         expected_status = "pending"
@@ -3638,14 +3660,18 @@ def validate_state(
                     errors.append("runtime adapter admits a manifest identity more than once in one work cycle")
                 manifest_attempts.add(identity_key)
                 payload_hash = command_payload_hash("admit-runtime-attempt", retained_runtime_admission_payload(attempt))
-                audit_stored_grant(
-                    state, attempt.get("actor_grant"), errors, "runtime admission grant",
-                    {
-                        "actor": attempt.get("admitted_by"), "action": "admit-runtime-attempt",
-                        "resource": f"runtime:{attempt.get('attempt_id')}", "work_id": attempt.get("work_id"),
-                        "cycle_id": attempt.get("cycle_id"), "dimension": "runtime-admission",
-                        "decision": "admitted", "payload_hash": payload_hash,
-                    },
+                require_replayable_grant(
+                    audit_stored_grant(
+                        state, attempt.get("actor_grant"), errors, "runtime admission grant",
+                        {
+                            "actor": attempt.get("admitted_by"), "action": "admit-runtime-attempt",
+                            "resource": f"runtime:{attempt.get('attempt_id')}", "work_id": attempt.get("work_id"),
+                            "cycle_id": attempt.get("cycle_id"), "dimension": "runtime-admission",
+                            "decision": "admitted", "payload_hash": payload_hash,
+                        },
+                    ),
+                    errors,
+                    "runtime admission grant",
                 )
                 native_state = attempt.get("native_task_runtime")
                 if native_state is not None:
@@ -3732,21 +3758,25 @@ def validate_state(
                             errors.append(
                                 "native task authority payload hash does not bind exact retained transition"
                             )
-                        audit_stored_grant(
-                            state,
-                            authority.get("grant"),
+                        require_replayable_grant(
+                            audit_stored_grant(
+                                state,
+                                authority.get("grant"),
+                                errors,
+                                "native task authority grant",
+                                {
+                                    "actor": authority.get("actor"),
+                                    "action": authority.get("action"),
+                                    "resource": f"runtime:{attempt.get('attempt_id')}",
+                                    "work_id": attempt.get("work_id"),
+                                    "cycle_id": attempt.get("cycle_id"),
+                                    "dimension": "native-task-runtime",
+                                    "decision": authority.get("decision"),
+                                    "payload_hash": authority.get("payload_hash"),
+                                },
+                            ),
                             errors,
                             "native task authority grant",
-                            {
-                                "actor": authority.get("actor"),
-                                "action": authority.get("action"),
-                                "resource": f"runtime:{attempt.get('attempt_id')}",
-                                "work_id": attempt.get("work_id"),
-                                "cycle_id": attempt.get("cycle_id"),
-                                "dimension": "native-task-runtime",
-                                "decision": authority.get("decision"),
-                                "payload_hash": authority.get("payload_hash"),
-                            },
                         )
                     expected_authority_sequences = sorted(
                         sequence for sequence in retained_events if sequence >= 2
@@ -4397,42 +4427,54 @@ def validate_state(
             approval = work.get("approval") if isinstance(work.get("approval"), dict) else {}
             if approval.get("approved_by") in {None, work.get("owner"), work.get("incident_actor")}:
                 errors.append(f"p0 work item {work_id} requires an independent approval actor")
-            audit_stored_grant(
-                state,
-                work.get("incident_grant"),
+            require_replayable_grant(
+                audit_stored_grant(
+                    state,
+                    work.get("incident_grant"),
+                    errors,
+                    f"p0 work item {work_id} incident grant",
+                    {
+                        "actor": work.get("incident_actor"), "action": "p0-incident", "resource": work.get("incident_ref"),
+                        "work_id": work_id, "cycle_id": "precycle", "dimension": "p0", "decision": "P0",
+                        "payload_hash": queue_payload_digest,
+                    },
+                ),
                 errors,
                 f"p0 work item {work_id} incident grant",
-                {
-                    "actor": work.get("incident_actor"), "action": "p0-incident", "resource": work.get("incident_ref"),
-                    "work_id": work_id, "cycle_id": "precycle", "dimension": "p0", "decision": "P0",
-                    "payload_hash": queue_payload_digest,
-                },
             )
-            audit_stored_grant(
-                state,
-                approval.get("grant"),
+            require_replayable_grant(
+                audit_stored_grant(
+                    state,
+                    approval.get("grant"),
+                    errors,
+                    f"p0 work item {work_id} approval grant",
+                    {
+                        "actor": approval.get("approved_by"), "action": "p0-approve", "resource": work.get("incident_ref"),
+                        "work_id": work_id, "cycle_id": "precycle", "dimension": "p0", "decision": "approved",
+                        "payload_hash": queue_payload_digest,
+                    },
+                ),
                 errors,
                 f"p0 work item {work_id} approval grant",
-                {
-                    "actor": approval.get("approved_by"), "action": "p0-approve", "resource": work.get("incident_ref"),
-                    "work_id": work_id, "cycle_id": "precycle", "dimension": "p0", "decision": "approved",
-                    "payload_hash": queue_payload_digest,
-                },
             )
         if isinstance(work.get("repeat_override"), dict):
             override = work["repeat_override"]
             if override.get("reviewer") in {None, work.get("owner")} or not override.get("reason"):
                 errors.append(f"work item {work_id} repeat override lacks independent review")
-            audit_stored_grant(
-                state,
-                override.get("grant"),
+            require_replayable_grant(
+                audit_stored_grant(
+                    state,
+                    override.get("grant"),
+                    errors,
+                    f"work item {work_id} repeat override grant",
+                    {
+                        "actor": override.get("reviewer"), "action": "repeat-override", "resource": work.get("work_fingerprint"),
+                        "work_id": work_id, "cycle_id": "prequeue", "dimension": "semantic-repeat", "decision": "accepted",
+                        "payload_hash": queue_payload_digest,
+                    },
+                ),
                 errors,
                 f"work item {work_id} repeat override grant",
-                {
-                    "actor": override.get("reviewer"), "action": "repeat-override", "resource": work.get("work_fingerprint"),
-                    "work_id": work_id, "cycle_id": "prequeue", "dimension": "semantic-repeat", "decision": "accepted",
-                    "payload_hash": queue_payload_digest,
-                },
             )
         if work.get("primary"):
             primary_count += 1
@@ -4574,21 +4616,25 @@ def validate_state(
             if not isinstance(cycle.get("reviewer_grant"), dict) or cycle["reviewer_grant"].get("actor") != cycle.get("reviewer"):
                 errors.append(f"{label}.reviewer_grant does not bind its reviewer")
             else:
-                audit_stored_grant(
-                    state,
-                    cycle.get("reviewer_grant"),
+                require_replayable_grant(
+                    audit_stored_grant(
+                        state,
+                        cycle.get("reviewer_grant"),
+                        errors,
+                        f"{label}.reviewer_grant",
+                        {
+                            "actor": cycle.get("reviewer"),
+                            "action": "finish-cycle",
+                            "resource": f"cycle:{cycle.get('id')}",
+                            "work_id": str(cycle.get("work_id")),
+                            "cycle_id": str(cycle.get("id")),
+                            "dimension": "completion",
+                            "decision": f"{cycle.get('reviewer_decision')}:{cycle.get('work_disposition')}",
+                            "payload_hash": command_payload_hash("finish-cycle", finish_command_payload(state, cycle)),
+                        },
+                    ),
                     errors,
                     f"{label}.reviewer_grant",
-                    {
-                        "actor": cycle.get("reviewer"),
-                        "action": "finish-cycle",
-                        "resource": f"cycle:{cycle.get('id')}",
-                        "work_id": str(cycle.get("work_id")),
-                        "cycle_id": str(cycle.get("id")),
-                        "dimension": "completion",
-                        "decision": f"{cycle.get('reviewer_decision')}:{cycle.get('work_disposition')}",
-                        "payload_hash": command_payload_hash("finish-cycle", finish_command_payload(state, cycle)),
-                    },
                 )
             if cycle.get("work_disposition") == "complete" and cycle.get("reviewer_decision") != "accepted":
                 errors.append(f"{label} cannot complete work after a rejected review")
@@ -4800,20 +4846,26 @@ def validate_state(
                 ),
             ),
         }
-        audit_stored_grant(
+        scorer_status = audit_stored_grant(
             state,
             item.get("scorer_grant"),
             errors,
             f"quality dimension {name} scorer grant",
             {**grant_claim_base, "actor": item.get("scored_by"), "action": "score-quality", "decision": f"score:{score}"},
         )
-        audit_stored_grant(
+        reviewer_status = audit_stored_grant(
             state,
             item.get("reviewer_grant"),
             errors,
             f"quality dimension {name} reviewer grant",
             {**grant_claim_base, "actor": item.get("reviewed_by"), "action": "score-quality-review", "decision": f"review:{score}"},
         )
+        if not require_replayable_grant(
+            scorer_status, errors, f"quality dimension {name} scorer grant"
+        ) or not require_replayable_grant(
+            reviewer_status, errors, f"quality dimension {name} reviewer grant"
+        ):
+            quality_ready = False
         if not isinstance(ids_for_dimension, list) or not ids_for_dimension:
             errors.append(f"quality dimension {name} lacks evidence")
             quality_ready = False
@@ -4880,18 +4932,22 @@ def validate_state(
                 if not isinstance(digest, str) or not digest:
                     errors.append(f"adaptation {proposal.get('id')} lacks its proposal digest")
                 else:
-                    audit_stored_grant(
-                        state, proposal.get("reviewer_grant"), errors,
+                    require_replayable_grant(
+                        audit_stored_grant(
+                            state, proposal.get("reviewer_grant"), errors,
+                            f"adaptation {proposal.get('id')} reviewer grant",
+                            {
+                                "actor": proposal.get("reviewer"), "action": "review-adaptation",
+                                "resource": f"adaptation:{proposal.get('id')}", "work_id": "",
+                                "cycle_id": "", "dimension": "meta-loop", "decision": expected_decision,
+                                "payload_hash": command_payload_hash("review-adaptation", {
+                                    "adaptation_id": proposal.get("id"), "proposal_digest": digest,
+                                    "reviewer": proposal.get("reviewer"), "decision": expected_decision,
+                                }),
+                            },
+                        ),
+                        errors,
                         f"adaptation {proposal.get('id')} reviewer grant",
-                        {
-                            "actor": proposal.get("reviewer"), "action": "review-adaptation",
-                            "resource": f"adaptation:{proposal.get('id')}", "work_id": "",
-                            "cycle_id": "", "dimension": "meta-loop", "decision": expected_decision,
-                            "payload_hash": command_payload_hash("review-adaptation", {
-                                "adaptation_id": proposal.get("id"), "proposal_digest": digest,
-                                "reviewer": proposal.get("reviewer"), "decision": expected_decision,
-                            }),
-                        },
                     )
             protected = set(proposal.get("changes", [])) & PROTECTED_ADAPTATION_FIELDS
             if protected:
@@ -4924,26 +4980,40 @@ def validate_state(
                 errors.append("controller validation certifier grant does not bind its reviewer")
             else:
                 _, cert_work_id, cert_checkpoint = current_quality_checkpoint(state)
-                audit_stored_grant(
-                    state,
-                    validation.get("certifier_grant"),
-                    errors,
-                    "controller validation certifier grant",
-                    {
-                        "actor": validation.get("reviewer"),
-                        "action": "certify",
-                        "resource": "certification",
-                        "work_id": cert_work_id,
-                        "cycle_id": cert_checkpoint,
-                        "dimension": str(phase),
-                        "decision": "accepted",
-                        "payload_hash": command_payload_hash(
-                            "certify", certification_command_payload(state, str(validation.get("reviewer")))
-                        ),
-                    },
-                )
-            if validation.get("evidence_digest") != evidence_digest(state):
-                errors.append("controller validation is stale for the current evidence or work")
+                try:
+                    certification_payload_hash = command_payload_hash(
+                        "certify",
+                        certification_command_payload(state, str(validation.get("reviewer"))),
+                    )
+                except (TypeError, ValueError):
+                    errors.append("controller validation certifier grant payload is not canonical")
+                else:
+                    certifier_status = audit_stored_grant(
+                        state,
+                        validation.get("certifier_grant"),
+                        errors,
+                        "controller validation certifier grant",
+                        {
+                            "actor": validation.get("reviewer"),
+                            "action": "certify",
+                            "resource": "certification",
+                            "work_id": cert_work_id,
+                            "cycle_id": cert_checkpoint,
+                            "dimension": str(phase),
+                            "decision": "accepted",
+                            "payload_hash": certification_payload_hash,
+                        },
+                    )
+                    require_replayable_grant(
+                        certifier_status, errors, "controller validation certifier grant"
+                    )
+            try:
+                current_evidence_digest = evidence_digest(state)
+            except (TypeError, ValueError):
+                errors.append("controller validation evidence digest is unavailable for noncanonical state")
+            else:
+                if validation.get("evidence_digest") != current_evidence_digest:
+                    errors.append("controller validation is stale for the current evidence or work")
             validation_valid = not any(error.startswith("controller validation") or error.startswith("controller.validation") for error in errors)
 
     reality_ready = bool(
@@ -6028,6 +6098,13 @@ def advance_phase(args: argparse.Namespace) -> int:
             if PHASES.index(args.phase) != PHASES.index(current) + 1:
                 raise ValueError("phase advancement must move exactly one stage")
             current_report = validate_state(state, expected_project=project)
+            authority_errors = [
+                error
+                for error in current_report["errors"]
+                if "grant" in error or "decision issuer" in error
+            ]
+            if authority_errors:
+                raise ValueError("; ".join(authority_errors))
             if state.get("portfolio", {}).get("active_work") and not current_report["quality_ready"]:
                 raise ValueError(f"phase {current} cannot exit before current quality is ready")
             candidate = deepcopy(state)

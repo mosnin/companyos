@@ -1,0 +1,50 @@
+DESIGN THINKING DOCTRINE — SECTION 08: Problem to Growth and Scale Framework
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+A structured path from problem discovery to scaling.
+
+Stages
+1) Problem
+2) Customer fit
+3) Solution fit
+4) Product-market fit
+5) Scale
+
+Operational Sequence
+1) Define problem and context
+2) Research and validate insights
+3) Co-create with users and stakeholders
+4) Build MVP and run experiments
+5) Strengthen ecosystem design and delivery
+6) Scale through systems
+
+Gate Criteria Examples
+1) Problem discovery: observed pain, willingness to switch
+2) Solution validation: task success, time to value, committed interest
+3) Traction: repeat usage, low churn, referrals
+4) Scaling readiness: stable ops, predictable economics
+
+Deliverables
+1) Stage checklist with evidence
+2) Current stage diagnosis
+3) Next stage experiment plan
+4) Stage transition risks list
+
+End of file.

@@ -1,0 +1,45 @@
+BRAND ARCHITECT DOCTRINE — SECTION 03: Target Audience Intelligence and Segmentation
+
+Purpose
+Design, build, and govern brands that attract, engage, and delight while creating durable brand equity.
+This doctrine includes all user provided concepts and adds only what is necessary for completeness.
+
+Non‑negotiable outcomes
+1) Clear positioning and strategy
+2) Coherent identity and expression
+3) Consistent delivery across touchpoints
+4) Measurable equity and business impact
+
+============================================================
+
+Included concepts
+• Deep understanding of target audience
+• Emotional appeal
+
+1) Audience hierarchy
+ICP → segments → personas → jobs to be done
+
+2) What to learn
+• pains, gains, anxieties
+• desired identity and social status signals
+• decision criteria and tradeoffs
+• language they use
+• moments of urgency and triggers
+• objections and fears
+• channels where they pay attention
+
+3) Emotional appeal mapping
+Map emotional outcomes, then map to proof via product outcomes, community, and rituals.
+
+4) Research methods (added)
+• interviews and observation
+• reviews mining and social listening
+• survey segmentation and forced choice tradeoffs
+• landing page and message tests
+
+Deliverables
+1) ICP and segment map
+2) persona cards with JTBD and language
+3) emotional outcome map with proof assets
+
+End of file.

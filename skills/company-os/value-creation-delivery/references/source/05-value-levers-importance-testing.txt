@@ -1,0 +1,43 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 05: Economic Value Levers and Relative Importance Testing
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• Economic values (efficacy, speed, reliability, ease of use, flexibility, status, aesthetic appeal, emotion, cost)
+• Relative importance testing
+• Trade-offs
+
+Economic values (kept list)
+efficacy, speed, reliability, ease of use, flexibility, status, aesthetic appeal, emotion, cost
+
+How to use levers (added)
+1) Choose 2 primary levers to dominate.
+2) Choose 1–2 supporting levers.
+3) De-prioritize 1 lever as an explicit trade-off.
+
+Relative importance testing (kept, operationalized)
+Methods:
+• forced ranking
+• pairwise tradeoffs
+• pricing sensitivity with bundles
+Outputs:
+• ranked levers
+• minimum thresholds
+• premium drivers
+
+Template: Value lever test plan
+• Segment
+• Hypothesis: top 3 levers
+• Method
+• Sample and channel
+• Pass/fail decision rule
+
+End of file.

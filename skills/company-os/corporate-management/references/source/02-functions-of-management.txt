@@ -1,0 +1,34 @@
+CORPORATE MANAGEMENT — SECTION 02: Functions of Management
+
+Purpose
+Name the management cycle before dispatching work.
+
+Functions
+1) Planning: decide in advance what, how, when, and who. Sets direction and
+   reduces uncertainty. First in the cycle.
+2) Organizing: arrange work, resources, and authority. Creates structure and
+   coordinates activities.
+3) Staffing: place the right actor on the right job. In Company OS this is
+   charter and packet assignment, not HRIS mutation.
+4) Directing: guide, supervise, and lead the assigned actors to the named
+   outcome.
+5) Coordinating: integrate efforts so lanes do not duplicate or collide.
+6) Controlling: measure actual performance against the standard and take
+   corrective action. Last in the cycle, first in the next. In Company OS
+   this is a calibrated evaluator receipt or controller `score-quality`
+   bound to artifact bytes, not a manager-written score.
+
+Rules
+- Skip control and the plan is decoration.
+- A manager score, audit, or production narrative is not a score.
+- An uncalibrated number is not a correct score. The judge must strictly
+  rank known-quality candidates; the executor must not be a producer.
+- Skip first artifact, runnable candidate, and observed behavior and the
+  score has nothing real to judge.
+- Skip staffing and the right work goes to the wrong actor.
+- Skip coordinating and two lanes write the same boundary.
+- Do not treat the cycle as a new Company OS execution loop.
+- Company OS barriers remain charter, design, verification, and
+  integration. The cycle names functions inside those barriers.
+
+End of file.

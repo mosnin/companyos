@@ -1,0 +1,6 @@
+interface:
+  display_name: "Design"
+  short_description: "Force design thinking and interaction architecture"
+  default_prompt: "Use $design with $manage-company-program and one compact mission charter for interaction design, service design, problem framing, prototyping, or user understanding work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

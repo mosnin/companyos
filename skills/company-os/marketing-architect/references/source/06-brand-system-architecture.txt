@@ -1,0 +1,83 @@
+MARKETING ARCHITECT DOCTRINE — SECTION 06: Brand System Architecture: Strategy, Personality, Equity, Consistency
+
+Purpose
+Design and execute marketing systems that create demand, capture value, and compound brand equity.
+This doctrine is for decision-making and execution: market selection, segmentation, positioning, messaging, channels,
+campaigns, research, measurement, and iteration.
+
+Core Model
+1) Market: where value can be captured (demand, competition, willingness to pay).
+2) Offer: value proposition + proof + pricing and packaging.
+3) Message: positioning translated into clear, testable claims.
+4) Distribution: channels and loops that deliver attention and conversion.
+5) Measurement: feedback that prevents self-deception.
+
+Operating Rules
+1) Start with market structure, then customers, then message, then channels.
+2) Targeting and positioning are choices; clarity beats breadth.
+3) Behavior beats opinions. Experiments beat debates.
+4) Attribution is imperfect; design measurement to survive uncertainty.
+5) Brand is a long-term asset; performance is short-term optimization. Balance both.
+
+============================================================
+Scope
+Brand is the market’s memory of you. This section builds brand strategy and brand equity systems.
+
+1) Brand Strategy Types
+1) New brand
+2) Product line extension
+3) Brand extension
+4) Multi-brand
+Decision factors
+• dilution risk
+• segment differences
+• channel conflicts
+• pricing and positioning gaps
+
+2) Brand Evolution
+Brands evolve through:
+• category shifts
+• audience expansion
+• proof accumulation
+• creative refresh cycles
+Rule
+Evolve without breaking recognizable cues.
+
+3) Brand Personality and Identity
+Components
+• archetype, values, tone
+• visual identity and symbols
+• behavior: how brand acts in service and content
+
+Deliverable: Brand Personality Card
+• 5 adjectives
+• do and do not language
+• taboo claims
+• signature assets list
+
+4) Awareness and Associations
+Awareness: recall and recognition.
+Associations: what people believe you stand for.
+Build with repetition of:
+• message
+• proof
+• experience
+• distinctive brand assets (icons, sounds, colors, patterns)
+
+5) Partnerships, Icons, and Tribalism
+Partnerships borrow distribution and trust.
+Icons increase recall and recognition.
+Tribalism uses language, rituals, community, status markers.
+
+6) Brand Consistency and Differentiation
+Consistency is coherence, not sameness.
+Differentiation must be clear and provable.
+
+Deliverables
+1) brand architecture decision and rationale
+2) personality card and cue system
+3) awareness and association plan
+4) partnership criteria
+5) community and tribal mechanisms
+
+End of file.

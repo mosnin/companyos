@@ -1,0 +1,28 @@
+Writes are the point of this ledger. Keep them bounded.
+
+document.put
+  Create or update one document by kind and key.
+  New documents start at revision 1.
+  Updates require expectedRevision or expected_revision equal to the
+  current revision. A conflict is a stop, not an overwrite.
+  Shared kinds (identity, brand, voice, blueprint, architecture,
+  organization, capabilities, agent-registry, knowledge, scorecard)
+  require a writeShared token unless the write is department-scoped.
+  A department-scoped write must match the token's departmentIds.
+
+run.append
+  Append a loop or run record. This records work. It does not accept
+  an outcome and does not close a Company OS loop.
+
+project.create and harness.bind
+  Require a shared-write token. Binding a harness names its department
+  lanes. It does not start a runtime.
+
+company.create
+  Operator only. Agents write into an existing company.
+
+Do not call dispatch, spawn_manager, spawn_worker, acquire_lease,
+enable_scheduler, enable_runtime, accept_outcome, authorize_spend,
+mutate_crm, mutate_hris, publish_customer, or send_customer_message.
+
+A pulled config without a written artifact is not progress.

@@ -1,0 +1,60 @@
+ECONOMICS ARCHITECT DOCTRINE — SECTION 08: Macro Indicators, Business Cycles, and Industry Sensitivity
+
+Purpose
+Translate microeconomics and macroeconomics into operating decisions for building and scaling businesses.
+This doctrine is action-oriented: pricing, incentives, product strategy, market selection, capacity planning,
+competitive dynamics, and macro-aware forecasting.
+
+Core Economic Lens for Business
+1) Scarcity and tradeoffs: every choice has an opportunity cost.
+2) Incentives and behavior: systems produce outcomes.
+3) Margins: decisions happen at the margin (marginal cost vs marginal benefit).
+4) Markets: prices coordinate supply and demand under constraints.
+5) Information: asymmetric information creates failures and opportunities.
+6) Externalities: costs/benefits often spill over beyond the transaction.
+7) Cycles: macro conditions shift demand, costs, and risk.
+
+Operating Rules
+1) Always define the unit of analysis (customer, order, cohort, market segment, time period).
+2) Convert narratives into numbers: demand curves, elasticities, unit economics, and constraints.
+3) Separate price from value: price is a lever; value is the driver.
+4) Use experiments to estimate uncertain parameters (elasticity, willingness to pay, churn response).
+5) Keep models simple enough to guide decisions, strict enough to falsify.
+
+============================================================
+Scope
+Macro tools to anticipate demand, costs, and risk.
+
+1) Key Indicators
+• GDP and growth
+• unemployment
+• inflation
+• interest rates
+• credit conditions
+• commodity prices (oil/energy)
+Business use:
+• adjust forecast bands
+• revise pricing and discount strategy
+• adjust hiring and cash buffers
+
+2) Business Cycle
+Phases: expansion, peak, contraction, trough.
+Implications:
+• demand mix shifts
+• CAC and auctions change
+• churn and bad debt risk change
+• wage pressure changes
+
+3) Sensitivity Mapping
+Map exposure:
+Demand sensitivity: discretionary vs essential
+Cost sensitivity: energy/logistics inputs, wage exposure
+Financial sensitivity: debt, cash conversion cycle
+Labor sensitivity: hiring plan dependency
+
+Deliverables
+1) macro watchlist dashboard
+2) cycle phase playbook
+3) sensitivity map and contingency actions
+
+End of file.

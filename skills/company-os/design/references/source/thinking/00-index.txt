@@ -1,0 +1,22 @@
+DESIGN THINKING — 10 SECTION FILE INDEX
+
+1) design_thinking_section_01_user_understanding_foundations.txt
+2) design_thinking_section_02_problem_definition.txt
+3) design_thinking_section_03_ideation_concept_development.txt
+4) design_thinking_section_04_prototyping_testing.txt
+5) design_thinking_section_05_lean_startup_integration.txt
+6) design_thinking_section_06_scale_ecosystem_design.txt
+7) design_thinking_section_07_service_design_experience_excellence.txt
+8) design_thinking_section_08_problem_to_growth_scale_framework.txt
+9) design_thinking_section_09_desirability_feasibility_viability_bridge.txt
+10) design_thinking_section_10_iteration_experiment_reporting_system.txt
+
+Recommended Use
+1) Start at Section 01 and 02 until problem clarity is strong.
+2) Use Section 03 to generate concept cards tied to assumptions.
+3) Use Section 04 and 10 to prototype, test, and iterate with evidence.
+4) Use Section 05 to keep a living Lean Canvas aligned to learning.
+5) Use Section 06 and 07 when moving from prototype to real delivery.
+6) Use Section 08 and 09 to decide readiness to scale.
+
+End of index.

@@ -214,6 +214,154 @@ class ControllerTests(unittest.TestCase):
         finally:
             os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = previous
 
+    def forged_grant_record(self, state: dict, actor: str, token: str) -> dict:
+        encoded = token.split(".", 1)[0]
+        claims = json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
+        forged = f"{encoded}.not-a-real-signature"
+        state["controller"].setdefault("consumed_grant_nonces", []).append(claims["nonce"])
+        return {
+            "actor": actor,
+            "claims": claims,
+            "token": forged,
+            "grant_digest": controller.hashlib.sha256(forged.encode()).hexdigest(),
+        }
+
+    def test_forged_current_program_grant_without_retained_key_fails_closed(self) -> None:
+        state = self.valid_state()
+        payload_hash = controller.command_payload_hash("test-action", {"value": 1})
+        token = self.grant(
+            "reviewer", "test-action", resource="test:1", work_id="", cycle_id="",
+            dimension="test", decision="accepted", payload_hash=payload_hash,
+        )
+        grant = self.forged_grant_record(state, "reviewer", token)
+        errors: list[str] = []
+        status = controller.audit_stored_grant(
+            state, grant, errors, "stored grant",
+            {
+                "actor": "reviewer", "action": "test-action", "resource": "test:1",
+                "work_id": "", "cycle_id": "", "dimension": "test",
+                "decision": "accepted", "payload_hash": payload_hash,
+            },
+        )
+        self.assertEqual(status, "invalid")
+        self.assertTrue(any("current decision issuer" in error for error in errors))
+        self.assertFalse(controller.require_replayable_grant(status, errors, "stored grant"))
+
+    def test_prior_program_grant_without_retained_key_stays_legacy_after_issuer_mismatch(self) -> None:
+        state = self.valid_state()
+        payload_hash = controller.command_payload_hash("test-action", {"value": 1})
+        token = self.grant(
+            "reviewer", "test-action", resource="test:1", work_id="", cycle_id="",
+            dimension="test", decision="accepted", payload_hash=payload_hash,
+        )
+        grant = self.grant_record(state, "reviewer", token)
+        rotated_private = self.project / "rotated-issuer-private.pem"
+        rotated_public = self.project / "rotated-issuer-public.pem"
+        subprocess.run(
+            ["openssl", "genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:2048", "-out", str(rotated_private)],
+            check=True, capture_output=True,
+        )
+        subprocess.run(
+            ["openssl", "pkey", "-in", str(rotated_private), "-pubout", "-out", str(rotated_public)],
+            check=True, capture_output=True,
+        )
+        previous = os.environ[controller.ACTOR_PUBLIC_KEY_ENV]
+        os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = str(rotated_public)
+        try:
+            state["strategy"]["program_version"] = 2
+            errors: list[str] = []
+            status = controller.audit_stored_grant(
+                state, grant, errors, "archived grant",
+                expected_program_version=1,
+            )
+            self.assertEqual(status, "retained_legacy")
+            self.assertEqual(errors, [])
+        finally:
+            os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = previous
+
+    def test_forged_quality_grant_blocks_quality_ready_and_phase_advance(self) -> None:
+        state = self.valid_state()
+        state["phase"] = "experience"
+        state["instance"]["status"] = "paused"
+        required = controller.applicable_quality_dimensions(state)
+        checkpoint = controller.current_quality_checkpoint(state)[2]
+        state["evidence"]["experience"][0].update(
+            {
+                "quality_dimensions": sorted(required), "outcome_id": "cap-1", "work_id": "cap-1",
+                "cycle_id": checkpoint, "rubric_version": "quality-v1",
+            }
+        )
+        for name, item in state["quality"]["dimensions"].items():
+            item["score"] = None
+            item["evidence"] = []
+            item["rubric_version"] = None
+            item["scored_by"] = None
+            item["reviewed_by"] = None
+            item["scorer_grant"] = None
+            item["reviewer_grant"] = None
+            item["binding"] = None
+            if name not in required:
+                continue
+            quality_values = {
+                "dimension": name, "score": 9, "evidence_ids": ["experience-1"],
+                "rubric_version": "quality-v1", "scored_by": "quality-scorer", "reviewed_by": "quality-reviewer",
+                "outcome_id": "cap-1", "work_id": "cap-1", "cycle_id": checkpoint,
+                "artifact_digest": controller.sha256_file(self.project / "experience.md"),
+            }
+            quality_payload_hash = controller.command_payload_hash(
+                "score-quality", controller.quality_command_payload(quality_values)
+            )
+            scorer = self.grant(
+                "quality-scorer", "score-quality", resource=f"quality:{name}", work_id="cap-1",
+                cycle_id=checkpoint, dimension=name, decision="score:9", payload_hash=quality_payload_hash,
+            )
+            reviewer = self.grant(
+                "quality-reviewer", "score-quality-review", resource=f"quality:{name}", work_id="cap-1",
+                cycle_id=checkpoint, dimension=name, decision="review:9", payload_hash=quality_payload_hash,
+            )
+            item.update(
+                {
+                    "score": 9,
+                    "evidence": ["experience-1"],
+                    "rubric_version": "quality-v1",
+                    "scored_by": "quality-scorer",
+                    "reviewed_by": "quality-reviewer",
+                    "scorer_grant": self.grant_record(state, "quality-scorer", scorer),
+                    "reviewer_grant": self.grant_record(state, "quality-reviewer", reviewer),
+                    "binding": {
+                        "outcome_id": "cap-1", "work_id": "cap-1", "cycle_id": checkpoint,
+                        "artifact_digest": controller.sha256_file(self.project / "experience.md"),
+                        "rubric_version": "quality-v1",
+                    },
+                }
+            )
+        authentic = self.report(state)
+        self.assertTrue(authentic["quality_ready"], authentic["errors"])
+        state["quality"]["dimensions"]["user_value"]["scorer_grant"] = self.forged_grant_record(
+            state, "quality-scorer", state["quality"]["dimensions"]["user_value"]["scorer_grant"]["token"]
+        )
+        report = self.report(state)
+        self.assertFalse(report["quality_ready"])
+        self.assertTrue(any("current decision issuer" in error for error in report["errors"]))
+        self.write_state(state)
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                controller.advance_phase(namespace(project=str(self.project), phase="delivery")),
+                2,
+            )
+        retained = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(retained["phase"], "experience")
+        self.assertEqual(retained["quality"]["dimensions"]["user_value"]["score"], 9)
+
+    def test_forged_certifier_grant_is_not_validation_valid(self) -> None:
+        state = self.valid_state()
+        state["controller"]["validation"]["certifier_grant"] = self.forged_grant_record(
+            state, "acceptance-reviewer", state["controller"]["validation"]["certifier_grant"]["token"]
+        )
+        report = self.report(state)
+        self.assertFalse(report["validation_valid"])
+        self.assertTrue(any("current decision issuer" in error for error in report["errors"]))
+
     def finish_grant(
         self,
         *,

@@ -1,0 +1,6 @@
+interface:
+  display_name: "HR Architect"
+  short_description: "Force scorecard hiring and people-system design"
+  default_prompt: "Use $hr-architect with $manage-company-program and one compact mission charter for hiring, recruiting, org design, onboarding, or performance management work. Do not load this skill on the master or on Luna workers."
+policy:
+  allow_implicit_invocation: false

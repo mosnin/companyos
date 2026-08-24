@@ -1,0 +1,6 @@
+interface:
+  display_name: "Corporate Departments"
+  short_description: "Force preset corporate department templates"
+  default_prompt: "Use $corporate-departments with $manage-company-program and one compact mission charter when compiling or running a named department. Load only the doctrine file for that function. Do not load this skill as the master persona or on Luna workers."
+policy:
+  allow_implicit_invocation: false

@@ -35,9 +35,12 @@ jobs:
         run: python3 -m unittest discover -s programs/company-os-self-hosting/reference -v
       - name: Verify execution fabric
         run: python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
+      - name: Verify Chippi north star guard
+        run: python3 skills/company-os/company-blueprint/scripts/assert_chippi_north_star.py --self-test
       - name: Verify Python compilation
         run: >-
           python3 -m py_compile
+          skills/company-os/company-blueprint/scripts/assert_chippi_north_star.py
           skills/company-os/navigation-control/scripts/navigation_control.py
           skills/company-os/mission-execution-control/scripts/mission_control.py
           skills/company-os/mission-execution-control/scripts/checkpoint_product.py

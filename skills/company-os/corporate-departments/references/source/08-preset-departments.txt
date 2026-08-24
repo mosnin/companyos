@@ -1,0 +1,48 @@
+CORPORATE DEPARTMENTS — SECTION 08: Preset Department Map
+
+Purpose
+Name the reusable corporate packs. Compile with `$company-blueprint`.
+Charter with `$department-charters`. Staff tiers with
+`$corporate-management`. Store created agents as department slots.
+
+Preset packs
+- executive-strategy: direction, portfolio, scorecard.
+  Doctrine: 07-strategy-product.txt
+- program-management: roadmaps, dependencies, decision records.
+  Doctrine: 01-issue-trees.txt
+- product: customer research, product strategy, accepted slices.
+  Doctrine: 07-strategy-product.txt
+- engineering-quality: build, verify, block unsafe release.
+  Doctrine: 01-issue-trees.txt
+- brand-creative: brand system, creative, content.
+  Doctrine: 02-marketing.txt for demand meaning; brand skill still wins
+  for craft.
+- marketing: demand generation, campaigns, market research.
+  Doctrine: 02-marketing.txt plus `$marketing-os`.
+- sales: qualification, pipeline, revenue conversion.
+  Doctrine: 03-sales.txt
+- customer-success: value realized, retention, voice of customer.
+  Doctrine: 03-sales.txt for handoff; commercial skill still wins.
+- finance: truth, forecast, allocation.
+  Doctrine: 05-finance.txt
+- operations: flow, incidents, capacity.
+  Doctrine: 04-operations.txt
+- human-resources: roles, hiring plans, org slices.
+  Doctrine: 06-people.txt
+- security-compliance: security, privacy, legal review.
+  Doctrine: 01-issue-trees.txt for risk structure.
+
+Rules
+- Marketing and Sales are separate packs. Do not restore a combined
+  commercial-growth department to save a slot.
+- Archetypes select subsets. software-company includes the full
+  corporate set. agency stays leaner. professional-services stays lean
+  and auto-selects Sales for revenue-growth.
+- Slots are templates, not running threads. Senior / master is never a
+  department slot.
+- A department exists only when mission, capabilities, playbooks,
+  decision rights, interfaces, metrics, approvals, and shutdown path
+  are concrete.
+- Do not enable the scheduler or runtime from this overlay.
+
+End of file.

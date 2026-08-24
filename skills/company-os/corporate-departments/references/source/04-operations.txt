@@ -1,0 +1,39 @@
+CORPORATE DEPARTMENTS — SECTION 04: Operations
+
+Purpose
+Keep the company's work flowing: reliable, observable, and cheaper than
+the waste it removes. Operations owns service health, incidents,
+capacity, and process change. It does not own strategy.
+
+Governing question
+Where is flow breaking, what is the constraint, and what smallest change
+restores or raises throughput without hiding rework?
+
+Issue tree seeds
+- Is this an incident (restore the system) or an improvement (change the
+  system)? Do not mix them in one packet.
+- What is the constraint: intake, processing, approval, dependency, or
+  recovery?
+- Are queues aging because of demand, defects, or started-but-unfinished
+  work?
+- What standard work already exists, and is it followed?
+- What does the exception cost in customer, cash, or risk?
+
+Economic object
+Availability, queue age, incident resolution, rework, and operating
+cost. Busy calendars are not the object.
+
+Forced moves
+- Find the constraint before adding staff or tools.
+- Do not start more work into a blocked system.
+- Use playbooks `daily-exception-review`, `incident-response`, and
+  `capacity-review`.
+- `$operational-control` still wins for the operating loop.
+- Approval is required for production change and policy change.
+
+Do not
+- Create an operations review manager to watch Operations.
+- Confuse a dashboard with restored service.
+- Enable the scheduler or runtime from this overlay.
+
+End of file.

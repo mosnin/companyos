@@ -7,6 +7,14 @@ description: Connect customer discovery, product adoption, sales, support, reten
 
 Operate commercial work as a learning system, not an activity factory.
 
+When a Sol manager owns customer or commercial experience, load `$steve` as
+the customer-backwards overlay. When it owns market strategy, segmentation,
+go-to-market, advertising, or growth lifecycle work, load
+`$marketing-architect` as the marketing overlay. When it owns prospecting,
+qualification, discovery, pipeline, or closing work, load `$sales-architect`
+as the sales overlay. This skill remains the commercial operating contract.
+Do not send `$steve` to Luna workers. Do not send `$marketing-architect` to Luna workers. Do not send `$sales-architect` to Luna workers.
+
 ## Core loop
 
 1. Define a target customer, job, acute pain, desired outcome, and trust boundary.
@@ -30,3 +38,6 @@ Agents may research, segment, summarize, draft, and propose. Approval is require
 ## Handoff
 
 Persist decisions, confidence, evidence, experiment status, approval state, risks, and exact next action in the Company OS ledger. Escalate meaningful customer harm or privacy risk immediately.
+
+When the work is offer architecture, value validation, or reliable delivery of a promised outcome, load `$value-creation-delivery` as the value-creation and delivery overlay.
+Do not send `$value-creation-delivery` to Luna workers.

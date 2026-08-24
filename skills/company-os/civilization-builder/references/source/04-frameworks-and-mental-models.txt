@@ -1,0 +1,93 @@
+CIVILIZATION BUILDER ARCHITECT — SECTION 04: Frameworks and Mental Models
+
+Purpose
+Provide reusable cognitive machinery for analyzing and designing civilization scale systems.
+
+Framework 1: Five Layer Civilization Stack
+Layer 1 Physical infrastructure
+Layer 2 Institutional governance
+Layer 3 Industrial production
+Layer 4 Technological platform
+Layer 5 Digital ecosystem
+
+Usage
+Map any proposed build across all five layers. If the system only exists at one layer with no dependencies or compounding effects, it is likely not civilizational in scope.
+
+Framework 2: Builder Opportunity Equation
+Impact = bottleneck severity x population affected x durability x platform leverage x compounding rate
+
+Usage
+Score each factor from 1 to 10.
+Prioritize opportunities with high bottleneck severity, high reuse, and long system life.
+
+Framework 3: Constraint to Civilization Loop
+1. Observe friction
+2. Isolate root bottleneck
+3. Build enabling substrate
+4. Standardize interfaces
+5. Scale production or adoption
+6. Let complements emerge
+7. Institutionalize governance
+
+Framework 4: Platform Depth Test
+A true platform should:
+- support many downstream use cases
+- reduce marginal cost for new complements
+- become more valuable as others adopt it
+- create switching costs or ecosystem gravity
+
+Framework 5: Vertical Integration Decision Model
+Integrate when:
+- supply instability threatens category creation
+- quality variance destroys user trust
+- the learning loop across components matters
+- time to scale is strategic
+
+Modularize when:
+- interfaces are mature
+- complements are abundant
+- internal coordination cost exceeds control gains
+
+Framework 6: State Builder Lens
+Questions
+- What is the unit of coordination
+- What must be standardized
+- What must be measured
+- What must be enforced
+- What infrastructure legitimizes rule
+
+Framework 7: Industrial Builder Lens
+Questions
+- What is the throughput bottleneck
+- What can be automated
+- What variance can be removed
+- What learning curve lowers cost over time
+
+Framework 8: Tech Platform Lens
+Questions
+- What primitive becomes universally useful
+- What protocol or architecture can dominate
+- What developer or operator ecosystem emerges
+
+Framework 9: Ecosystem Architect Lens
+Questions
+- What integrated experience rewires default behavior
+- How do hardware, software, services, and distribution reinforce each other
+- Where are feedback loops strongest
+
+Mental model library
+- First principles decomposition
+- Bottleneck analysis
+- Standardization and protocol dominance
+- Second order effects
+- Vertical integration versus modularity
+- Network effects
+- Learning curves
+- Coordination cost minimization
+- Optionality through platform design
+
+Worked mini examples
+AC power systems -> primitive utility platform -> new appliances and industry
+Assembly line -> throughput system -> mass consumer access
+iPhone ecosystem -> integrated device and software stack -> developer complements and lock in
+Starlink -> space based communications infrastructure -> resilience and global reach

@@ -1,0 +1,85 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 01: HR Operating Model and Talent Strategy
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+How HR and hiring connect to strategy, and how to build an HR operating model even in small teams.
+
+1) Talent Strategy
+Start with business strategy inputs:
+1) growth plan: revenue goals, products, markets
+2) operating model: how work gets done (sales-led, product-led, services, hybrid)
+3) constraints: time-to-market, quality, compliance, cash
+Then translate into:
+1) headcount plan (roles + timing)
+2) capability plan (skills you must own vs buy)
+3) leadership bandwidth plan (who manages whom)
+
+2) HR Operating Models
+Option A: founder-led HR (early)
+1) simple processes, high context, fast iteration
+2) risks: inconsistency, bias, missing documentation
+Option B: ops-led HR (scale)
+1) documented processes, scorecards, tooling
+2) risks: bureaucracy if overbuilt
+Option C: HRBP model (larger)
+1) HR partners embedded by business unit, metrics-driven enablement
+
+3) Core Metrics
+Leading indicators:
+1) time-to-first-response to applicants
+2) applicant to screen conversion
+3) screen to interview conversion
+4) interview to offer conversion
+5) offer acceptance rate
+6) time-to-productivity
+Lagging indicators:
+1) 90-day retention
+2) performance distribution at 6–12 months
+3) regretted attrition
+Quality of hire (practical composite):
+1) manager satisfaction at 90 days
+2) objective output milestones hit
+3) retention at 6–12 months
+
+4) Hiring Flywheel
+Define, Source, Screen, Evaluate, Close, Onboard, Perform, Refer.
+For each stage define:
+1) owner
+2) SLA
+3) assets/templates
+4) metrics
+5) review cadence
+
+Deliverables
+1) talent strategy one-pager
+2) headcount and capability plan
+3) hiring flywheel with SLAs
+4) metrics dashboard spec
+
+End of file.

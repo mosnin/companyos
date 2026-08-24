@@ -199,6 +199,58 @@ def _mission_module():
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module); return module
 
 
+def _skill_foundry_module():
+    path = Path(__file__).resolve().parents[2] / "recursive-skill-foundry/scripts/skill_foundry.py"
+    spec = importlib.util.spec_from_file_location("company_os_recursive_skill_foundry", path)
+    if spec is None or spec.loader is None:
+        raise OrganizationError("E_SKILL", "recursive skill foundry is unavailable")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _project_skill_assignment(
+    project_root: Path,
+    lane: Mapping[str, Any],
+    worker_task: str,
+) -> dict[str, Any] | None:
+    registry = project_root / ".company-os/skill-foundry/registry.json"
+    if not registry.is_file():
+        return None
+    module = _skill_foundry_module()
+    query = " ".join(
+        value
+        for value in (
+            str(lane.get("lane_id") or ""),
+            str(lane.get("mandate") or ""),
+            worker_task,
+        )
+        if value
+    )
+    results = module.search_registry(project_root, query, limit=4).get("results", [])
+    selected = [
+        item
+        for item in results
+        if isinstance(item, Mapping) and int(item.get("score", 0)) >= 4
+    ][:2]
+    if not selected:
+        return None
+    names = [str(item["skill_name"]) for item in selected]
+    rationale = {
+        name: "The promoted project skill directly matches the active outcome lane and was selected from the content addressed project registry."
+        for name in names
+    }
+    lane_id = re.sub(r"[^a-z0-9]+", "-", str(lane.get("lane_id") or "lane").lower()).strip("-")
+    return module.assign_project_skills(
+        project_root,
+        assignment_id=f"outcome-{lane_id or 'lane'}-worker",
+        role="worker",
+        skill_names=names,
+        execution_order=names,
+        rationale=rationale,
+    )
+
+
 def _engineering_root(objective_id: str, request: Mapping[str, Any]) -> dict[str, Any]:
     module = _engineering_module()
     raw = request.get("engineering_execution_contract")
@@ -351,6 +403,11 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
         work_class = "evaluation" if state.get("phase") == "evaluate" else "repair" if state.get("phase") == "rework" else "implementation"
         outcome_context["mission_control"] = mission_control
         outcome_context["work_admission"] = admission
+        project_skill_assignment = _project_skill_assignment(project_root, lane, worker_task)
+        if project_skill_assignment is not None:
+            outcome_context["project_skill_assignment"] = project_skill_assignment
+            ordered = ", ".join(project_skill_assignment["execution_order"])
+            worker_task += f" Load only the exact bound project skill entrypoints in this order: {ordered}. Verify every entrypoint digest before use and do not discover unassigned project skills."
         if replace_worker or replace_manager:
             worker_task += " This is a replacement context. Read the durable artifact and runtime evidence, do not repeat the failed strategy, and move the current global bottleneck."
         workers = [{"id": worker_id, "model": "gpt-5.6-luna", "task": worker_task, "acceptance": acceptance, "write_scope": worker_write_scope, "risk": "medium", "budget": dict(manager_budget), "work_class": work_class, "mission_control": mission_control, "work_admission": admission, "outcome_context": outcome_context, "engineering_execution_contract": worker_engineering, "stop_condition": stop_condition, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha}]

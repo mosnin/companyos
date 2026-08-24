@@ -1,0 +1,33 @@
+CORPORATE DEPARTMENTS — SOURCE PACK INDEX
+
+This kit is a compiled Company OS thinking overlay. It is not a claim to be
+McKinsey, BCG, Bain, or any named firm. Load one primary file for the named
+decision. Do not invent a fourth executable hop.
+
+Decision -> file
+- Structure the governing question -> 01-issue-trees.txt
+- Marketing demand and meaning -> 02-marketing.txt
+- Sales qualification and revenue -> 03-sales.txt
+- Operations flow and reliability -> 04-operations.txt
+- Finance truth and allocation -> 05-finance.txt
+- People capability and structure -> 06-people.txt
+- Strategy and product choices -> 07-strategy-product.txt
+- Preset department map -> 08-preset-departments.txt
+
+Shared operating rules
+- Name the department from the preset catalog before inventing a new one.
+- Marketing and Sales are separate decision rights.
+- Issue trees before workplans. Branches must not overlap. Coverage must
+  be complete enough for the decision.
+- Activity is not the economic object. Customer, cash, capacity,
+  capability, or risk is.
+- Tokens follow the global bottleneck, not the org chart. Do not spawn an
+  audit manager or paste this pack into prompts.
+- `$manage-company-program` still wins for delivery.
+- `$govern-outcome-execution` still wins for spend.
+- `$force-first-execution` still wins for motion. A framework memo is not
+  progress.
+- Do not hire, spend, publish, mutate CRM or HRIS, or enable the
+  scheduler or runtime from this overlay.
+
+End of index.

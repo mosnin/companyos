@@ -1,0 +1,28 @@
+CORPORATE MANAGEMENT — SECTION 03: Levels of Management
+
+Purpose
+Name four corporate tiers without adding a fabric role.
+
+Tiers
+1) Top / senior management
+   Owns goals, policy, and long-horizon decisions for the whole company or
+   program. Main role: planning and decision making.
+2) Middle management
+   Implements senior plans, coordinates departments, and is the bridge
+   between senior decisions and daily work. Main role: coordinating and
+   implementing.
+3) Low-level management
+   Directs one team on one bounded outcome. Supervises daily work and local
+   control. Main role: directing and locally controlling the slice. Does
+   not perform staff labor.
+4) Employees / staff
+   Perform the named work packet. They do not spawn children, set strategy,
+   or accept their own work.
+
+Rules
+- A person or agent has one tier per charter.
+- Senior is never a Luna worker.
+- Staff never act as master.
+- Do not invent a fifth tier to fit a preferred org chart.
+
+End of file.

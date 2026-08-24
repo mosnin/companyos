@@ -1,0 +1,44 @@
+CORPORATE DEPARTMENTS — SECTION 01: Issue Trees
+
+Purpose
+Turn a vague department worry into one governing question and a tree of
+non-overlapping causes or choices. Analysis follows the tree. The tree
+does not follow a slide habit.
+
+Operating definition
+An issue tree starts from the decision the company must make, then splits
+that decision into branches that are mutually exclusive and collectively
+exhaustive enough for the decision. Each branch carries a hypothesis and
+a kill rule. Work that does not change a branch is waste.
+
+How to build
+1. Write the governing question as a decision, not a topic. "Should we
+   raise price in segment A this quarter?" is a question. "Pricing" is
+   not.
+2. Split into MECE branches: either the logic of the answer (yes because
+   / no because) or the drivers of the result (volume, price, mix, cost).
+   Do not mix a driver tree with a yes-no tree in the same drawing.
+3. Stop splitting when a leaf can be answered with one fact packet.
+4. State the hypothesis and the evidence that would kill it before
+   gathering data.
+5. Sequence work by expected decision value, not by ease or completeness.
+
+Inclusion
+- Facts, inferences, and opinions stay labeled.
+- Disconfirming evidence is a first-class leaf, not an appendix.
+- A branch with no owner is not a workstream.
+
+Exclusion
+- Do not boil the ocean. Completeness is for the decision, not the
+  universe.
+- Do not start a workplan, campaign, hire, or model before the tree
+  names what would change the recommendation.
+- Do not use the tree as decoration after the answer was chosen.
+
+Company OS rule
+This overlay does not own authority or completion. `$force-first-execution`
+still wins: the first artifact is the tree and the smallest fact packet,
+not a framework memo. `$execute-outcome-evaluator` still wins for scores.
+Rejected commands must not mutate governed state.
+
+End of file.

@@ -1,0 +1,61 @@
+DESIGN ARCHITECT DOCTRINE — SECTION 03: The 7 Stages of Action
+
+Purpose
+Apply the principles of "The Design of Everyday Things" to digital product design so the right action is obvious
+and the wrong action is hard. Produce design decisions, UI structures, copy, interaction patterns, and tests
+that reduce the gulfs of execution and evaluation.
+
+Non‑negotiable thesis
+Make the right action obvious and the wrong action hard.
+
+============================================================
+3) The 7 stages of action (how people actually operate)
+1) Form goal
+2) Form intention
+3) Specify action sequence
+4) Execute action
+5) Perceive system state
+6) Interpret system state
+7) Evaluate outcome against goal
+
+Design implications:
+1) Support goal formation with clarity of purpose.
+2) Support intention and planning with understandable options and mappings.
+3) Support execution with clear controls and constraints.
+4) Support evaluation with immediate, meaningful feedback.
+
+Implementation guidance: stage‑by‑stage UI questions
+1) Form goal
+• does the UI explain the purpose in user language?
+• does it indicate who it is for?
+
+2) Form intention
+• are next steps obvious?
+• is the primary action dominant?
+
+3) Specify action sequence
+• is the sequence natural?
+• are steps chunked and named by outcome?
+
+4) Execute action
+• are controls reachable, labeled, and consistent?
+• do constraints prevent invalid actions?
+
+5) Perceive system state
+• can the user see progress, completion, and errors?
+• is there a stable indicator of status?
+
+6) Interpret system state
+• do messages explain meaning, not codes?
+• are errors framed as “what happened + why + how to fix”?
+
+7) Evaluate outcome
+• is success confirmed and measurable?
+• does the UI show the next best action?
+
+Deliverables
+1) 7‑stage review checklist
+2) “next best action” mapping for each success state
+3) error message template: what, why, fix, recover
+
+End of file.

@@ -5,7 +5,7 @@ description: Manage one bounded Company OS outcome through native Codex tasks. U
 
 # Manage Company Program
 
-Operate `company-os.manager-role.v2`. The manager exists to make the requested outcome real. Operate as a destination controller: observe the evidence-bound current state, orient against the original objective and current waypoint, execute the highest-value safe route action, verify the environment changed, and replan. Planning, research, architecture, audits, receipts, and governance are sensor inputs; they are not substitutes for motion. Verify the exact `$mission-execution-control` and `$navigation-control` state plus work-admission receipt before dispatch; a paused class, stale generation, replacement order, stalled trajectory, or expired mission changes or stops the old context.
+Operate `company-os.manager-role.v2`. The manager exists to make the requested outcome real. Operate as a destination controller: observe the evidence-bound current state, orient against the original objective and current waypoint, execute the highest-value safe route action, verify the environment changed, and replan. Planning, research, architecture, audits, receipts, and governance are sensor inputs; they are not substitutes for motion. Verify the exact `$mission-execution-control` and `$navigation-control` state plus work-admission receipt before dispatch; a paused class, stale generation, replacement order, stalled trajectory, or expired mission changes or stops the old context. Before the first heartbeat, load `$middle-manager-operating-doctrine`. It is manager-only thinking; do not send it to Luna workers.
 
 ## Executive heartbeat
 
@@ -28,7 +28,7 @@ For reversible local work—source edits, builds, tests, browser/simulator runs,
 - Use `$force-first-execution`: require early materialized bytes, a runnable candidate, direct observation, verification, and prompt decision. Commentary earns zero progress credit.
 - Research becomes pull-based after execution starts. Build/calibrate evaluators after a candidate exists unless an evaluator is required to make execution safe.
 - Checkpoint tested product bytes promptly and integrate continuously.
-- For UI work classify the lane `ui_design`, bind `$ui-design-quality`, render the real interface, and independently inspect interaction, accessibility, responsive states, motion, and performance.
+- For UI work classify the lane `ui_design`, bind `$ui-design-quality` and `$interface-design`, render the real interface, and independently inspect interaction, accessibility, responsive states, motion, and performance.
 
 ## Resource modes
 
@@ -68,3 +68,7 @@ Report only:
 - next highest-leverage execution action.
 
 Receipts remain required where contracted, but they are bookkeeping around the artifact, not the artifact itself.
+
+## Reusable mechanism compounding
+
+Before dispatch, prefer an exact verified `$recursive-skill-foundry` project skill. Forge only for an explicit request or blocking reusable gap. Learned promotion requires two independent accepted uses. Managers cannot self promote, count skill creation as product motion, or widen authority.

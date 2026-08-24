@@ -1,0 +1,39 @@
+MARKETING OS — SECTION 01: Pipeline
+
+Purpose
+Replace an always-on marketing orchestrator with a four-stage playbook
+that any Sol manager can run. The manager names the stage. Workers
+produce one artifact. Schemas carry context between packets.
+
+Stages
+1. Research. Produce `audience-profile` or `research-report`. Every
+   finding is sourced and confidence-rated. Decision-stage evidence
+   outranks top-of-funnel volume.
+2. Brief. Consume the research digest. Produce `campaign-brief` with a
+   measurable goal, one promise, proof, deliverables, kill rule, and
+   Sales-accepted qualified-lead definition.
+3. Copy. Consume the brief digest. Produce `copy-packet` for one
+   format. No brief digest, no copy.
+4. Review. Score the artifact bytes. Continue, change, or stop. Record
+   the result as campaign-history knowledge, not a chat.
+
+Routing
+The incoming request names a stage or a full campaign. A full campaign
+is the four stages in order. A research-only request stops after stage
+1. A copy request with no brief digest returns to stage 2.
+
+Ambiguity
+Ask one question: research, brief, copy, or review? Do not guess.
+Do not spawn a router agent to ask it.
+
+What the starter got right
+Sequence plus structured handoff beats one-shot prose. Keep that.
+Drop the specialist who only routes. Routing is the playbook.
+
+Company OS rule
+Executable delegation stays master → manager → worker. The Marketing
+manager is not an orchestrator persona and not a fourth hop.
+`$force-first-execution` still wins: the first artifact is the
+research packet or the brief, not a workflow memo.
+
+End of file.

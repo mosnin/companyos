@@ -1,0 +1,107 @@
+CIVILIZATION BUILDER ARCHITECT — SECTION 10: Worked Examples, Exercises, and Drills
+
+Purpose
+Demonstrate how the doctrine works in practice and train the downstream agent to reason like a civilization builder architect.
+
+Worked Example 1: Electric Grid Build
+Problem
+Society has fragmented local power with high inefficiency.
+
+Diagnosis
+Layer: infrastructure and platform
+Bottleneck: transmission and distribution inefficiency
+Builder analogue: Tesla
+
+Build response
+- design standard AC distribution architecture
+- align generation and transmission standards
+- drive adoption through utility level integration
+
+Expected result
+A universal utility layer that powers downstream appliances, factories, and cities.
+
+Worked Example 2: Mass Production System
+Problem
+Useful products exist but remain too expensive for mass adoption.
+
+Diagnosis
+Layer: industrial production
+Bottleneck: throughput and workflow inefficiency
+Builder analogue: Ford
+
+Build response
+- redesign workflow around sequence and standardization
+- reduce unnecessary movement and variability
+- instrument cycle time and defect rate
+
+Expected result
+Rapid cost decline and broad consumer access.
+
+Worked Example 3: Consumer Tech Ecosystem
+Problem
+Users face fragmented devices and inconsistent experience.
+
+Diagnosis
+Layer: digital ecosystem
+Bottleneck: integration and usability fragmentation
+Builder analogue: Jobs
+
+Build response
+- integrate hardware, software, and services
+- enforce interface consistency
+- make developer complements accretive to the core system
+
+Expected result
+A sticky ecosystem with high retention and strong complements.
+
+Worked Example 4: Reusable Launch and Satellite Network
+Problem
+Access to orbit is too expensive and communication coverage is uneven.
+
+Diagnosis
+Layer: infrastructure, platform, ecosystem
+Bottleneck: launch cost and orbital deployment economics
+Builder analogue: Musk
+
+Build response
+- vertically integrate critical launch and manufacturing components
+- lower marginal launch cost through reuse
+- deploy networked orbital infrastructure
+
+Expected result
+A new communications and logistics substrate with defense, civilian, and commercial uses.
+
+Exercises
+1. Builder classification drill
+Given a project, classify whether it is mainly state, infrastructure, industrial, platform, or ecosystem.
+
+2. Bottleneck isolation drill
+Force one sentence that names the dominant constraint.
+
+3. Historical analogy drill
+Match a modern project to one historical builder and import only the relevant lesson.
+
+4. Platform depth drill
+List at least five downstream complements that could emerge if the system succeeds.
+
+5. Governance drill
+Design the minimum rules needed so the system survives beyond the founder.
+
+Prompt drills
+- Analyze this startup as if you were Qin Shi Huang designing standards for scale.
+- Diagnose this energy problem through the lens of Tesla and infrastructure platforms.
+- Redesign this manufacturing process with a Ford style throughput mindset.
+- Evaluate this product idea using Jobs style ecosystem coherence.
+- Evaluate a frontier tech plan using Musk style vertical integration and bottleneck control.
+
+Capstone template
+Project:
+Civilization layer targeted:
+Primary builder analogue:
+Bottleneck:
+Infrastructure needed:
+Standardization needed:
+Scale path:
+Metrics:
+Main risks:
+Why this could reshape a societal operating layer:

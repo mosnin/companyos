@@ -71,11 +71,63 @@
         }
       }
     },
-    "authority": {"type": "object"},
-    "brand": {"type": "object"},
-    "knowledge": {"type": "object"},
-    "assets": {"type": "array"},
-    "integrations": {"type": "array"},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approval_required", "prohibited_actions"],
+      "properties": {
+        "approval_required": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "prohibited_actions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["principles", "references"],
+      "properties": {
+        "principles": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "references": {"type": "array"}
+      }
+    },
+    "knowledge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classifications", "retention_policy", "sources"],
+      "properties": {
+        "classifications": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "retention_policy": {"type": "string", "minLength": 1},
+        "sources": {"type": "array"}
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "locator"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+          "kind": {"type": "string", "minLength": 1},
+          "locator": {"type": "string", "minLength": 1},
+          "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "integrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "locator", "permission_mode"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+          "kind": {"enum": ["mcp", "plugin", "api", "repository", "database", "filesystem", "human"]},
+          "locator": {"type": "string", "minLength": 1},
+          "permission_mode": {"enum": ["read_only", "proposal_only", "approved_write", "unavailable"]},
+          "credential_reference": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"}
+        }
+      }
+    },
     "storage": {
       "type": "object",
       "additionalProperties": false,
@@ -86,7 +138,30 @@
         "schema": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
       }
     },
-    "cadence": {"type": "object"},
-    "unknowns": {"type": "array"}
+    "cadence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["daily", "weekly", "monthly"],
+      "properties": {
+        "daily": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+        "weekly": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+        "monthly": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"}
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question", "blocking", "owner", "resolution"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+          "question": {"type": "string", "minLength": 1},
+          "blocking": {"type": "boolean"},
+          "owner": {"type": "string", "minLength": 1},
+          "resolution": {"type": "string", "minLength": 1}
+        }
+      }
+    }
   }
 }

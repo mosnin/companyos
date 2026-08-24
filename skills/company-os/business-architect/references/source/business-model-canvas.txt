@@ -1,0 +1,144 @@
+file_name: business_model_canvas_invoker.txt
+purpose: >
+  A reusable, invoke-anytime .txt blueprint that lets the user paste a business description
+  (or minimal inputs) and receive a complete, high-quality Business Model Canvas (BMC)
+  plus assumptions, risks, tests, and next actions.
+how_to_use:
+  overview: >
+    This file is meant to be copied into your agent system or prompt library.
+    When you want a Business Model Canvas, you paste:
+    1) the contents of this file (as system or prepended context),
+    2) then a short "BUSINESS INPUT" section describing the business.
+  invocation_phrases:
+    - "Invoke BMC"
+    - "Build the Business Model Canvas"
+    - "BMC for: <business name>"
+  expected_output_artifacts:
+    - "Business Model Canvas (9 blocks) written in crisp bullets"
+    - "Assumptions ledger (what must be true)"
+    - "Risk and bottleneck analysis"
+    - "Validation plan (tests, metrics, time boxes)"
+    - "30/60/90 execution plan with owners and KPIs"
+    - "Optional: unit economics and pricing sensitivity"
+operating_rules:
+  scope_control:
+    rule: >
+      Never invent business facts. If the user does not provide a detail,
+      explicitly mark it as an assumption and propose 2–4 plausible options.
+  no_clarifying_questions_default:
+    rule: >
+      Do not ask clarifying questions unless the business cannot be modeled at all.
+      Instead, produce a best-effort BMC using assumptions and show them.
+  precision:
+    rule: >
+      Prefer specific mechanisms: who pays, why they pay, how they discover,
+      how fulfillment works, what the bottleneck is, and what the leading metric is.
+  format:
+    rule: >
+      Use headings for each BMC block. Use short bullets. Add a dedicated
+      "Assumptions" subsection under each block when needed.
+input_contract:
+  user_input_template: |
+    BUSINESS INPUT
+    Name:
+    One-liner:
+    Type: (SaaS, ecom, marketplace, agency, app, media, etc.)
+    Target customer:
+    Primary problem:
+    Current stage: (idea, MVP, revenue, scaling)
+    Offer(s):
+    Pricing (if known):
+    Acquisition channels (if known):
+    Fulfillment/delivery:
+    Differentiation:
+    Constraints: (budget, time, skills, geography, compliance)
+    Current metrics (if any):
+  minimum_viable_input:
+    description: >
+      If the user provides only a name + one-liner, the invoker must still build a canvas by:
+      1) selecting a likely business type from context,
+      2) choosing default customer segments and channels consistent with that type,
+      3) marking everything else as assumptions with test plans.
+output_spec:
+  section_order:
+    - "1. Business Snapshot"
+    - "2. Business Model Canvas"
+    - "3. Assumptions Ledger"
+    - "4. Unit Economics (if applicable)"
+    - "5. Bottlenecks and Risks"
+    - "6. Validation and Experiments"
+    - "7. Execution Plan (30/60/90)"
+    - "8. Optional Variants (alt canvases)"
+  depth_standard:
+    business_snapshot:
+      includes:
+        - "Core thesis: why this wins"
+        - "Primary customer and job-to-be-done"
+        - "Moat hypothesis"
+        - "Main constraint"
+        - "Single leading KPI"
+    bmc_block_depth:
+      instruction: >
+        Each block must include:
+        - Core bullets (what it is)
+        - Mechanics (how it works in practice)
+        - Metrics (how to measure it)
+        - Assumptions (explicit)
+        - Failure modes (what breaks it)
+business_snapshot_logic:
+  core_thesis_framework:
+    formula: >
+      "We win because [customer] has [urgent problem] and current alternatives fail due to
+      [gap]. Our offer delivers [quantified outcome] via [mechanism], distributed through
+      [channel], with retention driven by [loop/moat]."
+  leading_kpi_selector:
+    rules:
+      - "SaaS: activation rate, WAU/MAU, net revenue retention, CAC:LTV"
+      - "Ecom: contribution margin per order, repeat rate, MER"
+      - "Marketplace: liquidity metrics, take rate, GMV, time-to-match"
+      - "Agency: gross margin, utilization, sales cycle length, churn"
+business_model_canvas:
+  key_partners:
+    intent: >
+      External entities that reduce cost/risk, increase reach, or enable delivery.
+    include:
+      - "Supplier stack (data, infra, manufacturers, payment processors)"
+      - "Distribution partners (affiliates, platforms)"
+      - "Credibility partners (certifications, influencers, associations)"
+      - "Strategic complements (bundles, integrations)"
+    mechanics_prompts:
+      - "What do we buy vs build?"
+      - "Who has the audience we need?"
+      - "Where do we borrow trust?"
+    metrics:
+      - "Partner-sourced revenue %"
+      - "Partner CAC vs direct CAC"
+      - "Dependency risk score"
+    failure_modes:
+      - "Single point of failure dependency"
+      - "Channel conflict"
+      - "Partner incentives misaligned"
+  key_activities:
+    intent: >
+      The few actions that must be done exceptionally well to deliver value and grow.
+    include:
+      - "Product creation and iteration loop"
+      - "Demand generation and conversion"
+      - "Fulfillment and customer success"
+      - "Operations and quality control"
+    mechanics_prompts:
+      - "What are the 2–3 activities that create 80% of value?"
+      - "What activities compound over time?"
+    metrics:
+      - "Cycle time (idea→ship)"
+      - "Conversion rate by funnel stage"
+      - "Support tickets per customer"
+    failure_modes:
+      - "Too many activities, no focus"
+      - "Non-scalable manual steps"
+  key_resources:
+    intent: >
+      The assets required to make the model work.
+    categories:
+      physical: ["inventory", "equipment", "warehouses"]
+     

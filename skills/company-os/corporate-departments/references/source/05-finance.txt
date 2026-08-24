@@ -1,0 +1,38 @@
+CORPORATE DEPARTMENTS — SECTION 05: Finance
+
+Purpose
+Keep financial truth and allocate scarce cash against company outcomes.
+Finance owns reconciliation, forecast, variance, and spend control. It
+does not own the product thesis.
+
+Governing question
+What is true about cash and contribution, which bets still earn the
+cost of capital, and what spend must stop?
+
+Issue tree seeds
+- Cash versus profit: which statement is the decision using, and is it
+  reconciled?
+- Unit economics: price, cost to serve, conversion, payback, and
+  concentration risk.
+- Variance: volume, price, mix, or cost? Explain before reallocating.
+- Capital allocation: continue, pivot, pause, or stop each named bet.
+- Forecast: which assumptions, if wrong, change the decision?
+
+Economic object
+Cash runway, contribution, budget variance, and forecast accuracy.
+Optimism is not the object.
+
+Forced moves
+- Reconcile before advising.
+- Use playbooks `monthly-close`, `budget-review`, and
+  `scenario-modeling`.
+- Block unapproved spend. Approval is required for financial
+  commitment, payment, and banking change.
+- `$company-scorecard` still wins for the decision dashboard.
+
+Do not
+- Average missing actuals into a green forecast.
+- Fund scale before unit economics are true.
+- Move money, pay, or change banking from this overlay.
+
+End of file.

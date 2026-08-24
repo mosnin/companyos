@@ -1,0 +1,15 @@
+{
+  "$schema": "company-os.marketing-copy-packet.v1",
+  "body": "Your weekly operations report should not take a week to rebuild. Acme's fixture offer is a first connected report, not another dashboard login.",
+  "brief_digest": "6c10d9e820227cf7b093775c808cb4099ec2684aee43b44d589823a569dabdb5",
+  "claims": [
+    {
+      "claim": "This packet is a fixture, not a live performance result",
+      "source": "Company OS marketing-os example corpus"
+    }
+  ],
+  "cta": "Request a design-partner review",
+  "format": "linkedin-post",
+  "packet_id": "acme-first-report-post",
+  "voice_check": "Uses calm specific language and states the fixture limit"
+}

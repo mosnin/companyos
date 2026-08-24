@@ -1,0 +1,11 @@
+Company Context Ledger source pack
+
+01-what-it-is.txt
+  Boundary. company-os-web stores context. It is not a control plane.
+
+02-connect-harnesses.txt
+  Claude Code, Claude Cowork, ChatGPT Work, and Grok share one MCP URL.
+
+03-write-contract.txt
+  document.put is revision-checked. run.append is append-only.
+  Shared writes need writeShared. Department writes stay in lane.

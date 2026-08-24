@@ -1,0 +1,66 @@
+OPERATIONS ARCHITECT DOCTRINE — SECTION 10: Project Management and Agile Delivery: CPM, Resources, Risk, Scrum
+
+Purpose
+Create an expert-level operations playbook for designing, measuring, and improving systems that move work through processes.
+This doctrine is built for execution: convert messy reality into flow models, constraints, queue designs, inventory policies,
+forecasting systems, supply chain structures, and delivery cadences.
+
+Core Model
+1) Work flows through a process; the process has capacity and variability.
+2) Variability creates queues; queues create time.
+3) Inventory is a buffer against variability, but has costs.
+4) Constraints determine throughput; improvement must focus on the constraint.
+5) Delivery is governed by network logic (critical path), resource limits, and feedback loops.
+
+Operating Rules
+1) Optimize the system, not local steps.
+2) Measure flow and variability before changing structure.
+3) Improve the bottleneck first; subordinate everything else.
+4) Use policies (batching, reorder points, WIP limits) to control variability.
+5) Prefer simple, stable policies that survive estimation error.
+
+============================================================
+Scope
+Execute operational change through projects and delivery cadences.
+
+Part A: Project Management
+1) Initiation
+Outputs: charter, scope, success criteria, stakeholders, constraints, assumptions, risks.
+
+2) Scheduling and Critical Path
+Build AON network; compute critical path and slack; protect critical activities.
+
+3) Duration Uncertainty
+Use ranges where possible; avoid single-point illusions.
+
+4) Resource Constraints
+Schedules are only real with resources.
+Level resources; reduce multitasking; enforce WIP limits on projects.
+
+5) Risk and Cost Management
+Maintain risk register: probability, impact, triggers, mitigation, contingency, owner.
+Track baseline budget, committed, actual, forecast at completion.
+
+6) Closing
+Acceptance criteria met; handoff to operations with SOPs; lessons learned; post-launch metrics.
+
+Part B: Agile and Scrum
+1) Waterfall vs Agile
+Waterfall fits stable requirements; Agile fits learning and iteration.
+
+2) Scrum Elements
+Roles: product owner, scrum master, team.
+Artifacts: backlog, sprint goal, definition of done, increment.
+Events: planning, daily sync, review, retrospective.
+
+3) Tracking Progress
+Use burn down, cycle time, throughput, and quality metrics, not only percent complete.
+
+Deliverables
+1) project charter and AON schedule
+2) critical path plus buffers
+3) resource leveling plan
+4) risk register and cost dashboard
+5) scrum cadence and backlog policy
+
+End of file.

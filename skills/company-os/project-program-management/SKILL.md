@@ -76,3 +76,6 @@ milestone progress.
 ## Handoff
 
 Release only approved slices to the Autonomy Suite with an execution contract, quality gate, approvals, release plan, and rollback. Reconcile execution evidence against roadmap and outcomes at each checkpoint.
+
+When the work is project scoping, phase planning, work breakdown, risk, or a 24-72h execution workflow, load `$project-manager` as the project-management overlay.
+Do not send `$project-manager` to Luna workers.

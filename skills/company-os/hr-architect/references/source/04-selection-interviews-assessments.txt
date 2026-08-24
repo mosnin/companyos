@@ -1,0 +1,84 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 04: Selection Systems: Screening, Structured Interviews, Work Samples, Fairness
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Evidence-based selection: screens, structured interviews, assessments, work samples, and fairness controls.
+
+1) Selection Design Principles
+1) job-related evaluation (linked to role requirements)
+2) structured process: same questions, same rubric
+3) multiple signals: interview + work sample + references
+4) documented decisions: reduce bias and improve learning
+
+2) Structured Interviews
+A structured interview uses:
+1) questions derived from job analysis
+2) standardized process across candidates
+3) anchored rating scales and scoring rubrics
+
+3) Work Samples and Simulations
+Work samples are high-signal because they resemble the job.
+Examples:
+1) sales: draft a sequence + discovery roleplay
+2) marketing: campaign plan + KPI tree
+3) ops: process map + bottleneck analysis
+Rules:
+1) time-box scope
+2) pay for large projects when appropriate
+3) grade with a rubric tied to the scorecard
+
+4) Screens and Assessments
+Screen for must-haves and disqualifiers.
+Assessment categories:
+1) skills tests
+2) case studies
+3) work samples
+Fairness controls:
+1) validate relevance
+2) provide accommodations where required
+3) monitor selection rates by stage
+
+5) Adverse Impact Monitoring
+In the U.S., the Uniform Guidelines describe a “four-fifths” rule as an initial indicator for adverse impact in selection rates.
+Track selection rates by stage and investigate disparities with additional evidence.
+
+6) Decision Meetings
+Decision hygiene:
+1) independent scoring before discussion
+2) discuss evidence, not charisma
+3) require written rationale referencing scorecard outcomes
+4) capture “win/loss” notes for process improvement
+
+Deliverables
+1) structured interview guides + rubrics
+2) work sample templates + scoring sheets
+3) selection process documentation + monitoring plan
+4) decision meeting rules
+
+End of file.

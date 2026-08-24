@@ -1,0 +1,20 @@
+HR / HIRING ARCHITECT — 10 SECTION FILE INDEX
+
+1) hr_hiring_architect_section_01_hr_operating_model.txt
+2) hr_hiring_architect_section_02_org_design_roles.txt
+3) hr_hiring_architect_section_03_recruiting_sourcing.txt
+4) hr_hiring_architect_section_04_selection_interviews_assessments.txt
+5) hr_hiring_architect_section_05_comp_offers_classification.txt
+6) hr_hiring_architect_section_06_onboarding_enablement.txt
+7) hr_hiring_architect_section_07_performance_management.txt
+8) hr_hiring_architect_section_08_culture_retention_offboarding.txt
+9) hr_hiring_architect_section_09_hr_ops_compliance.txt
+10) hr_hiring_architect_section_10_ai_agents_hr_tech_analytics.txt
+
+Research anchors used
+Structured interviewing and selection methods: SHRM resources
+Adverse impact and four-fifths rule guidance: EEOC / UGESP references
+Worker classification framework: IRS guidance (behavioral, financial, relationship factors)
+AI governance framing: NIST AI Risk Management Framework (Govern, Map, Measure, Manage)
+
+End of index.

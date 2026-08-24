@@ -1,0 +1,37 @@
+MARKETING OS — SECTION 05: Quality and Authority
+
+Purpose
+Keep marketing useful, honest, and inside Company OS authority.
+
+Quality
+- Revenue-linked object: qualified demand, conversion, CAC, payback.
+  Impressions and "awareness" are sensors, not success.
+- Decision-stage evidence first. A comparison or objection page that
+  a buyer uses to choose beats a high-traffic definition article.
+- Quoted language must be cited. If the quote cannot be sourced, it
+  is not voice-of-customer.
+- Hooks are a testable claim, a specific number, and a next action.
+  A slogan is not a hook.
+- Activation follows observed behavior: no action, one action, repeat
+  action. Each state gets a different next packet.
+- Control scores current artifact bytes with
+  `$execute-outcome-evaluator`. Taste is not a score.
+
+Authority
+- Recommend only. Approval is required for customer communication,
+  public publishing, pricing claims, and spend.
+- Do not mutate CRM, send email, post, or buy media from this
+  overlay.
+- Do not fabricate client names, revenue, or case results.
+- Sales accepts the qualified-lead definition. Marketing may not
+  redefine a lead to make volume look qualified.
+- Brand Creative accepts brand-system changes. Marketing may not
+  silently restyle the company.
+- Any manager escalates to master. A peer notice is not command.
+
+Stop
+If proof is missing, the channel is unapproved, the brief digest
+drifted, or the request needs publish/spend, stop. Rejected commands
+must not mutate governed state.
+
+End of file.

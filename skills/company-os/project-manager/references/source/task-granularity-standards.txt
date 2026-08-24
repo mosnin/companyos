@@ -1,0 +1,24 @@
+
+TASK GRANULARITY & DECOMPOSITION STANDARDS
+
+Purpose:
+Define how deep tasks should be broken down.
+
+Minimum Executable Task:
+- A step that can be completed by one person without additional clarification.
+- Contains a clear action, expected outcome, and required resources.
+
+Task Breakdown Rules:
+- If a task requires more than one skill set → split it.
+- If a task takes more than 2–3 days → break it into subtasks.
+- If a task has multiple decision points → create microtasks.
+
+Microtask Templates:
+- Write X
+- Research Y
+- Set up Z
+- Configure A
+
+When to Stop Decomposing:
+- When every task is independently executable.
+- When no additional clarity is gained by splitting further.

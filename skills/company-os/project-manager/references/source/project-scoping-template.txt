@@ -1,0 +1,26 @@
+
+PROJECT SCOPING TEMPLATE & DEFINITIONS DOCUMENT
+
+Purpose:
+Provide a consistent reference for defining project scopes.
+
+Core Elements:
+- Purpose: The reason the project exists.
+- Objectives: Specific measurable outcomes.
+- Constraints: Limits on scope, resources, budget, timeline.
+- Resources: People, tools, systems, budget available.
+- Stakeholders: Individuals or groups affected or involved.
+- Success Criteria: How completion and quality are measured.
+- Deliverables: Tangible outputs created by the project.
+- Dependencies: Conditions required before work can progress.
+- High-Level Architecture: Structural overview of the project.
+
+Scope Completeness Checklist:
+- Does the scope define what is included?
+- Does it clarify what is excluded?
+- Are deliverables explicit and measurable?
+- Are timelines and constraints known?
+- Are stakeholders clearly identified?
+
+Examples:
+High-quality scopes define boundaries, objectives, measurable criteria, and assumptions explicitly.

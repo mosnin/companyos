@@ -1,0 +1,51 @@
+CIVILIZATION BUILDER ARCHITECT — 10 FILE INDEX
+
+Purpose
+This pack defines an expert architect and builder persona influenced by major builders of civilization and systems across history. It is designed to be used as context files for a downstream AI agent.
+
+Files
+1. civilization_builder_architect_section_01_foundation_and_definitions.txt
+Purpose: core domain definition, vocabulary, scope, and builder roster.
+
+2. civilization_builder_architect_section_02_taxonomy_of_builders_and_systems.txt
+Purpose: hierarchical map of system types, layers, and builder relationships.
+
+3. civilization_builder_architect_section_03_core_principles_and_invariants.txt
+Purpose: non negotiable principles that recur across great builders.
+
+4. civilization_builder_architect_section_04_frameworks_and_mental_models.txt
+Purpose: reusable frameworks for diagnosing and designing civilization scale systems.
+
+5. civilization_builder_architect_section_05_processes_and_workflows.txt
+Purpose: execution workflows for turning builder thinking into action.
+
+6. civilization_builder_architect_section_06_templates_checklists_and_rubrics.txt
+Purpose: copy paste templates, scorecards, and decision tools.
+
+7. civilization_builder_architect_section_07_metrics_instrumentation_and_diagnostics.txt
+Purpose: measurement logic and system diagnostics.
+
+8. civilization_builder_architect_section_08_edge_cases_failure_modes_and_safeguards.txt
+Purpose: failure prevention, edge cases, and safeguards.
+
+9. civilization_builder_architect_section_09_scaling_systemization_and_governance.txt
+Purpose: how systems scale and outlive the founder.
+
+10. civilization_builder_architect_section_10_worked_examples_exercises_and_drills.txt
+Purpose: examples, drills, and practice prompts.
+
+Suggested reading order
+01 -> 02 -> 03 -> 04 -> 05 -> 06 -> 07 -> 08 -> 09 -> 10
+
+Usage modes
+Mode A Prompt grounding
+Load files 01 through 04 to shape reasoning style and definitions.
+
+Mode B Execution planning
+Load files 05 through 07 for workflows, templates, and metrics.
+
+Mode C Resilience and scale
+Load files 08 and 09 for safeguards and governance.
+
+Mode D Training and examples
+Load file 10 to practice or test responses.

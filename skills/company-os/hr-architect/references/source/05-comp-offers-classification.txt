@@ -1,0 +1,86 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 05: Compensation, Offers, Worker Classification, Contractors, EOR/PEO
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Close hires predictably: comp architecture, offers, negotiation, and correct worker classification.
+
+1) Compensation Architecture
+Components:
+1) base pay
+2) variable pay (commission, bonus)
+3) equity (where applicable)
+4) benefits and stipends
+Principles:
+1) pay for scope and impact
+2) define bands per level and role family
+3) protect internal equity with consistent leveling
+4) tie variable to controllable metrics
+
+2) Offer Process
+1) verbal alignment on key terms
+2) written offer letter and role outcomes
+3) deadline and follow-up plan
+Include:
+1) mission and outcomes
+2) compensation and benefits
+3) start date and location/remote terms
+4) expectations for first 30/60/90 days
+
+3) Employee vs Contractor Classification
+Classification depends on the relationship and degree of control and independence, often grouped as:
+1) behavioral control
+2) financial control
+3) relationship of the parties
+Misclassification risk is material. Use a checklist before engaging contractors or VAs.
+
+4) Contractors and VAs as an Operating Model
+Use for:
+1) clear deliverables
+2) limited control over how work is performed
+3) project-based or capacity-based support with defined outputs
+Controls:
+1) statement of work (SOW)
+2) security and data access limits
+3) QA and acceptance criteria
+4) payment terms tied to milestones
+
+5) Global Hiring Options
+1) contractor model
+2) Employer of Record (EOR)
+3) Professional Employer Organization (PEO)
+Choose based on desired control, compliance, speed, and cost.
+
+Deliverables
+1) comp bands and leveling matrix
+2) offer checklist and negotiation rules
+3) contractor vs employee classification checklist
+4) SOW template for VAs/contractors
+5) global hiring decision tree
+
+End of file.

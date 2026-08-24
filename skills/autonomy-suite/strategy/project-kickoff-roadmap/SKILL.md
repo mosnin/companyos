@@ -10,3 +10,6 @@ Create a charter with problem, intended customer, desired change, north-star met
 Sequence the roadmap by learning and dependency: prove the highest-risk assumption; build durable core and safety boundaries; complete the customer workflow; then optimize quality, cost, reliability, and scale.
 
 For every milestone define outcome, evidence, readiness gates, dependencies, kill/pivot criteria, and decision checkpoint. Release only the next approved slice to execution.
+
+When turning an initiative into a scoped plan, WBS, or risk-aware schedule, load `$project-manager` as the project-management overlay.
+Do not send `$project-manager` to Luna workers.

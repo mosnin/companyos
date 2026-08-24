@@ -95,3 +95,9 @@ independent artifact inspection. Skill selection is not evidence that the
 deliverable works. A completed artifact must also return the applied capability
 IDs and their task-local assignment receipt; a skill mentioned only in prose
 does not count.
+
+## Project local registry precedence
+
+Before selecting from the static curated catalog, search the current project registry through `$recursive-skill-foundry`. A promoted project skill may be assigned only when its registry digest, entrypoint digest, role, selection rationale, and execution order are bound in the work packet. Keep the combined assignment limit at four skills.
+
+The static catalog remains the cross project control plane. The project foundry registry is a local compounding layer and never silently mutates the static catalog or Company OS core.

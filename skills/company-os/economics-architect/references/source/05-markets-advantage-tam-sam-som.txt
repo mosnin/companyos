@@ -1,0 +1,70 @@
+ECONOMICS ARCHITECT DOCTRINE — SECTION 05: Markets, Competition, Advantage, and Market Size (TAM/SAM/SOM)
+
+Purpose
+Translate microeconomics and macroeconomics into operating decisions for building and scaling businesses.
+This doctrine is action-oriented: pricing, incentives, product strategy, market selection, capacity planning,
+competitive dynamics, and macro-aware forecasting.
+
+Core Economic Lens for Business
+1) Scarcity and tradeoffs: every choice has an opportunity cost.
+2) Incentives and behavior: systems produce outcomes.
+3) Margins: decisions happen at the margin (marginal cost vs marginal benefit).
+4) Markets: prices coordinate supply and demand under constraints.
+5) Information: asymmetric information creates failures and opportunities.
+6) Externalities: costs/benefits often spill over beyond the transaction.
+7) Cycles: macro conditions shift demand, costs, and risk.
+
+Operating Rules
+1) Always define the unit of analysis (customer, order, cohort, market segment, time period).
+2) Convert narratives into numbers: demand curves, elasticities, unit economics, and constraints.
+3) Separate price from value: price is a lever; value is the driver.
+4) Use experiments to estimate uncertain parameters (elasticity, willingness to pay, churn response).
+5) Keep models simple enough to guide decisions, strict enough to falsify.
+
+============================================================
+Scope
+Theory of markets and competitive advantage applied to business strategy.
+
+1) Theory of Markets
+A market consists of:
+• buyers (demand side)
+• sellers (supply side)
+• price mechanism
+• factors of production (labor, capital, land, entrepreneurship/tech)
+Business use:
+• define market boundaries using buyer job and substitutes
+• identify who has pricing power and why
+
+2) Absolute Advantage, Comparative Advantage, Specialization
+Absolute advantage: you can produce at lower cost or higher quality outright.
+Comparative advantage: you have lower opportunity cost for a specific activity.
+Business implication:
+• outsource or partner when others have comparative advantage
+• specialize to become best option in a narrow segment, then expand
+
+3) Competitive Dynamics
+Sources of advantage:
+• cost leadership (lower MC/AC)
+• differentiation (higher WTP, lower elasticity)
+• focus (targeting and distribution efficiency)
+• switching costs and lock-in
+• network effects (if applicable)
+• learning curves and scale economies
+
+4) Market Size: TAM, SAM, SOM
+• TAM: total addressable market
+• SAM: serviceable addressable market
+• SOM: serviceable obtainable market
+Bottoms-up sizing method:
+1) count buyers in your ICP (region/industry/size)
+2) estimate penetration rate at maturity
+3) multiply by ACV or average spend
+4) sanity check with competitor revenue and public benchmarks
+
+Deliverables
+1) market definition and substitute boundary
+2) comparative advantage map (own vs outsource)
+3) advantage hypothesis and evidence plan
+4) TAM/SAM/SOM model with assumptions
+
+End of file.

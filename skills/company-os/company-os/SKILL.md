@@ -11,22 +11,23 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 
 | Pillar | Responsibility | Skill |
 | --- | --- | --- |
-| Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint` |
+| Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint`, `$civilization-builder`, `$corporate-management` |
 | Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
-| Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction` |
-| Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap` |
-| Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control` |
-| Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters` |
-| Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system` |
-| UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality` |
+| Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction`, `$business-architect`, `$civilization-builder`, `$economics-architect` |
+| Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap`, `$project-manager` |
+| Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control`, `$ops-architect` |
+| Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters`, `$corporate-management`, `$corporate-departments`, `$hr-architect` |
+| Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system`, `$brand-architect`, `$steve` |
+| UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality`, `$design`, `$interface-design`, `$steve` |
 | Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
-| Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system` |
+| Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system`, `$marketing-architect`, `$sales-architect`, `$steve`, `$value-creation-delivery` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
 | Executive execution governor | Measure distance from the original objective, identify the global bottleneck, allocate scarce time/tokens/cost toward reality, and trigger compression/critical-path modes when execution lags | `$govern-outcome-execution` |
 | Mission execution control | Enforce First Reality scope, work admission, hard deadlines, scheduler leases, evidence-bound capability state, replacement, and product checkpoints at controller boundaries | `$mission-execution-control` |
 | Navigation control | Treat the original objective as the destination; continuously observe, act, verify, measure objective distance/velocity, and replan while keeping research/audits as subordinate sensors | `$navigation-control` |
 | Execution | Deliver work through Sol manager tasks and bounded Luna labor with early real artifacts, runtime observation, targeted rework, verification, and decisions | `$manage-company-program`, `$execute-bounded-task`, `$force-first-execution`, `$autonomy-suite`, `$luna-execution-fabric` |
 | Elastic control | Create an isolated project operating model and improve it through independently reviewed feedback | `$elastic-company-os` |
+| Hosted company ledger | Pull and write shared company context through one company-os-web MCP across Claude, ChatGPT Work, and Grok | `$company-context-ledger` |
 
 ## Project isolation
 
@@ -79,9 +80,61 @@ For a multi-manager delivery program, the primary thread acts as the Company OS
 master. It versions the Program Contract, spawns one Sol manager thread per
 bounded roadmap outcome, and receives a compact report at charter, discovery,
 design, execution, verification, and integration. Managers use
-`$manage-company-program` and `$luna-execution-fabric`; workers use
-`$execute-bounded-task`. Send the role skill plus one compact mission charter
-or work packet instead of repeating the operating system in every prompt.
+`$manage-company-program`, `$middle-manager-operating-doctrine`, and
+`$luna-execution-fabric`; workers use `$execute-bounded-task`. Send the
+manager role skill, the middle-manager doctrine, and one compact mission
+charter. Send workers only the worker packet. Do not use the doctrine as the
+master persona or repeat the operating system in every prompt.
+
+When the manager outcome is product design, brand, user experience, or customer
+experience, also send `$steve`.
+When the manager outcome is brand system, positioning, identity, voice, or
+presence, also send `$brand-architect`.
+When the manager outcome is a civilizational system, infrastructure network,
+industrial production system, technological platform, or digital ecosystem,
+also send `$civilization-builder`.
+When the manager outcome is interaction design, service design, problem
+framing, prototyping, or user understanding, also send `$design`.
+When the manager outcome is market strategy, segmentation, go-to-market,
+advertising, or growth lifecycle, also send `$marketing-architect`.
+When the manager outcome is prospecting, qualification, discovery, pipeline,
+or closing, also send `$sales-architect`.
+When the manager outcome is opportunity cost, unit economics, pricing, market
+sizing, or market structure, also send `$economics-architect`.
+When the manager outcome is process flow, capacity, queueing, inventory, or
+supply chain, also send `$ops-architect`.
+When the manager outcome is hiring, recruiting, org design, onboarding, or
+performance management, also send `$hr-architect`.
+When the manager outcome is business model, competitive strategy, value
+proposition, jobs-to-be-done, or market analysis, also send
+`$business-architect`.
+When the manager outcome is project scoping, phase planning, work breakdown,
+risk management, or execution workflow, also send `$project-manager`.
+When the manager outcome is value creation, offer architecture, value
+validation, value delivery, or scaling a delivery system, also send
+`$value-creation-delivery`.
+
+When compiling a company or spawning a multi-manager program, also send
+`$corporate-management` and name each actor as senior, middle, low-level, or
+staff. When compiling named departments, also send `$corporate-departments` to
+the department manager. When compiling Marketing, also send `$marketing-os` to
+that department manager. When a hosted company-os-web ledger is in use, send
+`$company-context-ledger` to the master or department manager that will pull or
+write company context. The ledger is not a control plane.
+
+Do not send `$steve` to workers. Do not send `$brand-architect` to workers. Do
+not send `$civilization-builder` to workers. Do not send `$design` to workers.
+Do not send `$marketing-architect` to workers. Do not send `$sales-architect`
+to workers. Do not send `$economics-architect` to workers. Do not send
+`$ops-architect` to workers. Do not send `$hr-architect` to workers. Do not
+send `$business-architect` to workers. Do not send `$project-manager` to
+workers. Do not send `$value-creation-delivery` to workers. Do not send
+`$corporate-management` to workers. Do not send `$corporate-departments` to
+workers. Do not send `$marketing-os` to workers. Do not send
+`$company-context-ledger` to workers. These overlays and corporate skills are
+not the master persona.
+
+Executable delegation stays master → manager → worker.
 Managers may not change the project
 strategy, roadmap ownership, or authority. Company OS accepts the integrated
 program; manager and worker activity is not company progress by itself.
@@ -169,7 +222,11 @@ runnable candidate, verification, direct inspection, receipt, and decision;
 soft speed misses remain visible while hard safety stops remain authoritative.
 
 Any program that creates, changes, prototypes, or reviews a user interface must
-use `$ui-design-quality`. Classify its manager and worker packets as
+use `$ui-design-quality`. When building digital interfaces, also load
+`$interface-design` for typography, color, layout, writing, accessibility,
+UI polish, and distinctive visual identity. `$ui-design-quality` remains the
+evidence gate. Classify UI manager
+and worker packets as
 `ui_design`, require host capability `ui_design_quality`, and retain the exact
 vendored-suite revision in evidence. Program Preflight fails closed when UI
 signals appear without that classification or capability. A passing code check
@@ -205,4 +262,23 @@ Choose the lightest method that fits uncertainty:
 - Use stage-gated plans for regulated, high-risk, or dependency-heavy work.
 - Use a hybrid when discovery and deterministic implementation coexist.
 
+When the work is a testable belief rather than a delivery slice, bind a
+`company-os.scientific-method-packet.v1` and follow
+[references/scientific-method.md](references/scientific-method.md). The packet
+is a checklist over existing outcome, bet, and adaptation records. It does not
+own iteration, leases, or completion.
+
+When optimizing a named bottleneck, bind a
+`company-os.riocl-tc-packet.v1` and follow
+[references/riocl-tc.md](references/riocl-tc.md). This is the default
+bottleneck-optimization overlay. The packet is a checklist over the existing
+governor, navigation, and adaptation records. It does not own iteration,
+leases, or completion.
+
 Do not force Agile or Waterfall as identity. Define decision cadence, evidence gates, and flow constraints for the actual work.
+
+## Recursive reusable skills
+
+Use `$recursive-skill-foundry` as the project local learning and capability compounding layer. Search promoted project skills before external capability selection. Forge a new skill only when the user explicitly requests one, the active navigation route is concretely blocked by a missing reusable mechanism, or accepted field evidence proves repeated reuse value.
+
+A skill candidate is not product progress unless skill creation is the original destination. For normal product missions, finish and checkpoint the real route first, then capture the reusable mechanism. Project skills install under `.agents/skills`, remain content addressed, and must be verified before assignment. Learned mechanisms require two accepted independent uses. Shared core promotion requires three independent projects plus fresh independent review and is never automatic.

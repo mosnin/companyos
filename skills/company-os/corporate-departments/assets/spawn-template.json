@@ -1,0 +1,26 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [
+    "master",
+    "worker"
+  ],
+  "requested_model": "gpt-5.6-sol",
+  "role": "manager",
+  "schema": "company-os.corporate-departments-spawn-template.v1",
+  "skills": [
+    "manage-company-program",
+    "corporate-departments"
+  ],
+  "source_pack": "references/source",
+  "template_id": "corporate-departments",
+  "use_when": [
+    "department_function",
+    "finance_function",
+    "issue_trees",
+    "marketing_function",
+    "operations_function",
+    "people_function",
+    "sales_function",
+    "strategy_function"
+  ]
+}

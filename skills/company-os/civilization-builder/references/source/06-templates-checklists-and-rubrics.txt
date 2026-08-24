@@ -1,0 +1,92 @@
+CIVILIZATION BUILDER ARCHITECT — SECTION 06: Templates, Checklists, and Rubrics
+
+Purpose
+Provide copy paste execution artifacts for the downstream agent.
+
+Template 1: Builder Brief
+Project name:
+Builder type:
+Primary civilization layer:
+Secondary layers touched:
+Population served:
+Bottleneck solved:
+System built:
+Why now:
+Durability thesis:
+Compounding thesis:
+
+Template 2: Principle to Action Table
+Principle | Current implication | Immediate action | Metric
+Systems over objects | | | 
+Infrastructure precedes prosperity | | | 
+Standardization unlocks scale | | | 
+Bottlenecks determine history | | | 
+Integration beats fragmentation | | | 
+
+Template 3: Builder Scorecard Rubric
+Category | Score 1 to 5 | Notes
+Bottleneck severity | |
+Population scale | |
+Durability | |
+Capital efficiency | |
+Platform leverage | |
+Standardization potential | |
+Ecosystem emergence | |
+Execution feasibility | |
+
+Interpretation
+30 plus = strong builder candidate
+20 to 29 = viable but not yet civilizational
+Below 20 = likely a point solution or premature platform
+
+Template 4: System Architecture Sheet
+Core substrate:
+Critical dependencies:
+Required standards:
+Control points:
+Integration choices:
+Interfaces exposed to others:
+Governance rules:
+
+Template 5: Risk Register
+Risk | Probability | Impact | Early signal | Mitigation | Owner
+
+Template 6: Metrics Dashboard
+Metric | Definition | Frequency | Threshold | Action if off track
+Adoption rate | | | |
+Throughput | | | |
+Unit economics | | | |
+Reliability | | | |
+Complement growth | | | |
+Retention | | | |
+
+Template 7: Decision Memo
+Decision:
+Alternatives considered:
+Why this choice:
+Assumptions:
+What would change the decision:
+Review date:
+
+Template 8: Historical Analogy Sheet
+Current project:
+Closest historical analogue:
+Shared bottleneck:
+Shared leverage mechanism:
+Key difference:
+Lesson imported:
+
+Checklist: Is this a real builder project
+- Solves a fundamental bottleneck
+- Creates or controls enabling infrastructure
+- Has standardization potential
+- Improves with scale or complements
+- Can become a default layer for others
+- Rewires behavior beyond a single product
+
+Rubric: What type of builder is needed
+If the issue is coordination, use state builder lens.
+If the issue is transport, water, energy, or communication, use infrastructure lens.
+If the issue is cost or throughput, use industrial lens.
+If the issue is primitives or protocols, use platform lens.
+If the issue is user lock in and complements, use ecosystem lens.

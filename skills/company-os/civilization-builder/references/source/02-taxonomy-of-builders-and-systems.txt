@@ -1,0 +1,100 @@
+CIVILIZATION BUILDER ARCHITECT — SECTION 02: Taxonomy of Concepts and Relationships
+
+Purpose
+Map the domain into a structured hierarchy so the downstream agent can reason from first principles instead of isolated examples.
+
+Included context
+- Major builders of civilization and systems shaped states, technologies, industries, and social operating systems.
+- The user supplied five recurring system types: civilizational systems, infrastructure networks, industrial production systems, technological platforms, digital ecosystems.
+
+Primary taxonomy
+Domain
+Civilization Builder Architecture
+
+Subsystems
+1. Civilizational systems
+2. Infrastructure networks
+3. Industrial production systems
+4. Technological platforms
+5. Digital ecosystems
+
+Component tree
+1. Civilizational systems
+   1.1 Governance architecture
+   1.2 Law and standards
+   1.3 Bureaucracy and reporting structures
+   1.4 Tax, logistics, and coordination systems
+   1.5 Territorial integration
+
+2. Infrastructure networks
+   2.1 Water and hydraulic systems
+   2.2 Energy systems
+   2.3 Transport systems
+   2.4 Communications systems
+   2.5 Space and orbital systems
+
+3. Industrial production systems
+   3.1 Materials and extraction
+   3.2 Factory design
+   3.3 Workflow engineering
+   3.4 Supply chains
+   3.5 Quality control and throughput optimization
+
+4. Technological platforms
+   4.1 Power generation and distribution
+   4.2 Computing architectures
+   4.3 Protocols and standards
+   4.4 Toolchains and developer surfaces
+   4.5 Research to deployment pipelines
+
+5. Digital ecosystems
+   5.1 Integrated hardware and software
+   5.2 App and developer ecosystems
+   5.3 Network effects
+   5.4 Identity, payments, and distribution
+   5.5 Data and feedback loops
+
+Builder to system mapping
+Imhotep -> state project coordination, monument engineering, early construction systems
+Yu the Great -> hydraulic control, agricultural enablement, state legitimacy through infrastructure
+Qin Shi Huang -> standardization, roads, defense works, imperial administration
+Augustus -> bureaucratic stabilization, infrastructure maintenance, imperial governance
+Brunel -> rails, bridges, tunnels, steam transport, connectivity compression
+Carnegie -> steel capacity, industrial inputs, material scale
+Ford -> assembly lines, standardization, throughput, affordability
+Tesla -> electrical distribution, AC systems, power platform
+von Neumann -> computer architecture, strategic modeling, formal systems design
+Jobs -> design integrated digital ecosystem, hardware software services coherence
+Musk -> vertically integrated frontier infrastructure across transport, energy, launch, communications
+
+Relationship logic
+Infrastructure enables production.
+Production enables affordability and abundance.
+Governance stabilizes coordination.
+Technology platforms enable ecosystem builders.
+Digital ecosystems capture and compound user behavior.
+
+Causal chain template
+Constraint -> Infrastructure -> Production -> Adoption -> Standardization -> Ecosystem -> Civilizational shift
+
+Pattern table
+Type of system | Canonical builder | Mechanism | Typical result
+Civilizational system | Qin Shi Huang | Standardization and centralized coordination | Unified governance and durable state power
+Infrastructure network | Brunel | Lower transport friction | Larger connected markets
+Industrial production | Ford | Throughput and process design | Mass affordability and scale
+Technological platform | Tesla | Foundational utility infrastructure | New industries and daily dependence
+Digital ecosystem | Jobs | Integrated product stack | Lock in, complements, behavioral rewiring
+
+How to use this taxonomy
+1. Identify the layer the problem belongs to.
+2. Identify dependencies below that layer.
+3. Identify compounding mechanisms above that layer.
+4. Decide whether the build target is a point solution or a societal operating layer.
+
+Glossary template
+Concept:
+Layer:
+Dependencies:
+Outputs:
+Failure mode:
+Comparable builders:

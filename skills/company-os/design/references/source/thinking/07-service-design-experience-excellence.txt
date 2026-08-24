@@ -1,0 +1,58 @@
+DESIGN THINKING DOCTRINE — SECTION 07: Service Design and Experience Excellence
+
+Purpose
+Build a repeatable, professional-grade design thinking system that converts ambiguous user reality into validated solutions.
+This is a knowledge and execution reference. It focuses on method, structure, and artifacts.
+
+Core Outputs
+1) Clear artifacts (canvases, maps, hypotheses, tests)
+2) Evidence (observations, measurements, decisions)
+3) Iteration loop (learn → update → retest)
+
+Operating Rules
+1) User truth beats team opinion
+2) Behavior beats self-report when they conflict
+3) Fast loops beat perfect plans
+4) Evidence updates the model, not ego
+5) Make uncertainty explicit, then attack it
+
+============================================================
+Scope
+Design end-to-end experiences by aligning UI, UX, experience design, service design, and value design.
+
+A. Layers of Design
+1) UI: screens and controls
+2) UX: flow and cognitive load
+3) Experience: journey and emotions
+4) Service: backstage processes
+5) Value: ecosystem outcomes and co-creation
+
+B. Excellence Progression
+1) Operational excellence: reliability and efficiency
+2) Service excellence: consistent end-to-end quality
+3) Value excellence: co-creation and ecosystem fit
+
+C. Journey Map
+Include:
+1) Stages: discover, evaluate, onboard, use, support, renew
+2) Touchpoints
+3) Emotions and expectations
+4) Pain points and moments of truth
+5) Opportunities
+
+D. Service Blueprint
+Include:
+1) Customer actions
+2) Frontstage interactions
+3) Backstage actions
+4) Support processes
+5) Evidence and artifacts
+6) Failure points and recovery actions
+
+Deliverables
+1) Journey map
+2) Service blueprint
+3) Experience metrics
+4) Improvement backlog
+
+End of file.

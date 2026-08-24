@@ -1,0 +1,58 @@
+VALUE CREATION + VALUE DELIVERY DOCTRINE — SECTION 02: Market Selection and Market Laws
+
+Purpose
+Turn the provided context into an execution-ready system for designing offers (value creation)
+and delivering outcomes reliably at scale (value delivery).
+
+Inclusion rule
+All user-provided bullets are included. Additions are only connective tissue, templates, and
+operational definitions to make execution possible.
+
+============================================================
+
+Included context (kept)
+• Economically valuable skills
+• The iron law or the market
+• Ten ways to evaluate a market (urgency, market size, pricing potential, cost of customer acquisition, cost of value delivery, uniqueness of offer, speed to market, up-front investment, upsell potential, evergreen potential)
+• Hidden benefits of competition
+• The mercenary rule
+• The crusader rule
+
+The iron law of the market (operational)
+Markets pay for outcomes that are urgent, valuable, credible, de-risked, and repeatable.
+
+Market scorecard (10 factors)
+Score 1–5 each:
+1) urgency
+2) market size
+3) pricing potential
+4) cost of customer acquisition
+5) cost of value delivery
+6) uniqueness of offer
+7) speed to market
+8) up-front investment
+9) upsell potential
+10) evergreen potential
+
+Hidden benefits of competition (kept)
+• Proof demand exists
+• Benchmarks for pricing and performance
+• Channel validation
+Use it to identify: complaints, pricing gaps, slow delivery, unreliability.
+
+Mercenary vs crusader rule (kept, clarified)
+• Mercenary: optimize for profit and clarity of demand.
+• Crusader: optimize for mission and meaning.
+Operating rule (added): pick one as primary; keep the other as constraints.
+
+Template: Market selection worksheet
+• Segment
+• Problem and urgency trigger
+• Alternatives
+• WTP estimate
+• CAC hypothesis
+• Delivery cost hypothesis
+• Unique wedge
+• Next fastest test
+
+End of file.

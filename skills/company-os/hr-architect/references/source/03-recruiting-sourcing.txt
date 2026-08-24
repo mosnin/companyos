@@ -1,0 +1,91 @@
+HR / HIRING ARCHITECT DOCTRINE — SECTION 03: Recruiting and Sourcing: Modern Channels, Outsourced VAs, Referrals
+
+Purpose
+Design and run a hiring and people system that scales: attract, select, onboard, develop, retain,
+and offboard humans and contractors, while governing “digital workers” (AI agents/automation)
+as part of the operating model.
+
+Core People System
+1) Plan: org design, roles, competencies, headcount, and success metrics.
+2) Attract: sourcing channels, employer brand, and recruiting operations.
+3) Select: structured evaluation, evidence-based decisions, and risk controls.
+4) Close: offers, compensation, classification, and start logistics.
+5) Enable: onboarding, training, documentation, and manager routines.
+6) Perform: goals, feedback, growth, and performance improvement.
+7) Retain: culture, engagement, comp fairness, and career pathways.
+8) Exit: offboarding, knowledge capture, and alumni/referrals.
+9) Operate: tools, compliance hygiene, analytics, continuous improvement.
+10) Automate: AI agents as governed capacity, not unmanaged “magic”.
+
+Operating Rules
+1) Hiring is a system: improve conversion and quality at the constraint.
+2) Define success upfront: scorecards prevent “vibes hiring”.
+3) Use structured interviews and work samples whenever possible.
+4) Track adverse impact risk and job-relatedness of selection procedures.
+5) Documentation is leverage: SOPs + onboarding assets reduce dependence on tribal knowledge.
+6) Contractors/VAs are a distinct operating model; classify and manage intentionally.
+7) AI agents are “digital workers”: define scope, permissions, monitoring, and human approvals.
+
+============================================================
+Scope
+Generate candidate flow: channels, job posts, outreach, agencies, referrals, and VA-supported recruiting ops.
+
+1) Recruiting Funnel
+Impressions → Applicants → Screened → Interviewed → Offered → Accepted → Started
+Constraint diagnosis:
+1) low applicants: channel and message problem
+2) low screen pass rate: role clarity or targeting problem
+3) low acceptance: comp, role design, or trust problem
+
+2) Sourcing Channels
+Inbound:
+1) careers page, content, community, events
+2) inbound LinkedIn and referrals
+Outbound:
+1) LinkedIn sourcing
+2) email outreach to candidates
+3) alumni networks, niche communities
+Marketplaces:
+1) Upwork, Fiverr (project-based)
+2) vetted networks for specialists
+Agencies:
+1) retained search (senior roles)
+2) contingency recruiters (volume)
+Referrals:
+1) highest ROI when structured and reminded
+
+3) Job Posting Architecture
+Include:
+1) mission and outcomes (not laundry list)
+2) required vs preferred
+3) what success looks like in 30/60/90 days
+4) compensation range where appropriate
+5) interview process overview to reduce drop-off
+
+4) Outsourced VAs for Recruiting Ops
+Good VA tasks:
+1) candidate research and list building
+2) outreach logistics under supervision
+3) calendar coordination
+4) ATS updates and hygiene
+Governance:
+1) least privilege access
+2) SOPs and templates
+3) review queue for outbound messages early
+4) secure tooling: password manager, audit logs
+
+5) Referral Program Design
+Elements:
+1) define “ideal referral” by role outcomes
+2) provide intro template
+3) reward after retention milestone (example 90 days)
+4) predictable internal reminders
+
+Deliverables
+1) channel plan by role type
+2) job post template
+3) sourcing outreach templates
+4) VA recruiting SOP and access model
+5) referral program playbook
+
+End of file.

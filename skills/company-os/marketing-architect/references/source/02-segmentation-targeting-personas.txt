@@ -1,0 +1,103 @@
+MARKETING ARCHITECT DOCTRINE — SECTION 02: Segmentation, Targeting, Positioning Inputs: Personas and Psychographics
+
+Purpose
+Design and execute marketing systems that create demand, capture value, and compound brand equity.
+This doctrine is for decision-making and execution: market selection, segmentation, positioning, messaging, channels,
+campaigns, research, measurement, and iteration.
+
+Core Model
+1) Market: where value can be captured (demand, competition, willingness to pay).
+2) Offer: value proposition + proof + pricing and packaging.
+3) Message: positioning translated into clear, testable claims.
+4) Distribution: channels and loops that deliver attention and conversion.
+5) Measurement: feedback that prevents self-deception.
+
+Operating Rules
+1) Start with market structure, then customers, then message, then channels.
+2) Targeting and positioning are choices; clarity beats breadth.
+3) Behavior beats opinions. Experiments beat debates.
+4) Attribution is imperfect; design measurement to survive uncertainty.
+5) Brand is a long-term asset; performance is short-term optimization. Balance both.
+
+============================================================
+Scope
+This section builds target audiences and personas using demographics, psychographics, needs/wants/desires,
+and the STP framework.
+
+1) STP Framework
+A) Segmentation
+Partition the market into groups that differ in:
+• Jobs and outcomes
+• Willingness to pay
+• Decision criteria
+• Channel behavior and reachability
+• Risk tolerance and trust needs
+
+B) Targeting
+Select segments based on:
+1) attractiveness: size, growth, margins, accessibility
+2) fit: capabilities, distribution edge, brand credibility
+3) defensibility: moats, switching costs, differentiation
+
+C) Positioning inputs (full positioning is Section 04)
+Choose a unique “reason to choose” for the target segment.
+
+2) Persona and Buyer Roles
+Separate:
+• Economic buyer: budget holder
+• Champion: internal promoter
+• User: daily operator
+• Influencer: shapes criteria
+• Gatekeeper: controls access
+
+Persona Template (Execution Grade)
+1) Context: environment, constraints, timeline
+2) Trigger: what makes them search now
+3) Job: functional, emotional, social
+4) Success: outcomes and metrics they care about
+5) Decision criteria: what must be true to buy
+6) Objections: risks, doubts, deal-breakers
+7) Channels: where they pay attention
+8) Language: the words they use
+
+3) Psychographics
+Psychographics are patterns of:
+• values and identity
+• motivations and fears
+• lifestyle and habits
+• status games and tribe membership
+• worldview and beliefs about “good” solutions
+
+How to collect psychographics
+1) interviews and call notes
+2) review mining (forums, reviews, social comments)
+3) content consumption mapping
+4) cohort analysis by behavior
+
+4) Customer Profile: Needs, Wants, Desires
+Operational definitions
+• Needs: non-negotiable requirements to make progress
+• Wants: preferred attributes and convenience
+• Desires: identity, status, aspiration, emotion
+
+Deliverable: Needs-Wants-Desires Ladder
+• Must-haves (needs)
+• Nice-to-haves (wants)
+• Identity levers (desires)
+Tie each to proof and messaging.
+
+5) Segment Design Checklist
+A segment is usable when:
+1) you can describe it in one sentence
+2) you can find and reach it cheaply
+3) it has a distinct “why buy” and “why now”
+4) you can win with your capabilities
+
+Deliverables
+1) Segmentation map with criteria
+2) Target segment selection with rationale
+3) Persona set by buyer role
+4) Needs-Wants-Desires ladder
+5) Channel reach map per segment
+
+End of file.
