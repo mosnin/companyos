@@ -1,0 +1,6 @@
+interface:
+  display_name: Goal Route System
+  short_description: Compile destinations into recursive goal graphs, sprint routes, agent goals, evidence gates, and rerouting.
+  default_prompt: Use $goal-route-system to turn the original objective into a concrete root goal, reverse engineered route, sprint plan, manager and worker goal packets, cohesion constraints, and evidence based rerouting.
+policy:
+  allow_implicit_invocation: true

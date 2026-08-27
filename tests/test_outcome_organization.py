@@ -216,9 +216,20 @@ class OutcomeOrganizationTests(unittest.TestCase):
         manager = manifest["managers"][0]
         self.assertEqual(manager["outcome_loop_lane_id"], "artifact:playable_game")
         self.assertEqual(manager["workers"][0]["model"], "gpt-5.6-luna")
+        self.assertEqual(manifest["goal_route"]["state_sha256"], manifest["goal_route_state"]["state_sha256"])
+        self.assertEqual(manager["goal_contract"], manager["goal_assignment"]["manager_goal"])
+        self.assertEqual(manager["workers"][0]["goal_contract"], manager["goal_assignment"]["worker_goal"])
         self.assertEqual(FABRIC.validate(manifest)["valid"], True)
         verified = ORG.validate_manifest_binding(self.root, manifest)
         self.assertEqual(verified["phase"], "build_candidate")
+        self.assertEqual(verified["goal_route_state_sha256"], manifest["goal_route"]["state_sha256"])
+
+    def test_goal_assignment_tampering_is_rejected(self) -> None:
+        manifest = self.compile()
+        manifest["managers"][0]["goal_assignment"]["worker_id"] = "replacement-without-reseal"
+        with self.assertRaises(ORG.OrganizationError) as caught:
+            ORG.validate_manifest_binding(self.root, manifest)
+        self.assertEqual(caught.exception.code, "E_GOAL_ROUTE")
 
     def test_rework_compiles_only_bottleneck_lane_and_preserves_strengths(self) -> None:
         state = self.initial_state()

@@ -6,7 +6,7 @@ description: Execute one exact bounded work packet and return an attributable ev
 # Execute Bounded Task
 
 Operate contract version `company-os.worker-role.v2`. Read the compact work
-packet; do not request the root transcript or repeat the Company OS manual.
+packet and its exact `$goal-route-system` leaf goal; do not request the root transcript or repeat the Company OS manual. Before acting, identify the parent goal, current state, target state, required state changes, tasks, subtasks, evidence, authority, budget, route node, sprint, cohesion contract, and reporting destination. A prompt without that bound goal is not executable authority.
 
 ## Execute one packet
 
