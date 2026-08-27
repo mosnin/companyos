@@ -140,6 +140,10 @@ def mission_control_module():
     return load_module("mission-execution-control/scripts/mission_control.py", "company_os_director_mission_control")
 
 
+def goal_route_module():
+    return load_module("goal-route-system/scripts/goal_route.py", "company_os_director_goal_route")
+
+
 def control_store_module():
     return load_module("elastic-company-os/scripts/control_store.py", "company_os_director_store")
 
@@ -173,6 +177,26 @@ def state_path(project_root: Path, objective_id: str) -> Path:
 
 def mission_state_path(project_root: Path, objective_id: str) -> Path:
     return workspace(project_root, objective_id) / "mission-execution-state.json"
+
+
+def goal_route_path(project_root: Path, objective_id: str) -> Path:
+    return workspace(project_root, objective_id) / "goal-route.json"
+
+
+def load_goal_route(project_root: Path, objective_id: str) -> dict[str, Any]:
+    return goal_route_module().verify_state(obj(read_json(goal_route_path(project_root, objective_id), "goal route"), "goal route"))
+
+
+def save_goal_route(project_root: Path, state: Mapping[str, Any]) -> dict[str, Any]:
+    verified = goal_route_module().verify_state(state)
+    write_json(goal_route_path(project_root, verified["objective_id"]), verified)
+    return verified
+
+
+def goal_route_binding(project_root: Path, objective_id: str) -> dict[str, Any]:
+    route = load_goal_route(project_root, objective_id)
+    path = goal_route_path(project_root, objective_id)
+    return {"$schema": "company-os.goal-route-binding.v1", "path": relative(project_root, path), "file_sha256": file_digest(path), "state_sha256": route["state_sha256"], "route_version": route["route_version"], "root_goal_id": route["root_goal_id"], "root_goal_sha256": route["root_goal_sha256"]}
 
 
 def load_mission_state(project_root: Path, objective_id: str) -> dict[str, Any]:
@@ -213,6 +237,7 @@ def mission_binding_from_state(project_root: Path, state: Mapping[str, Any]) -> 
         "first_reality_required": state.get("first_reality") is not None and not mission_control_module().reality_signals(state)["connected_vertical_slice"],
         "replacement_orders": list(state.get("replacement_orders", [])),
         "navigation": state.get("navigation"),
+        "goal_route": goal_route_binding(project_root, state["objective_id"]) if goal_route_path(project_root, state["objective_id"]).is_file() else None,
     }
 
 
@@ -265,6 +290,16 @@ def bind_discovery_fabric(project_root: Path, objective_id: str, fabric_relative
             "receipt_file_sha256": file_digest(receipt_path),
             "receipt_sha256": receipt["receipt_sha256"],
         }
+    if goal_route_path(project_root, objective_id).is_file():
+        route = load_goal_route(project_root, objective_id)
+    else:
+        route = goal_route_module().compile_goal_route(
+            objective_id,
+            state["objective"],
+            mission_class=state["mission_class"],
+            autonomy_mode="guided",
+        )
+        save_goal_route(project_root, route)
     binding = mission_binding_from_state(project_root, state)
     fabric_path = project_root / Path(*fabric_relative.split("/"))
     fabric = obj(read_json(fabric_path, "discovery fabric"), "discovery fabric")
@@ -286,11 +321,25 @@ def bind_discovery_fabric(project_root: Path, objective_id: str, fabric_relative
             worker["work_class"] = work_class
             worker["mission_control"] = binding
             worker["work_admission"] = admissions[work_class]
+            phase_hint = "discovery" if work_class == "research" else "build_candidate"
+            assignment = goal_route_module().assignment_for_lane(route, artifact_classes=[], phase=phase_hint, lane_id=f"discovery:{manager.get('id')}:{worker.get('id')}", manager_id=str(manager.get("id")), worker_id=str(worker.get("id")))
+            worker["goal_assignment"] = assignment
+            worker["goal_contract"] = assignment["worker_goal"]
+            worker["agent_template"] = assignment["worker_template"]
+            worker["cohesion_contract"] = assignment["cohesion_contract"]
+            worker["task"] = "Concrete goal contract: " + json.dumps(assignment["worker_goal"], sort_keys=True) + ". Sprint: " + json.dumps(assignment["sprint"], sort_keys=True) + ". " + str(worker.get("task") or "")
             workers.append(worker)
         manager_class = "implementation" if "implementation" in manager_classes else "research"
         manager["work_class"] = manager_class
         manager["mission_control"] = binding
         manager["work_admission"] = admissions[manager_class]
+        if workers:
+            manager_assignment = workers[0]["goal_assignment"]
+            manager["goal_assignment"] = manager_assignment
+            manager["goal_contract"] = manager_assignment["manager_goal"]
+            manager["agent_template"] = manager_assignment["manager_template"]
+            manager["cohesion_contract"] = manager_assignment["cohesion_contract"]
+            manager["delegation_plan"] = goal_route_module().sealed_delegation_plan(route, manager_assignment["manager_goal"]["goal_id"])
         manager["workers"] = workers
         managers.append(manager)
     bound["managers"] = managers
@@ -304,6 +353,7 @@ def bind_discovery_fabric(project_root: Path, objective_id: str, fabric_relative
         "work_admission_refs": admission_refs,
         "fabric_path": fabric_relative,
         "fabric_file_sha256": file_digest(fabric_path),
+        "goal_route": goal_route_binding(project_root, objective_id),
     }
 
 
@@ -458,6 +508,12 @@ def record_candidate_mission_evidence(
     save_mission_state(project_root, state)
 
 
+def record_candidate_goal_evidence(project_root: Path, objective_id: str, candidate: Mapping[str, Any]) -> None:
+    route = load_goal_route(project_root, objective_id)
+    route = goal_route_module().record_candidate(route, candidate)
+    save_goal_route(project_root, route)
+
+
 def checkpoint_candidate(
     project_root: Path,
     objective_id: str,
@@ -548,6 +604,9 @@ def finalize_mission_acceptance(
         ),
     )
     save_mission_state(project_root, state)
+    route = load_goal_route(project_root, objective_id)
+    route = goal_route_module().accept_route(route, receipt_path=relative(project_root, receipt_path), receipt_sha256=file_digest(receipt_path))
+    save_goal_route(project_root, route)
 
 
 def seal(state: Mapping[str, Any]) -> dict[str, Any]:
@@ -626,7 +685,7 @@ def next_execute_fabric(stage: str, path: str, *, reason: str) -> dict[str, Any]
     }
 
 
-def start(project_root: Path, objective_id: str, objective: str) -> dict[str, Any]:
+def start(project_root: Path, objective_id: str, objective: str, *, kickoff_profile: Mapping[str, Any] | None = None, autonomy_mode: str | None = None) -> dict[str, Any]:
     project_root = project_root.resolve()
     objective_id = text(objective_id, "objective_id")
     objective = text(objective, "objective")
@@ -643,6 +702,8 @@ def start(project_root: Path, objective_id: str, objective: str) -> dict[str, An
     discovery_fabric = receipt["paths"]["discovery_fabric"]
     mission = mission_control_module().initialize_state(objective_id, objective)
     save_mission_state(project_root, mission)
+    route = goal_route_module().compile_goal_route(objective_id, objective, mission_class=mission["mission_class"], kickoff_profile=kickoff_profile, autonomy_mode=autonomy_mode)
+    save_goal_route(project_root, route)
     discovery_binding = bind_discovery_fabric(project_root, objective_id, discovery_fabric)
     state = {
         "$schema": STATE_SCHEMA,
@@ -658,6 +719,7 @@ def start(project_root: Path, objective_id: str, objective: str) -> dict[str, An
             "outcome_loop": receipt["paths"]["loop_state"],
             "discovery_fabric": discovery_fabric,
             "mission_execution_state": relative(project_root, mission_state_path(project_root, objective_id)),
+            "goal_route": relative(project_root, goal_route_path(project_root, objective_id)),
         },
         "next_action": next_execute_fabric(
             "discovery",
@@ -821,6 +883,7 @@ def organization_request(
         "non_goals": ["Treat process completion as product acceptance"],
         "constraints": ["Production narratives are inadmissible for final acceptance", "Passing dimensions must be preserved during rework"],
         "outcome_control": dict(binding),
+        "goal_route": goal_route_binding(project_root, state["objective_id"]),
     }
 
 
@@ -1112,6 +1175,7 @@ def advance(project_root: Path, objective_id: str) -> dict[str, Any]:
             else:
                 candidate_path = base / f"runtime/{candidate_id}.json"; write_json(candidate_path, candidate)
                 record_candidate_mission_evidence(project_root, objective_id, candidate)
+                record_candidate_goal_evidence(project_root, objective_id, candidate)
                 checkpoint = checkpoint_candidate(project_root, objective_id, candidate)
                 try: updated_loop = outcome_loop_module().record_candidate(project_root, loop, candidate)
                 except Exception as exc: raise DirectorError(getattr(exc, "code", "E_CANDIDATE"), f"assembled candidate was rejected by outcome loop: {exc}") from exc
@@ -1190,6 +1254,7 @@ def status(project_root: Path, objective_id: str) -> dict[str, Any]:
         "stage": state["stage"],
         "next_action": state["next_action"],
         "director_sha256": state["director_sha256"],
+        "goal_route": goal_route_module().summary(load_goal_route(project_root, objective_id)),
         "mission_execution": {
             "status": mission["status"],
             "mission_class": mission["mission_class"],
@@ -1208,6 +1273,8 @@ def main() -> int:
     start_parser.add_argument("--project-root", type=Path, required=True)
     start_parser.add_argument("--objective-id", required=True)
     start_parser.add_argument("--objective", required=True)
+    start_parser.add_argument("--kickoff-profile", type=Path)
+    start_parser.add_argument("--autonomy-mode", choices=["guided_interview", "guided_defaults", "autonomous_research"])
     advance_parser = sub.add_parser("advance")
     advance_parser.add_argument("--project-root", type=Path, required=True)
     advance_parser.add_argument("--objective-id", required=True)
@@ -1225,7 +1292,8 @@ def main() -> int:
     args = parser.parse_args()
     try:
         if args.command == "start":
-            result = start(args.project_root, args.objective_id, args.objective)
+            kickoff = obj(read_json(args.kickoff_profile, "kickoff profile"), "kickoff profile") if args.kickoff_profile else None
+            result = start(args.project_root, args.objective_id, args.objective, kickoff_profile=kickoff, autonomy_mode=args.autonomy_mode)
         elif args.command == "advance":
             result = advance(args.project_root, args.objective_id)
         elif args.command == "status":

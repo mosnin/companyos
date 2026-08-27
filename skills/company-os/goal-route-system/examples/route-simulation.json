@@ -1,0 +1,30 @@
+{
+  "$schema": "company-os.goal-route-simulation-cases.v1",
+  "scenarios": [
+    {
+      "scenario_id": "software",
+      "objective": "Build a complete multi company AI support SaaS with a working widget, inbox, billing, security, and reliability.",
+      "expected_domain": "software",
+      "expected_segments": 6
+    },
+    {
+      "scenario_id": "consumer_company",
+      "objective": "Autonomously build an entire differentiated yoga leggings company with brand, product, supply chain, commerce, marketing, operations, and launch readiness.",
+      "expected_domain": "consumer_company",
+      "expected_segments": 6
+    },
+    {
+      "scenario_id": "marketing",
+      "objective": "Create and execute a marketing system that reaches $100,000 a month in sales by reverse engineering the offer, funnel, channels, creative, conversion, and retention.",
+      "expected_domain": "marketing",
+      "expected_revenue_target": 100000,
+      "expected_segments": 6
+    },
+    {
+      "scenario_id": "operations",
+      "objective": "Improve fulfillment operations so throughput, quality, lead time, exception handling, and recovery are measurably reliable.",
+      "expected_domain": "operations",
+      "expected_segments": 6
+    }
+  ]
+}

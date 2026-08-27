@@ -161,6 +161,9 @@ def production_workers(fabric: Mapping[str, Any]) -> list[dict[str, Any]]:
                     "lane_sha256": lane_sha,
                     "write_scope": scope,
                     "manifest_path": f"{scope}/artifact-manifest.json",
+                    "goal_id": worker.get("goal_contract", {}).get("goal_id"),
+                    "goal_sha256": worker.get("goal_contract", {}).get("goal_sha256"),
+                    "goal_route_state_sha256": worker.get("goal_assignment", {}).get("route_state_sha256"),
                 }
             )
     return workers
@@ -187,6 +190,9 @@ def validate_lane_manifest(
         raise CandidateAssemblyError("E_BINDING", "lane manifest lane digest is incorrect")
     if manifest.get("production_actor_id") != worker["worker_id"]:
         raise CandidateAssemblyError("E_AUTHORITY", "lane manifest production actor is incorrect")
+    if worker.get("goal_id") is not None:
+        if manifest.get("goal_id") != worker.get("goal_id") or manifest.get("goal_sha256") != worker.get("goal_sha256") or manifest.get("goal_route_state_sha256") != worker.get("goal_route_state_sha256"):
+            raise CandidateAssemblyError("E_BINDING", "lane manifest goal binding is incorrect")
     artifacts_raw = manifest.get("artifacts")
     if not isinstance(artifacts_raw, list) or not artifacts_raw:
         raise CandidateAssemblyError("E_ARTIFACT", f"lane {worker['lane_id']} has no materialized artifacts")
@@ -222,6 +228,8 @@ def validate_lane_manifest(
                 "artifact_class_id": artifact_class_id,
                 "path": relative_path,
                 "sha256": actual_sha,
+                "goal_id": worker.get("goal_id"),
+                "goal_sha256": worker.get("goal_sha256"),
             }
         )
     observations = []
@@ -247,6 +255,8 @@ def validate_lane_manifest(
             "path": relative_path,
             "sha256": actual_sha,
             "observation_kind": text(observation.get("observation_kind", kind), f"observation[{index}].observation_kind"),
+            "goal_id": worker.get("goal_id"),
+            "goal_sha256": worker.get("goal_sha256"),
         })
     return sorted(artifacts, key=lambda item: item["artifact_id"]), {
         "path": worker["manifest_path"],

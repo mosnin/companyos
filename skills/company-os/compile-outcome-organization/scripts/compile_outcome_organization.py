@@ -191,6 +191,14 @@ def _engineering_module():
         raise OrganizationError("E_ENGINEERING", "engineering constitution is unavailable")
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module); return module
 
+def _goal_route_module():
+    path = Path(__file__).resolve().parents[2] / "goal-route-system/scripts/goal_route.py"
+    spec = importlib.util.spec_from_file_location("company_os_goal_route_system", path)
+    if spec is None or spec.loader is None:
+        raise OrganizationError("E_GOAL_ROUTE", "goal route system is unavailable")
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module); return module
+
+
 def _mission_module():
     path = Path(__file__).resolve().parents[2] / "mission-execution-control/scripts/mission_control.py"
     spec = importlib.util.spec_from_file_location("company_os_mission_execution_control", path)
@@ -317,6 +325,17 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
         raise OrganizationError("E_GOVERNOR", f"work class {expected_work_class} is paused")
     engineering_module = _engineering_module()
     master_engineering = _engineering_root(objective_id, request)
+    goal_module = _goal_route_module()
+    route_binding = request.get("goal_route")
+    if isinstance(route_binding, Mapping):
+        route_path, route_relative = _safe(project_root, route_binding.get("path"), "goal_route.path")
+        route_state = goal_module.verify_state(_object(_read(route_path, "goal route"), "goal route"))
+        if route_binding.get("file_sha256") != file_digest(route_path) or route_binding.get("state_sha256") != route_state["state_sha256"] or route_binding.get("root_goal_sha256") != route_state["root_goal_sha256"]:
+            raise OrganizationError("E_GOAL_ROUTE", "goal route binding is stale")
+        route_manifest_binding = dict(route_binding)
+    else:
+        route_state = goal_module.compile_goal_route(objective_id, governed_outcome, mission_class=str(mission_control.get("mission_class") or "bounded_feature"), autonomy_mode="autonomous_research")
+        route_manifest_binding = {"$schema": "company-os.goal-route-binding.v1", "path": None, "file_sha256": None, "state_sha256": route_state["state_sha256"], "route_version": route_state["route_version"], "root_goal_id": route_state["root_goal_id"], "root_goal_sha256": route_state["root_goal_sha256"], "embedded": True}
     if control["execution_lane"] == "pilot" and len(lanes) > 2:
         raise OrganizationError("E_SCALE", "the current organization exceeds pilot authority and requires production scale authorization")
     if len(lanes) > 256:
@@ -356,6 +375,10 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
         if replace_worker:
             worker_id += f"-replacement-{replacement_generation}"
         resource_scope = f"outcome-lanes/{index:02d}-{_slug(lane['lane_id'])}"
+        goal_assignment = goal_module.assignment_for_lane(route_state, artifact_classes=lane["artifact_classes"], phase=state.get("phase"), lane_id=lane["lane_id"], manager_id=manager_id, worker_id=worker_id)
+        manager_goal = goal_assignment["manager_goal"]
+        worker_goal = goal_assignment["worker_goal"]
+        delegation = goal_module.sealed_delegation_plan(route_state, manager_goal["goal_id"])
         if state.get("phase") == "evaluate":
             acceptance = [
                 "Execute the exact bound independent evaluator against the current candidate artifact bytes",
@@ -363,7 +386,7 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
                 "Do not modify candidate artifacts or inherit the production team's completion narrative",
             ]
             sensor_reason = "Verification is the current route action." if route_action.get("work_class") == "evaluation" else "This is a bounded sensor interrupt; inspect only what can change route confidence or trigger targeted repair, then return control to the active route."
-            worker_task = lane["mandate"] + " Navigation route action: " + json.dumps(route_action, sort_keys=True) + ". " + sensor_reason + " Score only the bound dimensions: " + ", ".join(lane["score_dimensions"]) + "."
+            worker_task = lane["mandate"] + " Concrete goal contract: " + json.dumps(worker_goal, sort_keys=True) + ". Navigation route action: " + json.dumps(route_action, sort_keys=True) + ". " + sensor_reason + " Score only the bound dimensions: " + ", ".join(lane["score_dimensions"]) + "."
             worker_write_scope = [f"{resource_scope}/evaluation-receipt"]
             stop_condition = "A verified evaluator execution receipt is materialized, or evaluator execution fails closed"
             extra_constraints = [
@@ -379,12 +402,12 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
                 "Do not use source code, tests, plans, schemas, reports, or completion narrative as product acceptance unless the artifact contract explicitly requires that class",
             ]
             acceptance.extend(f"Preserve independently passing quality dimension {dimension}" for dimension in preserve_dimensions)
-            worker_task = lane["mandate"] + " Navigation route action: " + json.dumps(route_action, sort_keys=True) + ". Execute that state-changing action first, then observe the environment and replan. Within the first third of this lane budget, create and run the smallest real end-to-end artifact path. Stop broad research and speculative architecture once enough is known to execute. Use the minimum-sufficient-actuation policy: " + json.dumps(route_policy, sort_keys=True) + ". If the user supplied a provider, repository, SDK, or framework that already implements a required capability, integrate and exercise it before building a replacement; replacement requires concrete blocker evidence."
+            worker_task = lane["mandate"] + " Concrete goal contract: " + json.dumps(worker_goal, sort_keys=True) + ". Sprint: " + json.dumps(goal_assignment["sprint"], sort_keys=True) + ". Route node: " + json.dumps(goal_assignment["route_node"], sort_keys=True) + ". Navigation route action: " + json.dumps(route_action, sort_keys=True) + ". Execute that state-changing action first, then observe the environment and replan. Within the first third of this lane budget, create and run the smallest real end-to-end artifact path. Stop broad research and speculative architecture once enough is known to execute. Use the minimum-sufficient-actuation policy: " + json.dumps(route_policy, sort_keys=True) + ". If the user supplied a provider, repository, SDK, or framework that already implements a required capability, integrate and exercise it before building a replacement; replacement requires concrete blocker evidence."
             if preserve_dimensions:
                 worker_task += " Preserve already passing dimensions: " + ", ".join(preserve_dimensions) + "."
             worker_write_scope = [f"{resource_scope}/artifact"]
             artifact_manifest_path = f"{resource_scope}/artifact/artifact-manifest.json"
-            artifact_manifest_binding = {"$schema": "company-os.outcome-lane-artifact-manifest.v1", "schema_version": 1, "objective_id": state["objective_id"], "outcome_loop_state_sha256": state["state_sha256"], "organization_sha256": digest(state["organization_plan"]), "lane_id": lane["lane_id"], "lane_sha256": lane_sha, "production_actor_id": worker_id}
+            artifact_manifest_binding = {"$schema": "company-os.outcome-lane-artifact-manifest.v1", "schema_version": 1, "objective_id": state["objective_id"], "outcome_loop_state_sha256": state["state_sha256"], "organization_sha256": digest(state["organization_plan"]), "lane_id": lane["lane_id"], "lane_sha256": lane_sha, "production_actor_id": worker_id, "goal_id": worker_goal["goal_id"], "goal_sha256": worker_goal["goal_sha256"], "goal_route_state_sha256": route_state["state_sha256"]}
             worker_task += " When materialized, write the canonical artifact handoff at " + artifact_manifest_path + ". Preserve these exact immutable bindings: " + json.dumps(artifact_manifest_binding, sort_keys=True) + ". Add an artifacts array containing each actual artifact_id, artifact_class_id, project-relative path, and exact sha256. Also add an observations array with runtime_observed and journey_connected receipts containing capability_id, project-relative evidence path, exact sha256, and observation_kind. The first-reality candidate is incomplete until the real artifact runs and one connected user journey is observed. A prose report is not a handoff."
             stop_condition = "A real connected artifact is materialized and executed with exact evidence, or a blocking constraint is proven"
             extra_constraints = [
@@ -403,6 +426,11 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
         work_class = "evaluation" if state.get("phase") == "evaluate" else "repair" if state.get("phase") == "rework" else "implementation"
         outcome_context["mission_control"] = mission_control
         outcome_context["work_admission"] = admission
+        outcome_context["goal_route"] = route_manifest_binding
+        outcome_context["goal_assignment"] = goal_assignment
+        outcome_context["goal_contract"] = worker_goal
+        outcome_context["cohesion_contract"] = goal_assignment["cohesion_contract"]
+        outcome_context["delegation_plan"] = delegation
         project_skill_assignment = _project_skill_assignment(project_root, lane, worker_task)
         if project_skill_assignment is not None:
             outcome_context["project_skill_assignment"] = project_skill_assignment
@@ -410,15 +438,69 @@ def compile_manifest(project_root: Path, loop_state_path: str, request: Mapping[
             worker_task += f" Load only the exact bound project skill entrypoints in this order: {ordered}. Verify every entrypoint digest before use and do not discover unassigned project skills."
         if replace_worker or replace_manager:
             worker_task += " This is a replacement context. Read the durable artifact and runtime evidence, do not repeat the failed strategy, and move the current global bottleneck."
-        workers = [{"id": worker_id, "model": "gpt-5.6-luna", "task": worker_task, "acceptance": acceptance, "write_scope": worker_write_scope, "risk": "medium", "budget": dict(manager_budget), "work_class": work_class, "mission_control": mission_control, "work_admission": admission, "outcome_context": outcome_context, "engineering_execution_contract": worker_engineering, "stop_condition": stop_condition, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha}]
-        managers.append({"id": manager_id, "model": "gpt-5.6-sol", "outcome": lane["mandate"], "acceptance": acceptance, "phase_ids": PHASES, "budget": dict(manager_budget), "work_class": work_class, "mission_control": mission_control, "work_admission": admission, "write_scope": [resource_scope], "artifact_classes": lane["artifact_classes"], "engineering_execution_contract": manager_engineering, "workers": workers, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha})
+        workers = [{"id": worker_id, "model": "gpt-5.6-luna", "task": worker_task, "acceptance": acceptance, "write_scope": worker_write_scope, "risk": "medium", "budget": dict(manager_budget), "work_class": work_class, "mission_control": mission_control, "work_admission": admission, "goal_route": route_manifest_binding, "goal_assignment": goal_assignment, "goal_contract": worker_goal, "agent_template": goal_assignment["worker_template"], "cohesion_contract": goal_assignment["cohesion_contract"], "sprint": goal_assignment["sprint"], "route_node": goal_assignment["route_node"], "outcome_context": outcome_context, "engineering_execution_contract": worker_engineering, "stop_condition": stop_condition, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha}]
+        managers.append({"id": manager_id, "model": "gpt-5.6-sol", "outcome": lane["mandate"], "acceptance": acceptance, "phase_ids": PHASES, "budget": dict(manager_budget), "work_class": work_class, "mission_control": mission_control, "work_admission": admission, "goal_route": route_manifest_binding, "goal_assignment": goal_assignment, "goal_contract": manager_goal, "agent_template": goal_assignment["manager_template"], "cohesion_contract": goal_assignment["cohesion_contract"], "delegation_plan": delegation, "write_scope": [resource_scope], "artifact_classes": lane["artifact_classes"], "engineering_execution_contract": manager_engineering, "workers": workers, "outcome_loop_lane_id": lane["lane_id"], "outcome_loop_lane_sha256": lane_sha})
     loop_binding = {"$schema": BINDING_SCHEMA, "state_path": state_relative, "state_file_sha256": file_digest(state_path), "state_sha256": state["state_sha256"], "phase": state["phase"], "iteration": state["iteration"], "next_action": state["next_action"]["action"], "organization_sha256": digest(state["organization_plan"]), "lane_sha256s": lane_sha256s}
     engineering_module.assert_nonoverlap([manager["engineering_execution_contract"] for manager in managers])
-    return {"program_id": project_id, "topology_mode": TOPOLOGY_MODE, "mission_control": mission_control, "work_admission": admission, "engineering_execution_contract": master_engineering, "program_version": program_version, "outcome": governed_outcome, "acceptance": ["All required artifact classes are materialized as real inspectable artifacts", "All required independent evaluators execute against the current candidate", "The next outcome loop state is derived from evaluator evidence"], "program_contract": {"north_star": north_star, "user_value": user_value, "rationale": rationale, "architecture": architecture, "roadmap": PHASES, "dependencies": dependencies, "non_goals": non_goals, "constraints": constraints}, "max_managers": len(managers), "max_manager_concurrency": min(len(managers), int(budget["max_concurrency"])), "max_workers_per_manager": 1, "max_total_workers": len(managers), "max_depth": 2, "max_worker_retries": 1, "max_manager_rework_rounds": 2, "budget": budget, "luna_token_share_target": 0.75, "external_effects_allowed": False, "managers": managers, "outcome_control": control, "outcome_loop": loop_binding}
+    return {
+        "program_id": project_id,
+        "topology_mode": TOPOLOGY_MODE,
+        "mission_control": mission_control,
+        "work_admission": admission,
+        "goal_route": route_manifest_binding,
+        "goal_route_state": route_state if route_manifest_binding.get("embedded") is True else None,
+        "engineering_execution_contract": master_engineering,
+        "program_version": program_version,
+        "outcome": governed_outcome,
+        "acceptance": [
+            "All required artifact classes are materialized as real inspectable artifacts",
+            "All required independent evaluators execute against the current candidate",
+            "The next outcome loop state is derived from evaluator evidence",
+        ],
+        "program_contract": {
+            "north_star": north_star,
+            "user_value": user_value,
+            "rationale": rationale,
+            "architecture": architecture,
+            "roadmap": PHASES,
+            "dependencies": dependencies,
+            "non_goals": non_goals,
+            "constraints": constraints,
+        },
+        "max_managers": len(managers),
+        "max_manager_concurrency": min(len(managers), int(budget["max_concurrency"])),
+        "max_workers_per_manager": 1,
+        "max_total_workers": len(managers),
+        "max_depth": 2,
+        "max_worker_retries": 1,
+        "max_manager_rework_rounds": 2,
+        "budget": budget,
+        "luna_token_share_target": 0.75,
+        "external_effects_allowed": False,
+        "managers": managers,
+        "outcome_control": control,
+        "outcome_loop": loop_binding,
+    }
 
 def validate_manifest_binding(project_root: Path, manifest: Mapping[str, Any]) -> dict[str, Any]:
     if manifest.get("topology_mode") != TOPOLOGY_MODE:
         raise OrganizationError("E_MODE", "manifest is not outcome closed loop topology")
+    goal_module = _goal_route_module()
+    route_binding = dict(_object(manifest.get("goal_route"), "goal_route"))
+    if route_binding.get("embedded") is True:
+        route_state = goal_module.verify_state(_object(manifest.get("goal_route_state"), "goal_route_state"))
+    else:
+        route_path, route_relative = _safe(project_root, route_binding.get("path"), "goal_route.path")
+        route_state = goal_module.verify_state(_object(_read(route_path, "goal route"), "goal route"))
+        if route_relative != route_binding.get("path") or file_digest(route_path) != route_binding.get("file_sha256"):
+            raise OrganizationError("E_GOAL_ROUTE", "goal route file binding is stale")
+    if (
+        route_binding.get("state_sha256") != route_state["state_sha256"]
+        or route_binding.get("route_version") != route_state["route_version"]
+        or route_binding.get("root_goal_id") != route_state["root_goal_id"]
+        or route_binding.get("root_goal_sha256") != route_state["root_goal_sha256"]
+    ):
+        raise OrganizationError("E_GOAL_ROUTE", "goal route state binding is stale")
     mission_binding = dict(_object(manifest.get("mission_control"), "mission_control"))
     mission_path, mission_relative = _safe(project_root, mission_binding.get("state_path"), "mission_control.state_path")
     mission = _mission_module().verify_state(_object(_read(mission_path, "mission execution state"), "mission execution state"))
@@ -471,6 +553,14 @@ def validate_manifest_binding(project_root: Path, manifest: Mapping[str, Any]) -
             raise OrganizationError("E_ORGANIZATION", f"manager outcome drifted from lane mandate: {lane_id}")
         if manager.get("mission_control") != mission_binding or manager.get("work_admission") != admission:
             raise OrganizationError("E_GOVERNOR", f"manager {lane_id} lost mission admission")
+        if manager.get("goal_route") != route_binding:
+            raise OrganizationError("E_GOAL_ROUTE", f"manager {lane_id} lost goal route binding")
+        try:
+            assignment = goal_module.verify_assignment(_object(manager.get("goal_assignment"), "manager.goal_assignment"), route_state)
+        except Exception as exc:
+            raise OrganizationError("E_GOAL_ROUTE", f"manager {lane_id} goal assignment is invalid: {exc}") from exc
+        if manager.get("goal_contract") != assignment["manager_goal"]:
+            raise OrganizationError("E_GOAL_ROUTE", f"manager {lane_id} goal contract changed")
         workers = manager.get("workers")
         if not isinstance(workers, list) or not workers:
             raise OrganizationError("E_ORGANIZATION", f"manager {lane_id} has no worker")
@@ -478,12 +568,16 @@ def validate_manifest_binding(project_root: Path, manifest: Mapping[str, Any]) -
             worker = _object(worker, "worker")
             if worker.get("mission_control") != mission_binding or worker.get("work_admission") != admission:
                 raise OrganizationError("E_GOVERNOR", f"worker {lane_id} lost mission admission")
+            if worker.get("goal_route") != route_binding or worker.get("goal_assignment") != assignment:
+                raise OrganizationError("E_GOAL_ROUTE", f"worker {lane_id} lost goal route assignment")
+            if worker.get("goal_contract") != assignment["worker_goal"]:
+                raise OrganizationError("E_GOAL_ROUTE", f"worker {lane_id} goal contract changed")
             if worker.get("outcome_loop_lane_id") != lane_id or worker.get("outcome_loop_lane_sha256") != expected_lane_digests[lane_id]:
                 raise OrganizationError("E_BINDING", f"worker lane binding changed: {lane_id}")
     control = _object(manifest.get("outcome_control"), "outcome_control")
     if control.get("objective_id") != state.get("objective_id"):
         raise OrganizationError("E_BINDING", "manifest outcome control and loop objective differ")
-    return {"state_path": state_relative, "state_file_sha256": binding["state_file_sha256"], "state_sha256": state["state_sha256"], "phase": state["phase"], "iteration": state["iteration"], "next_action": state["next_action"]["action"], "organization_sha256": binding["organization_sha256"], "lane_sha256s": expected_lane_digests}
+    return {"state_path": state_relative, "state_file_sha256": binding["state_file_sha256"], "state_sha256": state["state_sha256"], "phase": state["phase"], "iteration": state["iteration"], "next_action": state["next_action"]["action"], "organization_sha256": binding["organization_sha256"], "lane_sha256s": expected_lane_digests, "goal_route_state_sha256": route_state["state_sha256"]}
 
 def main() -> int:
     parser = argparse.ArgumentParser()

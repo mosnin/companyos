@@ -140,6 +140,19 @@ class CandidateAssemblyTests(unittest.TestCase):
             MODULE.assemble(self.project, self.fabric, "candidate-1")
         self.assertEqual(caught.exception.code, "E_DIGEST")
 
+    def test_goal_binding_tampering_is_rejected(self) -> None:
+        worker = self.fabric["managers"][0]["workers"][0]
+        worker["goal_contract"] = {"goal_id": "goal:game", "goal_sha256": "d" * 64}
+        worker["goal_assignment"] = {"route_state_sha256": "e" * 64}
+        self.write_manifest(
+            goal_id="goal:other",
+            goal_sha256="d" * 64,
+            goal_route_state_sha256="e" * 64,
+        )
+        with self.assertRaises(MODULE.CandidateAssemblyError) as caught:
+            MODULE.assemble(self.project, self.fabric, "candidate-1")
+        self.assertEqual(caught.exception.code, "E_BINDING")
+
 
 if __name__ == "__main__":
     unittest.main()

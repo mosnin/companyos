@@ -167,6 +167,11 @@ class OutcomeDirectorTests(unittest.TestCase):
         self.assertEqual(self.state["stage"], "discovery")
         self.assertEqual(self.state["next_action"]["action"], "execute_fabric")
         self.assertEqual(self.state["next_action"]["stage"], "discovery")
+        route_path = MODULE.goal_route_path(self.project, "viral-game")
+        self.assertTrue(route_path.is_file())
+        route = MODULE.goal_route_module().verify_state(json.loads(route_path.read_text()))
+        self.assertEqual(route["root_goal_id"], "goal:viral-game")
+        self.assertEqual(self.state["artifacts"]["goal_route"], MODULE.relative(self.project, route_path))
 
     def test_advance_does_not_invent_missing_discovery(self) -> None:
         result = MODULE.advance(self.project, "viral-game")
