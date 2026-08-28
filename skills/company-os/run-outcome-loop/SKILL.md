@@ -1,6 +1,6 @@
 ---
 name: run-outcome-loop
-description: Drive a Company OS objective from broad intent through autonomous discovery, executable outcome contracts, a real candidate, independent evaluation, bottleneck focused rework, organization mutation, and execution bound reality acceptance. Use whenever Company OS owns an outcome rather than a narrow task.
+description: Human-readable reference for the Company OS outcome loop stages, from broad intent through autonomous discovery, executable outcome contracts, a real candidate, independent evaluation, bottleneck focused rework, organization mutation, and execution bound reality acceptance. Use when reading or explaining how the outcome loop is staged; to actually own and run an outcome, route to `$direct-outcome`, the single automated master entry point, not this reference. Do not use as a second entry point for owning an outcome.
 ---
 
 # Run Outcome Loop

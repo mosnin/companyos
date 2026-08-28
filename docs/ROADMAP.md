@@ -75,6 +75,29 @@ gate. The broader runtime remains NO-GO until controller admission occurs before
 native create, a hard cancellation/acknowledgement surface is proven, installed
 fresh-thread role skills pass, and one clean two-Luna integration succeeds.
 
+## Phase 2O — Outcome control plane (shipped in 0.6.0, not yet independently accepted)
+
+Turn a broad objective into an attributable, independently verified outcome
+before any elastic execution. Discovery closes blocking unknowns with cited
+evidence; observable artifact classes are defined; executable independent
+evaluators are compiled, registered, built, executed, and calibrated to
+discriminate poor, intermediate, and excellent candidates; benchmark tiers are
+bound; and completion requires an execution-bound reality receipt derived from
+actual artifact evidence — a production-team completion narrative cannot
+substitute. Contract drift invalidates the execution fabric, and production
+scale beyond the bounded pilot requires a content-bound scale authorization.
+
+Enforcement lives in the controller (`$direct-outcome`, `outcome_control.py`,
+and the per-stage `*-outcome-*` skills), not in demo scripts, and ships with its
+own test suites. It is shipped and self-tested but **not yet independently
+accepted**: acceptance requires the standalone dimensions below to reach the
+`AGENTS.md` bar under fresh independent review, which has not been run for 0.6.0.
+Known follow-ups from the internal 0.6.0 audit: discovery citations are
+free-text and unresolved (unlike reality receipts, which hash artifact bytes),
+"executable" is validated at compile time as a locator shape with real execution
+proven one layer down, and evaluator calibration proves rank agreement with an
+operator-supplied ordering rather than objective candidate quality.
+
 ## Phase 3 — Native self-hosting capability
 
 Use the installed role skills and compact packets to build Company OS's live

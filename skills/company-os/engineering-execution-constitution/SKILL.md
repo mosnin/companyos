@@ -1,3 +1,8 @@
+---
+name: engineering-execution-constitution
+description: Bind every Company OS coding or software-engineering workstream to the recursively inherited engineering execution contract that governs quality, evidence, and authority. Use when a master, manager, or worker admission carries software engineering scope and must derive or verify its engineering_execution_contract. Do not use for non-engineering workstreams or as a substitute for the active product route.
+---
+
 # Engineering Execution Constitution
 
 This contract is mandatory for every Company OS coding or software engineering workstream.

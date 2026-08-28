@@ -133,7 +133,20 @@ Legacy JSON instances continue to use the write-ahead pair until an explicit,
 validated `migrate-control-store` operation publishes their database. New
 instances begin transactionally. Version 0.4 adds the Operator Command Center
 and a transaction-safe two-bundle distribution upgrade path; it still does not
-enable a provider runtime or recurring scheduling.
+enable a provider runtime or recurring scheduling. Version 0.5 preserves the
+0.5.1 Operator Command Center review as a signed historical bundle and hardens
+blueprint compilation, scheduler cadence, and secret rejection. Version 0.6 adds
+the outcome control plane: broad-objective discovery, observable artifact
+classes, compiled executable independent evaluators, benchmark tiers, evaluator
+calibration, and execution-bound reality acceptance, with contract drift
+invalidating the execution fabric. The provider runtime and protected recurring
+scheduling remain feature-off behind their acceptance gates.
+
+The audit ledger is additionally hash-chained: every control-store event commits
+to its own state-revision digest and to the prior event's digest, so a single
+rewritten historical revision or event breaks continuity under `audit()`. Full
+tamper-proofing (a signed chain head and a signed distribution manifest) remains
+future work.
 
 ## Feedback target
 

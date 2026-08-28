@@ -3,6 +3,34 @@
 Scores are evidence-bound. Future-phase dimensions are not rounded up to make
 the current stage appear operational.
 
+## Version 0.6.0 outcome control plane — self-assessed, not independently accepted
+
+The 0.6.0 outcome control plane (discovery, observable artifact classes,
+compiled executable independent evaluators, benchmark tiers, calibration, and
+execution-bound reality acceptance) is shipped, controller-enforced, and covered
+by its own test suites, which run green under the full `unittest discover -s
+tests` gate together with the controller, control-store, runtime-observation,
+operator-brief, self-hosting reference, canonical-digest, and skill-surface
+gates listed in `.github/workflows/ci.yml`.
+
+Per `AGENTS.md`, acceptance requires every applicable dimension at 8/10 and the
+security, authority, durability, cancellation, and evidence-integrity dimensions
+at 9/10, under fresh independent review. **That review has not been run for
+0.6.0, so these dimensions are self-assessed and the release is not accepted.**
+The scores in the phase tables below predate 0.6.0 and describe earlier
+accepted slices; they are retained as historical evidence, not restated for the
+current source.
+
+An internal 0.6.0 engineering audit recorded genuine strengths (fail-closed
+discipline, adversarial tests, clean injection/network/secret surface) and open
+items now partly addressed in-tree: stored-grant keys are pinned to the
+configured issuer, the audit ledger is hash-chained, the recovery path no longer
+deletes bundles it cannot restore, and canonicalization has frozen golden
+vectors. Remaining follow-ups are unchanged from the roadmap: a signed chain
+head and signed distribution manifest, structured validation error codes to
+replace prefix-matched gates, discovery citations resolved to hashed evidence,
+and a fresh independent review of the whole plane.
+
 ## Phase 0 applicable dimensions
 
 | Dimension | Score | Evidence |

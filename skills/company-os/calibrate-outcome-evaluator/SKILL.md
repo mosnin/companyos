@@ -1,6 +1,6 @@
 ---
 name: calibrate-outcome-evaluator
-description: Prove an executable evaluator can discriminate weak from strong artifacts using verified execution receipts before Company OS authorizes elastic production.
+description: Prove an executable evaluator can discriminate weak from strong artifacts using verified execution receipts before Company OS authorizes elastic production. Use when a compiled executable evaluator must be shown to rank poor, intermediate, and excellent candidates before scale authorization. Do not use for ad hoc scoring or before an executable evaluator runtime exists.
 ---
 
 # Calibrate Outcome Evaluator

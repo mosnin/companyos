@@ -1,6 +1,6 @@
 ---
 name: ui-design-quality
-description: Mandatory Company OS design-engineering gate for any work that creates, changes, prototypes, or reviews a user interface. Routes the pinned Emil Kowalski design skill suite, requires visual and interaction evidence, and blocks acceptance when craft, accessibility, motion, or performance are below the program bar.
+description: Mandatory Company OS design-engineering gate for any work that creates, changes, prototypes, or reviews a user interface. Routes the pinned Emil Kowalski design skill suite, requires visual and interaction evidence, and blocks acceptance when craft, accessibility, motion, or performance are below the program bar. Use when any user interface is created, changed, prototyped, or reviewed. Do not skip it for internal, throwaway, or non-interface work.
 ---
 
 # UI Design Quality

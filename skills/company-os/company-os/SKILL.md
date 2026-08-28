@@ -11,6 +11,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 
 | Pillar | Responsibility | Skill |
 | --- | --- | --- |
+| Outcome control plane | Own a broad objective end to end: discovery, executable outcome contracts, a real candidate, just-in-time independent evaluation, bottleneck rework, organization mutation, and execution-bound reality acceptance. The single master entry point; the per-stage skills (`$bootstrap-outcome`, `$close-outcome-discovery`, `$synthesize-outcome-model`, `$materialize-outcome-stack`, the `$compile-outcome-*` / `$build-outcome-evaluators` / `$calibrate-outcome-*` evaluator lifecycle, `$run-outcome-loop`, `$accept-outcome-reality`, `$authorize-outcome-scale`) are its subordinate steps, not separate entry points | `$direct-outcome` |
 | Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint`, `$civilization-builder`, `$corporate-management` |
 | Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction`, `$business-architect`, `$civilization-builder`, `$economics-architect` |

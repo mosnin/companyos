@@ -31,15 +31,22 @@ The controller remains project isolated and fail closed. SQLite state, ordered e
   and the preserved pre-integration observation reference.
 - `scripts/distribution.py` — deterministic manifest, install, and installed
   distribution verification.
-- `tests/` — repository-level provenance and clean-bootstrap tests.
+- `tests/` — the repository-wide test suite covering the product surface:
+  provenance, clean bootstrap, distribution, the outcome control plane, the
+  skill-surface linter, and canonical-digest golden vectors.
 - `docs/` — architecture and stage-gated roadmap.
 
 ## Verify
 
+This is the same battery `.github/workflows/ci.yml` runs on every push:
+
 ```bash
 python3 scripts/distribution.py verify-manifest
 python3 scripts/verify_operator_command_center_surface.py
+python3 scripts/validate_skill_surface.py
 python3 -m unittest discover -s tests -v
+python3 skills/company-os/mission-execution-control/scripts/execution_regression_lab.py --json
+python3 skills/company-os/goal-route-system/scripts/goal_route.py simulate
 python3 skills/company-os/elastic-company-os/scripts/test_company_os_controller.py
 python3 skills/company-os/elastic-company-os/scripts/test_control_store.py -v
 python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests

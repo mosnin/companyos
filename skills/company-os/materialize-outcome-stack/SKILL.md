@@ -1,6 +1,6 @@
 ---
 name: materialize-outcome-stack
-description: Convert a synthesized measurable Company OS outcome request into the rich artifact observation contract, executable evaluator runtime contract, and quality benchmark contract used by the closed loop runtime. Use immediately after synthesize-outcome-model succeeds.
+description: Convert a synthesized measurable Company OS outcome request into the rich artifact observation contract, executable evaluator runtime contract, and quality benchmark contract used by the closed loop runtime. Use immediately after synthesize-outcome-model succeeds. Do not use before an accepted measurable outcome model exists, or for one-off artifact work outside the outcome loop.
 ---
 
 # Materialize Outcome Stack

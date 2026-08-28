@@ -106,6 +106,33 @@ BASE_DIMENSIONS = {
 # in the current phase. Delivery-only dimensions must not block an inspectable
 # experience prototype, while a P0 interruption always carries its own safety
 # gate.
+# The verification and learning phases gate on the identical full quality set.
+# Defined once so the two phases can never drift apart under hand edits.
+_FULL_DELIVERY_QUALITY_DIMENSIONS = frozenset({
+    "north_star_alignment",
+    "user_value",
+    "product_coherence",
+    "information_architecture",
+    "usability",
+    "accessibility",
+    "interaction_quality",
+    "visual_quality",
+    "brand_cohesion",
+    "security",
+    "privacy",
+    "reliability",
+    "latency",
+    "cost_efficiency",
+    "maintainability",
+    "test_strength",
+    "observability",
+    "rollback_readiness",
+    "adoption_potential",
+    "operational_readiness",
+    "feedback_health",
+    "evidence_integrity",
+})
+
 PHASE_QUALITY_DIMENSIONS = {
     "reality_audit": {
         "north_star_alignment",
@@ -166,54 +193,8 @@ PHASE_QUALITY_DIMENSIONS = {
         "rollback_readiness",
         "evidence_integrity",
     },
-    "verification": {
-        "north_star_alignment",
-        "user_value",
-        "product_coherence",
-        "information_architecture",
-        "usability",
-        "accessibility",
-        "interaction_quality",
-        "visual_quality",
-        "brand_cohesion",
-        "security",
-        "privacy",
-        "reliability",
-        "latency",
-        "cost_efficiency",
-        "maintainability",
-        "test_strength",
-        "observability",
-        "rollback_readiness",
-        "adoption_potential",
-        "operational_readiness",
-        "feedback_health",
-        "evidence_integrity",
-    },
-    "learning": {
-        "north_star_alignment",
-        "user_value",
-        "product_coherence",
-        "information_architecture",
-        "usability",
-        "accessibility",
-        "interaction_quality",
-        "visual_quality",
-        "brand_cohesion",
-        "security",
-        "privacy",
-        "reliability",
-        "latency",
-        "cost_efficiency",
-        "maintainability",
-        "test_strength",
-        "observability",
-        "rollback_readiness",
-        "adoption_potential",
-        "operational_readiness",
-        "feedback_health",
-        "evidence_integrity",
-    },
+    "verification": set(_FULL_DELIVERY_QUALITY_DIMENSIONS),
+    "learning": set(_FULL_DELIVERY_QUALITY_DIMENSIONS),
 }
 
 DELIVERY_WORK_QUALITY_DIMENSIONS = {
@@ -282,9 +263,27 @@ RUNTIME_AUDIT_ERROR_PREFIXES = (
     "manager runtime",
     "worker runtime",
     "admission-only runtime",
+    "native task",
+    "runtime observation inbox",
+    "enabled runtime observation inbox",
 )
+
+
+def is_retained_runtime_error(error: str) -> bool:
+    """Whether a validate_state error concerns runtime-adapter integrity.
+
+    Runtime observation ingest gates on this predicate: any matching error must
+    block ingest, so an error family omitted here fails OPEN (a broken runtime
+    state is ingested anyway). Every runtime-integrity error family must
+    therefore be listed in RUNTIME_AUDIT_ERROR_PREFIXES, and every gate must use
+    this single predicate rather than an inline prefix check so the sites can
+    never drift apart. test_runtime_error_prefixes_cover_runtime_validation
+    pins that invariant against silent rewording.
+    """
+    return error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
 _CONTROL_STORE_MODULE: Any | None = None
 _NATIVE_TASK_RUNTIME_MODULE: Any | None = None
+_RUNTIME_OBSERVATION_MODULE: Any | None = None
 _OPERATOR_BRIEF_MODULE: Any | None = None
 _OUTCOME_CONTROL_MODULE: Any | None = None
 _OUTCOME_ORGANIZATION_MODULE: Any | None = None
@@ -336,12 +335,16 @@ def native_task_runtime_module() -> Any:
 
 def runtime_observation_module() -> Any:
     """Load the bundled observation verifier without relying on PYTHONPATH."""
+    global _RUNTIME_OBSERVATION_MODULE
+    if _RUNTIME_OBSERVATION_MODULE is not None:
+        return _RUNTIME_OBSERVATION_MODULE
     module_path = Path(__file__).resolve().with_name("runtime_observations.py")
     spec = importlib.util.spec_from_file_location("company_os_runtime_observations", module_path)
     if spec is None or spec.loader is None:
         raise ValueError("runtime observation verifier could not be loaded")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    _RUNTIME_OBSERVATION_MODULE = module
     return module
 
 
@@ -1966,6 +1969,18 @@ def audit_stored_grant(
         if isinstance(verification_key_pem, str):
             if verification_key_sha256 != hashlib.sha256(verification_key_pem.encode("utf-8")).hexdigest():
                 raise ValueError("stored verification-key digest does not match")
+            configured_key_path = os.environ.get(ACTOR_PUBLIC_KEY_ENV)
+            if configured_key_path and required_program == state.get("strategy", {}).get("program_version"):
+                # A current-program grant must retain the configured issuer's
+                # exact key: an internally consistent record signed by a
+                # self-minted keypair is a forgery, not history. Only
+                # prior-program records may carry a rotated-away key.
+                try:
+                    configured_pem = Path(configured_key_path).resolve().read_text(encoding="utf-8")
+                except OSError:
+                    raise ValueError("configured actor-grant public key is unreadable") from None
+                if hashlib.sha256(configured_pem.encode("utf-8")).hexdigest() != verification_key_sha256:
+                    raise ValueError("stored verification key is not the configured decision issuer")
             verify_asymmetric_signature(encoded, signature, verification_key_pem=verification_key_pem)
             return "cryptographic"
         if os.environ.get(ACTOR_PUBLIC_KEY_ENV):
@@ -3848,8 +3863,9 @@ def validate_state(
     program_version = strategy.get("program_version")
     if not isinstance(program_version, int) or program_version < 1:
         errors.append("strategy.program_version must be a positive integer")
-    if parse_time(strategy.get("program_updated_at"), "strategy.program_updated_at", errors):
-        pass
+    # Called for its side effect: parse_time appends a validation error for a
+    # malformed timestamp. The parsed value itself is not needed here.
+    parse_time(strategy.get("program_updated_at"), "strategy.program_updated_at", errors)
     expected_fingerprint = strategy_fingerprint(strategy)
     if strategy.get("program_fingerprint") != expected_fingerprint:
         errors.append("strategy.program_fingerprint does not match the authoritative program")
@@ -7418,8 +7434,7 @@ def retained_native_runtime_errors(
     return [
         error
         for error in validate_state(state, expected_project=project)["errors"]
-        if error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
-        or error.startswith("native task")
+        if is_retained_runtime_error(error)
     ]
 
 
@@ -8103,7 +8118,7 @@ def ingest_runtime_observation(args: argparse.Namespace) -> int:
 
             retained_runtime_errors = [
                 error for error in validate_state(state, expected_project=project)["errors"]
-                if error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
+                if is_retained_runtime_error(error)
             ]
             if retained_runtime_errors:
                 raise ValueError(
@@ -8130,7 +8145,7 @@ def ingest_runtime_observation(args: argparse.Namespace) -> int:
             candidate["runtime_adapter"]["observation_inboxes"][args.attempt_id] = candidate_inbox
             candidate_errors = [
                 error for error in validate_state(candidate, expected_project=project)["errors"]
-                if error.startswith(RUNTIME_AUDIT_ERROR_PREFIXES)
+                if is_retained_runtime_error(error)
             ]
             if candidate_errors:
                 raise ValueError(

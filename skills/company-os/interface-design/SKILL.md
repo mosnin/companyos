@@ -1,6 +1,6 @@
 ---
 name: interface-design
-description: Apply the pinned jakubkrehel interface-craft suite and frontend-design visual direction when building or reviewing digital interfaces. Routes typography, color, layout, writing, accessibility, UI polish, and distinctive aesthetic identity. Does not replace `$ui-design-quality` as the Company OS evidence gate.
+description: Apply the pinned jakubkrehel interface-craft suite and frontend-design visual direction when building or reviewing digital interfaces. Routes typography, color, layout, writing, accessibility, UI polish, and distinctive aesthetic identity. Use when creating or reviewing a digital interface's craft and aesthetic direction. Do not use for non-interface work, and do not use it to replace `$ui-design-quality` as the Company OS evidence gate.
 ---
 
 # Interface Design

@@ -422,8 +422,8 @@
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/SKILL.md",
-      "sha256": "a8fb2bf80d3f7299a566096a0745417765419a590eaae732d2d470d0833f196c",
-      "size": 1412
+      "sha256": "b77b841f323def877803ec07f451458bb9696476acb0f0b04743028e3044dbd3",
+      "size": 1628
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/references/calibration-request.example.json",
@@ -677,8 +677,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "c2a5e56e52fbc273f69908bc17f0af5dd251607f3d3e6b9f03e7dc139736682d",
-      "size": 22143
+      "sha256": "a224e7d04ec40ddf984cf0ab70270bd8d7f228a566e1db4090adde82713eb78a",
+      "size": 22795
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",
@@ -1217,13 +1217,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "c2632f24788ed7b2a449cb5792a083f7c413a0291280b09649da0046b21ad77c",
-      "size": 429228
+      "sha256": "ad9371e3ee4f4fa04ba4ad647682122e9bf06854e2019857f463b9adc392cffc",
+      "size": 430823
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "1e0fd414aef5a1e76356a6b82cfa746ec09bdf5e6aa25934fbca167211ba1722",
-      "size": 63488
+      "sha256": "3d33ad4c131f7335f94cbfaec050576eff17550a9ed8275de732e7d283c8ad4a",
+      "size": 65412
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
@@ -1237,8 +1237,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/operator_brief.py",
-      "sha256": "ef20959026ad4f7ebea5031d0dff967b136ce8f453b0fa58c8352589e372582e",
-      "size": 68373
+      "sha256": "333315ca5b7e50cab6929c69e71fa6bbb29c83fee62d3e9d2ff574263b4d6c9d",
+      "size": 68825
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_control.py",
@@ -1282,13 +1282,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "2fd178c106393756ebe09d880d04db02ed2cb20aa07cba0c65b72c7caf367008",
-      "size": 233294
+      "sha256": "1c9ae2b5c974add2f0b5344c953e0d9d805915bd1e2cbe5a90ae0d8c37f91e7d",
+      "size": 241916
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "4d7614b38e980aa4165f4648e286c67449566cf1e57195a63599fc7fba4b8073",
-      "size": 78677
+      "sha256": "47df3ed5b810c4b8e84e2f27334253df3544dbd4d33daa938c259869cee6d3ce",
+      "size": 81830
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",
@@ -1327,8 +1327,8 @@
     },
     {
       "path": "company-os/engineering-execution-constitution/SKILL.md",
-      "sha256": "0eb561711eec0f68a1a811b8d0ab6824421ea671d538793be34e1fbd527d76e5",
-      "size": 5303
+      "sha256": "fedc68755a8bb238b64b846182c01db97ae6c3fb3d481e62eeecb84d707aca38",
+      "size": 5774
     },
     {
       "path": "company-os/engineering-execution-constitution/scripts/engineering_contract.py",
@@ -1772,8 +1772,8 @@
     },
     {
       "path": "company-os/interface-design/SKILL.md",
-      "sha256": "afefa7625a957346dda357faedb3f4d055ec72d46c0d7da81d33f1641379e4ff",
-      "size": 3253
+      "sha256": "49461523f12dbbf8b02c2f12b8d6c0df64a917f57b903f56205981a0d1f4fcbc",
+      "size": 3384
     },
     {
       "path": "company-os/interface-design/UPSTREAM.json",
@@ -2292,8 +2292,8 @@
     },
     {
       "path": "company-os/materialize-outcome-stack/SKILL.md",
-      "sha256": "10495af9bb6d7fcfa10674c4ff854cfcdf0ecfabe0cb1fd14dddbc722ad7d4b9",
-      "size": 1835
+      "sha256": "4b61cfd2da2be8b2473c40fa9d09f562782e645259b6b4ba386511416a74ed6a",
+      "size": 1953
     },
     {
       "path": "company-os/materialize-outcome-stack/scripts/materialize_outcome_stack.py",
@@ -2402,8 +2402,8 @@
     },
     {
       "path": "company-os/mission-execution-control/SKILL.md",
-      "sha256": "19bd467ea8adbc31831be8e6947edf6a156deff4a6c8025d3fa1ccb8df85ecac",
-      "size": 2406
+      "sha256": "edc1565a4c52e4305362e80dc2afbf6c22eae9075814814fa8cb1659a77519e7",
+      "size": 2564
     },
     {
       "path": "company-os/mission-execution-control/agents/claude.yaml",
@@ -2477,8 +2477,8 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/checkpoint_product.py",
-      "sha256": "f25d2c71142849a5e845d283199f041f7ab8259eb222999119fd09b4646fb7a8",
-      "size": 6871
+      "sha256": "027a69ca3727ba31319adae0bf428c95b75b1f523e626c3dc6c43c01b247ccbc",
+      "size": 7115
     },
     {
       "path": "company-os/mission-execution-control/scripts/execution_regression_lab.py",
@@ -2492,8 +2492,8 @@
     },
     {
       "path": "company-os/navigation-control/SKILL.md",
-      "sha256": "1114a4abc8b6f6bbd920baf3e909dbc17b7a5a7583aaef8f11c23eebcde217de",
-      "size": 2624
+      "sha256": "00ad327404c8bf61a70d375b2867136a13d6fe6abbaf65986eed3b229b9efd4e",
+      "size": 2794
     },
     {
       "path": "company-os/navigation-control/agents/claude.yaml",
@@ -2777,8 +2777,8 @@
     },
     {
       "path": "company-os/run-outcome-loop/SKILL.md",
-      "sha256": "f62e947f9aa8ea767597b2ba614788a3edbd60c05ab5b21586d9a67db7738ed2",
-      "size": 5002
+      "sha256": "737b6dc0da9d4eedf3365efe92b8c017cba93e735f57ba2b98d20c13179c8d37",
+      "size": 5217
     },
     {
       "path": "company-os/sales-architect/SKILL.md",
@@ -3022,8 +3022,8 @@
     },
     {
       "path": "company-os/ui-design-quality/SKILL.md",
-      "sha256": "a84966f224a005111cee327d735cda60939526adc751aff7b98cc430afd26426",
-      "size": 5917
+      "sha256": "b37c964d4852ae2f801a154903f10d486da2c1cd16f506956b8d6a5ade92c081",
+      "size": 6054
     },
     {
       "path": "company-os/ui-design-quality/UPSTREAM.json",

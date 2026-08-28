@@ -303,7 +303,13 @@ def build_operator_brief(
         error for error in errors
         if error.startswith("quality.") or error.startswith("quality threshold")
     ]
-    dimensions = state.get("quality", {}).get("dimensions", {})
+    quality_state = state.get("quality", {}) if isinstance(state.get("quality"), dict) else {}
+    dimensions = quality_state.get("dimensions", {})
+    # Source the critical threshold from governed state rather than repeating the
+    # controller's literal, so the brief cannot misreport the gate if it changes.
+    critical_threshold = quality_state.get("threshold", 9)
+    if not isinstance(critical_threshold, (int, float)) or isinstance(critical_threshold, bool):
+        critical_threshold = 9
     quality_rows: list[dict[str, Any]] = []
     missing_quality: list[str] = []
     below_quality: list[str] = []
@@ -311,7 +317,7 @@ def build_operator_brief(
     for name in required:
         item = dimensions.get(name, {}) if isinstance(dimensions, dict) else {}
         score = item.get("score") if isinstance(item, dict) else None
-        threshold = 9 if critical_dimensions.get(name, True) else 8
+        threshold = critical_threshold if critical_dimensions.get(name, True) else 8
         dimension_errors = [error for error in errors if f"quality dimension {name}" in error] + global_quality_errors
         if not isinstance(score, (int, float)) or isinstance(score, bool) or not math.isfinite(score):
             status = "missing"

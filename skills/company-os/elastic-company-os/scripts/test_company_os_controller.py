@@ -22,6 +22,85 @@ controller = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(controller)
 
 
+class RuntimeErrorPrefixCoverageTests(unittest.TestCase):
+    """Pin the runtime-error prefix table against silent rewording.
+
+    Runtime observation ingest fails OPEN on any runtime-integrity error that
+    is not matched by is_retained_runtime_error, so every runtime-domain error
+    that validate_state can append must be covered. This static scan makes a
+    reworded or newly added runtime error that escapes the prefix table fail
+    here instead of silently weakening the ingest gate.
+    """
+
+    def _runtime_error_literals(self) -> list[str]:
+        import ast
+
+        source = MODULE_PATH.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        literals: list[str] = []
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "append"
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "errors"
+            ):
+                continue
+            for arg in node.args:
+                text = None
+                if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                    text = arg.value
+                elif isinstance(arg, ast.JoinedStr) and arg.values:
+                    head = arg.values[0]
+                    if isinstance(head, ast.Constant) and isinstance(head.value, str):
+                        text = head.value
+                if text is not None:
+                    literals.append(text)
+        return literals
+
+    def test_runtime_error_prefixes_cover_runtime_validation(self) -> None:
+        # Error stems that denote runtime-adapter/observation integrity. Any
+        # errors.append literal that opens with one of these must be matched by
+        # the ingest predicate; otherwise a broken runtime state is ingested.
+        runtime_stems = (
+            "runtime_adapter",
+            "runtime adapter",
+            "runtime attempt",
+            "runtime admission",
+            "runtime observation inbox",
+            "enabled runtime observation inbox",
+            "manager runtime",
+            "worker runtime",
+            "admission-only runtime",
+            "native task runtime",
+            "native task authority",
+        )
+        uncovered = [
+            literal
+            for literal in self._runtime_error_literals()
+            if literal.startswith(runtime_stems)
+            and not controller.is_retained_runtime_error(literal)
+        ]
+        self.assertEqual(
+            uncovered,
+            [],
+            "runtime-integrity errors not covered by is_retained_runtime_error "
+            "(update RUNTIME_AUDIT_ERROR_PREFIXES): " + "; ".join(sorted(set(uncovered))),
+        )
+
+    def test_predicate_is_the_only_runtime_prefix_gate(self) -> None:
+        # Guard against a new inline `startswith(RUNTIME_AUDIT_ERROR_PREFIXES)`
+        # reintroducing a divergent gate. Only the predicate body may reference
+        # the tuple directly.
+        source = MODULE_PATH.read_text(encoding="utf-8")
+        self.assertEqual(
+            source.count("startswith(RUNTIME_AUDIT_ERROR_PREFIXES)"),
+            1,
+            "runtime prefix matching must go through is_retained_runtime_error",
+        )
+
+
 def namespace(**values: object) -> object:
     if "lease_id" in values and "owner" not in values:
         values["owner"] = "master-sol" if values["lease_id"] == "fabric-lease" else "scheduler"
@@ -211,6 +290,111 @@ class ControllerTests(unittest.TestCase):
                 "invalid",
             )
             self.assertTrue(tampered_errors)
+        finally:
+            os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = previous
+
+    def self_minted_grant_record(self, state: dict, actor: str, payload_hash: str) -> dict:
+        attacker_private = self.project / "attacker-private.pem"
+        attacker_public = self.project / "attacker-public.pem"
+        subprocess.run(
+            ["openssl", "genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:2048", "-out", str(attacker_private)],
+            check=True, capture_output=True,
+        )
+        subprocess.run(
+            ["openssl", "pkey", "-in", str(attacker_private), "-pubout", "-out", str(attacker_public)],
+            check=True, capture_output=True,
+        )
+        payload = {
+            "actor": actor,
+            "action": "test-action",
+            "resource": "test:1",
+            "project_id": "test-123",
+            "program_version": 1,
+            "work_id": "",
+            "cycle_id": "",
+            "dimension": "test",
+            "decision": "accepted",
+            "payload_hash": payload_hash,
+            "nonce": controller.uuid.uuid4().hex,
+            "expiry": (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat(),
+        }
+        encoded = base64.urlsafe_b64encode(controller.canonical_json(payload).encode()).decode().rstrip("=")
+        payload_file = self.project / "attacker-grant.txt"
+        signature_file = self.project / "attacker-grant.sig"
+        payload_file.write_text(encoded, encoding="ascii")
+        subprocess.run(
+            ["openssl", "dgst", "-sha256", "-sign", str(attacker_private), "-out", str(signature_file), str(payload_file)],
+            check=True, capture_output=True,
+        )
+        signature = base64.urlsafe_b64encode(signature_file.read_bytes()).decode().rstrip("=")
+        token = f"{encoded}.{signature}"
+        attacker_pem = attacker_public.read_text(encoding="utf-8")
+        state["controller"].setdefault("consumed_grant_nonces", []).append(payload["nonce"])
+        return {
+            "actor": actor,
+            "claims": payload,
+            "token": token,
+            "grant_digest": controller.hashlib.sha256(token.encode()).hexdigest(),
+            "verification_key_pem": attacker_pem,
+            "verification_key_sha256": controller.hashlib.sha256(attacker_pem.encode("utf-8")).hexdigest(),
+        }
+
+    def test_self_minted_keypair_cannot_earn_cryptographic_trust(self) -> None:
+        state = self.valid_state()
+        payload_hash = controller.command_payload_hash("test-action", {"value": 1})
+        grant = self.self_minted_grant_record(state, "reviewer", payload_hash)
+        errors: list[str] = []
+        status = controller.audit_stored_grant(
+            state, grant, errors, "stored grant",
+            {
+                "actor": "reviewer", "action": "test-action", "resource": "test:1",
+                "work_id": "", "cycle_id": "", "dimension": "test",
+                "decision": "accepted", "payload_hash": payload_hash,
+            },
+        )
+        self.assertEqual(status, "invalid")
+        self.assertTrue(any("configured decision issuer" in error for error in errors), errors)
+        self.assertFalse(controller.require_replayable_grant(status, errors, "stored grant"))
+
+    def test_prior_program_retained_key_survives_issuer_rotation(self) -> None:
+        state = self.valid_state()
+        payload_hash = controller.command_payload_hash("test-action", {"value": 1})
+        token = self.grant(
+            "reviewer", "test-action", resource="test:1", work_id="", cycle_id="",
+            dimension="test", decision="accepted", payload_hash=payload_hash,
+        )
+        grant = self.grant_record(state, "reviewer", token)
+        original_pem = self.public_key.read_text(encoding="utf-8")
+        grant["verification_key_pem"] = original_pem
+        grant["verification_key_sha256"] = controller.hashlib.sha256(original_pem.encode("utf-8")).hexdigest()
+        rotated_private = self.project / "pin-rotated-private.pem"
+        rotated_public = self.project / "pin-rotated-public.pem"
+        subprocess.run(
+            ["openssl", "genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:2048", "-out", str(rotated_private)],
+            check=True, capture_output=True,
+        )
+        subprocess.run(
+            ["openssl", "pkey", "-in", str(rotated_private), "-pubout", "-out", str(rotated_public)],
+            check=True, capture_output=True,
+        )
+        previous = os.environ[controller.ACTOR_PUBLIC_KEY_ENV]
+        os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = str(rotated_public)
+        try:
+            state["strategy"]["program_version"] = 2
+            errors: list[str] = []
+            status = controller.audit_stored_grant(
+                state, grant, errors, "archived grant",
+                expected_program_version=1,
+            )
+            self.assertEqual(status, "cryptographic")
+            self.assertEqual(errors, [])
+            state["strategy"]["program_version"] = 1
+            current_errors: list[str] = []
+            self.assertEqual(
+                controller.audit_stored_grant(state, grant, current_errors, "stored grant"),
+                "invalid",
+            )
+            self.assertTrue(any("configured decision issuer" in error for error in current_errors), current_errors)
         finally:
             os.environ[controller.ACTOR_PUBLIC_KEY_ENV] = previous
 

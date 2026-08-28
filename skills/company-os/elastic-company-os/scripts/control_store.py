@@ -20,6 +20,9 @@ from typing import Any
 
 STORE_SCHEMA_VERSION = 1
 DATABASE_NAME = "control.db"
+# Fixed anchor for the first event's prev-event link. Rewriting revision 1 must
+# still break the chain, so genesis is a constant, not an empty string.
+LEDGER_CHAIN_GENESIS = "company-os.ledger.genesis.v1"
 
 
 class StoreError(ValueError):
@@ -396,12 +399,27 @@ def _insert_revision(connection: sqlite3.Connection, state: dict[str, Any], even
     current = connection.execute("SELECT COALESCE(MAX(revision), 0) AS value FROM state_revisions").fetchone()["value"]
     revision = int(current) + 1
     event_id = str(event.get("event_id") or uuid.uuid4().hex)
-    event_payload = {**event, "event_id": event_id, "state_revision": revision}
     state_text = canonical_json(state)
+    state_sha256 = sha256_bytes(state_text.encode())
+    # Hash-chain the ledger inside the already-hashed event payload (no schema
+    # change): every event commits to its own state revision's digest and to the
+    # prior event's digest. Editing any historical revision then breaks the next
+    # event's payload hash, so a single-row rewrite can no longer pass audit().
+    previous = connection.execute(
+        "SELECT payload_sha256 FROM events ORDER BY sequence DESC LIMIT 1"
+    ).fetchone()
+    prev_event_sha256 = previous["payload_sha256"] if previous is not None else LEDGER_CHAIN_GENESIS
+    event_payload = {
+        **event,
+        "event_id": event_id,
+        "state_revision": revision,
+        "state_sha256": state_sha256,
+        "prev_event_sha256": prev_event_sha256,
+    }
     event_text = canonical_json(event_payload)
     connection.execute(
         "INSERT INTO state_revisions VALUES (?,?,?,?,?,?)",
-        (revision, metadata["project_id"], state_text, sha256_bytes(state_text.encode()), event_id, event_payload.get("at")),
+        (revision, metadata["project_id"], state_text, state_sha256, event_id, event_payload.get("at")),
     )
     connection.execute(
         "INSERT INTO events(event_id,project_id,program_version,event_type,payload_json,payload_sha256,state_revision) VALUES (?,?,?,?,?,?,?)",
@@ -1028,6 +1046,7 @@ def audit(project: Path) -> dict[str, Any]:
                 errors.append("a retained state revision is not bound to this project")
                 break
         revisions_by_number = {row["revision"]: row for row in revision_rows}
+        prev_event_sha256 = LEDGER_CHAIN_GENESIS
         for expected_sequence, row in enumerate(event_rows, start=1):
             if row["sequence"] != expected_sequence or row["state_revision"] != expected_sequence:
                 errors.append("audit event order does not match state revision order")
@@ -1055,6 +1074,20 @@ def audit(project: Path) -> dict[str, Any]:
             ):
                 errors.append("an audit event does not exactly bind its state revision")
                 break
+            # Verify the ledger hash chain when an event carries it. Chained
+            # events (all events written by this store version) must commit to
+            # their paired state digest and to the prior event's digest; a
+            # rewritten historical revision or event breaks continuity here.
+            # Fields are absent only on pre-chain legacy events, which stay
+            # auditable through the bindings above.
+            if "state_sha256" in payload or "prev_event_sha256" in payload:
+                if payload.get("state_sha256") != paired_revision["state_sha256"]:
+                    errors.append("an audit event does not commit to its state revision digest")
+                    break
+                if payload.get("prev_event_sha256") != prev_event_sha256:
+                    errors.append("the audit event hash chain is broken")
+                    break
+            prev_event_sha256 = row["payload_sha256"]
         _audit_program_transition_repair_events(revision_rows, event_rows, errors)
         for row in connection.execute(
             "SELECT project_id,payload_json,payload_sha256 FROM legacy_events ORDER BY sequence"
@@ -1164,6 +1197,8 @@ def audit(project: Path) -> dict[str, Any]:
                         "program_version",
                         "event_id",
                         "state_revision",
+                        "state_sha256",
+                        "prev_event_sha256",
                         "command_envelope",
                     }
                 }
@@ -1432,7 +1467,7 @@ def inspect_outbox(
     try:
         metadata = _assert_binding(connection, project)
         allowed = set(statuses or ())
-        if allowed - set(OUTBOX_TRANSITIONS) - {"pending", "leased", "succeeded", "failed", "cancelled"}:
+        if allowed - set(OUTBOX_TRANSITIONS):
             raise StoreError("outbox inspection status is invalid")
         query = (
             "SELECT channel,message_key,payload_sha256,payload_json,status,attempt_count,"

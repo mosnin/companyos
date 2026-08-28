@@ -114,15 +114,18 @@ class DistributionTests(unittest.TestCase):
                 os.close(descriptor)
 
     def test_check_install_creates_no_lock_or_other_artifact_for_external_target(self) -> None:
-        distribution = load_distribution()
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
+            # Isolate the canonical source so a stray file in the live checkout
+            # cannot make this read-only test flake.
+            distribution = isolated_canonical_distribution(root)
             target = root / "external-skills"
             copy_canonical(distribution, target)
             paths = distribution.transaction_paths(target.resolve())
-            before_parent = exact_tree_state(root)
-            distribution.check_install(target)
-            self.assertEqual(exact_tree_state(root), before_parent)
+            with generated_manifest(distribution, root):
+                before_parent = exact_tree_state(root)
+                distribution.check_install(target)
+                self.assertEqual(exact_tree_state(root), before_parent)
             self.assertFalse(paths["journal"].exists())
             self.assertFalse(paths["root"].exists())
 
@@ -225,9 +228,9 @@ class DistributionTests(unittest.TestCase):
                 distribution.check_install(target)
 
     def test_install_to_empty_root_is_exact_and_idempotent(self) -> None:
-        distribution = load_distribution()
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
+            distribution = isolated_canonical_distribution(root)
             target = root / "skills"
             with generated_manifest(distribution, root) as manifest_path:
                 committed = distribution.read_manifest(manifest_path)
@@ -296,9 +299,9 @@ class DistributionTests(unittest.TestCase):
                     self.assertFalse(target.exists())
 
     def test_modified_install_refuses_blind_force(self) -> None:
-        distribution = load_distribution()
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
+            distribution = isolated_canonical_distribution(root)
             target = root / "skills"
             with generated_manifest(distribution, root):
                 distribution.install(target)
@@ -601,6 +604,61 @@ class DistributionTests(unittest.TestCase):
                         distribution.rename_path = original_rename
                     self.assertTrue(paths["journal"].exists())
                     self.assertTrue((paths["root"] / "recovery").exists())
+
+    def test_planted_journal_cannot_delete_a_live_install(self) -> None:
+        for operation in ("prepared", "after-install-autonomy-suite"):
+            with self.subTest(operation=operation):
+                distribution = load_distribution()
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    root = Path(temp_dir)
+                    target = root / "skills"
+                    with generated_manifest(distribution, root):
+                        distribution.install(target)
+                    before = exact_tree_state(target)
+                    paths = distribution.transaction_paths(target.resolve())
+                    # Plant a journal claiming both bundles were absent, with empty
+                    # recovery/backup material — the audit's deletion primitive.
+                    transaction_root = paths["root"]
+                    (transaction_root / "recovery").mkdir(parents=True)
+                    (transaction_root / "backups").mkdir(parents=True)
+                    distribution.write_transaction_journal(
+                        paths["journal"],
+                        {
+                            "schema_version": 1,
+                            "target": str(target.resolve()),
+                            "prior_present": {bundle: False for bundle in distribution.BUNDLES},
+                            "prior_snapshots": {bundle: [] for bundle in distribution.BUNDLES},
+                            "operation": operation,
+                        },
+                    )
+                    with self.assertRaises(distribution.DistributionError):
+                        distribution.recover_incomplete_transaction(target)
+                    # The live install is untouched and the incident is retained.
+                    self.assertEqual(exact_tree_state(target), before)
+                    self.assertTrue(paths["journal"].exists())
+
+    def test_journal_with_unknown_operation_is_rejected(self) -> None:
+        distribution = load_distribution()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            target = root / "skills"
+            with generated_manifest(distribution, root):
+                distribution.install(target)
+            paths = distribution.transaction_paths(target.resolve())
+            (paths["root"] / "recovery").mkdir(parents=True)
+            (paths["root"] / "backups").mkdir(parents=True)
+            distribution.write_transaction_journal(
+                paths["journal"],
+                {
+                    "schema_version": 1,
+                    "target": str(target.resolve()),
+                    "prior_present": {bundle: False for bundle in distribution.BUNDLES},
+                    "prior_snapshots": {bundle: [] for bundle in distribution.BUNDLES},
+                    "operation": "delete-everything",
+                },
+            )
+            with self.assertRaisesRegex(distribution.DistributionError, "operation is invalid"):
+                distribution.recover_incomplete_transaction(target)
 
     def test_backup_cleanup_failure_restores_both_prior_bundles(self) -> None:
         distribution = load_distribution()

@@ -1,6 +1,6 @@
 ---
 name: navigation-control
-description: Drive Company OS toward the original objective as a closed-loop autonomous controller. Treat research, audits, tests, browser/runtime evidence, and reports as sensors; choose and execute the highest-value safe action; observe the resulting state; replan; detect low objective velocity and stop sensor/document spirals.
+description: Drive Company OS toward the original objective as a closed-loop autonomous controller. Treat research, audits, tests, browser/runtime evidence, and reports as sensors; choose and execute the highest-value safe action; observe the resulting state; replan; detect low objective velocity and stop sensor/document spirals. Use when driving an active Company OS objective loop and choosing the next highest-value action. Do not use for one-off tasks that carry no objective to navigate toward.
 ---
 
 # Navigation Control

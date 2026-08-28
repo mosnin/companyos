@@ -1,6 +1,6 @@
 ---
 name: mission-execution-control
-description: Enforce mission execution economics, first-reality scope, hard deadlines, evidence-bound capability state, scheduler leases, checkpointing, and manager replacement at every Company OS dispatch boundary.
+description: Enforce mission execution economics, first-reality scope, hard deadlines, evidence-bound capability state, scheduler leases, checkpointing, and manager replacement at every Company OS dispatch boundary. Use when governing an active mission at a dispatch, checkpoint, or manager-replacement boundary. Do not use for one-off task work outside a governed mission.
 ---
 
 # Mission Execution Control
