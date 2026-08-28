@@ -34,6 +34,19 @@ Accepted project skills install under `.agents/skills/<skill-name>` unless an ex
 5. Child skills inherit narrower scope and authority.
 6. The coordinator manifest binds exact component digests.
 
+## Trigger evaluation invariants
+
+1. Trigger evaluation is graded across three splits: authored examples form the train split, deterministic derived variants form the dev split, and a fixed synthetic holdout split is never derived from authored examples.
+2. Repairs may target train and dev failures. The holdout split cannot be edited to pass, so repairs cannot overfit to it.
+3. The candidate description is evaluated against the originating request's labeled examples before candidate acceptance. A failing description evaluation fails the candidate.
+4. Every evaluation result is content addressed and stored beside the candidate.
+
+## Maturity invariants
+
+1. Maturity is computed deterministically from the latest candidate, live simulation, the registry, installed bytes, and content addressed field receipts. It is a report, never an authority.
+2. Levels are `candidate`, `validated`, `project_approved`, `field_proven`, and `core_eligible`, with `regressed` whenever rejected field evidence exists for the candidate digest.
+3. `core_eligible` requires accepted evidence from three distinct projects and still does not authorize core promotion.
+
 ## Promotion invariants
 
 1. Validation and simulation must pass.

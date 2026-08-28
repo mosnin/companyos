@@ -29,7 +29,9 @@ The foundry is an actuator only when skill creation is the requested destination
    Read for storage, promotion, recursion, and Company OS integration invariants.
 3. `references/beem-adaptation.md`
    Read for the selectively adapted Beem mechanisms and the mechanisms deliberately excluded.
-4. `examples/simulation-cases.json`
+4. `references/yao-adaptation.md`
+   Read for the selectively adapted yao-meta-skill mechanisms: description-first authoring, train, dev, and holdout trigger splits, and deterministic maturity levels, plus the mechanisms deliberately excluded.
+5. `examples/simulation-cases.json`
    Read when extending the factory simulation or adding a regression.
 
 ## Admission rule
@@ -47,14 +49,16 @@ Do not invoke it merely because work can be abstracted. Complete the active rout
 1. Search the project registry before creating anything.
 2. If an exact promoted skill exists, verify its digest and assign it.
 3. If no exact skill exists, classify the request as explicit skill creation, evidence backed learning, or one off work.
-4. Forge a candidate with a bounded trigger, exclusions, workflow, validation, output contract, safety boundary, examples, and only justified resources.
-5. Run strict validation and held out trigger simulation.
-6. Repair deterministic defects and rerun the same checks. Stop after the bounded repair budget.
-7. For a skill system, validate the dependency tree, reject cycles, enforce depth and node limits, build child candidates, then bind a coordinator manifest.
-8. Promote an explicit request only after validation and simulation pass. Promote a learned mechanism only after two accepted independent field receipts.
-9. Install the accepted project skill under `.agents/skills/<skill-name>` so later Codex threads can discover it.
-10. Search and assign no more than four project skills to one manager or worker packet, with exact entrypoint hashes and explicit execution order.
-11. Verify installed bytes before every assignment. Drift fails closed.
+4. Write and evaluate the trigger description first. Route manual description edits through `eval-description` before packaging; inside `forge` the description is automatically scored against the request's labeled examples and a failing description fails the candidate.
+5. Forge a candidate with a bounded trigger, exclusions, workflow, validation, output contract, safety boundary, examples, and only justified resources.
+6. Run strict validation and graded trigger simulation across train, dev, and holdout splits. Repairs may target train and dev failures; the holdout split is fixed and never derived from authored examples.
+7. Repair deterministic defects and rerun the same checks. Stop after the bounded repair budget.
+8. For a skill system, validate the dependency tree, reject cycles, enforce depth and node limits, build child candidates, then bind a coordinator manifest.
+9. Promote an explicit request only after validation and simulation pass. Promote a learned mechanism only after two accepted independent field receipts.
+10. Install the accepted project skill under `.agents/skills/<skill-name>` so later Codex threads can discover it.
+11. Search and assign no more than four project skills to one manager or worker packet, with exact entrypoint hashes and explicit execution order.
+12. Verify installed bytes before every assignment. Drift fails closed.
+13. Track lifecycle position with `maturity`. Levels progress from candidate through validated, project approved, field proven, and core eligible, and regress on rejected field evidence.
 
 ## Commands
 
@@ -107,6 +111,23 @@ python3 skills/company-os/recursive-skill-foundry/scripts/skill_foundry.py assig
   --output /absolute/assignment.json
 ```
 
+Evaluate a trigger description before packaging:
+
+```bash
+python3 skills/company-os/recursive-skill-foundry/scripts/skill_foundry.py eval-description \
+  --name deployment-build-repair \
+  --description "Repair failed deployment builds using logs and local validation. Use when the user asks for deployment build repair. Do not use for unrelated work." \
+  --request "Create a reusable Codex skill that repairs failed deployment builds"
+```
+
+Report deterministic maturity for the latest candidate:
+
+```bash
+python3 skills/company-os/recursive-skill-foundry/scripts/skill_foundry.py maturity \
+  --project-root /absolute/project \
+  --skill-name deployment-build-repair
+```
+
 Run the full foundry simulation:
 
 ```bash
@@ -127,7 +148,9 @@ python3 skills/company-os/recursive-skill-foundry/scripts/skill_foundry.py simul
 
 ## Promotion contract
 
-Project promotion requires candidate status `validated`, a passing quality threshold, held out simulation status `pass`, no rejected field evidence, and an exact content addressed manifest. Learned mechanisms additionally require two accepted independent field receipts.
+Project promotion requires candidate status `validated`, a passing quality threshold, a passing description evaluation, held out simulation status `pass` across the train, dev, and holdout splits, no rejected field evidence, and an exact content addressed manifest. Learned mechanisms additionally require two accepted independent field receipts.
+
+Maturity is a deterministic report over these same facts, never an authority. `core_eligible` signals that evidence spans three projects; it does not authorize core promotion.
 
 Shared Company OS core promotion additionally requires evidence from at least three independent projects, a fresh independent review, and an explicit integration change outside the foundry.
 

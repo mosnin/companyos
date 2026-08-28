@@ -2717,8 +2717,8 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/SKILL.md",
-      "sha256": "e4156b0486a4598e702583d146226afc02751c573d714b993c6eef9d66d97909",
-      "size": 7423
+      "sha256": "8e17f54ea6bb266fdd304785adc7bacf543a8a06374587f62e4b94d2733f1b88",
+      "size": 9200
     },
     {
       "path": "company-os/recursive-skill-foundry/agents/claude.yaml",
@@ -2747,8 +2747,13 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/references/foundry-contract.md",
-      "sha256": "20d2693bb5af7f51bda23b6070338968cf05c73ea117c79dfad74a174bad45cb",
-      "size": 1939
+      "sha256": "0fdf0ad6c21becb2fd68a049fb919601c96c47b70988fc0d3c6000c8f1d95a11",
+      "size": 3091
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/references/yao-adaptation.md",
+      "sha256": "6622e3a98a36b6a114a4aeee537ce17dbc8fad03ec6017983d95c074102c9b15",
+      "size": 1969
     },
     {
       "path": "company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py",
@@ -2757,8 +2762,8 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/scripts/skill_foundry.py",
-      "sha256": "80273d01a7c91851887d0c69fa2eb931459219866931d5cc1d8096a3d00cd65f",
-      "size": 61985
+      "sha256": "7a23665b2160fe7d3829ac5590cfdccbce363fc76468645733f6dbf7ecf48a9e",
+      "size": 70547
     },
     {
       "path": "company-os/register-outcome-evaluators/SKILL.md",
