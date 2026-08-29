@@ -65,6 +65,31 @@ grant, quality score, and audit cites the exact ledger revision.
 `{slug, revision, content_hash}` block for goal contracts). Errors surface
 as `ContextLedgerError` with the server's sentence intact.
 
+## v1.1 additions (additive, still context-ledger.v1)
+
+**Branches.** The ledger versions the organization the way git versions
+code: a branch is an overlay over main that stores only the documents
+committed on it. `config_pull` returns `branches` and accepts `branch`;
+`document_get`/`document_put` accept `branch` (omit or `"main"` for main).
+Reads through a branch fall through to main for untouched documents;
+`base_revision` refers to the revision read *through that overlay*. New
+verb `branch_create {name, description?}` (write) opens a branch — agents
+may draft alternate strategies, but **merging into main is a human decision
+made in the app**, with per-document conflict resolution when main moved
+since the fork. There is no merge verb, deliberately.
+
+**Feedback.** Raw customer feedback is append-only ground truth attached to
+product documents: `feedback_list {product_slug?, limit?}` (read) and
+`feedback_add {product_slug, source, text}` (write, verbatim quotes only).
+The intended loop: agents read the raw feedback, find the patterns, and
+commit the synthesis into the product document's `feedbackThemes` field
+with `document_put` — so the analysis is versioned context with an author,
+not a black-box score.
+
+**Media** (product photos/videos/files on Wasabi S3) is an app surface, not
+a protocol verb: bytes move via presigned URLs between browser and bucket.
+A signed media verb may join a later protocol version.
+
 ## Versioning
 
 This is `context-ledger.v1` (`config_pull` echoes it as `protocol`).

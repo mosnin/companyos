@@ -179,6 +179,49 @@ class FakeTransportTests(unittest.TestCase):
         with self.assertRaises(LEDGER.ContextLedgerError):
             LEDGER.ContextLedgerClient("https://x/mcp", "vtr_wrong")
 
+    def test_branch_parameter_threads_through_reads_and_writes(self) -> None:
+        self.responses.append(self._ok({"protocol": "context-ledger.v1"}))
+        self.client.config_pull(branch="plg-pivot")
+        self.assertEqual(
+            self.requests[0]["params"]["arguments"], {"branch": "plg-pivot"}
+        )
+        self.responses.append(self._ok({"doc_slug": "okrs", "revision": 1}))
+        self.client.document_put(
+            kind="okrs",
+            message="Draft pivot OKRs",
+            content={"period": "2027 Q1"},
+            base_revision=4,
+            branch="plg-pivot",
+        )
+        arguments = self.requests[1]["params"]["arguments"]
+        self.assertEqual(arguments["branch"], "plg-pivot")
+        self.assertEqual(arguments["base_revision"], 4)
+        # Main reads never send the parameter at all.
+        self.responses.append(self._ok({"slug": "okrs"}))
+        self.client.document_get("okrs")
+        self.assertNotIn("branch", self.requests[2]["params"]["arguments"])
+
+    def test_branch_create_and_feedback_verbs_shape_their_calls(self) -> None:
+        self.responses.append(self._ok({"slug": "plg-pivot"}))
+        self.client.branch_create("PLG pivot", description="Self-serve motion")
+        request = self.requests[0]["params"]
+        self.assertEqual(request["name"], "branch_create")
+        self.assertEqual(request["arguments"]["description"], "Self-serve motion")
+
+        self.responses.append(self._ok([{"doc_slug": "product-app", "text": "love it"}]))
+        rows = self.client.feedback_list(product_slug="product-app", limit=50)
+        self.assertEqual(rows[0]["text"], "love it")
+        self.assertEqual(
+            self.requests[1]["params"]["arguments"],
+            {"product_slug": "product-app", "limit": 50},
+        )
+
+        self.responses.append(self._ok({"doc_slug": "product-app"}))
+        self.client.feedback_add(
+            product_slug="product-app", source="review", text="Setup took 5 minutes"
+        )
+        self.assertEqual(self.requests[2]["params"]["name"], "feedback_add")
+
 
 if __name__ == "__main__":
     unittest.main()

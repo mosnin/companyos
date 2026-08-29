@@ -86,11 +86,16 @@ class ContextLedgerClient:
 
     # ------------------------------- Verbs -------------------------------
 
-    def config_pull(self) -> dict[str, Any]:
-        return self._call_tool("config_pull", {})
+    def config_pull(self, *, branch: str | None = None) -> dict[str, Any]:
+        return self._call_tool(
+            "config_pull", {"branch": branch} if branch else {}
+        )
 
-    def document_get(self, slug: str) -> dict[str, Any]:
-        return self._call_tool("document_get", {"slug": slug})
+    def document_get(self, slug: str, *, branch: str | None = None) -> dict[str, Any]:
+        arguments: dict[str, Any] = {"slug": slug}
+        if branch:
+            arguments["branch"] = branch
+        return self._call_tool("document_get", arguments)
 
     def document_put(
         self,
@@ -101,6 +106,7 @@ class ContextLedgerClient:
         base_revision: int,
         doc_slug: str | None = None,
         title: str | None = None,
+        branch: str | None = None,
     ) -> dict[str, Any]:
         arguments: dict[str, Any] = {
             "kind": kind,
@@ -112,7 +118,40 @@ class ContextLedgerClient:
             arguments["doc_slug"] = doc_slug
         if title is not None:
             arguments["title"] = title
+        if branch is not None:
+            arguments["branch"] = branch
         return self._call_tool("document_put", arguments)
+
+    def branch_create(
+        self, name: str, *, description: str | None = None
+    ) -> dict[str, Any]:
+        """Open an overlay branch to draft an alternate company version.
+
+        Merging back to main is a human decision made in the app.
+        """
+        arguments: dict[str, Any] = {"name": name}
+        if description is not None:
+            arguments["description"] = description
+        return self._call_tool("branch_create", arguments)
+
+    def feedback_list(
+        self, *, product_slug: str | None = None, limit: int | None = None
+    ) -> list[dict[str, Any]]:
+        arguments: dict[str, Any] = {}
+        if product_slug is not None:
+            arguments["product_slug"] = product_slug
+        if limit is not None:
+            arguments["limit"] = limit
+        result = self._call_tool("feedback_list", arguments)
+        return result if isinstance(result, list) else []
+
+    def feedback_add(
+        self, *, product_slug: str, source: str, text: str
+    ) -> dict[str, Any]:
+        return self._call_tool(
+            "feedback_add",
+            {"product_slug": product_slug, "source": source, "text": text},
+        )
 
     def run_append(
         self,
