@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
 import json
 import sys
 import urllib.request
@@ -24,6 +25,20 @@ from typing import Any, Callable
 
 class ContextLedgerError(RuntimeError):
     """A ledger call failed; the message is the server's sentence."""
+
+
+def verify_webhook_signature(secret: str, body: bytes, signature_header: str) -> bool:
+    """Verify a ledger webhook delivery (v1.3 push convention).
+
+    The ledger signs the exact raw request body with
+    ``X-CompanyOS-Signature: sha256=<hex hmac-sha256(secret, body)>``.
+    Verify BEFORE parsing the body; constant-time comparison. A payload
+    that fails verification is untrusted input, not a change signal.
+    """
+    if not signature_header.startswith("sha256="):
+        return False
+    expected = hmac.new(secret.encode("utf-8"), body, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, signature_header[len("sha256="):])
 
 
 def canonical_json(value: Any) -> str:
@@ -180,6 +195,22 @@ class ContextLedgerClient:
             {"product_slug": product_slug, "source": source, "text": text},
         )
 
+    def context_changes(
+        self, *, since: float | None = None, limit: int | None = None
+    ) -> dict[str, Any]:
+        """What changed since a cursor (v1.3): the runner's poll primitive.
+
+        Returns ``{cursor, has_more, events}``, oldest first. Feed the
+        returned ``cursor`` back on the next call. Webhooks push the same
+        signal; this is the pull side.
+        """
+        arguments: dict[str, Any] = {}
+        if since is not None:
+            arguments["since"] = since
+        if limit is not None:
+            arguments["limit"] = limit
+        return self._call_tool("context_changes", arguments)
+
     def run_append(
         self,
         *,
@@ -293,6 +324,9 @@ def main() -> int:
     put_parser.add_argument("--base-revision", type=int, required=True)
     put_parser.add_argument("--doc-slug")
     put_parser.add_argument("--title")
+    changes_parser = commands.add_parser("changes", help="context_changes since a cursor")
+    changes_parser.add_argument("--since", type=float, default=None)
+    changes_parser.add_argument("--limit", type=int, default=None)
     append_parser = commands.add_parser("append", help="run_append")
     append_parser.add_argument("--run-id", required=True)
     append_parser.add_argument("--type", required=True)
@@ -329,6 +363,8 @@ def main() -> int:
                 doc_slug=args.doc_slug,
                 title=args.title,
             )
+        elif args.command == "changes":
+            result = client.context_changes(since=args.since, limit=args.limit)
         elif args.command == "bundle":
             result = client.bundle_for(args.work_class)
             if args.out:

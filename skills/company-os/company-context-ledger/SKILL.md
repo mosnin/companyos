@@ -24,6 +24,15 @@ ledger hash — record them with `record-evidence` and every grant and audit
 cites the exact ledger revision. `push_brief` appends the operator brief's
 economics block as a `brief_snapshot` run event for the company overview.
 
+v1.3 adds the change signal: `context_changes {since?, limit?}` is the poll
+cursor, and app-registered webhooks push the same events HMAC-signed
+(`verify_webhook_signature` checks the raw body before anything is parsed).
+`scripts/ledger_runner.py` turns that signal into work orders — cadence,
+feedback-threshold, and kind-watch triggers, each order carrying a sealed
+`bundle_for` context bundle for `mission_control.bind_context`. The runner
+emits invitations, never leases: `$mission-execution-control` remains the
+only dispatch boundary.
+
 ## Every heartbeat
 
 Before reading or writing the hosted ledger, answer these:

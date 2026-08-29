@@ -105,6 +105,36 @@ hash **offline, fail-closed** before the mission binds
 `{slug, kind, revision, content_hash}` references into its state. The
 controller never fetches; the network stops at the client.
 
+## v1.3 additions (additive)
+
+**Change signal — pull.** `context_changes {since?, limit?}` (read) returns
+the company's context events oldest-first past a numeric cursor:
+`{cursor, has_more, events: [{type, at, actor, message, docSlug?, kind?,
+view?, revision?, branch?}]}`. Pass the returned `cursor` back on the next
+call. This is the runner's poll primitive: react to commits, branch events,
+and new feedback without re-pulling config. Event `revision` reflects the
+document's revision at read time, not at event time — a change signal, not
+a history verb; follow with `document_get`.
+
+**Change signal — push (webhook convention).** The app can register HTTPS
+endpoints per company. Each context event POSTs JSON
+`{protocol: "context-ledger.v1", event, company, at, data}` with headers
+`X-CompanyOS-Event: <event>` and
+`X-CompanyOS-Signature: sha256=<hex hmac-sha256(secret, raw body)>`.
+The signing secret is issued once at registration. Receivers MUST verify
+the signature over the exact raw bytes before parsing
+(`context_ledger.verify_webhook_signature`); an unverified payload is
+untrusted input. Webhooks carry no authority — they are a doorbell, and the
+runner still reads through the authenticated verbs.
+
+**Runner (client convention, not a verb).** `ledger_runner.py` turns the
+change signal into framework work: declarative triggers (cadence per work
+class, feedback backlog threshold, kind-watch on `context_changes`) emit
+work orders carrying a sealed `bundle_for` context bundle, and the runner
+appends `run_append` telemetry so the company timeline shows what woke up
+and why. Dispatch authority stays in the controller: a work order is an
+invitation to run the mission loop, never a lease.
+
 ## Tenancy & security model
 
 One deployment serves many companies. The boundary is enforced server-side
