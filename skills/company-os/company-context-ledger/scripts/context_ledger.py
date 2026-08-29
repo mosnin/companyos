@@ -58,9 +58,9 @@ WORK_CLASS_CONTEXT: dict[str, tuple[str, ...]] = {
     "governance": CORE_CONTEXT_KINDS
     + ("operating-model-canvas", "raci-matrix", "capabilities-map", "financial-policies"),
     "marketing": CORE_CONTEXT_KINDS
-    + ("brand-positioning", "icp", "funnel-map", "content-pillars", "gtm-strategy"),
+    + ("brand-positioning", "messaging-framework", "icp", "funnel-map", "lead-lifecycle", "content-pillars", "gtm-strategy"),
     "sales": CORE_CONTEXT_KINDS
-    + ("icp", "buyer-persona", "pricing-packaging", "objection-handling", "sales-process"),
+    + ("icp", "buyer-persona", "pricing-packaging", "qualification-framework", "command-of-message", "objection-handling", "battle-card", "sales-process"),
 }
 MAX_BUNDLE_DOCUMENTS = 12
 

@@ -677,8 +677,8 @@
     },
     {
       "path": "company-os/company-context-ledger/scripts/context_ledger.py",
-      "sha256": "2120557a894b881071e927fa3ce9a7f8f90fb2c2898cb20dddee5472e88cfe0d",
-      "size": 14746
+      "sha256": "8ca94702c46028cf28bde4a8826d77dc9b845e20ae6897e995cddd84ab043df7",
+      "size": 14851
     },
     {
       "path": "company-os/company-context-ledger/scripts/validate_company_context_ledger.py",
