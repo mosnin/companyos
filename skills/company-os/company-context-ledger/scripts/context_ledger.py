@@ -37,6 +37,33 @@ def content_hash(value: Any) -> str:
 
 Transport = Callable[[dict[str, Any]], dict[str, Any]]
 
+# Which ledger kinds a mission of each work class should carry into its goal
+# contracts. Every class gets the direction core; the rest follows what that
+# work actually decides on. Multi-instance kinds (icp, sop, product...) match
+# every committed instance.
+CORE_CONTEXT_KINDS = ("vmtm", "okrs", "value-proposition", "business-model")
+WORK_CLASS_CONTEXT: dict[str, tuple[str, ...]] = {
+    "research": CORE_CONTEXT_KINDS
+    + ("icp", "buyer-persona", "buyer-psychology", "competitor-matrix", "pestle-analysis"),
+    "architecture": CORE_CONTEXT_KINDS
+    + ("product", "tech-stack", "architecture-overview", "north-star-metric"),
+    "implementation": CORE_CONTEXT_KINDS
+    + ("product", "tech-stack", "architecture-overview", "dev-process", "north-star-metric"),
+    "integration": CORE_CONTEXT_KINDS
+    + ("product", "tech-stack", "architecture-overview", "integrations-register"),
+    "runtime": CORE_CONTEXT_KINDS + ("product", "tech-stack", "security-posture"),
+    "repair": CORE_CONTEXT_KINDS + ("product", "tech-stack", "dev-process"),
+    "evaluation": CORE_CONTEXT_KINDS + ("product", "north-star-metric", "voice-of-customer"),
+    "documentation": CORE_CONTEXT_KINDS + ("product", "brand-positioning"),
+    "governance": CORE_CONTEXT_KINDS
+    + ("operating-model-canvas", "raci-matrix", "capabilities-map", "financial-policies"),
+    "marketing": CORE_CONTEXT_KINDS
+    + ("brand-positioning", "icp", "funnel-map", "content-pillars", "gtm-strategy"),
+    "sales": CORE_CONTEXT_KINDS
+    + ("icp", "buyer-persona", "pricing-packaging", "objection-handling", "sales-process"),
+}
+MAX_BUNDLE_DOCUMENTS = 12
+
 
 class ContextLedgerClient:
     def __init__(self, url: str, token: str, transport: Transport | None = None):
@@ -224,6 +251,32 @@ class ContextLedgerClient:
         bundle = {"protocol": "context-ledger.v1", "documents": documents}
         return {**bundle, "bundle_sha256": content_hash(bundle)}
 
+    def bundle_for(
+        self, work_class: str, *, extra_slugs: list[str] | None = None
+    ) -> dict[str, Any]:
+        """The hash-pinned context bundle a mission of this work class binds.
+
+        Selects committed documents whose kind belongs to the class's
+        context set (plus any explicit extras), capped at
+        MAX_BUNDLE_DOCUMENTS, then seals them with ``context_bundle``. Feed
+        the result to ``mission_control.bind_context``, which re-verifies
+        every hash offline before binding.
+        """
+        kinds = set(WORK_CLASS_CONTEXT.get(work_class, CORE_CONTEXT_KINDS))
+        config = self.config_pull()
+        slugs: list[str] = []
+        for document in config.get("documents", []):
+            if (
+                document.get("kind") in kinds
+                and document.get("contentHash")
+                and document.get("status") == "active"
+            ):
+                slugs.append(document["slug"])
+        for slug in extra_slugs or []:
+            if slug not in slugs:
+                slugs.append(slug)
+        return self.context_bundle(slugs[:MAX_BUNDLE_DOCUMENTS])
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -245,6 +298,11 @@ def main() -> int:
     append_parser.add_argument("--type", required=True)
     append_parser.add_argument("--payload", help="JSON, or @file")
     append_parser.add_argument("--summary")
+    bundle_parser = commands.add_parser(
+        "bundle", help="hash-pinned context bundle for a work class"
+    )
+    bundle_parser.add_argument("--work-class", required=True)
+    bundle_parser.add_argument("--out", help="write the bundle JSON here")
     materialize_parser = commands.add_parser(
         "materialize", help="write canonical bytes for record-evidence"
     )
@@ -271,6 +329,12 @@ def main() -> int:
                 doc_slug=args.doc_slug,
                 title=args.title,
             )
+        elif args.command == "bundle":
+            result = client.bundle_for(args.work_class)
+            if args.out:
+                Path(args.out).write_text(
+                    json.dumps(result, indent=2) + "\n", encoding="utf-8"
+                )
         elif args.command == "append":
             result = client.run_append(
                 run_id=args.run_id,

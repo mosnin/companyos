@@ -173,6 +173,70 @@ def verify_seal(value: Mapping[str, Any], field: str = "state_sha256") -> dict[s
     return result
 
 
+def ledger_canonical(value: Any) -> str:
+    """The context-ledger encoding — ensure_ascii=True, NOT this module's
+    own ``canonical``. Ledger bundles and revision hashes are sealed with
+    this exact encoding (golden-vectored in the controller); mixing the two
+    encodings would silently break every cross-system hash check."""
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def ledger_digest(value: Any) -> str:
+    return hashlib.sha256(ledger_canonical(value).encode("ascii")).hexdigest()
+
+
+def bind_context(
+    state: Mapping[str, Any], bundle: Mapping[str, Any], *, bound_at: str
+) -> dict[str, Any]:
+    """Bind a hash-pinned context bundle from the company ledger into
+    mission state — offline and fail-closed.
+
+    The controller never fetches: `context_ledger.py bundle` pulls the
+    bundle over the network at compile time, and this function only
+    *verifies* it — the bundle's self-seal and every document's content
+    hash are recomputed here before anything is bound. A mission then
+    carries `{slug, kind, revision, content_hash}` references (never the
+    prose), so goal contracts cite exact ledger revisions and stay lean.
+    """
+    if not isinstance(bundle, Mapping):
+        raise MissionControlError("E_SCHEMA", "context bundle must be an object")
+    if bundle.get("protocol") != "context-ledger.v1":
+        raise MissionControlError("E_SCHEMA", "context bundle protocol is not context-ledger.v1")
+    observed_seal = sha256(bundle.get("bundle_sha256"), "bundle_sha256")
+    unsealed = {key: value for key, value in bundle.items() if key != "bundle_sha256"}
+    if ledger_digest(unsealed) != observed_seal:
+        raise MissionControlError("E_DIGEST", "context bundle seal does not match its content")
+    documents = bundle.get("documents")
+    if not isinstance(documents, list) or not documents:
+        raise MissionControlError("E_SCHEMA", "context bundle needs a non-empty documents list")
+    references: list[dict[str, Any]] = []
+    for document in documents:
+        if not isinstance(document, Mapping):
+            raise MissionControlError("E_SCHEMA", "context bundle documents must be objects")
+        slug = text(document.get("slug"), "context document slug")
+        revision = integer(document.get("revision"), "context document revision", minimum=1)
+        content_hash = sha256(document.get("content_hash"), f"content_hash of {slug}")
+        if ledger_digest(document.get("content")) != content_hash:
+            raise MissionControlError(
+                "E_DIGEST", f"context document {slug} content does not match its content_hash"
+            )
+        references.append(
+            {
+                "slug": slug,
+                "kind": text(document.get("kind"), f"kind of {slug}"),
+                "revision": revision,
+                "content_hash": content_hash,
+            }
+        )
+    result = deepcopy(dict(state))
+    result["context_bundle"] = {
+        "bundle_sha256": observed_seal,
+        "bound_at": format_time(parse_time(bound_at, "bound_at")),
+        "documents": references,
+    }
+    return seal(result)
+
+
 def company_root() -> Path:
     return Path(__file__).resolve().parents[2]
 

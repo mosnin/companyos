@@ -90,6 +90,33 @@ not a black-box score.
 a protocol verb: bytes move via presigned URLs between browser and bucket.
 A signed media verb may join a later protocol version.
 
+## v1.2 additions (additive)
+
+**Search.** `context_search {query, branch?, limit?}` (read) — full-text
+over the company's documents, filtered to the key's company inside the
+search index itself. Returns compact hits (slug, title, view, revision,
+snippet); follow with `document_get` for typed content.
+
+**Context bundles (client convention, not a verb).** `context_ledger.py
+bundle --work-class X` selects committed documents by the work class's kind
+set (`WORK_CLASS_CONTEXT`), seals them with `context_bundle`, and
+`mission_control.bind_context` re-verifies the seal and every per-document
+hash **offline, fail-closed** before the mission binds
+`{slug, kind, revision, content_hash}` references into its state. The
+controller never fetches; the network stops at the client.
+
+## Tenancy & security model
+
+One deployment serves many companies. The boundary is enforced server-side
+at every layer: web sessions resolve through company membership on every
+query and mutation (with identical not-found/not-member errors, so slugs
+cannot be enumerated); agent keys are company-scoped secrets (sha256-stored,
+shown once, revocable, read/write scoped) and the key itself selects the
+company — no verb takes a company argument; search is filtered inside the
+index; input sizes are capped (256KB canonical content, 64KB run payloads,
+8KB feedback). Roles: owners manage everyone, admins manage members,
+members manage nothing. Agents are never members — they hold keys.
+
 ## Versioning
 
 This is `context-ledger.v1` (`config_pull` echoes it as `protocol`).
