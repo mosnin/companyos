@@ -627,8 +627,8 @@
     },
     {
       "path": "company-os/company-context-ledger/SKILL.md",
-      "sha256": "019c74656d95d6130bf6d2bb3f05a9efc821b400637bc99da55971656998aa49",
-      "size": 2409
+      "sha256": "85dd730420f1f2d439dcb9eadeda045cce4cc5275c5edfcff36b05782685b16b",
+      "size": 3180
     },
     {
       "path": "company-os/company-context-ledger/agents/claude.yaml",
@@ -651,6 +651,11 @@
       "size": 484
     },
     {
+      "path": "company-os/company-context-ledger/references/protocol-v1.md",
+      "sha256": "da66c34f71cf02f4d73a46bdbc30b574e1d5c0a1cbd66627e6fbaefef213f221",
+      "size": 3942
+    },
+    {
       "path": "company-os/company-context-ledger/references/source/00-index.txt",
       "sha256": "a06c0f39ac22a3cfca7cd433563c34afb1f6fec8082203b910550041ec6c0527",
       "size": 374
@@ -669,6 +674,11 @@
       "path": "company-os/company-context-ledger/references/source/03-write-contract.txt",
       "sha256": "6ca21514f025cd1e8f79979abf378e9766fc644ddc91679c23c393c858d90622",
       "size": 1163
+    },
+    {
+      "path": "company-os/company-context-ledger/scripts/context_ledger.py",
+      "sha256": "8506c24b343e61bd440204f0251cd6bd0e5123890966cf1e1d3a7c75b60a5cb0",
+      "size": 10006
     },
     {
       "path": "company-os/company-context-ledger/scripts/validate_company_context_ledger.py",

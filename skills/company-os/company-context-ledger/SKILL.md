@@ -11,6 +11,19 @@ company-os-web is Convex storage and display. Open-source Company OS remains the
 
 Do not send this skill to Luna workers. Do not use it as the master persona.
 
+## Wire contract (context-ledger.v1)
+
+The verbs are pinned in [references/protocol-v1.md](references/protocol-v1.md)
+and implemented by `scripts/context_ledger.py` (stdlib-only). On the wire the
+dotted names use MCP-safe underscores: `config_pull`, `document_get`,
+`document_put`, `run_append`. Writes are revision-checked (`base_revision`
+must equal the revision read; 0 for new documents). Ledger `contentHash` is
+sha256 over the framework's frozen canonical JSON, so
+`context_ledger.py materialize` yields files whose file sha256 equals the
+ledger hash — record them with `record-evidence` and every grant and audit
+cites the exact ledger revision. `push_brief` appends the operator brief's
+economics block as a `brief_snapshot` run event for the company overview.
+
 ## Every heartbeat
 
 Before reading or writing the hosted ledger, answer these:
