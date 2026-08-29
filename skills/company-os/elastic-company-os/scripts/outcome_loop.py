@@ -93,9 +93,16 @@ def load_contract(project,binding,label):
  if binding.get('file_sha256')!=file_digest(p): raise OutcomeLoopError('E_DIGEST',f'{label} file changed')
  return v,rel
 
+DIRECT_TOPOLOGY_MAX_ARTIFACT_CLASSES=2
+
 def _production_lanes(required_artifacts, execution_lane):
  if execution_lane=='pilot':
-  lane_count=min(2,len(required_artifacts)); groups=[[] for _ in range(lane_count)]
+  # Direct topology: a small outcome earns no manager fan-out. One lane means
+  # one manager and one worker, so a two-artifact objective stops paying two
+  # layers of packet-writing tax. Hierarchy is earned by scale, not default.
+  if len(required_artifacts)<=DIRECT_TOPOLOGY_MAX_ARTIFACT_CLASSES: lane_count=1
+  else: lane_count=2
+  groups=[[] for _ in range(lane_count)]
   for index,artifact_class in enumerate(required_artifacts): groups[index%lane_count].append(artifact_class)
   return [
    {'lane_id':f'pilot:artifact-bundle:{index+1:02d}','role':'artifact_specialist','artifact_classes':group,**({'artifact_class_id':group[0]} if len(group)==1 else {}),
@@ -128,7 +135,7 @@ def bind_control(project,raw_state,control):
    required_evaluators.append({'evaluator_id':text(x.get('evaluator_id'),'evaluator_id'),'artifact_classes':sorted(x.get('artifact_classes',[])),'score_dimensions':sorted(x.get('score_dimensions',[]))})
  if not required_artifacts or not required_evaluators: raise OutcomeLoopError('E_CONTROL','real artifacts and evaluators are required')
  production_lanes=_production_lanes(required_artifacts,control.get('execution_lane'))
- org={'mode':'initial_reality_pilot' if control.get('execution_lane')=='pilot' else 'production_scale',
+ org={'mode':('direct_pilot' if len(production_lanes)==1 else 'initial_reality_pilot') if control.get('execution_lane')=='pilot' else 'production_scale',
  'manager_lanes':[{'lane_id':'manager:outcome','role':'outcome_manager','mandate':'Own the shortest executable path from the original objective to a real candidate.'}],
  'production_lanes':production_lanes,
  'evaluation_lanes':[{'lane_id':f'evaluator:{e["evaluator_id"]}','role':'independent_evaluator','evaluator_id':e['evaluator_id'],'artifact_classes':e['artifact_classes'],'score_dimensions':e['score_dimensions'],'mandate':f'Independently evaluate the current candidate with {e["evaluator_id"]} against the bound artifact evidence and benchmarks.'} for e in required_evaluators],

@@ -4484,6 +4484,125 @@ class ControllerTests(unittest.TestCase):
             2,
         )
 
+    def batch_scored_state(self) -> tuple[dict, str, str]:
+        """Batch-score the whole scorecard with one scorer/reviewer grant pair."""
+        state = self.valid_state()
+        nonces_before = len(state["controller"]["consumed_grant_nonces"])
+        self.write_state(state)
+        checkpoint = controller.current_quality_checkpoint(state)[2]
+        artifact_digest = controller.sha256_file(self.project / "verification.md")
+        scores = controller.normalized_batch_scores(
+            [
+                {
+                    "dimension": name, "score": 9, "evidence_ids": ["verification-1"],
+                    "artifact_digest": artifact_digest,
+                }
+                for name in controller.BASE_DIMENSIONS
+            ]
+        )
+        scores_path = self.project / "batch-scores.json"
+        scores_path.write_text(json.dumps(scores), encoding="utf-8")
+        shared = dict(
+            project=str(self.project), scores=str(scores_path),
+            rubric_version="quality-v1", scored_by="batch-scorer", reviewed_by="batch-reviewer",
+            outcome_id="cap-1", work_id="cap-1", cycle_id=checkpoint,
+        )
+        scores_sha256 = controller.batch_scores_digest(scores)
+        payload_hash = controller.command_payload_hash(
+            "score-quality-batch", controller.quality_batch_payload(scores, shared)
+        )
+        signed = namespace(
+            **shared,
+            scored_by_grant=self.grant(
+                "batch-scorer", "score-quality-batch", resource="quality:batch", work_id="cap-1",
+                cycle_id=checkpoint, dimension="quality-batch",
+                decision=f"score-batch:{scores_sha256}", payload_hash=payload_hash,
+            ),
+            reviewed_by_grant=self.grant(
+                "batch-reviewer", "score-quality-review-batch", resource="quality:batch", work_id="cap-1",
+                cycle_id=checkpoint, dimension="quality-batch",
+                decision=f"review-batch:{scores_sha256}", payload_hash=payload_hash,
+            ),
+        )
+        self.assertEqual(controller.score_quality_batch(signed), 0)
+        recorded = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertEqual(
+            len(recorded["controller"]["consumed_grant_nonces"]), nonces_before + 2,
+            "a whole-scorecard batch must consume exactly two grant nonces",
+        )
+        return recorded, checkpoint, scores_sha256
+
+    def test_batch_quality_scoring_covers_the_scorecard_with_two_grants(self) -> None:
+        recorded, checkpoint, scores_sha256 = self.batch_scored_state()
+        for name in controller.BASE_DIMENSIONS:
+            item = recorded["quality"]["dimensions"][name]
+            self.assertEqual(item["scored_by"], "batch-scorer")
+            self.assertEqual(item["reviewed_by"], "batch-reviewer")
+            self.assertEqual(item["batch"]["scores_sha256"], scores_sha256)
+            self.assertEqual(item["binding"]["cycle_id"], checkpoint)
+        report = self.report(recorded)
+        self.assertTrue(report["quality_ready"], report["errors"])
+        self.assertFalse(any("quality dimension" in error for error in report["errors"]))
+
+    def test_batch_record_tampering_is_detected_per_dimension(self) -> None:
+        recorded, _, _ = self.batch_scored_state()
+        rescored = deepcopy(recorded)
+        rescored["quality"]["dimensions"]["user_value"]["score"] = 10
+        report = self.report(rescored)
+        self.assertIn(
+            "quality dimension user_value does not match its signed batch entry",
+            report["errors"],
+        )
+        self.assertFalse(report["quality_ready"])
+        forged_copy = deepcopy(recorded)
+        batch = forged_copy["quality"]["dimensions"]["user_value"]["batch"]
+        entry = next(item for item in batch["scores"] if item["dimension"] == "user_value")
+        entry["score"] = 10
+        forged_copy["quality"]["dimensions"]["user_value"]["score"] = 10
+        report = self.report(forged_copy)
+        self.assertIn(
+            "quality dimension user_value batch digest does not match its signed score set",
+            report["errors"],
+        )
+        self.assertFalse(report["quality_ready"])
+
+    def test_individual_rescore_keeps_batch_siblings_valid(self) -> None:
+        recorded, checkpoint, scores_sha256 = self.batch_scored_state()
+        arguments = dict(
+            project=str(self.project), dimension="user_value", score=9.0,
+            evidence_ids=["verification-1"], rubric_version="quality-v1",
+            scored_by="solo-scorer", reviewed_by="solo-reviewer",
+            outcome_id="cap-1", work_id="cap-1", cycle_id=checkpoint,
+            artifact_digest=controller.sha256_file(self.project / "verification.md"),
+        )
+        payload_hash = controller.command_payload_hash(
+            "score-quality", controller.quality_command_payload(arguments)
+        )
+        signed = namespace(
+            **arguments,
+            scored_by_grant=self.grant(
+                "solo-scorer", "score-quality", resource="quality:user_value", work_id="cap-1",
+                cycle_id=checkpoint, dimension="user_value", decision="score:9.0",
+                payload_hash=payload_hash,
+            ),
+            reviewed_by_grant=self.grant(
+                "solo-reviewer", "score-quality-review", resource="quality:user_value", work_id="cap-1",
+                cycle_id=checkpoint, dimension="user_value", decision="review:9.0",
+                payload_hash=payload_hash,
+            ),
+        )
+        self.assertEqual(controller.score_quality(signed), 0)
+        after = controller.load_json(self.project / ".company-os" / "control.json")
+        self.assertIsNone(after["quality"]["dimensions"]["user_value"]["batch"])
+        self.assertEqual(after["quality"]["dimensions"]["user_value"]["scored_by"], "solo-scorer")
+        sibling = next(name for name in controller.BASE_DIMENSIONS if name != "user_value")
+        self.assertEqual(
+            after["quality"]["dimensions"][sibling]["batch"]["scores_sha256"], scores_sha256,
+            "sibling batch records must survive an individual re-score untouched",
+        )
+        report = self.report(after)
+        self.assertTrue(report["quality_ready"], report["errors"])
+
     def test_certification_grant_cannot_be_substituted_across_governance_digests(self) -> None:
         state = self.valid_state()
         state["controller"]["validation"] = None

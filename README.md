@@ -34,7 +34,9 @@ The controller remains project isolated and fail closed. SQLite state, ordered e
 - `tests/` — the repository-wide test suite covering the product surface:
   provenance, clean bootstrap, distribution, the outcome control plane, the
   skill-surface linter, and canonical-digest golden vectors.
-- `docs/` — architecture and stage-gated roadmap.
+- `docs/` — architecture, stage-gated roadmap, and the enforced execution
+  economics ([docs/EXECUTION_ECONOMICS.md](docs/EXECUTION_ECONOMICS.md)):
+  the anti-bureaucracy mechanisms that keep acting cheaper than planning.
 
 ## Verify
 

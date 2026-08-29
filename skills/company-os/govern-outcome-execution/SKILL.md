@@ -1,11 +1,13 @@
 ---
 name: govern-outcome-execution
-description: Govern mission-level execution economics. Use on every master heartbeat to measure distance from the original objective, identify the global bottleneck, force early real-artifact execution, cap research/governance overhead, prefer supplied capabilities over reimplementation, and enter compression or critical-path modes when reality progress lags resource burn.
+description: Internal executive-governor mechanism of the Company OS dispatch loop. mission-execution-control evaluates it programmatically on every heartbeat to measure objective distance, meter the planning budget, name the global bottleneck, and enter compression or critical-path modes when reality lags burn. Use when inspecting, tuning, or extending the governor decision itself — not as a separate dispatch-boundary layer beside mission-execution-control.
 ---
 
 # Govern Outcome Execution
 
 This skill exists to prevent Company OS from becoming a competent bureaucracy that never produces the requested thing.
+
+This module runs inside the `$mission-execution-control` dispatch loop: `mission_control.py` builds the governor input and evaluates `scripts/executive_governor.py` programmatically at every boundary. Load this skill directly only to inspect, tune, or extend the governor decision — never as a second control layer at dispatch.
 
 The governor is above local manager optimization. It answers one question repeatedly:
 

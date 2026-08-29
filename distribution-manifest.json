@@ -677,8 +677,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "a224e7d04ec40ddf984cf0ab70270bd8d7f228a566e1db4090adde82713eb78a",
-      "size": 22795
+      "sha256": "d18bf68775ad32241c3cd1beff8cff6fbe10a9ed432d4ae34788bd452859da94",
+      "size": 22683
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",
@@ -922,8 +922,8 @@
     },
     {
       "path": "company-os/define-outcome-artifacts/scripts/compile_artifact_observations.py",
-      "sha256": "f218377f4ec43d821616d6b89ad457a32ee62d64049e905c33af6258fecc9c2f",
-      "size": 4150
+      "sha256": "8b474dc5c301d4b3faa727c106ce928ec67059e4721dc727f7dd3b5a8733b7cb",
+      "size": 4751
     },
     {
       "path": "company-os/department-charters/SKILL.md",
@@ -1217,8 +1217,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "ad9371e3ee4f4fa04ba4ad647682122e9bf06854e2019857f463b9adc392cffc",
-      "size": 430823
+      "sha256": "e275c9b8d81c482bb18c0a379ea499352d79b8bc85e52fd66378f2c13de92d02",
+      "size": 443671
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
@@ -1237,8 +1237,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/operator_brief.py",
-      "sha256": "333315ca5b7e50cab6929c69e71fa6bbb29c83fee62d3e9d2ff574263b4d6c9d",
-      "size": 68825
+      "sha256": "ad6fac355f01e5f5c359237541fc7848bdb92a8e2c58ad4e0a022f0453cbb9b0",
+      "size": 72081
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_control.py",
@@ -1252,8 +1252,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_loop.py",
-      "sha256": "6c742d3fe5bacd28bf92f677f254358ff2117e269a0994e2e2c815d3aa42d1a3",
-      "size": 30314
+      "sha256": "c161b277f3603dc66e0ad8e615e3ad3df3a93beffad690c06744ba6cb7cd2a79",
+      "size": 30695
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_runtime_bridge.py",
@@ -1282,8 +1282,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "1c9ae2b5c974add2f0b5344c953e0d9d805915bd1e2cbe5a90ae0d8c37f91e7d",
-      "size": 241916
+      "sha256": "f9ded71efae9238659721e5cf627327d945c6d15cf93ffd15d12e9626634cd5e",
+      "size": 248185
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
@@ -1302,8 +1302,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_operator_brief.py",
-      "sha256": "ef19133dacba7f8f67f958dbfe4cc3cb46b36dfc41da852aed1a506169be52b9",
-      "size": 32552
+      "sha256": "4ad58234afaecc321dfbcdfe16c57d82a667daa41c477ae2c4bc06f0310cd453",
+      "size": 34600
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_runtime_gateway.py",
@@ -1482,8 +1482,8 @@
     },
     {
       "path": "company-os/goal-route-system/SKILL.md",
-      "sha256": "872cd4b7497d82be438b443f6b683c1f900b22737862ff9e995d725f7e4efd87",
-      "size": 6644
+      "sha256": "c504ae1ef87933a830879599d6d414591e58aa016d0c449e15fdc340e33b5fe6",
+      "size": 6928
     },
     {
       "path": "company-os/goal-route-system/agents/claude.yaml",
@@ -1517,13 +1517,13 @@
     },
     {
       "path": "company-os/govern-outcome-execution/SKILL.md",
-      "sha256": "50522cbbf4fc93e4d01498df83b2b752211c4a084f2017319ea1f09a89a04d39",
-      "size": 5576
+      "sha256": "11962f2c2a3efca45944e741181f826addccee32270f5fe675565901e18d8722",
+      "size": 5996
     },
     {
       "path": "company-os/govern-outcome-execution/scripts/executive_governor.py",
-      "sha256": "f331d864261691a9884bb680340a812059d30391fd8e69113b060cbf060232ed",
-      "size": 12289
+      "sha256": "eeca2fc44fd988849b51370985e205f6cb18bba643ac368fc21c46dc95b8b3e8",
+      "size": 13780
     },
     {
       "path": "company-os/hr-architect/SKILL.md",
@@ -2402,8 +2402,8 @@
     },
     {
       "path": "company-os/mission-execution-control/SKILL.md",
-      "sha256": "edc1565a4c52e4305362e80dc2afbf6c22eae9075814814fa8cb1659a77519e7",
-      "size": 2564
+      "sha256": "4fdac84e9eef2708d547c9eff710aae2a10bf75eb494283ec3d9b30fc781fad3",
+      "size": 3154
     },
     {
       "path": "company-os/mission-execution-control/agents/claude.yaml",
@@ -2487,13 +2487,13 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/mission_control.py",
-      "sha256": "2ccaca08bc948a0fe444bd1781aeef7e7ce1165460bf0d20315342182310f2a5",
-      "size": 64875
+      "sha256": "3fb86bf722abcfd8cc9925fa4f6a08896f23e5a4c35bb7742ab88de1f0ff2de8",
+      "size": 66548
     },
     {
       "path": "company-os/navigation-control/SKILL.md",
-      "sha256": "00ad327404c8bf61a70d375b2867136a13d6fe6abbaf65986eed3b229b9efd4e",
-      "size": 2794
+      "sha256": "282a752b304d4ce4e1d31ab608a6fed395cc157290d22cd7622749673bb3d20b",
+      "size": 2978
     },
     {
       "path": "company-os/navigation-control/agents/claude.yaml",

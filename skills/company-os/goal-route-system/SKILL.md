@@ -1,9 +1,11 @@
 ---
 name: goal-route-system
-description: Compile a broad objective into a concrete root goal, causal goal graph, route segments, sprints, manager and worker goal contracts, agent templates, evidence progress, rerouting, takeover packets, and final acceptance. Use for autonomous Company OS missions that require coordinated multi-agent execution rather than one prompt or isolated task.
+description: Compile-time route mechanism of the Company OS dispatch loop. Converts a broad objective into a concrete root goal, causal goal graph, route segments, and content-addressed manager and worker goal contracts, compiled once at mission start under mission-execution-control. Use when compiling or repairing route and goal contracts — not as a per-dispatch control layer.
 ---
 
 # Goal Route Operating System
+
+This is a compile-time mechanism of the `$mission-execution-control` dispatch loop: routes and goal contracts are compiled once at mission start (and on rerouting), then enforced as content-addressed state. It is not an additional per-dispatch control layer.
 
 Treat the original user request as raw destination intent, not as an executable work packet.
 

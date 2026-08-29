@@ -1,11 +1,13 @@
 ---
 name: mission-execution-control
-description: Enforce mission execution economics, first-reality scope, hard deadlines, evidence-bound capability state, scheduler leases, checkpointing, and manager replacement at every Company OS dispatch boundary. Use when governing an active mission at a dispatch, checkpoint, or manager-replacement boundary. Do not use for one-off task work outside a governed mission.
+description: Enforce mission execution economics, first-reality scope, planning-budget metering, hard deadlines, evidence-bound capability state, scheduler leases, checkpointing, and manager replacement as the single Company OS dispatch loop; route compilation, navigation, and the executive governor run programmatically inside it. Use when governing an active mission at a dispatch, checkpoint, or manager-replacement boundary. Do not use for one-off task work outside a governed mission.
 ---
 
 # Mission Execution Control
 
 Use this skill through the durable director. Managers do not invoke it as optional advice.
+
+This is the single dispatch-boundary control layer. `scripts/mission_control.py` compiles the goal route at mission start and programmatically evaluates the navigation module (`$navigation-control`) and the executive governor (`$govern-outcome-execution`) at every boundary. Do not load `$navigation-control`, `$govern-outcome-execution`, or `$goal-route-system` beside this skill as separate dispatch layers — one loop dispatches; the rest are its internal mechanisms.
 
 The controller owns one mission execution state containing:
 

@@ -1678,6 +1678,71 @@ def quality_command_payload(values: Any) -> dict[str, Any]:
     return payload
 
 
+def normalized_batch_scores(entries: Any) -> list[dict[str, Any]]:
+    """Canonicalize a batch score list so one signature covers every dimension.
+
+    Each entry carries exactly the fields the grant decision digests: the
+    dimension, its score, the sorted evidence ids, and exactly one evidence
+    digest. The list is sorted by dimension so callers and auditors always
+    hash the same bytes.
+    """
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("quality batch requires a non-empty score list")
+    normalized: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ValueError("quality batch entries must be objects")
+        dimension = entry.get("dimension")
+        if not isinstance(dimension, str) or not dimension:
+            raise ValueError("quality batch entries require a dimension")
+        if dimension in seen:
+            raise ValueError("quality batch scores each dimension at most once")
+        seen.add(dimension)
+        raw_ids = entry.get("evidence_ids")
+        if (
+            not isinstance(raw_ids, list)
+            or not raw_ids
+            or not all(isinstance(value, str) and value for value in raw_ids)
+        ):
+            raise ValueError("quality batch entries require evidence ids")
+        evidence_ids = sorted(raw_ids)
+        if len(evidence_ids) != len(set(evidence_ids)):
+            raise ValueError("quality batch evidence ids must be unique")
+        evidence_digest = entry.get("evidence_digest")
+        artifact_digest = entry.get("artifact_digest")
+        if bool(evidence_digest) == bool(artifact_digest):
+            raise ValueError("quality batch entries require exactly one evidence digest")
+        value: dict[str, Any] = {
+            "dimension": dimension,
+            "score": entry.get("score"),
+            "evidence_ids": evidence_ids,
+        }
+        if evidence_digest is not None:
+            value["evidence_digest"] = evidence_digest
+        else:
+            value["artifact_digest"] = artifact_digest
+        normalized.append(value)
+    return sorted(normalized, key=lambda item: item["dimension"])
+
+
+def batch_scores_digest(scores: list[dict[str, Any]]) -> str:
+    return hashlib.sha256(canonical_json(scores).encode("utf-8")).hexdigest()
+
+
+def quality_batch_payload(scores: list[dict[str, Any]], shared: Any) -> dict[str, Any]:
+    getter = shared.get if isinstance(shared, dict) else lambda key, default=None: getattr(shared, key, default)
+    return {
+        "scores": scores,
+        "rubric_version": getter("rubric_version"),
+        "scored_by": getter("scored_by"),
+        "reviewed_by": getter("reviewed_by"),
+        "outcome_id": getter("outcome_id"),
+        "work_id": getter("work_id"),
+        "cycle_id": getter("cycle_id"),
+    }
+
+
 def evidence_records_digest(
     evidence_by_id: dict[str, dict[str, Any]], evidence_ids: list[str]
 ) -> str:
@@ -2021,6 +2086,116 @@ def require_replayable_grant(status: str, errors: list[str], label: str) -> bool
     return False
 
 
+def quality_grant_claim_sets(
+    name: str,
+    item: dict[str, Any],
+    binding: dict[str, Any],
+    score: Any,
+    evidence_ids: Any,
+    *,
+    claim_work_id: Any,
+    claim_cycle_id: Any,
+    errors: list[str],
+    label: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Build the expected scorer and reviewer claims for a scored dimension.
+
+    A batch-scored dimension carries a self-contained copy of the signed
+    score set. The copy is verified against the record before its digest
+    anchors the expected batch claims, so a sibling re-score cannot
+    invalidate this dimension and a tampered record cannot hide behind the
+    shared batch signature.
+    """
+    batch = item.get("batch")
+    if isinstance(batch, dict):
+        batch_scores = batch.get("scores")
+        own_entry: dict[str, Any] | None = None
+        if (
+            isinstance(batch_scores, list)
+            and batch_scores
+            and all(isinstance(entry, dict) for entry in batch_scores)
+        ):
+            own_entry = next(
+                (entry for entry in batch_scores if entry.get("dimension") == name), None
+            )
+        else:
+            batch_scores = None
+        digest_field = (
+            "evidence_digest" if binding.get("evidence_digest") is not None else "artifact_digest"
+        )
+        sorted_ids = sorted(evidence_ids) if isinstance(evidence_ids, list) else None
+        if (
+            batch_scores is None
+            or not isinstance(own_entry, dict)
+            or own_entry.get("score") != score
+            or own_entry.get("evidence_ids") != sorted_ids
+            or own_entry.get(digest_field) != binding.get(digest_field)
+            or set(own_entry) != {"dimension", "score", "evidence_ids", digest_field}
+        ):
+            errors.append(f"{label} does not match its signed batch entry")
+        scores_sha256 = batch_scores_digest(batch_scores) if batch_scores is not None else None
+        if set(batch) != {"scores_sha256", "scores"} or batch.get("scores_sha256") != scores_sha256:
+            errors.append(f"{label} batch digest does not match its signed score set")
+        base = {
+            "resource": "quality:batch",
+            "work_id": claim_work_id,
+            "cycle_id": claim_cycle_id,
+            "dimension": "quality-batch",
+            "payload_hash": command_payload_hash(
+                "score-quality-batch",
+                quality_batch_payload(
+                    batch_scores if batch_scores is not None else [],
+                    {
+                        "rubric_version": item.get("rubric_version"),
+                        "scored_by": item.get("scored_by"),
+                        "reviewed_by": item.get("reviewed_by"),
+                        "outcome_id": binding.get("outcome_id"),
+                        "work_id": binding.get("work_id"),
+                        "cycle_id": binding.get("cycle_id"),
+                    },
+                ),
+            ),
+        }
+        return (
+            {
+                **base, "actor": item.get("scored_by"), "action": "score-quality-batch",
+                "decision": f"score-batch:{scores_sha256}",
+            },
+            {
+                **base, "actor": item.get("reviewed_by"), "action": "score-quality-review-batch",
+                "decision": f"review-batch:{scores_sha256}",
+            },
+        )
+    base = {
+        "resource": f"quality:{name}",
+        "work_id": claim_work_id,
+        "cycle_id": claim_cycle_id,
+        "dimension": name,
+        "payload_hash": command_payload_hash(
+            "score-quality",
+            quality_command_payload(
+                {
+                    "dimension": name,
+                    "score": score,
+                    "evidence_ids": evidence_ids,
+                    "rubric_version": item.get("rubric_version"),
+                    "scored_by": item.get("scored_by"),
+                    "reviewed_by": item.get("reviewed_by"),
+                    "outcome_id": binding.get("outcome_id"),
+                    "work_id": binding.get("work_id"),
+                    "cycle_id": binding.get("cycle_id"),
+                    "artifact_digest": binding.get("artifact_digest"),
+                    "evidence_digest": binding.get("evidence_digest"),
+                }
+            ),
+        ),
+    }
+    return (
+        {**base, "actor": item.get("scored_by"), "action": "score-quality", "decision": f"score:{score}"},
+        {**base, "actor": item.get("reviewed_by"), "action": "score-quality-review", "decision": f"review:{score}"},
+    )
+
+
 def applicable_quality_dimensions(state: dict[str, Any]) -> set[str]:
     """Return the deterministic quality gate for the current phase and primary work."""
     active_work = state.get("portfolio", {}).get("active_work", [])
@@ -2076,7 +2251,7 @@ def clear_quality_scores(state: dict[str, Any]) -> None:
     for item in state.get("quality", {}).get("dimensions", {}).values():
         if not isinstance(item, dict):
             continue
-        for field in ("score", "rubric_version", "scored_by", "reviewed_by", "scorer_grant", "reviewer_grant", "binding"):
+        for field in ("score", "rubric_version", "scored_by", "reviewed_by", "scorer_grant", "reviewer_grant", "binding", "batch"):
             item[field] = None
         item["evidence"] = []
 
@@ -2086,7 +2261,7 @@ def clear_quality_scores_citing(state: dict[str, Any], evidence_id: str) -> None
     for item in state.get("quality", {}).get("dimensions", {}).values():
         if not isinstance(item, dict) or evidence_id not in item.get("evidence", []):
             continue
-        for field in ("score", "rubric_version", "scored_by", "reviewed_by", "scorer_grant", "reviewer_grant", "binding"):
+        for field in ("score", "rubric_version", "scored_by", "reviewed_by", "scorer_grant", "reviewer_grant", "binding", "batch"):
             item[field] = None
         item["evidence"] = []
 
@@ -3278,7 +3453,7 @@ def audit_archived_program_transitions(
                     item.get(field) not in (None, [], "")
                     for field in (
                         "evidence", "rubric_version", "scored_by", "reviewed_by",
-                        "scorer_grant", "reviewer_grant", "binding",
+                        "scorer_grant", "reviewer_grant", "binding", "batch",
                     )
                 ):
                     errors.append(f"{item_label} has authority without a score")
@@ -3313,42 +3488,21 @@ def audit_archived_program_transitions(
                 or item.get("scored_by") == item.get("reviewed_by")
             ):
                 errors.append(f"{item_label} lacks independent scoring authority")
-            quality_values = {
-                "dimension": name,
-                "score": score,
-                "evidence_ids": evidence_ids,
-                "rubric_version": item.get("rubric_version"),
-                "scored_by": item.get("scored_by"),
-                "reviewed_by": item.get("reviewed_by"),
-                "outcome_id": binding.get("outcome_id"),
-                "work_id": binding.get("work_id"),
-                "cycle_id": binding.get("cycle_id"),
-                "artifact_digest": artifact_digest,
-                "evidence_digest": evidence_digest_value,
-            }
-            grant_base = {
-                "resource": f"quality:{name}",
-                "work_id": binding.get("work_id"),
-                "cycle_id": binding.get("cycle_id"),
-                "dimension": name,
-                "payload_hash": command_payload_hash(
-                    "score-quality", quality_command_payload(quality_values)
-                ),
-            }
+            scorer_claims, reviewer_claims = quality_grant_claim_sets(
+                name, item, binding, score, evidence_ids,
+                claim_work_id=binding.get("work_id"),
+                claim_cycle_id=binding.get("cycle_id"),
+                errors=errors,
+                label=item_label,
+            )
             audit_stored_grant(
                 state, item.get("scorer_grant"), errors, f"{item_label} scorer grant",
-                {
-                    **grant_base, "actor": item.get("scored_by"), "action": "score-quality",
-                    "decision": f"score:{score}",
-                },
+                scorer_claims,
                 expected_program_version=source_version,
             )
             audit_stored_grant(
                 state, item.get("reviewer_grant"), errors, f"{item_label} reviewer grant",
-                {
-                    **grant_base, "actor": item.get("reviewed_by"), "action": "score-quality-review",
-                    "decision": f"review:{score}",
-                },
+                reviewer_claims,
                 expected_program_version=source_version,
             )
             for evidence_id in evidence_ids:
@@ -4838,44 +4992,34 @@ def validate_state(
             ):
                 errors.append(f"quality dimension {name} is stale for the current primary checkpoint")
                 quality_ready = False
-        grant_claim_base = {
-            "resource": f"quality:{name}",
-            "work_id": expected_work_id,
-            "cycle_id": expected_checkpoint,
-            "dimension": name,
-            "payload_hash": command_payload_hash(
-                "score-quality",
-                quality_command_payload(
-                    {
-                        "dimension": name,
-                        "score": score,
-                        "evidence_ids": ids_for_dimension,
-                        "rubric_version": item.get("rubric_version"),
-                        "scored_by": item.get("scored_by"),
-                        "reviewed_by": item.get("reviewed_by"),
-                        "outcome_id": (binding or {}).get("outcome_id"),
-                        "work_id": (binding or {}).get("work_id"),
-                        "cycle_id": (binding or {}).get("cycle_id"),
-                        "artifact_digest": (binding or {}).get("artifact_digest"),
-                        "evidence_digest": (binding or {}).get("evidence_digest"),
-                    }
-                ),
-            ),
-        }
+        errors_before_grant_audit = len(errors)
+        scorer_claims, reviewer_claims = quality_grant_claim_sets(
+            name,
+            item,
+            binding if isinstance(binding, dict) else {},
+            score,
+            ids_for_dimension,
+            claim_work_id=expected_work_id,
+            claim_cycle_id=expected_checkpoint,
+            errors=errors,
+            label=f"quality dimension {name}",
+        )
         scorer_status = audit_stored_grant(
             state,
             item.get("scorer_grant"),
             errors,
             f"quality dimension {name} scorer grant",
-            {**grant_claim_base, "actor": item.get("scored_by"), "action": "score-quality", "decision": f"score:{score}"},
+            scorer_claims,
         )
         reviewer_status = audit_stored_grant(
             state,
             item.get("reviewer_grant"),
             errors,
             f"quality dimension {name} reviewer grant",
-            {**grant_claim_base, "actor": item.get("reviewed_by"), "action": "score-quality-review", "decision": f"review:{score}"},
+            reviewer_claims,
         )
+        if len(errors) > errors_before_grant_audit:
+            quality_ready = False
         if not require_replayable_grant(
             scorer_status, errors, f"quality dimension {name} scorer grant"
         ) or not require_replayable_grant(
@@ -6379,6 +6523,7 @@ def score_quality(args: argparse.Namespace) -> int:
                         **binding_digest,
                         "rubric_version": args.rubric_version,
                     },
+                    "batch": None,
                 }
             )
             state["controller"]["validation"] = None
@@ -6395,6 +6540,116 @@ def score_quality(args: argparse.Namespace) -> int:
         print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
         return 2
     print(json.dumps({"ok": True, "dimension": args.dimension, "score": args.score}))
+    return 0
+
+
+def score_quality_batch(args: argparse.Namespace) -> int:
+    """Score a whole checkpoint under one grant ceremony.
+
+    One signed scorer grant and one signed reviewer grant cover every
+    dimension in the batch: the grant decision binds the digest of the
+    canonical score set, so the ceremony cost of a checkpoint is two
+    signatures instead of two per dimension.
+    """
+    project = Path(args.project).resolve()
+    try:
+        with locked_state(project) as (path, state):
+            if args.scored_by == args.reviewed_by:
+                raise ValueError("quality scoring requires an independent reviewer")
+            scores = normalized_batch_scores(
+                json.loads(Path(args.scores).read_text(encoding="utf-8"))
+            )
+            scores_sha256 = batch_scores_digest(scores)
+            batch_payload_hash = command_payload_hash(
+                "score-quality-batch", quality_batch_payload(scores, args)
+            )
+            scorer_grant = verify_actor_grant(
+                state, getattr(args, "scored_by_grant", None), args.scored_by, "score-quality-batch",
+                resource="quality:batch", work_id=args.work_id, cycle_id=args.cycle_id,
+                dimension="quality-batch", decision=f"score-batch:{scores_sha256}",
+                payload_hash=batch_payload_hash,
+            )
+            reviewer_grant = verify_actor_grant(
+                state, getattr(args, "reviewed_by_grant", None), args.reviewed_by, "score-quality-review-batch",
+                resource="quality:batch", work_id=args.work_id, cycle_id=args.cycle_id,
+                dimension="quality-batch", decision=f"review-batch:{scores_sha256}",
+                payload_hash=batch_payload_hash,
+            )
+            expected_outcome, expected_work, expected_cycle = current_quality_checkpoint(state)
+            if (args.outcome_id, args.work_id, args.cycle_id) != (expected_outcome, expected_work, expected_cycle):
+                raise ValueError("quality batch does not target the current primary checkpoint")
+            known = {
+                item.get("id"): item
+                for bucket in state["evidence"].values()
+                for item in bucket
+                if isinstance(item, dict) and evidence_is_active(item)
+            }
+            for entry in scores:
+                dimension = entry["dimension"]
+                if dimension not in state["quality"]["dimensions"]:
+                    raise ValueError("unknown quality dimension")
+                score = entry["score"]
+                if not isinstance(score, (int, float)) or isinstance(score, bool) or not 0 <= score <= 10:
+                    raise ValueError(f"quality batch score for {dimension} is invalid")
+                for evidence_id in entry["evidence_ids"]:
+                    item = known.get(evidence_id)
+                    if not item or dimension not in item.get("quality_dimensions", []):
+                        raise ValueError("quality evidence is missing or unrelated to the dimension")
+                    if item.get("outcome_id") != args.outcome_id or item.get("work_id") != args.work_id or item.get("cycle_id") != args.cycle_id:
+                        raise ValueError("quality evidence does not match the asserted outcome, work, and cycle binding")
+                    if entry.get("artifact_digest") is not None and item.get("artifact_sha256") != entry["artifact_digest"]:
+                        raise ValueError("quality evidence does not match the asserted artifact digest")
+                    if item.get("rubric_version") != args.rubric_version:
+                        raise ValueError("quality evidence does not match the asserted rubric version")
+                if (
+                    entry.get("evidence_digest") is not None
+                    and entry["evidence_digest"] != completion_evidence_digest(state, entry["evidence_ids"])
+                ):
+                    raise ValueError("quality evidence digest does not match the asserted evidence set")
+            batch_record = {"scores_sha256": scores_sha256, "scores": scores}
+            for entry in scores:
+                binding_digest = (
+                    {"evidence_digest": entry["evidence_digest"]}
+                    if entry.get("evidence_digest") is not None
+                    else {"artifact_digest": entry["artifact_digest"]}
+                )
+                state["quality"]["dimensions"][entry["dimension"]].update(
+                    {
+                        "score": entry["score"],
+                        "evidence": entry["evidence_ids"],
+                        "rubric_version": args.rubric_version,
+                        "scored_by": args.scored_by,
+                        "reviewed_by": args.reviewed_by,
+                        "scorer_grant": deepcopy(scorer_grant),
+                        "reviewer_grant": deepcopy(reviewer_grant),
+                        "binding": {
+                            "outcome_id": args.outcome_id,
+                            "work_id": args.work_id,
+                            "cycle_id": args.cycle_id,
+                            **binding_digest,
+                            "rubric_version": args.rubric_version,
+                        },
+                        "batch": deepcopy(batch_record),
+                    }
+                )
+            state["controller"]["validation"] = None
+            state["controller"]["validated"] = False
+            persist_state_event(
+                project,
+                path,
+                state,
+                "quality_batch_scored",
+                dimensions=[entry["dimension"] for entry in scores],
+                scores_sha256=scores_sha256,
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "errors": [str(exc)]}, indent=2))
+        return 2
+    print(json.dumps({
+        "ok": True,
+        "dimensions": [entry["dimension"] for entry in scores],
+        "scores_sha256": scores_sha256,
+    }))
     return 0
 
 
@@ -8338,6 +8593,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="legacy single-artifact SHA-256 retained for signed-history compatibility",
     )
     quality_parser.set_defaults(handler=score_quality)
+    quality_batch_parser = subparsers.add_parser(
+        "score-quality-batch",
+        help="record a full reviewed scorecard under one scorer/reviewer grant pair",
+    )
+    quality_batch_parser.add_argument("--project", required=True)
+    quality_batch_parser.add_argument(
+        "--scores",
+        required=True,
+        help="path to a JSON list of {dimension, score, evidence_ids, evidence_digest|artifact_digest}",
+    )
+    quality_batch_parser.add_argument("--rubric-version", required=True)
+    quality_batch_parser.add_argument("--scored-by", required=True)
+    quality_batch_parser.add_argument("--reviewed-by", required=True)
+    quality_batch_parser.add_argument("--scored-by-grant", required=True)
+    quality_batch_parser.add_argument("--reviewed-by-grant", required=True)
+    quality_batch_parser.add_argument("--outcome-id", required=True)
+    quality_batch_parser.add_argument("--work-id", required=True)
+    quality_batch_parser.add_argument("--cycle-id", required=True)
+    quality_batch_parser.set_defaults(handler=score_quality_batch)
     certify_parser = subparsers.add_parser("certify", help="independently certify current evidence")
     certify_parser.add_argument("--project", required=True)
     certify_parser.add_argument("--reviewer", required=True)
@@ -8548,6 +8822,7 @@ def build_parser() -> argparse.ArgumentParser:
         outcome_parser,
         work_parser,
         quality_parser,
+        quality_batch_parser,
         certify_parser,
         activate_parser,
         schedule_parser,

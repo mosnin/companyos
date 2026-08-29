@@ -580,5 +580,51 @@ class OperatorBriefTests(unittest.TestCase):
         self.assertNotIn("View all", html_view)
 
 
+
+
+class ExecutionEconomicsTests(unittest.TestCase):
+    def test_economics_computes_tokens_per_accepted_receipt(self) -> None:
+        state = {
+            "runtime_adapter": {
+                "attempts": [
+                    {
+                        "budget": {"token_limit": 50_000},
+                        "lifecycle": {"telemetry": {"total_tokens": 30_000}},
+                    },
+                    {
+                        "budget": {"token_limit": 50_000},
+                        "lifecycle": {"telemetry": {"input_tokens": 8_000, "output_tokens": 2_000}},
+                    },
+                ]
+            },
+            "portfolio": {"completed_work": [{"id": "w1"}, {"id": "w2"}]},
+        }
+        economics = presenter._execution_economics(state)
+        self.assertEqual(economics["tokens_observed"], 40_000)
+        self.assertEqual(economics["token_budget_granted"], 100_000)
+        self.assertEqual(economics["attempts_with_telemetry"], 2)
+        self.assertEqual(economics["accepted_receipts"], 2)
+        self.assertEqual(economics["tokens_per_accepted_receipt"], 20_000)
+        self.assertEqual(economics["unconverted_spend"], 0)
+
+    def test_unconverted_spend_is_named_when_nothing_completes(self) -> None:
+        state = {
+            "runtime_adapter": {
+                "attempts": [{"budget": {"token_limit": 9_000}, "lifecycle": {"telemetry": {"total_tokens": 7_500}}}]
+            },
+            "portfolio": {"completed_work": []},
+        }
+        economics = presenter._execution_economics(state)
+        self.assertIsNone(economics["tokens_per_accepted_receipt"])
+        self.assertEqual(economics["unconverted_spend"], 7_500)
+
+    def test_empty_state_yields_a_quiet_zero_section(self) -> None:
+        economics = presenter._execution_economics({})
+        self.assertEqual(economics["tokens_observed"], 0)
+        self.assertEqual(economics["accepted_receipts"], 0)
+        self.assertIsNone(economics["tokens_per_accepted_receipt"])
+        self.assertEqual(economics["unconverted_spend"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()
