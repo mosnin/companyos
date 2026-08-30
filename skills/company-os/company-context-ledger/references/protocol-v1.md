@@ -158,6 +158,19 @@ stops authenticating exactly like a revoked one. Read verbs stay
 company-wide: context is one fabric, but write authority can be delegated
 one department at a time.
 
+## v1.5 additions (additive)
+
+**Opt-in paging.** `config_pull` accepts `limit` (max 500) and `cursor`,
+and always returns `document_count`; when paging it also returns
+`documents_has_more` and `documents_cursor` (the last slug of the page,
+ordered by slug so a cursor means the same thing across calls). **With
+neither argument the whole index comes back exactly as before** — no
+existing agent changes behavior, and paging is there for stores large
+enough that the full index is a heavy first call. `context_ledger.py`
+exposes `config_documents()`, which drains pages and is correct against an
+unpaged server too. `feedback_list` accepts `before` (the `at` of the last
+item seen) and still returns a plain newest-first array.
+
 ## Tenancy & security model
 
 One deployment serves many companies. The boundary is enforced server-side

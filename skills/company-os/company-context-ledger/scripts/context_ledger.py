@@ -137,10 +137,47 @@ class ContextLedgerClient:
 
     # ------------------------------- Verbs -------------------------------
 
-    def config_pull(self, *, branch: str | None = None) -> dict[str, Any]:
-        return self._call_tool(
-            "config_pull", {"branch": branch} if branch else {}
-        )
+    def config_pull(
+        self,
+        *,
+        branch: str | None = None,
+        cursor: str | None = None,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """The company's context index.
+
+        Paging (v1.5) is opt-in: with neither ``cursor`` nor ``limit`` the
+        whole document index comes back, exactly as it always has. Pass a
+        limit only when a store is large enough that the full index is a
+        heavy first call, and drain with ``config_documents``.
+        """
+        arguments: dict[str, Any] = {}
+        if branch:
+            arguments["branch"] = branch
+        if cursor is not None:
+            arguments["cursor"] = cursor
+        if limit is not None:
+            arguments["limit"] = limit
+        return self._call_tool("config_pull", arguments)
+
+    def config_documents(
+        self, *, branch: str | None = None, page_size: int = 500
+    ) -> list[dict[str, Any]]:
+        """Every document in the index, draining pages when the store is large.
+
+        Correct on any ledger: an unpaged server returns everything on the
+        first call and reports no cursor, which ends the loop immediately.
+        """
+        documents: list[dict[str, Any]] = []
+        cursor: str | None = None
+        while True:
+            page = self.config_pull(branch=branch, cursor=cursor, limit=page_size)
+            documents.extend(page.get("documents", []))
+            if not page.get("documents_has_more"):
+                return documents
+            cursor = page.get("documents_cursor")
+            if not cursor:
+                return documents
 
     def document_get(self, slug: str, *, branch: str | None = None) -> dict[str, Any]:
         arguments: dict[str, Any] = {"slug": slug}
@@ -186,13 +223,25 @@ class ContextLedgerClient:
         return self._call_tool("branch_create", arguments)
 
     def feedback_list(
-        self, *, product_slug: str | None = None, limit: int | None = None
+        self,
+        *,
+        product_slug: str | None = None,
+        limit: int | None = None,
+        before: float | None = None,
     ) -> list[dict[str, Any]]:
+        """Raw feedback, newest first.
+
+        ``before`` pages backwards through time: pass the ``at`` of the last
+        item you saw. The return stays a plain list, so callers that do not
+        page are unaffected.
+        """
         arguments: dict[str, Any] = {}
         if product_slug is not None:
             arguments["product_slug"] = product_slug
         if limit is not None:
             arguments["limit"] = limit
+        if before is not None:
+            arguments["before"] = before
         result = self._call_tool("feedback_list", arguments)
         return result if isinstance(result, list) else []
 
@@ -326,9 +375,10 @@ class ContextLedgerClient:
         every hash offline before binding.
         """
         kinds = set(WORK_CLASS_CONTEXT.get(work_class, CORE_CONTEXT_KINDS))
-        config = self.config_pull()
+        # Drain the index: on a large store the selection must still see
+        # every committed document, not just the first page.
         slugs: list[str] = []
-        for document in config.get("documents", []):
+        for document in self.config_documents():
             if (
                 document.get("kind") in kinds
                 and document.get("contentHash")

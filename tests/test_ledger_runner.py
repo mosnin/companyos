@@ -108,6 +108,67 @@ class ContextChangesWireTests(unittest.TestCase):
         )
 
 
+class ConfigPagingTests(unittest.TestCase):
+    """v1.5 paging: opt-in on the wire, always correct in the client."""
+
+    def _client(self, pages: list[dict[str, Any]], requests: list[dict[str, Any]]):
+        def transport(payload: dict[str, Any]) -> dict[str, Any]:
+            requests.append(payload)
+            return {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "result": {"structuredContent": pages.pop(0)},
+            }
+
+        return LEDGER.ContextLedgerClient(
+            "https://ledger.example/mcp", "cos_test", transport=transport
+        )
+
+    def test_config_pull_sends_no_paging_arguments_by_default(self) -> None:
+        requests: list[dict[str, Any]] = []
+        client = self._client([{"documents": []}], requests)
+        client.config_pull()
+        self.assertEqual({}, requests[0]["params"]["arguments"])
+
+    def test_config_documents_drains_pages(self) -> None:
+        requests: list[dict[str, Any]] = []
+        pages = [
+            {
+                "documents": [{"slug": "a"}, {"slug": "b"}],
+                "documents_has_more": True,
+                "documents_cursor": "b",
+            },
+            {
+                "documents": [{"slug": "c"}],
+                "documents_has_more": False,
+                "documents_cursor": "c",
+            },
+        ]
+        client = self._client(pages, requests)
+        documents = client.config_documents(page_size=2)
+        self.assertEqual(["a", "b", "c"], [doc["slug"] for doc in documents])
+        self.assertEqual({"limit": 2}, requests[0]["params"]["arguments"])
+        self.assertEqual({"cursor": "b", "limit": 2}, requests[1]["params"]["arguments"])
+
+    def test_config_documents_handles_an_unpaged_server(self) -> None:
+        # An older ledger returns everything and reports no paging fields:
+        # the drain loop must stop after one call rather than spin.
+        requests: list[dict[str, Any]] = []
+        client = self._client([{"documents": [{"slug": "only"}]}], requests)
+        self.assertEqual(
+            ["only"], [doc["slug"] for doc in client.config_documents()]
+        )
+        self.assertEqual(1, len(requests))
+
+    def test_feedback_list_paging_argument_is_optional(self) -> None:
+        requests: list[dict[str, Any]] = []
+        client = self._client([[], []], requests)
+        client.feedback_list()
+        self.assertEqual({}, requests[0]["params"]["arguments"])
+        client.feedback_list(before=1234.5)
+        self.assertEqual({"before": 1234.5}, requests[1]["params"]["arguments"])
+
+
 class FakeLedger:
     """Scripted client: change pages in, tool calls recorded out."""
 
