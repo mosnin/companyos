@@ -7,6 +7,8 @@ description: Enforce mission execution economics, first-reality scope, planning-
 
 Use this skill through the durable director. Managers do not invoke it as optional advice.
 
+Reasoning at every gate runs through `$mental-models` (the default overlay for all roles): the models decide how a boundary is reasoned, this controller decides whether it passes. A gate decision recording no named model is a review flag; a named model never substitutes for a gate.
+
 This is the single dispatch-boundary control layer. `scripts/mission_control.py` compiles the goal route at mission start and programmatically evaluates the navigation module (`$navigation-control`) and the executive governor (`$govern-outcome-execution`) at every boundary. Do not load `$navigation-control`, `$govern-outcome-execution`, or `$goal-route-system` beside this skill as separate dispatch layers — one loop dispatches; the rest are its internal mechanisms.
 
 The controller owns one mission execution state containing:

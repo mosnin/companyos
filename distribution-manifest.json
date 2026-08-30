@@ -677,8 +677,8 @@
     },
     {
       "path": "company-os/company-context-ledger/scripts/context_ledger.py",
-      "sha256": "05655de3af4e6d5a5cd6b4945672f6863fbbd2fa496ec2c1bd7cb249160edcb3",
-      "size": 17824
+      "sha256": "5a44b5a199972e6e43d87017a25127ca91435f9678731fa1016a8af53f94d03e",
+      "size": 18227
     },
     {
       "path": "company-os/company-context-ledger/scripts/ledger_runner.py",
@@ -692,8 +692,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "d18bf68775ad32241c3cd1beff8cff6fbe10a9ed432d4ae34788bd452859da94",
-      "size": 22683
+      "sha256": "7e5fdec088f91f9bf357170bbc35aad2a7cdb0eae58a1c785b44143c913cf873",
+      "size": 22848
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",
@@ -2316,9 +2316,29 @@
       "size": 13338
     },
     {
+      "path": "company-os/mental-models/SKILL.md",
+      "sha256": "20b0766e3288dbe714ddef26e3c47d13d9f7638ca9a7bc3ff9cc1b8f8ea52f5b",
+      "size": 4373
+    },
+    {
+      "path": "company-os/mental-models/assets/spawn-template.json",
+      "sha256": "fdadba51dc1820b88b21e553d04107e72984824ddf63517a8572e194b38f7c82",
+      "size": 381
+    },
+    {
+      "path": "company-os/mental-models/references/models.md",
+      "sha256": "146b0670e38b301413a7a4e5057a5276cdbac70ed2605c03173b62235bbf9db6",
+      "size": 8852
+    },
+    {
+      "path": "company-os/mental-models/scripts/validate_mental_models.py",
+      "sha256": "e701f76c76f0511548c7845091c1ca618cf666d33e0e5cc223d4c43ec58b16e3",
+      "size": 4785
+    },
+    {
       "path": "company-os/middle-manager-operating-doctrine/SKILL.md",
-      "sha256": "48bcda5249630728aa1a1faaa40c2f9b73b4c5c4f4cb9015f0d90b49a3925339",
-      "size": 3459
+      "sha256": "b25e3415bee5f7bc3e37ed1cf060fb30bf1caa68d94bf5de7baf905462c9deae",
+      "size": 3745
     },
     {
       "path": "company-os/middle-manager-operating-doctrine/agents/claude.yaml",
@@ -2417,8 +2437,8 @@
     },
     {
       "path": "company-os/mission-execution-control/SKILL.md",
-      "sha256": "4fdac84e9eef2708d547c9eff710aae2a10bf75eb494283ec3d9b30fc781fad3",
-      "size": 3154
+      "sha256": "4ec1cbcd026cd2f20209042227ce37ff7a06a6e87331055d74f977583247f7b1",
+      "size": 3438
     },
     {
       "path": "company-os/mission-execution-control/agents/claude.yaml",

@@ -57,6 +57,14 @@ Transport = Callable[[dict[str, Any]], dict[str, Any]]
 # work actually decides on. Multi-instance kinds (icp, sop, product...) match
 # every committed instance.
 CORE_CONTEXT_KINDS = ("vmtm", "okrs", "value-proposition", "business-model")
+# Anything that speaks or renders in the company's voice binds these first:
+# tone and messaging decide the words, the visual kinds decide the surfaces.
+BRAND_VOICE_KINDS = (
+    "brand-foundation",
+    "brand-positioning-statement",
+    "tone-of-voice",
+    "brand-messaging-architecture",
+)
 WORK_CLASS_CONTEXT: dict[str, tuple[str, ...]] = {
     "research": CORE_CONTEXT_KINDS
     + ("icp", "buyer-persona", "buyer-psychology", "competitor-matrix", "pestle-analysis"),
@@ -69,13 +77,14 @@ WORK_CLASS_CONTEXT: dict[str, tuple[str, ...]] = {
     "runtime": CORE_CONTEXT_KINDS + ("product", "tech-stack", "security-posture"),
     "repair": CORE_CONTEXT_KINDS + ("product", "tech-stack", "dev-process"),
     "evaluation": CORE_CONTEXT_KINDS + ("product", "north-star-metric", "voice-of-customer"),
-    "documentation": CORE_CONTEXT_KINDS + ("product", "brand-positioning"),
+    "documentation": CORE_CONTEXT_KINDS + ("product", "brand-positioning") + BRAND_VOICE_KINDS,
     "governance": CORE_CONTEXT_KINDS
     + ("operating-model-canvas", "raci-matrix", "capabilities-map", "financial-policies"),
     "marketing": CORE_CONTEXT_KINDS
-    + ("brand-positioning", "messaging-framework", "icp", "funnel-map", "lead-lifecycle", "content-pillars", "gtm-strategy"),
+    + ("brand-positioning", "messaging-framework", "icp", "funnel-map", "lead-lifecycle", "content-pillars", "gtm-strategy", "customer-touchpoints")
+    + BRAND_VOICE_KINDS,
     "sales": CORE_CONTEXT_KINDS
-    + ("icp", "buyer-persona", "pricing-packaging", "qualification-framework", "command-of-message", "objection-handling", "battle-card", "sales-process"),
+    + ("icp", "buyer-persona", "pricing-packaging", "qualification-framework", "command-of-message", "objection-handling", "battle-card", "sales-process", "elevator-pitch", "customer-touchpoints"),
 }
 MAX_BUNDLE_DOCUMENTS = 12
 

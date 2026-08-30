@@ -20,6 +20,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters`, `$corporate-management`, `$corporate-departments`, `$hr-architect` |
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system`, `$brand-architect`, `$steve` |
 | UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality`, `$design`, `$interface-design`, `$steve` |
+| Reasoning layer | Bind the twelve general-thinking models to decision gates so every role reasons the same way before the controller enforces | `$mental-models` |
 | Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system`, `$marketing-architect`, `$sales-architect`, `$steve`, `$value-creation-delivery` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
