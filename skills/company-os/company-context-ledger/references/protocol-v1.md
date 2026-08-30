@@ -135,6 +135,29 @@ appends `run_append` telemetry so the company timeline shows what woke up
 and why. Dispatch authority stays in the controller: a work order is an
 invitation to run the mission loop, never a lease.
 
+## v1.4 additions (additive)
+
+**History.** `document_history {slug, branch?, from?, limit?}` (read)
+returns a document's commit log oldest-first: `{seq, message, author_kind,
+author, at, content_hash, template_version}` per revision, with `has_more`.
+Content bodies stay out — `document_get` returns the head; a cited
+revision is addressed by its `content_hash`.
+
+**Tie-safe change cursor.** `context_changes` now returns an **opaque
+string cursor** (`"timestamp:id"`); pass it back verbatim. Reading resumes
+at ≥ the timestamp and skips past the id among equal timestamps, so two
+events sharing a creation time can never be lost the way a strict
+greater-than on timestamp alone could lose one. Legacy numeric `since`
+values are still accepted with their original strictly-after semantics.
+
+**Scoped and expiring keys (server-side; no wire change).** A `cos_` key
+may carry **department lanes**: `document_put` is rejected for kinds
+outside the key's views, and `feedback_add` requires the product lane —
+the error names the lanes. A key may also carry an expiry; an expired key
+stops authenticating exactly like a revoked one. Read verbs stay
+company-wide: context is one fabric, but write authority can be delegated
+one department at a time.
+
 ## Tenancy & security model
 
 One deployment serves many companies. The boundary is enforced server-side

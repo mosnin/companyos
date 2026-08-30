@@ -61,7 +61,7 @@ class WebhookSignatureTests(unittest.TestCase):
 class ContextChangesWireTests(unittest.TestCase):
     def test_changes_verb_shapes_arguments_and_returns_page(self) -> None:
         requests: list[dict[str, Any]] = []
-        page = {"cursor": 42.5, "has_more": False, "events": [{"type": "run_event"}]}
+        page = {"cursor": "42.5:j123", "has_more": False, "events": [{"type": "run_event"}]}
 
         def transport(payload: dict[str, Any]) -> dict[str, Any]:
             requests.append(payload)
@@ -76,6 +76,36 @@ class ContextChangesWireTests(unittest.TestCase):
         self.assertEqual(requests[0]["params"]["arguments"], {"since": 7, "limit": 50})
         client.context_changes()
         self.assertEqual(requests[1]["params"]["arguments"], {})
+        # v1.4 opaque string cursors pass through verbatim.
+        client.context_changes(since="42.5:j123")
+        self.assertEqual(requests[2]["params"]["arguments"], {"since": "42.5:j123"})
+
+    def test_history_verb_shapes_arguments(self) -> None:
+        requests: list[dict[str, Any]] = []
+        log = {
+            "slug": "okrs",
+            "revision": 4,
+            "has_more": False,
+            "revisions": [{"seq": 3, "content_hash": "abc"}],
+        }
+
+        def transport(payload: dict[str, Any]) -> dict[str, Any]:
+            requests.append(payload)
+            return {"jsonrpc": "2.0", "id": 1, "result": {"structuredContent": log}}
+
+        client = LEDGER.ContextLedgerClient(
+            "https://ledger.example/mcp", "cos_test", transport=transport
+        )
+        result = client.document_history("okrs", from_seq=3, limit=10)
+        self.assertEqual(result, log)
+        self.assertEqual(requests[0]["params"]["name"], "document_history")
+        self.assertEqual(
+            requests[0]["params"]["arguments"], {"slug": "okrs", "from": 3, "limit": 10}
+        )
+        client.document_history("okrs", branch="pivot")
+        self.assertEqual(
+            requests[1]["params"]["arguments"], {"slug": "okrs", "branch": "pivot"}
+        )
 
 
 class FakeLedger:

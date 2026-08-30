@@ -195,14 +195,37 @@ class ContextLedgerClient:
             {"product_slug": product_slug, "source": source, "text": text},
         )
 
+    def document_history(
+        self,
+        slug: str,
+        *,
+        branch: str | None = None,
+        from_seq: int | None = None,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """One document's commit log (v1.4): seq, message, author, hash.
+
+        Oldest first from ``from_seq``; ``has_more`` says whether the head
+        is beyond this page. Content bodies stay out — ``document_get``
+        returns the current content.
+        """
+        arguments: dict[str, Any] = {"slug": slug}
+        if branch is not None:
+            arguments["branch"] = branch
+        if from_seq is not None:
+            arguments["from"] = from_seq
+        if limit is not None:
+            arguments["limit"] = limit
+        return self._call_tool("document_history", arguments)
+
     def context_changes(
-        self, *, since: float | None = None, limit: int | None = None
+        self, *, since: float | str | None = None, limit: int | None = None
     ) -> dict[str, Any]:
         """What changed since a cursor (v1.3): the runner's poll primitive.
 
-        Returns ``{cursor, has_more, events}``, oldest first. Feed the
-        returned ``cursor`` back on the next call. Webhooks push the same
-        signal; this is the pull side.
+        Returns ``{cursor, has_more, events}``, oldest first. The cursor is
+        an opaque string (v1.4 tie-safe form); feed it back verbatim on the
+        next call. Webhooks push the same signal; this is the pull side.
         """
         arguments: dict[str, Any] = {}
         if since is not None:
@@ -325,8 +348,12 @@ def main() -> int:
     put_parser.add_argument("--doc-slug")
     put_parser.add_argument("--title")
     changes_parser = commands.add_parser("changes", help="context_changes since a cursor")
-    changes_parser.add_argument("--since", type=float, default=None)
+    changes_parser.add_argument("--since", default=None, help="cursor from the previous call")
     changes_parser.add_argument("--limit", type=int, default=None)
+    history_parser = commands.add_parser("history", help="document_history for a slug")
+    history_parser.add_argument("--slug", required=True)
+    history_parser.add_argument("--from-seq", type=int, default=None)
+    history_parser.add_argument("--limit", type=int, default=None)
     append_parser = commands.add_parser("append", help="run_append")
     append_parser.add_argument("--run-id", required=True)
     append_parser.add_argument("--type", required=True)
@@ -365,6 +392,10 @@ def main() -> int:
             )
         elif args.command == "changes":
             result = client.context_changes(since=args.since, limit=args.limit)
+        elif args.command == "history":
+            result = client.document_history(
+                args.slug, from_seq=args.from_seq, limit=args.limit
+            )
         elif args.command == "bundle":
             result = client.bundle_for(args.work_class)
             if args.out:
