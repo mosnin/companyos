@@ -1,0 +1,49 @@
+{
+  "name": "@mosnin/companyos",
+  "version": "0.6.0",
+  "description": "Install and verify the Company OS framework from npm.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "bin": {
+    "companyos": "bin/companyos.mjs"
+  },
+  "files": [
+    "bin/companyos.mjs",
+    "scripts/distribution.py",
+    "skills/company-os/**",
+    "skills/autonomy-suite/**",
+    "!skills/**/__pycache__/**",
+    "!skills/**/*.pyc",
+    "!skills/**/*.pyo",
+    "distribution-manifest.json",
+    "VERSION",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/npm-cli.test.mjs",
+    "test:package": "node scripts/verify_npm_package.mjs",
+    "test:release": "node scripts/verify_release_identity.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "spdx-expression-parse": "5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosnin/companyos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mosnin/companyos/issues"
+  },
+  "homepage": "https://docs.companyos.sh"
+}

@@ -71,6 +71,18 @@ def now_utc() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def canonical_project_root(project_root: Path) -> Path:
+    """Return one filesystem identity for project-bound paths.
+
+    macOS exposes the temporary directory through both ``/var`` and
+    ``/private/var``. A child resolved through one spelling cannot be made
+    relative to the other even though both names point at the same directory.
+    Resolve every public operation at its boundary so receipts and registry
+    paths stay relative and portable across POSIX hosts.
+    """
+    return project_root.expanduser().resolve()
+
+
 def require_object(value: Any, label: str) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         raise FoundryError("E_SCHEMA", f"{label} must be an object")
@@ -548,7 +560,7 @@ def latest_candidate_path(project_root: Path, name: str) -> Path:
 
 
 def forge_candidate(project_root: Path, request: str, *, name: str | None = None, source_kind: str = "explicit_skill_request", parent_skill: str | None = None, depth: int = 0, dependencies: Sequence[str] = (), max_rounds: int = 2, threshold: int = 88, force_skill_request: bool = True) -> dict[str, Any]:
-    project_root = project_root.resolve(); project_root.mkdir(parents=True, exist_ok=True)
+    project_root = canonical_project_root(project_root); project_root.mkdir(parents=True, exist_ok=True)
     request = require_text(request, "request")
     if source_kind not in SOURCE_KINDS:
         raise FoundryError("E_SCHEMA", "unsupported source kind")
@@ -622,6 +634,7 @@ def field_receipts(project_root: Path, name: str, skill_sha256: str) -> list[dic
 
 
 def record_evidence(project_root: Path, name: str, *, run_id: str, objective_id: str, project_id: str, outcome: str, artifact_sha256: str, notes: str) -> dict[str, Any]:
+    project_root = canonical_project_root(project_root)
     if outcome not in {"accepted", "rejected"} or not HEX64.fullmatch(artifact_sha256):
         raise FoundryError("E_SCHEMA", "invalid evidence outcome or artifact digest")
     candidate = load_candidate(latest_candidate_path(project_root, name)); path = evidence_root(project_root, name) / f"{normalize_name(run_id)}.json"
@@ -650,6 +663,7 @@ def record_evidence(project_root: Path, name: str, *, run_id: str, objective_id:
 
 
 def promote_candidate(project_root: Path, name: str, *, scope: str = "project", install_root: str = ".agents/skills") -> dict[str, Any]:
+    project_root = canonical_project_root(project_root)
     if scope == "core":
         raise FoundryError("E_AUTHORITY", "shared core promotion is never automatic; require three independent projects and fresh independent review")
     if scope != "project": raise FoundryError("E_SCHEMA", "invalid promotion scope")
@@ -686,6 +700,7 @@ def promote_candidate(project_root: Path, name: str, *, scope: str = "project", 
 
 
 def verify_installation(project_root: Path, name: str | None = None) -> dict[str, Any]:
+    project_root = canonical_project_root(project_root)
     registry = load_registry(project_root); entries = registry["entries"]
     if name:
         normalized = normalize_name(name); entries = [item for item in entries if item["skill_name"] == normalized]
@@ -697,6 +712,7 @@ def verify_installation(project_root: Path, name: str | None = None) -> dict[str
 
 
 def search_registry(project_root: Path, query: str, *, limit: int = 5) -> dict[str, Any]:
+    project_root = canonical_project_root(project_root)
     if limit < 1 or limit > 20: raise FoundryError("E_LIMIT", "search limit must be one through twenty")
     tokens = set(tokenize(require_text(query, "query"))); registry = load_registry(project_root); matches = []
     for entry in registry["entries"]:
@@ -707,6 +723,7 @@ def search_registry(project_root: Path, query: str, *, limit: int = 5) -> dict[s
 
 
 def assign_project_skills(project_root: Path, *, assignment_id: str, role: str, skill_names: Sequence[str], execution_order: Sequence[str], rationale: Mapping[str, str]) -> dict[str, Any]:
+    project_root = canonical_project_root(project_root)
     if role not in {"manager", "worker"}: raise FoundryError("E_ROLE", "role must be manager or worker")
     names = [normalize_name(item) for item in skill_names]; order = [normalize_name(item) for item in execution_order]
     if len(names) != len(set(names)) or set(names) != set(order) or len(names) > 4: raise FoundryError("E_COMPOSITION", "assignment needs one through four unique skills and an exact execution order")
@@ -738,6 +755,7 @@ def flatten_system_nodes(nodes: Sequence[Mapping[str, Any]], *, parent: str | No
 
 
 def forge_system(project_root: Path, spec_path: Path, *, promote: bool = False, threshold: int = 88) -> dict[str, Any]:
+    project_root = canonical_project_root(project_root)
     spec = require_object(read_json(spec_path, "system request"), "system request")
     if spec.get("$schema") != SYSTEM_REQUEST_SCHEMA: raise FoundryError("E_SCHEMA", "system request schema is invalid")
     system_name = normalize_name(require_text(spec.get("system_name"), "system name")); objective = require_text(spec.get("objective"), "objective"); raw_nodes = spec.get("nodes")
@@ -761,6 +779,7 @@ def forge_system(project_root: Path, spec_path: Path, *, promote: bool = False, 
 
 
 def iterate_candidate(project_root: Path, name: str, failure_path: Path, *, threshold: int = 88) -> dict[str, Any]:
+    project_root = canonical_project_root(project_root)
     prior_path = latest_candidate_path(project_root, name); prior = load_candidate(prior_path); failure = require_object(read_json(failure_path, "failure case"), "failure case"); request = require_text(failure.get("request"), "failure request"); expected = failure.get("expected_action")
     if expected not in {"trigger", "skip", "refuse"}: raise FoundryError("E_SCHEMA", "invalid failure expectation")
     version = next_version(project_root, name); target = candidate_path(project_root, name, version); temporary = Path(tempfile.mkdtemp(prefix=f".{name}.iterate.", dir=target.parent))
@@ -772,6 +791,7 @@ def iterate_candidate(project_root: Path, name: str, failure_path: Path, *, thre
 
 
 def foundry_simulation(project_root: Path) -> dict[str, Any]:
+    project_root = canonical_project_root(project_root)
     cases = []
     def run(name: str, function) -> None:
         try: cases.append({"case": name, "passed": True, "detail": function()})
