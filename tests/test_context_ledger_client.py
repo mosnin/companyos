@@ -59,7 +59,9 @@ class CanonicalParityTests(unittest.TestCase):
             )
 
 
-class FakeTransportTests(unittest.TestCase):
+class FakeTransport:
+    """A recorded, queued transport shared by the wire-shaping suites."""
+
     def setUp(self) -> None:
         self.requests: list[dict] = []
         self.responses: list[dict] = []
@@ -82,6 +84,8 @@ class FakeTransportTests(unittest.TestCase):
             },
         }
 
+
+class FakeTransportTests(FakeTransport, unittest.TestCase):
     def test_document_put_sends_the_revision_checked_shape(self) -> None:
         self.responses.append(self._ok({"doc_slug": "okrs", "revision": 3}))
         result = self.client.document_put(
@@ -221,6 +225,128 @@ class FakeTransportTests(unittest.TestCase):
             product_slug="product-app", source="review", text="Setup took 5 minutes"
         )
         self.assertEqual(self.requests[2]["params"]["name"], "feedback_add")
+
+
+class V16WireShapeTests(FakeTransport, unittest.TestCase):
+    """The v1.6 verbs: argument shaping, paging, and tolerant list reads."""
+
+    def test_document_list_pages_and_drains_like_config_documents(self) -> None:
+        self.responses.append(
+            self._ok(
+                {
+                    "documents": [{"slug": "icp"}, {"slug": "okrs"}],
+                    "has_more": True,
+                    "cursor": "okrs",
+                    "document_count": 3,
+                }
+            )
+        )
+        self.responses.append(
+            self._ok(
+                {"documents": [{"slug": "vmtm"}], "has_more": False, "cursor": "vmtm"}
+            )
+        )
+        documents = self.client.document_list_all(view="strategy", page_size=2)
+        self.assertEqual([row["slug"] for row in documents], ["icp", "okrs", "vmtm"])
+        first, second = (request["params"]["arguments"] for request in self.requests)
+        self.assertEqual(first, {"view": "strategy", "limit": 2})
+        # The second page carries the cursor the first one handed back.
+        self.assertEqual(second["cursor"], "okrs")
+
+    def test_an_unpaged_server_ends_the_drain_on_the_first_call(self) -> None:
+        self.responses.append(self._ok({"documents": [{"slug": "okrs"}]}))
+        self.assertEqual(len(self.client.document_list_all()), 1)
+        self.assertEqual(len(self.requests), 1)
+
+    def test_list_verbs_read_a_bare_array_or_an_envelope(self) -> None:
+        # The canonical shape is a bare array, matching feedback_list.
+        self.responses.append(self._ok([{"slug": "plg-pivot", "status": "open"}]))
+        self.assertEqual(self.client.branch_list(status="open")[0]["slug"], "plg-pivot")
+        self.assertEqual(
+            self.requests[0]["params"]["arguments"], {"status": "open"}
+        )
+        # A deployment that wrapped it must not strand the caller.
+        self.responses.append(self._ok({"branches": [{"slug": "q4"}]}))
+        self.assertEqual(self.client.branch_list()[0]["slug"], "q4")
+        self.responses.append(self._ok({"merges": [{"merge_id": "mrg1"}]}))
+        self.assertEqual(self.client.merge_list()[0]["merge_id"], "mrg1")
+
+    def test_branch_and_merge_verbs_shape_their_arguments(self) -> None:
+        self.responses.append(self._ok({"branch": "plg-pivot", "entries": []}))
+        self.client.branch_diff("plg-pivot")
+        self.assertEqual(self.requests[0]["params"]["name"], "branch_diff")
+        self.assertEqual(self.requests[0]["params"]["arguments"], {"branch": "plg-pivot"})
+
+        self.responses.append(self._ok({"merged": 2, "merge_id": "mrg1"}))
+        self.client.branch_merge("plg-pivot", message="Land it")
+        self.assertEqual(
+            self.requests[1]["params"]["arguments"],
+            {"branch": "plg-pivot", "message": "Land it"},
+        )
+
+        self.responses.append(self._ok({"reverted": 1, "archived": 0}))
+        self.client.merge_revert("mrg1")
+        self.assertEqual(self.requests[2]["params"]["arguments"], {"merge_id": "mrg1"})
+
+    def test_document_revert_sends_the_target_sequence(self) -> None:
+        self.responses.append(
+            self._ok({"seq": 7, "content_hash": "a" * 64, "reverted_from": 3})
+        )
+        result = self.client.document_revert("okrs", to_seq=3, message="Undo Q3")
+        # The returned seq is the NEW revision, never the one restored from.
+        self.assertEqual(result["seq"], 7)
+        self.assertEqual(result["reverted_from"], 3)
+        self.assertEqual(
+            self.requests[0]["params"]["arguments"],
+            {"slug": "okrs", "to_seq": 3, "message": "Undo Q3"},
+        )
+        self.assertNotIn("branch", self.requests[0]["params"]["arguments"])
+
+    def test_schema_describe_filters_are_optional(self) -> None:
+        self.responses.append(self._ok({"views": [], "kinds": []}))
+        self.client.schema_describe()
+        self.assertEqual(self.requests[0]["params"]["arguments"], {})
+        self.responses.append(self._ok({"views": [], "kinds": []}))
+        self.client.schema_describe(kind="okrs")
+        self.assertEqual(self.requests[1]["params"]["arguments"], {"kind": "okrs"})
+
+    def test_resource_uris_follow_the_v16_grammar(self) -> None:
+        build = LEDGER.ContextLedgerClient.resource_uri
+        self.assertEqual(build("acme", slug="okrs"), "companyos://acme/document/okrs")
+        self.assertEqual(
+            build("acme", slug="okrs", seq=4), "companyos://acme/document/okrs@4"
+        )
+        self.assertEqual(
+            build("acme", slug="okrs", branch="plg-pivot"),
+            "companyos://acme/branch/plg-pivot/document/okrs",
+        )
+        self.assertEqual(build("acme", branch="plg-pivot"), "companyos://acme/branch/plg-pivot")
+        self.assertEqual(build("acme", merge_id="mrg1"), "companyos://acme/merge/mrg1")
+        self.assertEqual(build("acme", schema=True), "companyos://acme/schema")
+        self.assertEqual(build("acme", kind="okrs"), "companyos://acme/schema/okrs")
+        with self.assertRaises(LEDGER.ContextLedgerError):
+            build("acme")
+
+    def test_read_resource_uses_the_mcp_resources_method(self) -> None:
+        self.responses.append(
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "result": {"contents": [{"uri": "companyos://acme/document/okrs"}]},
+            }
+        )
+        contents = self.client.read_resource("companyos://acme/document/okrs")
+        self.assertEqual(self.requests[0]["method"], "resources/read")
+        self.assertEqual(contents[0]["uri"], "companyos://acme/document/okrs")
+
+    def test_the_existing_verbs_are_untouched_by_v16(self) -> None:
+        """Additive means additive: a v1.5 call still looks exactly the same."""
+        self.responses.append(self._ok({"protocol": "context-ledger.v1"}))
+        self.client.config_pull()
+        self.assertEqual(self.requests[0]["params"]["arguments"], {})
+        self.responses.append(self._ok([{"text": "love it"}]))
+        self.assertEqual(self.client.feedback_list()[0]["text"], "love it")
+
 
 
 if __name__ == "__main__":

@@ -10,6 +10,14 @@ The evidence bridge: ``materialize`` writes a revision's canonical JSON
 bytes to a file whose sha256 equals the ledger's ``contentHash``, so
 ``record-evidence`` can ingest a ledger revision and every downstream grant
 and audit cites it exactly.
+
+v1.6 adds version control with enforced authority. The rule an agent must
+internalise: BRANCHING AND COMMITTING ARE ORDINARY; MERGING TO MAIN IS NOT.
+Open a branch, commit into it, diff it — then ask an owner or admin to land
+it, because `branch_merge` needs the `branch:merge` capability that no
+legacy key and no ordinary member holds. Reverting is `git revert`, never
+`git reset`: the old content is committed forward as a new revision, so the
+history stays readable and nothing is ever rewritten.
 """
 from __future__ import annotations
 
@@ -17,6 +25,7 @@ import argparse
 import hashlib
 import hmac
 import json
+import re
 import sys
 import urllib.request
 from pathlib import Path
@@ -25,6 +34,156 @@ from typing import Any, Callable
 
 class ContextLedgerError(RuntimeError):
     """A ledger call failed; the message is the server's sentence."""
+
+
+class LedgerAuthError(ContextLedgerError):
+    """The key itself was refused: missing, unknown, revoked, or expired.
+
+    Distinct from a capability refusal — nothing this key can be granted
+    fixes it, because the credential is not accepted at all.
+    """
+
+
+class LedgerCapabilityError(ContextLedgerError):
+    """The key authenticated, but does not hold the capability the verb needs.
+
+    Catch this instead of the bare ``ContextLedgerError`` when the
+    difference matters, because it is not a fault to retry: a missing
+    capability is a decision a person has to make. The one that will be hit
+    most is ``branch:merge`` — an agent may branch and commit all day, but
+    landing a branch on main is granted deliberately by an owner or admin.
+
+    ``capability`` names the grant the server wanted (parsed from the
+    server's own sentence, or inferred from the verb); ``granted`` is the
+    set this key does hold, when the ledger reports one.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        capability: str | None = None,
+        granted: tuple[str, ...] = (),
+    ) -> None:
+        super().__init__(message)
+        self.capability = capability
+        self.granted = tuple(granted)
+
+
+class LedgerRateLimitError(ContextLedgerError):
+    """The key exhausted its fixed-window call budget.
+
+    The only retryable refusal in the protocol: wait for ``reset_at`` (epoch
+    milliseconds) or ``retry_after_ms`` and the same call succeeds. Fields
+    are ``None`` when the ledger reported no structured budget.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        retry_after_ms: int | None = None,
+        reset_at: int | None = None,
+        limit: int | None = None,
+        remaining: int | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.retry_after_ms = retry_after_ms
+        self.reset_at = reset_at
+        self.limit = limit
+        self.remaining = remaining
+
+
+#: MCP protocol revision this client speaks in `initialize`.
+MCP_PROTOCOL_VERSION = "2025-06-18"
+#: The context-ledger contract revision this client implements.
+LEDGER_PROTOCOL = "context-ledger.v1"
+LEDGER_PROTOCOL_MINOR = "1.6"
+
+# JSON-RPC error codes the ledger uses outside a tool result. Auth failures
+# cannot be tool errors — they happen before a tool is chosen.
+AUTH_ERROR_CODE = -32001
+RATE_LIMIT_ERROR_CODE = -32029
+
+# The ledger's closed capability set, mirrored from the server's authority
+# model. It is here for two jobs only: recognising a refusal so it can be
+# raised as LedgerCapabilityError, and letting an agent ask what its key
+# holds BEFORE it plans work it will not be allowed to land. It is never
+# enforcement — the server is the only gate, and this client deliberately
+# fails OPEN when a ledger reports no set, so a pre-v1.6 ledger still works.
+CAPABILITIES: tuple[str, ...] = (
+    "context:read",
+    "context:write",
+    "context:revert",
+    "branch:create",
+    "branch:merge",
+    "feedback:write",
+    "run:append",
+)
+
+CAPABILITY_MEANING: dict[str, str] = {
+    "context:read": "Read documents, history, search and the branch list.",
+    "context:write": "Commit revisions to documents, on main or on a branch.",
+    "context:revert": (
+        "Revert a document to an earlier revision. History is never rewritten: "
+        "the old content is committed forward as a new revision."
+    ),
+    "branch:create": "Open a branch to draft an alternate version of the company.",
+    "branch:merge": (
+        "Land a branch on main, and revert a merge. This changes what every "
+        "other agent reads as the company's truth, so it is never granted by "
+        "default — an owner or admin grants it deliberately."
+    ),
+    "feedback:write": "Append raw customer feedback to a product document.",
+    "run:append": "Append execution telemetry from a mission.",
+}
+
+# Which capability each verb needs. THE AUTHORITY RULE IS VISIBLE HERE:
+# reading is ordinary and writing is ordinary — every verb below wants a
+# capability a working agent normally has — except `branch_merge` and
+# `merge_revert`, the two verbs that redefine main for everyone, which want
+# `branch:merge`, and `document_revert`, which moves a document backwards
+# and wants `context:revert`.
+VERB_CAPABILITY: dict[str, str] = {
+    "config_pull": "context:read",
+    "document_get": "context:read",
+    "document_list": "context:read",
+    "document_history": "context:read",
+    "context_search": "context:read",
+    "context_changes": "context:read",
+    "branch_list": "context:read",
+    "branch_diff": "context:read",
+    "merge_list": "context:read",
+    "schema_describe": "context:read",
+    "feedback_list": "context:read",
+    "document_put": "context:write",
+    "document_revert": "context:revert",
+    "branch_create": "branch:create",
+    "branch_merge": "branch:merge",
+    "merge_revert": "branch:merge",
+    "feedback_add": "feedback:write",
+    "run_append": "run:append",
+}
+
+# A server refusal names the capability in double quotes ("branch:merge").
+# Matching against the closed set above means an ordinary quoted string in
+# some other error can never be mistaken for a capability.
+_QUOTED_CAPABILITY = re.compile(
+    '"(' + "|".join(re.escape(name) for name in CAPABILITIES) + ')"'
+)
+
+# Phrasings that make a refusal specifically an AUTHORITY refusal, for the
+# case where the server did not quote a capability name — a legacy
+# read-scope key, say. Deliberately narrow: a generic "Refused: …" is not
+# enough, because plenty of ordinary refusals ("that merge has already been
+# reverted") are about state, not authority, and telling an agent it lacks a
+# capability it actually holds would send it to bother a human for nothing.
+_AUTHORITY_MARKERS = (
+    "capabilit",
+    "is read-only",
+    "write-scope",
+    "not authorized",
+)
 
 
 def verify_webhook_signature(secret: str, body: bytes, signature_header: str) -> bool:
@@ -51,6 +210,24 @@ def content_hash(value: Any) -> str:
 
 
 Transport = Callable[[dict[str, Any]], dict[str, Any]]
+
+
+def _as_list(result: Any, key: str) -> list[dict[str, Any]]:
+    """Read a list-returning verb whether or not it is wrapped in an envelope.
+
+    The canonical v1.6 shape for `branch_list` and `merge_list` is a bare
+    array, matching `feedback_list`. The protocol forbids a server changing
+    an array return into an object, but a *new* deployment is free to have
+    chosen an envelope, and an agent stuck on the wrong reading of a merge
+    history is a bad failure. Read both; insist on neither.
+    """
+    if isinstance(result, list):
+        return result
+    if isinstance(result, dict):
+        wrapped = result.get(key)
+        if isinstance(wrapped, list):
+            return wrapped
+    return []
 
 # Which ledger kinds a mission of each work class should carry into its goal
 # contracts. Every class gets the direction core; the rest follows what that
@@ -97,6 +274,15 @@ class ContextLedgerClient:
         self.token = token
         self._transport = transport or self._http_transport
         self._next_id = 0
+        # Tri-state, and the distinction matters: None means the ledger has
+        # not told us what this key holds (pre-v1.6, or not asked yet), an
+        # empty tuple would mean it holds nothing.
+        self._granted: tuple[str, ...] | None = None
+        self._rate_limit: dict[str, Any] | None = None
+        # Whether we have already asked. A ledger that reports nothing must
+        # be asked once, not once per `can()` — otherwise a loop that checks
+        # authority before each step pays a handshake every time.
+        self._authority_checked = False
 
     def _http_transport(self, payload: dict[str, Any]) -> dict[str, Any]:
         request = urllib.request.Request(
@@ -111,29 +297,174 @@ class ContextLedgerClient:
         with urllib.request.urlopen(request, timeout=30) as response:
             return json.loads(response.read().decode("utf-8"))
 
-    def _call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
+    def _rpc(self, method: str, params: dict[str, Any] | None = None) -> Any:
+        """One JSON-RPC round trip; an `error` frame becomes a typed exception."""
         self._next_id += 1
-        response = self._transport(
-            {
-                "jsonrpc": "2.0",
-                "id": self._next_id,
-                "method": "tools/call",
-                "params": {"name": name, "arguments": arguments},
-            }
-        )
+        payload: dict[str, Any] = {
+            "jsonrpc": "2.0",
+            "id": self._next_id,
+            "method": method,
+        }
+        if params is not None:
+            payload["params"] = params
+        response = self._transport(payload)
         if "error" in response:
-            raise ContextLedgerError(str(response["error"].get("message", "ledger error")))
-        result = response.get("result", {})
+            raise self._protocol_failure(response["error"])
+        return response.get("result", {})
+
+    def _protocol_failure(self, error: Any) -> ContextLedgerError:
+        """Classify a JSON-RPC `error` frame (auth and rate limits live here).
+
+        Both refusals happen before a tool is chosen, so neither can arrive
+        as a tool result. The message is kept verbatim either way — the
+        server's sentence is the useful part; the type is what makes it
+        catchable.
+        """
+        if not isinstance(error, dict):
+            return ContextLedgerError(str(error))
+        message = str(error.get("message", "ledger error"))
+        code = error.get("code")
+        data = error.get("data") if isinstance(error.get("data"), dict) else {}
+        if code == RATE_LIMIT_ERROR_CODE or message.casefold().startswith("rate limit"):
+            self._rate_limit = dict(data) or self._rate_limit
+            return LedgerRateLimitError(
+                message,
+                retry_after_ms=data.get("retry_after_ms"),
+                reset_at=data.get("reset_at"),
+                limit=data.get("limit"),
+                remaining=data.get("remaining"),
+            )
+        if code == AUTH_ERROR_CODE:
+            return LedgerAuthError(message)
+        return ContextLedgerError(message)
+
+    def _tool_failure(self, tool: str, text: str) -> ContextLedgerError:
+        """Classify an `isError` tool result.
+
+        A capability refusal arrives here, not as a JSON-RPC error, because
+        the key authenticated fine — it simply may not do this. Surfacing it
+        as its own type is the whole point: an agent that catches
+        LedgerCapabilityError knows to ask a human to merge instead of
+        retrying a call that will never succeed.
+        """
+        folded = text.casefold()
+        match = _QUOTED_CAPABILITY.search(text)
+        capability = match.group(1) if match else None
+        refused = capability is not None or any(
+            marker in folded for marker in _AUTHORITY_MARKERS
+        )
+        if refused:
+            return LedgerCapabilityError(
+                text,
+                capability=capability or VERB_CAPABILITY.get(tool),
+                granted=self._granted or (),
+            )
+        if folded.startswith("rate limit"):
+            return LedgerRateLimitError(text)
+        return ContextLedgerError(text)
+
+    def _call_tool(self, name: str, arguments: dict[str, Any]) -> Any:
+        result = self._rpc("tools/call", {"name": name, "arguments": arguments})
         if result.get("isError"):
             content = result.get("content", [])
             text = content[0].get("text", "tool failed") if content else "tool failed"
-            raise ContextLedgerError(text)
+            raise self._tool_failure(name, text)
         if "structuredContent" in result:
             return result["structuredContent"]
         content = result.get("content", [])
         if content and content[0].get("type") == "text":
             return json.loads(content[0]["text"])
         raise ContextLedgerError("ledger returned no content")
+
+    # --------------------------- Key authority ---------------------------
+
+    def initialize(self) -> dict[str, Any]:
+        """The MCP handshake; also how a v1.6 ledger reports this key.
+
+        The result's optional ``agent`` block carries ``{key_name,
+        capabilities, rate_limit}``. Older ledgers omit it, which is why
+        the granted set is tri-state below: reported, or simply unknown.
+        """
+        result = self._rpc(
+            "initialize",
+            {
+                "protocolVersion": MCP_PROTOCOL_VERSION,
+                "capabilities": {},
+                "clientInfo": {
+                    "name": "company-os-context-ledger",
+                    "version": LEDGER_PROTOCOL_MINOR,
+                },
+            },
+        )
+        self._note_authority(result)
+        return result
+
+    def _note_authority(self, payload: Any) -> None:
+        """Harvest the key's granted capabilities wherever the ledger says them.
+
+        Read opportunistically from the handshake and from ``config_pull``,
+        so an agent that already pulls config never pays for an extra call
+        to learn what it may do.
+        """
+        if not isinstance(payload, dict):
+            return
+        agent = payload.get("agent")
+        block = agent if isinstance(agent, dict) else payload
+        granted = block.get("capabilities")
+        # An MCP `initialize` result also has a `capabilities` key — the
+        # SERVER's, an object. Only a list of strings is a key's grant set.
+        if isinstance(granted, list) and all(isinstance(item, str) for item in granted):
+            self._granted = tuple(granted)
+        limits = block.get("rate_limit")
+        if isinstance(limits, dict):
+            self._rate_limit = dict(limits)
+
+    def granted_capabilities(
+        self, *, refresh: bool = False
+    ) -> tuple[str, ...] | None:
+        """What this key may do, per the ledger. ``None`` = the ledger did not say.
+
+        ``None`` is not ``()``: an empty tuple would claim the key holds
+        nothing, which is a different (and wrong) statement about a ledger
+        that predates capability reporting.
+        """
+        if refresh or (self._granted is None and not self._authority_checked):
+            self.initialize()
+            self._authority_checked = True
+        return self._granted
+
+    def rate_limit(self) -> dict[str, Any] | None:
+        """The last call budget the ledger reported, if any."""
+        return dict(self._rate_limit) if self._rate_limit is not None else None
+
+    def can(self, capability: str) -> bool:
+        """Whether this key holds ``capability`` — a pre-flight, not a gate.
+
+        FAILS OPEN when the ledger reports no set, because the server is the
+        only enforcement point and a client that guessed "no" would refuse
+        work a perfectly authorized key is allowed to do. Never rely on this
+        for safety; rely on it to plan (ask a human to merge up front rather
+        than after the branch is built).
+        """
+        granted = self.granted_capabilities()
+        return True if granted is None else capability in granted
+
+    def assert_can(self, capability: str) -> None:
+        """Raise LedgerCapabilityError locally when the key demonstrably lacks it."""
+        granted = self.granted_capabilities()
+        if granted is not None and capability not in granted:
+            raise LedgerCapabilityError(
+                f'This key does not hold "{capability}". '
+                f"{CAPABILITY_MEANING.get(capability, '')} "
+                f"It holds: {', '.join(granted) or 'nothing'}. "
+                "Ask an owner or admin of the company to grant it.",
+                capability=capability,
+                granted=granted,
+            )
+
+    def capability_for(self, verb: str) -> str | None:
+        """The capability a verb needs, for planning and for operator messages."""
+        return VERB_CAPABILITY.get(verb)
 
     # ------------------------------- Verbs -------------------------------
 
@@ -158,7 +489,11 @@ class ContextLedgerClient:
             arguments["cursor"] = cursor
         if limit is not None:
             arguments["limit"] = limit
-        return self._call_tool("config_pull", arguments)
+        result = self._call_tool("config_pull", arguments)
+        # v1.6 ledgers echo the calling key's capabilities here, so an agent
+        # that pulls config already knows what it may do — no extra call.
+        self._note_authority(result)
+        return result
 
     def config_documents(
         self, *, branch: str | None = None, page_size: int = 500
@@ -316,6 +651,217 @@ class ContextLedgerClient:
             summary="Operator brief economics snapshot",
         )
 
+    # ---------------------------- v1.6 verbs -----------------------------
+    # Version control with enforced authority. Everything here except
+    # branch_merge / merge_revert / document_revert is an ordinary read.
+
+    def document_list(
+        self,
+        *,
+        view: str | None = None,
+        branch: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """One page of the document index, optionally one department view.
+
+        The narrow read `config_pull` is not: no profile, no registry, no
+        branch list — just documents. Returns ``{documents, has_more,
+        cursor, document_count}``; drain it with ``document_list_all``.
+        """
+        arguments: dict[str, Any] = {}
+        if view is not None:
+            arguments["view"] = view
+        if branch is not None:
+            arguments["branch"] = branch
+        if limit is not None:
+            arguments["limit"] = limit
+        if cursor is not None:
+            arguments["cursor"] = cursor
+        return self._call_tool("document_list", arguments)
+
+    def document_list_all(
+        self,
+        *,
+        view: str | None = None,
+        branch: str | None = None,
+        page_size: int = 500,
+    ) -> list[dict[str, Any]]:
+        """Every matching document, draining pages.
+
+        Same shape of loop as ``config_documents``: a server that answers
+        in one page reports no cursor and the loop ends immediately.
+        """
+        documents: list[dict[str, Any]] = []
+        cursor: str | None = None
+        while True:
+            page = self.document_list(
+                view=view, branch=branch, limit=page_size, cursor=cursor
+            )
+            documents.extend(page.get("documents", []))
+            if not page.get("has_more"):
+                return documents
+            cursor = page.get("cursor")
+            if not cursor:
+                return documents
+
+    def branch_list(self, *, status: str | None = None) -> list[dict[str, Any]]:
+        """Every branch, newest first, with its status and document counts.
+
+        ``status`` filters to ``open``, ``merged``, or ``abandoned``; omit
+        for all three. Each row carries ``document_count`` (documents
+        committed on the overlay) and ``ahead`` (how many of those differ
+        from main), so an agent can see what a branch actually proposes
+        before diffing it.
+        """
+        arguments: dict[str, Any] = {}
+        if status is not None:
+            arguments["status"] = status
+        return _as_list(self._call_tool("branch_list", arguments), "branches")
+
+    def branch_diff(self, branch: str) -> dict[str, Any]:
+        """What landing this branch would change on main.
+
+        Returns ``{branch, entries: [{slug, kind, title, change,
+        base_revision, branch_revision, content_hash, base_content_hash}]}``
+        where ``change`` is ``added`` (the branch creates the document on
+        main) or ``modified``. Read this BEFORE asking for a merge — it is
+        the diff a human is being asked to approve.
+        """
+        return self._call_tool("branch_diff", {"branch": branch})
+
+    def branch_merge(self, branch: str, *, message: str | None = None) -> dict[str, Any]:
+        """Land a branch on main. **Requires `branch:merge`.**
+
+        This is the one verb that changes what every other agent reads as
+        the company's truth, so most keys do not hold it and will get a
+        ``LedgerCapabilityError`` here — that is the design, not a bug. The
+        normal agent workflow is branch, commit, diff, then ask an owner or
+        admin to merge.
+
+        No local pre-flight: authority is the server's answer, and a client
+        that decided for itself would refuse a key an admin had just
+        upgraded. Returns ``{merged, merge_id, branch}``; keep the
+        ``merge_id`` — it is what ``merge_revert`` undoes.
+        """
+        arguments: dict[str, Any] = {"branch": branch}
+        if message is not None:
+            arguments["message"] = message
+        return self._call_tool("branch_merge", arguments)
+
+    def document_revert(
+        self,
+        slug: str,
+        *,
+        to_seq: int,
+        message: str | None = None,
+        branch: str | None = None,
+    ) -> dict[str, Any]:
+        """Restore a document's content from revision ``to_seq``. Requires `context:revert`.
+
+        ``git revert``, never ``git reset``: the old content is committed
+        FORWARD as a new revision with a new seq. Nothing between then and
+        now is erased, and ``document_history`` still shows every step
+        including this one. Returns ``{seq, content_hash, reverted_from}``,
+        where ``seq`` is the NEW revision and ``reverted_from`` is
+        ``to_seq``.
+        """
+        arguments: dict[str, Any] = {"slug": slug, "to_seq": to_seq}
+        if message is not None:
+            arguments["message"] = message
+        if branch is not None:
+            arguments["branch"] = branch
+        return self._call_tool("document_revert", arguments)
+
+    def merge_revert(self, merge_id: str, *, message: str | None = None) -> dict[str, Any]:
+        """Undo a merge by committing every document's prior content forward.
+
+        **Requires `branch:merge`** — the same authority that landed it, for
+        the same reason: this changes main for everyone. Also ``git
+        revert`` semantics: no revision is rewritten or removed, and a
+        document the merge CREATED is archived rather than deleted. A merge
+        can only be reverted once; a second attempt is refused. Returns
+        ``{reverted, archived}``.
+        """
+        arguments: dict[str, Any] = {"merge_id": merge_id}
+        if message is not None:
+            arguments["message"] = message
+        return self._call_tool("merge_revert", arguments)
+
+    def merge_list(self, *, limit: int | None = None) -> list[dict[str, Any]]:
+        """Merge receipts, newest first: who landed what, and whether it was reverted.
+
+        Each row is ``{merge_id, branch, branch_slug, actor, at,
+        entry_count, reverted_at?, reverted_by?}``. A row with
+        ``reverted_at`` set is already undone — reverting it again is
+        refused.
+        """
+        arguments: dict[str, Any] = {}
+        if limit is not None:
+            arguments["limit"] = limit
+        return _as_list(self._call_tool("merge_list", arguments), "merges")
+
+    def schema_describe(
+        self, *, view: str | None = None, kind: str | None = None
+    ) -> dict[str, Any]:
+        """The kind registry: every document shape the company can hold.
+
+        Returns ``{views, kinds}`` — views as ``{id, label, description,
+        groups, essentials, pulls}`` and kinds as ``{kind, view, title,
+        description, group, multiple, version, fields}`` with each field's
+        ``{id, label, type, hint, columns}``. This is how an agent learns
+        the shapes instead of guessing them; filter with ``view`` or
+        ``kind`` when only one is needed.
+        """
+        arguments: dict[str, Any] = {}
+        if view is not None:
+            arguments["view"] = view
+        if kind is not None:
+            arguments["kind"] = kind
+        return self._call_tool("schema_describe", arguments)
+
+    # ------------------------- Resource addressing -------------------------
+
+    @staticmethod
+    def resource_uri(
+        company: str,
+        *,
+        slug: str | None = None,
+        seq: int | None = None,
+        branch: str | None = None,
+        merge_id: str | None = None,
+        kind: str | None = None,
+        schema: bool = False,
+    ) -> str:
+        """Build a ``companyos://`` resource URI (v1.6 addressing scheme).
+
+        The scheme names a thing in the ledger the same way every time, so
+        an evidence record, a work order, and a merge receipt can all cite
+        the identical string. See references/protocol-v1.md for the grammar.
+        """
+        base = f"companyos://{company}"
+        if schema or kind:
+            return f"{base}/schema/{kind}" if kind else f"{base}/schema"
+        if merge_id:
+            return f"{base}/merge/{merge_id}"
+        if branch and not slug:
+            return f"{base}/branch/{branch}"
+        if not slug:
+            raise ContextLedgerError("a resource URI needs a slug, branch, merge, or schema")
+        prefix = f"{base}/branch/{branch}" if branch else base
+        return f"{prefix}/document/{slug}" + (f"@{seq}" if seq is not None else "")
+
+    def read_resource(self, uri: str) -> list[dict[str, Any]]:
+        """Read one ``companyos://`` resource via MCP ``resources/read``.
+
+        Returns the raw ``contents`` array. Resources are a convenience
+        surface over the same reads and obey the same authority — a key
+        without ``context:read`` gets nothing here either.
+        """
+        result = self._rpc("resources/read", {"uri": uri})
+        contents = result.get("contents", [])
+        return contents if isinstance(contents, list) else []
+
     # --------------------------- Evidence bridge ---------------------------
 
     def verify_content_hash(self, document: dict[str, Any]) -> bool:
@@ -428,6 +974,45 @@ def main() -> int:
     )
     materialize_parser.add_argument("--slug", required=True)
     materialize_parser.add_argument("--dir", required=True)
+    # ---------------------------- v1.6 commands ----------------------------
+    commands.add_parser("caps", help="what this key is allowed to do")
+    documents_parser = commands.add_parser(
+        "documents", help="document_list, drained across pages"
+    )
+    documents_parser.add_argument("--view")
+    documents_parser.add_argument("--branch")
+    branches_parser = commands.add_parser("branches", help="branch_list")
+    branches_parser.add_argument(
+        "--status", choices=["open", "merged", "abandoned"], default=None
+    )
+    diff_parser = commands.add_parser(
+        "diff", help="branch_diff — what landing this branch would change"
+    )
+    diff_parser.add_argument("--branch", required=True)
+    merge_parser = commands.add_parser(
+        "merge", help="branch_merge — needs the branch:merge capability"
+    )
+    merge_parser.add_argument("--branch", required=True)
+    merge_parser.add_argument("--message")
+    revert_parser = commands.add_parser(
+        "revert", help="document_revert — commits an old revision forward"
+    )
+    revert_parser.add_argument("--slug", required=True)
+    revert_parser.add_argument("--to-seq", type=int, required=True)
+    revert_parser.add_argument("--message")
+    revert_parser.add_argument("--branch")
+    revert_merge_parser = commands.add_parser(
+        "revert-merge", help="merge_revert — needs the branch:merge capability"
+    )
+    revert_merge_parser.add_argument("--merge-id", required=True)
+    revert_merge_parser.add_argument("--message")
+    merges_parser = commands.add_parser("merges", help="merge_list, newest first")
+    merges_parser.add_argument("--limit", type=int, default=None)
+    schema_parser = commands.add_parser(
+        "schema", help="schema_describe — the kind registry"
+    )
+    schema_parser.add_argument("--view")
+    schema_parser.add_argument("--kind")
     args = parser.parse_args()
 
     def load_json(raw: str) -> Any:
@@ -461,6 +1046,35 @@ def main() -> int:
                 Path(args.out).write_text(
                     json.dumps(result, indent=2) + "\n", encoding="utf-8"
                 )
+        elif args.command == "caps":
+            granted = client.granted_capabilities()
+            result = {
+                "capabilities": list(granted) if granted is not None else None,
+                "reported": granted is not None,
+                "can_merge": client.can("branch:merge"),
+                "rate_limit": client.rate_limit(),
+            }
+        elif args.command == "documents":
+            result = client.document_list_all(view=args.view, branch=args.branch)
+        elif args.command == "branches":
+            result = client.branch_list(status=args.status)
+        elif args.command == "diff":
+            result = client.branch_diff(args.branch)
+        elif args.command == "merge":
+            result = client.branch_merge(args.branch, message=args.message)
+        elif args.command == "revert":
+            result = client.document_revert(
+                args.slug,
+                to_seq=args.to_seq,
+                message=args.message,
+                branch=args.branch,
+            )
+        elif args.command == "revert-merge":
+            result = client.merge_revert(args.merge_id, message=args.message)
+        elif args.command == "merges":
+            result = client.merge_list(limit=args.limit)
+        elif args.command == "schema":
+            result = client.schema_describe(view=args.view, kind=args.kind)
         elif args.command == "append":
             result = client.run_append(
                 run_id=args.run_id,
@@ -471,7 +1085,22 @@ def main() -> int:
         else:
             result = {"materialized": str(client.materialize(args.slug, Path(args.dir)))}
     except ContextLedgerError as exc:
-        print(json.dumps({"ok": False, "error": str(exc)}, indent=2))
+        # The exit code stays 2 for every failure — callers that already
+        # branch on it must not change behavior. What is new is the shape of
+        # the printed object: a refusal is machine-readable, so a shell
+        # caller can tell "you may not, ask an admin" from "that broke".
+        failure: dict[str, Any] = {"ok": False, "error": str(exc)}
+        if isinstance(exc, LedgerCapabilityError):
+            failure["refused"] = "capability"
+            failure["capability"] = exc.capability
+            failure["granted"] = list(exc.granted)
+        elif isinstance(exc, LedgerRateLimitError):
+            failure["refused"] = "rate_limit"
+            failure["retry_after_ms"] = exc.retry_after_ms
+            failure["reset_at"] = exc.reset_at
+        elif isinstance(exc, LedgerAuthError):
+            failure["refused"] = "key"
+        print(json.dumps(failure, indent=2))
         return 2
     print(json.dumps({"ok": True, "result": result}, indent=2))
     return 0

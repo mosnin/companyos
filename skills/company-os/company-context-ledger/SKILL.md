@@ -33,6 +33,28 @@ feedback-threshold, and kind-watch triggers, each order carrying a sealed
 emits invitations, never leases: `$mission-execution-control` remains the
 only dispatch boundary.
 
+## Branch, commit, ask to merge (v1.6)
+
+The ledger is version-controlled and the authority is enforced. Writing is
+ordinary; merging to main is not.
+
+1. `branch_create` an overlay, then `document_put` into it with `branch`.
+   Any write key may do both — this is where agent work belongs.
+2. `branch_diff` to see exactly what landing it would change.
+3. **Ask an owner or admin to merge.** `branch_merge` needs the
+   `branch:merge` capability, which no legacy key and no ordinary member
+   holds. A `LedgerCapabilityError` there is the design, not a bug: report
+   the branch and its diff to a person instead of retrying.
+
+Ask the key what it holds (`granted_capabilities()`, `can()`) before
+planning work you will not be allowed to land.
+
+Mistakes are recoverable and history is never rewritten. `document_revert`
+restores an earlier revision, `merge_revert` unwinds a whole merge, and both
+commit the old content FORWARD as a new revision — `git revert`, never `git
+reset`. Nothing is ever mutated or deleted. `schema_describe` returns the
+kind registry, so read the document shapes instead of guessing them.
+
 ## Every heartbeat
 
 Before reading or writing the hosted ledger, answer these:
@@ -50,6 +72,7 @@ Do not dispatch, spend, or enable the scheduler or runtime from this overlay.
 - operate.to, marketer.sh, govern.sh, tryscalar.xyz, and glove.so stay `coming_soon` until those products expose OAuth.
 - Shared kinds need a writeShared token. Department kinds stay in the bound lane.
 - Operators sign in with a session. Agents use `cos_` bearer tokens.
+- Never assume merge authority. `branch:merge` is granted per key by an owner or admin.
 - `$force-first-execution` still wins. A pulled config without a written artifact is not progress.
 
 ## Artifacts
