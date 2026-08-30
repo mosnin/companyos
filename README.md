@@ -50,6 +50,35 @@ python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/valida
 
 ## Distribution
 
+### npm command
+
+The npm package is a transport and installer for the same verified Python skill
+distribution. It is not a separate JavaScript runtime or MCP server. On macOS
+or Linux with Python 3.11 installed, a fresh installation will use:
+
+> **Release gated:** `@mosnin/companyos` is not published yet. The first
+> release remains blocked until the maintainer chooses the project license,
+> proves control of the npm `@mosnin` scope, and completes the authenticated
+> bootstrap publish. Do not treat the command below as available before that
+> release is announced.
+
+```bash
+npx @mosnin/companyos@0.6.0 install --target /absolute/path/to/skills
+```
+
+Verify an installed copy without changing it:
+
+```bash
+npx @mosnin/companyos@0.6.0 check --target /absolute/path/to/skills
+```
+
+The installer stages and verifies both bundles before replacement. An existing
+different installation still requires an exact prior manifest and version. See
+the controlled upgrade flow below. Complete setup and Company OS application
+MCP instructions live at <https://docs.companyos.sh>.
+
+### Repository commands
+
 Generate or verify the committed content-addressed manifest:
 
 ```bash

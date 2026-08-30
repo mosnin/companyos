@@ -2757,8 +2757,8 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/scripts/skill_foundry.py",
-      "sha256": "80273d01a7c91851887d0c69fa2eb931459219866931d5cc1d8096a3d00cd65f",
-      "size": 61985
+      "sha256": "a49148060ece94ba68db1679ed9ca7866a06ccba1efa1031a03d2de5c62daca0",
+      "size": 62978
     },
     {
       "path": "company-os/register-outcome-evaluators/SKILL.md",

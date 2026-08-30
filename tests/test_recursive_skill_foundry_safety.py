@@ -115,6 +115,26 @@ class RecursiveSkillFoundrySafetyTests(unittest.TestCase):
         self.assertNotIn("coordinator_candidate_sha256", manifest)
         self.assertEqual(result["status"], "validated")
 
+    def test_project_root_symlink_keeps_returned_paths_relative(self) -> None:
+        with tempfile.TemporaryDirectory() as holder:
+            real_root = Path(holder) / "real-project"
+            real_root.mkdir()
+            alias_root = Path(holder) / "project-alias"
+            alias_root.symlink_to(real_root, target_is_directory=True)
+
+            candidate = MODULE.forge_candidate(
+                alias_root,
+                "Create a reusable Codex skill for verifying API release evidence.",
+            )
+            promoted = MODULE.promote_candidate(alias_root, candidate["skill_name"])
+
+            self.assertFalse(Path(candidate["candidate_path"]).is_absolute())
+            self.assertFalse(Path(promoted["install_path"]).is_absolute())
+            self.assertEqual(
+                MODULE.verify_installation(alias_root, candidate["skill_name"])["status"],
+                "pass",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
