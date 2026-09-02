@@ -119,7 +119,7 @@ class LedgerTransportError(ContextLedgerError):
 MCP_PROTOCOL_VERSION = "2025-06-18"
 #: The context-ledger contract revision this client implements.
 LEDGER_PROTOCOL = "context-ledger.v1"
-LEDGER_PROTOCOL_MINOR = "1.9"
+LEDGER_PROTOCOL_MINOR = "1.10"
 
 # JSON-RPC error codes the ledger uses outside a tool result. Auth failures
 # cannot be tool errors — they happen before a tool is chosen.
@@ -160,7 +160,7 @@ CAPABILITY_MEANING: dict[str, str] = {
 }
 
 # Which capability each verb needs, for every verb the ledger serves at
-# minor 1.9, all forty-three of them, mirrored from the server's own
+# minor 1.10, all forty-six of them, mirrored from the server's own
 # TOOL_CAPABILITY table.
 #
 # THE AUTHORITY RULE IS VISIBLE HERE: reading is ordinary and writing is
@@ -207,6 +207,8 @@ VERB_CAPABILITY: dict[str, str] = {
     "context_known": "context:read",
     "context_gaps": "context:read",
     "context_compose": "context:read",
+    # Reading the work queue (1.10).
+    "work_list": "context:read",
     # Committing.
     "document_put": "context:write",
     "dataset_create": "context:write",
@@ -217,6 +219,10 @@ VERB_CAPABILITY: dict[str, str] = {
     "venture_artifact_skip": "context:write",
     "venture_define_kind": "context:write",
     "context_note": "context:write",
+    # Taking and finishing a work request (1.10). Lane-checked against the
+    # request's department, like every other write.
+    "work_claim": "context:write",
+    "work_complete": "context:write",
     # Moving something backwards.
     "document_revert": "context:revert",
     "dataset_row_revert": "context:revert",
@@ -809,6 +815,92 @@ class ContextLedgerClient:
             cursor = page.get("cursor")
             if not cursor:
                 return documents
+
+    def context_search(
+        self,
+        query: str,
+        *,
+        branch: str | None = None,
+        limit: int | None = None,
+        include: list[str] | None = None,
+    ) -> Any:
+        """Full-text search over the company's documents.
+
+        Without ``include`` the return is the bare array of document hits
+        it has been since v1.2 ``[{slug, title, view, kind, revision,
+        on_branch, snippet}]``. With ``include`` naming ``"quotes"`` and/or
+        ``"facts"`` (1.10) the server answers with an envelope
+        ``{documents, quotes?, facts?}``: ``quotes`` are the matching rows
+        of evidence-source key-quote tables ``{slug, title, row_id, quote,
+        ...}`` and ``facts`` are live fact-ledger claims ``{id, topic,
+        claim, source, source_detail, confidence}``. The array form never
+        changes shape; the envelope only appears when asked for.
+        """
+        arguments: dict[str, Any] = {"query": query}
+        if branch is not None:
+            arguments["branch"] = branch
+        if limit is not None:
+            arguments["limit"] = limit
+        if include:
+            arguments["include"] = list(include)
+        return self._call_tool("context_search", arguments)
+
+    def work_list(
+        self,
+        *,
+        status: str | None = None,
+        view: str | None = None,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """Open work requests an owner has queued for agents (1.10).
+
+        Returns ``{requests, count}``; each request is ``{seq, title,
+        brief, view, priority, status, requested_by, claimed_by,
+        created_at, updated_at, due_at, result}``. ``status`` defaults to
+        ``open`` on the server; a lane-scoped key sees only requests filed
+        in its departments or company-wide. Call it before starting work,
+        and ``work_claim`` before writing anything for a request.
+        """
+        arguments: dict[str, Any] = {}
+        if status is not None:
+            arguments["status"] = status
+        if view is not None:
+            arguments["view"] = view
+        if limit is not None:
+            arguments["limit"] = limit
+        return self._call_tool("work_list", arguments)
+
+    def work_claim(self, seq: int) -> dict[str, Any]:
+        """Take an open request so no other agent starts the same work.
+
+        Returns ``{seq, status: "claimed", claimed_by, claimed_at}``. A
+        request already claimed is refused with a sentence naming who
+        holds it; the refusal is the answer, not a retry signal.
+        """
+        return self._call_tool("work_claim", {"seq": seq})
+
+    def work_complete(
+        self,
+        seq: int,
+        summary: str,
+        *,
+        documents: list[dict[str, Any]] | None = None,
+        branch: str | None = None,
+    ) -> dict[str, Any]:
+        """Finish a request this key claimed, naming what it produced.
+
+        ``documents`` is ``[{slug, branch?}]`` for the documents touched
+        (at most twenty) and ``branch`` the branch the work landed on, so
+        the person who asked can open the result from the queue. Returns
+        ``{seq, status: "done", done_at}``. Only the key that claimed the
+        request may complete it.
+        """
+        arguments: dict[str, Any] = {"seq": seq, "summary": summary}
+        if documents is not None:
+            arguments["documents"] = documents
+        if branch is not None:
+            arguments["branch"] = branch
+        return self._call_tool("work_complete", arguments)
 
     def branch_list(self, *, status: str | None = None) -> list[dict[str, Any]]:
         """Every branch, newest first, with its status and document counts.

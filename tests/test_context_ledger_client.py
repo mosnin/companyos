@@ -351,6 +351,86 @@ class V16WireShapeTests(FakeTransport, unittest.TestCase):
         self.assertEqual(self.client.feedback_list()[0]["text"], "love it")
 
 
+class V110WireShapeTests(FakeTransport, unittest.TestCase):
+    """Minor 1.10: the work queue, and search that can reach quotes and facts."""
+
+    def test_context_search_stays_a_bare_array_without_include(self) -> None:
+        self.responses.append(self._ok([{"slug": "swot-analysis", "snippet": "churn"}]))
+        hits = self.client.context_search("churn", limit=5)
+        self.assertEqual(self.requests[0]["params"]["name"], "context_search")
+        self.assertEqual(
+            self.requests[0]["params"]["arguments"], {"query": "churn", "limit": 5}
+        )
+        self.assertIsInstance(hits, list)
+
+    def test_context_search_include_asks_for_the_envelope(self) -> None:
+        self.responses.append(
+            self._ok({"documents": [], "quotes": [{"quote": "we churn"}], "facts": []})
+        )
+        hits = self.client.context_search("churn", include=["quotes", "facts"])
+        self.assertEqual(
+            self.requests[0]["params"]["arguments"],
+            {"query": "churn", "include": ["quotes", "facts"]},
+        )
+        self.assertEqual(hits["quotes"][0]["quote"], "we churn")
+
+    def test_work_verbs_shape_their_arguments(self) -> None:
+        self.responses.append(self._ok({"requests": [], "count": 0}))
+        self.client.work_list(status="open", view="marketing", limit=10)
+        self.assertEqual(self.requests[0]["params"]["name"], "work_list")
+        self.assertEqual(
+            self.requests[0]["params"]["arguments"],
+            {"status": "open", "view": "marketing", "limit": 10},
+        )
+
+        self.responses.append(self._ok({"requests": [], "count": 0}))
+        self.client.work_list()
+        self.assertEqual(self.requests[1]["params"]["arguments"], {})
+
+        self.responses.append(
+            self._ok({"seq": 7, "status": "claimed", "claimed_by": "writer", "claimed_at": 1})
+        )
+        claimed = self.client.work_claim(7)
+        self.assertEqual(self.requests[2]["params"]["name"], "work_claim")
+        self.assertEqual(self.requests[2]["params"]["arguments"], {"seq": 7})
+        self.assertEqual(claimed["status"], "claimed")
+
+        self.responses.append(self._ok({"seq": 7, "status": "done", "done_at": 2}))
+        self.client.work_complete(
+            7,
+            "Drafted the pricing page",
+            documents=[{"slug": "pricing-page", "branch": "work-7"}],
+            branch="work-7",
+        )
+        self.assertEqual(self.requests[3]["params"]["name"], "work_complete")
+        self.assertEqual(
+            self.requests[3]["params"]["arguments"],
+            {
+                "seq": 7,
+                "summary": "Drafted the pricing page",
+                "documents": [{"slug": "pricing-page", "branch": "work-7"}],
+                "branch": "work-7",
+            },
+        )
+
+    def test_a_claim_refusal_carries_the_server_sentence(self) -> None:
+        self.responses.append(
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "result": {
+                    "content": [
+                        {"type": "text", "text": "Work request #7 is claimed by writer"}
+                    ],
+                    "isError": True,
+                },
+            }
+        )
+        with self.assertRaises(LEDGER.ContextLedgerError) as caught:
+            self.client.work_claim(7)
+        self.assertIn("claimed by writer", str(caught.exception))
+
+
 class HttpTransportFailureTests(unittest.TestCase):
     """Every wire failure has to arrive as a ContextLedgerError.
 
@@ -449,13 +529,13 @@ class VerbTableTests(unittest.TestCase):
     `_tool_failure` names the refused grant by looking the verb up in
     VERB_CAPABILITY. A verb the server serves and this table omits turns a
     refusal an agent could act on ("ask an owner for branch:merge") into
-    `capability=None`, so the count is worth pinning: the ledger at minor 1.9
-    serves forty-three verbs.
+    `capability=None`, so the count is worth pinning: the ledger at minor 1.10
+    serves forty-six verbs.
     """
 
     def test_every_verb_the_ledger_serves_is_priced(self) -> None:
-        self.assertEqual(len(LEDGER.VERB_CAPABILITY), 43)
-        self.assertEqual(LEDGER.LEDGER_PROTOCOL_MINOR, "1.9")
+        self.assertEqual(len(LEDGER.VERB_CAPABILITY), 46)
+        self.assertEqual(LEDGER.LEDGER_PROTOCOL_MINOR, "1.10")
         # Every price is drawn from the closed capability set; a typo here
         # would make capability_for() report a grant no owner can give.
         self.assertEqual(
@@ -475,6 +555,10 @@ class VerbTableTests(unittest.TestCase):
             "context_note": "context:write",
             "context_compose": "context:read",
             "venture_state": "context:read",
+            # The work queue (1.10): reading is ordinary, taking is a write.
+            "work_list": "context:read",
+            "work_claim": "context:write",
+            "work_complete": "context:write",
             # The three that change what every other agent reads as truth.
             "branch_merge": "branch:merge",
             "merge_revert": "branch:merge",
