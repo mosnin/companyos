@@ -24,14 +24,11 @@ ledger hash — record them with `record-evidence` and every grant and audit
 cites the exact ledger revision. `push_brief` appends the operator brief's
 economics block as a `brief_snapshot` run event for the company overview.
 
-v1.3 adds the change signal: `context_changes {since?, limit?}` is the poll
-cursor, and app-registered webhooks push the same events HMAC-signed
-(`verify_webhook_signature` checks the raw body before anything is parsed).
-`scripts/ledger_runner.py` turns that signal into work orders — cadence,
-feedback-threshold, and kind-watch triggers, each order carrying a sealed
-`bundle_for` context bundle for `mission_control.bind_context`. The runner
-emits invitations, never leases: `$mission-execution-control` remains the
-only dispatch boundary.
+v1.3 adds the change signal: `context_changes {since?, limit?}` polls, and
+registered webhooks push the same events HMAC-signed (`verify_webhook_signature`
+checks the raw body first). `scripts/ledger_runner.py` turns the signal into
+work orders carrying sealed `bundle_for` bundles for `mission_control.bind_context`;
+it emits invitations, never leases.
 
 ## Branch, commit, ask to merge (v1.6)
 
@@ -49,11 +46,9 @@ ordinary; merging to main is not.
 Ask the key what it holds (`granted_capabilities()`, `can()`) before
 planning work you will not be allowed to land.
 
-Mistakes are recoverable and history is never rewritten. `document_revert`
-restores an earlier revision, `merge_revert` unwinds a whole merge, and both
-commit the old content FORWARD as a new revision — `git revert`, never `git
-reset`. Nothing is ever mutated or deleted. `schema_describe` returns the
-kind registry, so read the document shapes instead of guessing them.
+History is never rewritten: `document_revert` and `merge_revert` commit the
+old content FORWARD as a new revision, `git revert` never `git reset`.
+`schema_describe` returns the kind registry; read shapes, do not guess them.
 
 ## Every heartbeat
 
@@ -95,3 +90,12 @@ Load only the file needed.
 | Writes | `references/source/03-write-contract.txt` |
 
 Index: `references/source/00-index.txt`. Spawn with `assets/spawn-template.json`.
+
+## Founding (v1.11)
+
+An agent founds a company in conversation. Read `playbook_get("founding-interview")`
+first, write only to a `founding/<date>` branch, research with `research_search`
+and `research_scrape`, record facts with `context_note`, then `proposal_review`,
+show the brief, ask, and `proposal_commit` with the person's name only after an
+explicit yes.
+

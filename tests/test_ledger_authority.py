@@ -750,20 +750,25 @@ class VerbAuthorityTableTests(unittest.TestCase):
             self.assertIn(capability, LEDGER.CAPABILITY_MEANING, capability)
 
     def test_only_the_main_changing_verbs_require_branch_merge(self) -> None:
-        """Three verbs, and each one redefines what main says.
+        """Four verbs, and each one redefines what main says.
 
         `venture_sync` joined at minor 1.9: handing a venture over flips the
         company from building to operating and publishes every department's
         documents as operating truth at once. That is the same act
         `branch:merge` was named for, so it is priced the same, and a default
-        Builder key deliberately cannot do it.
+        Builder key deliberately cannot do it. `proposal_commit` joined at
+        1.11: it is `branch_merge` with the person's yes written on the
+        receipt, so it costs exactly what `branch_merge` costs.
         """
         gated = {
             verb
             for verb, capability in LEDGER.VERB_CAPABILITY.items()
             if capability == "branch:merge"
         }
-        self.assertEqual(gated, {"branch_merge", "merge_revert", "venture_sync"})
+        self.assertEqual(
+            gated,
+            {"branch_merge", "merge_revert", "venture_sync", "proposal_commit"},
+        )
 
     def test_writing_and_branching_are_never_gated_on_merge(self) -> None:
         for verb in ("document_put", "branch_create", "run_append", "feedback_add"):

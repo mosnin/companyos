@@ -627,8 +627,8 @@
     },
     {
       "path": "company-os/company-context-ledger/SKILL.md",
-      "sha256": "6e868e7a60f584d46ba0372e1b07e6afde5064881299c8b0d4e4424db0848f63",
-      "size": 5001
+      "sha256": "3a68d305002c41fe63f21d4aeebb4955d2b1e0f6f654a470b8c4ae6e1313e7ed",
+      "size": 5027
     },
     {
       "path": "company-os/company-context-ledger/agents/claude.yaml",
@@ -652,8 +652,8 @@
     },
     {
       "path": "company-os/company-context-ledger/references/protocol-v1.md",
-      "sha256": "05f2cc4b078c4c8fecc4440f519fe8333b8768089f4bc73c986c021b42194322",
-      "size": 50293
+      "sha256": "c546326a77bfd833b4d25a9045d29e38df9c173ab60c3ac6eced8d0d2537446c",
+      "size": 54303
     },
     {
       "path": "company-os/company-context-ledger/references/source/00-index.txt",
@@ -677,8 +677,8 @@
     },
     {
       "path": "company-os/company-context-ledger/scripts/context_ledger.py",
-      "sha256": "7075de59e430ee892468b14896dddcad57c2a70922f70fb8d2eaa3d49ab4803b",
-      "size": 55849
+      "sha256": "9a11b89dfbe3eccfa03bbaa7fe6d0494aee5a51f3561cadbd2456a9ea003d6db",
+      "size": 60302
     },
     {
       "path": "company-os/company-context-ledger/scripts/ledger_runner.py",

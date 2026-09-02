@@ -119,7 +119,7 @@ class LedgerTransportError(ContextLedgerError):
 MCP_PROTOCOL_VERSION = "2025-06-18"
 #: The context-ledger contract revision this client implements.
 LEDGER_PROTOCOL = "context-ledger.v1"
-LEDGER_PROTOCOL_MINOR = "1.10"
+LEDGER_PROTOCOL_MINOR = "1.11"
 
 # JSON-RPC error codes the ledger uses outside a tool result. Auth failures
 # cannot be tool errors — they happen before a tool is chosen.
@@ -160,7 +160,7 @@ CAPABILITY_MEANING: dict[str, str] = {
 }
 
 # Which capability each verb needs, for every verb the ledger serves at
-# minor 1.10, all forty-six of them, mirrored from the server's own
+# minor 1.11, all fifty-one of them, mirrored from the server's own
 # TOOL_CAPABILITY table.
 #
 # THE AUTHORITY RULE IS VISIBLE HERE: reading is ordinary and writing is
@@ -209,6 +209,14 @@ VERB_CAPABILITY: dict[str, str] = {
     "context_compose": "context:read",
     # Reading the work queue (1.10).
     "work_list": "context:read",
+    # The founding protocol (1.11): the playbook, research through the
+    # server's Firecrawl key, and the cohesion check an agent runs before
+    # asking a person for permission. research_scrape is priced as a read;
+    # the server charges context:write instead when `record` is true.
+    "playbook_get": "context:read",
+    "research_search": "context:read",
+    "research_scrape": "context:read",
+    "proposal_review": "context:read",
     # Committing.
     "document_put": "context:write",
     "dataset_create": "context:write",
@@ -231,6 +239,8 @@ VERB_CAPABILITY: dict[str, str] = {
     "branch_merge": "branch:merge",
     "merge_revert": "branch:merge",
     "venture_sync": "branch:merge",
+    # Pushing a founding proposal to main, with the human's yes on record.
+    "proposal_commit": "branch:merge",
     # The rest.
     "feedback_add": "feedback:write",
     "run_append": "run:append",
@@ -901,6 +911,100 @@ class ContextLedgerClient:
         if branch is not None:
             arguments["branch"] = branch
         return self._call_tool("work_complete", arguments)
+
+    def playbook_get(self, slug: str | None = None) -> dict[str, Any]:
+        """The consulting playbooks the server ships (1.11).
+
+        Without ``slug`` returns ``{playbooks: [{slug, title, purpose,
+        version, words}]}``; with one returns ``{slug, title, purpose,
+        version, body}`` where ``body`` is the playbook Markdown. The
+        founding interview is ``founding-interview``; each department has
+        ``department-<view>``. Read the playbook before interviewing anyone.
+        """
+        arguments: dict[str, Any] = {}
+        if slug is not None:
+            arguments["slug"] = slug
+        return self._call_tool("playbook_get", arguments)
+
+    def research_search(
+        self,
+        query: str,
+        *,
+        limit: int | None = None,
+        scrape: bool | None = None,
+    ) -> dict[str, Any]:
+        """Search the web through the server's research provider (1.11).
+
+        Returns ``{provider, query, results: [{url, title, description,
+        markdown?}]}``; ``markdown`` is present only when ``scrape`` is
+        true. ``limit`` is 1 to 10. A server without a research key refuses
+        with a sentence naming the variable to set.
+        """
+        arguments: dict[str, Any] = {"query": query}
+        if limit is not None:
+            arguments["limit"] = limit
+        if scrape is not None:
+            arguments["scrape"] = scrape
+        return self._call_tool("research_search", arguments)
+
+    def research_scrape(
+        self,
+        url: str,
+        *,
+        record: bool | None = None,
+        branch: str | None = None,
+    ) -> dict[str, Any]:
+        """Read one public page as Markdown (1.11).
+
+        Returns ``{url, title, markdown, truncated, evidence?}``. With
+        ``record`` true the server also files an ``evidence-source``
+        document (on ``branch`` when given) and returns it as
+        ``evidence: {slug, title, branch}``; add the quotes you rely on
+        with ``document_put`` and cite them by row. Recording is a write
+        and is charged ``context:write``.
+        """
+        arguments: dict[str, Any] = {"url": url}
+        if record is not None:
+            arguments["record"] = record
+        if branch is not None:
+            arguments["branch"] = branch
+        return self._call_tool("research_scrape", arguments)
+
+    def proposal_review(self, branch: str) -> dict[str, Any]:
+        """The cohesion check to run before asking a person to push (1.11).
+
+        Returns ``{branch, documents, changed, coverage, citations,
+        references, metrics, facts, conflicts, ready, blockers, brief}``.
+        ``ready`` false means ``proposal_commit`` will refuse; each entry
+        in ``blockers`` names the rule to satisfy. ``brief`` is the
+        Markdown summary to show the person, ending in the exact question.
+        """
+        return self._call_tool("proposal_review", {"branch": branch})
+
+    def proposal_commit(
+        self,
+        branch: str,
+        approved_by: str,
+        *,
+        message: str | None = None,
+        force: bool | None = None,
+        force_reason: str | None = None,
+    ) -> dict[str, Any]:
+        """Push a reviewed branch to main after an explicit yes (1.11).
+
+        ``approved_by`` is the person's name as they gave it; it is written
+        on the merge receipt and the ``proposal_committed`` event. Refused
+        while ``proposal_review`` reports not ready unless ``force`` is set
+        with a ``force_reason``. Never call this without the yes.
+        """
+        arguments: dict[str, Any] = {"branch": branch, "approved_by": approved_by}
+        if message is not None:
+            arguments["message"] = message
+        if force is not None:
+            arguments["force"] = force
+        if force_reason is not None:
+            arguments["force_reason"] = force_reason
+        return self._call_tool("proposal_commit", arguments)
 
     def branch_list(self, *, status: str | None = None) -> list[dict[str, Any]]:
         """Every branch, newest first, with its status and document counts.

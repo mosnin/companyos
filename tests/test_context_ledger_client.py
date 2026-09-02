@@ -431,6 +431,65 @@ class V110WireShapeTests(FakeTransport, unittest.TestCase):
         self.assertIn("claimed by writer", str(caught.exception))
 
 
+class V111WireShapeTests(FakeTransport, unittest.TestCase):
+    """Minor 1.11: the founding protocol, from playbook to permission."""
+
+    def test_playbook_get_lists_and_fetches(self) -> None:
+        self.responses.append(self._ok({"playbooks": [{"slug": "founding-interview"}]}))
+        self.client.playbook_get()
+        self.assertEqual(self.requests[0]["params"]["name"], "playbook_get")
+        self.assertEqual(self.requests[0]["params"]["arguments"], {})
+
+        self.responses.append(self._ok({"slug": "founding-interview", "body": "# The founding interview"}))
+        book = self.client.playbook_get("founding-interview")
+        self.assertEqual(self.requests[1]["params"]["arguments"], {"slug": "founding-interview"})
+        self.assertTrue(book["body"].startswith("# "))
+
+    def test_research_verbs_shape_their_arguments(self) -> None:
+        self.responses.append(self._ok({"provider": "firecrawl", "query": "q", "results": []}))
+        self.client.research_search("dental practice churn benchmarks", limit=3, scrape=True)
+        self.assertEqual(self.requests[0]["params"]["name"], "research_search")
+        self.assertEqual(
+            self.requests[0]["params"]["arguments"],
+            {"query": "dental practice churn benchmarks", "limit": 3, "scrape": True},
+        )
+
+        self.responses.append(
+            self._ok({"url": "https://example.com/a", "title": "A", "markdown": "# A", "truncated": False,
+                      "evidence": {"slug": "evidence-example-com-20260902", "title": "A", "branch": "founding/20260902"}})
+        )
+        page = self.client.research_scrape("https://example.com/a", record=True, branch="founding/20260902")
+        self.assertEqual(self.requests[1]["params"]["name"], "research_scrape")
+        self.assertEqual(
+            self.requests[1]["params"]["arguments"],
+            {"url": "https://example.com/a", "record": True, "branch": "founding/20260902"},
+        )
+        self.assertEqual(page["evidence"]["slug"], "evidence-example-com-20260902")
+
+    def test_proposal_review_then_commit_carry_the_yes(self) -> None:
+        self.responses.append(self._ok({"branch": "founding/20260902", "ready": False, "blockers": ["Row 3 of swot-analysis cites nothing"], "brief": "..."}))
+        review = self.client.proposal_review("founding/20260902")
+        self.assertEqual(self.requests[0]["params"]["arguments"], {"branch": "founding/20260902"})
+        self.assertFalse(review["ready"])
+
+        self.responses.append(self._ok({"merged": 12, "merge_id": "mrg1", "approved_by": "Ana Ruiz", "review": {"ready": True, "blockers": []}}))
+        done = self.client.proposal_commit("founding/20260902", "Ana Ruiz", message="Founding proposal")
+        self.assertEqual(self.requests[1]["params"]["name"], "proposal_commit")
+        self.assertEqual(
+            self.requests[1]["params"]["arguments"],
+            {"branch": "founding/20260902", "approved_by": "Ana Ruiz", "message": "Founding proposal"},
+        )
+        self.assertEqual(done["approved_by"], "Ana Ruiz")
+
+    def test_a_not_ready_refusal_reaches_the_agent_verbatim(self) -> None:
+        self.responses.append(
+            {"jsonrpc": "2.0", "id": 1, "result": {"content": [{"type": "text", "text": "Proposal founding/20260902 is not ready: 2 uncited claim rows. Fix them or pass force with a force_reason."}], "isError": True}}
+        )
+        with self.assertRaises(LEDGER.ContextLedgerError) as caught:
+            self.client.proposal_commit("founding/20260902", "Ana Ruiz")
+        self.assertIn("not ready", str(caught.exception))
+
+
 class HttpTransportFailureTests(unittest.TestCase):
     """Every wire failure has to arrive as a ContextLedgerError.
 
@@ -529,13 +588,13 @@ class VerbTableTests(unittest.TestCase):
     `_tool_failure` names the refused grant by looking the verb up in
     VERB_CAPABILITY. A verb the server serves and this table omits turns a
     refusal an agent could act on ("ask an owner for branch:merge") into
-    `capability=None`, so the count is worth pinning: the ledger at minor 1.10
-    serves forty-six verbs.
+    `capability=None`, so the count is worth pinning: the ledger at minor 1.11
+    serves fifty-one verbs.
     """
 
     def test_every_verb_the_ledger_serves_is_priced(self) -> None:
-        self.assertEqual(len(LEDGER.VERB_CAPABILITY), 46)
-        self.assertEqual(LEDGER.LEDGER_PROTOCOL_MINOR, "1.10")
+        self.assertEqual(len(LEDGER.VERB_CAPABILITY), 51)
+        self.assertEqual(LEDGER.LEDGER_PROTOCOL_MINOR, "1.11")
         # Every price is drawn from the closed capability set; a typo here
         # would make capability_for() report a grant no owner can give.
         self.assertEqual(
@@ -559,6 +618,11 @@ class VerbTableTests(unittest.TestCase):
             "work_list": "context:read",
             "work_claim": "context:write",
             "work_complete": "context:write",
+            # The founding protocol (1.11).
+            "playbook_get": "context:read",
+            "research_search": "context:read",
+            "proposal_review": "context:read",
+            "proposal_commit": "branch:merge",
             # The three that change what every other agent reads as truth.
             "branch_merge": "branch:merge",
             "merge_revert": "branch:merge",
