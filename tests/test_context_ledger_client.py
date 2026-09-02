@@ -443,5 +443,53 @@ class HttpTransportFailureTests(unittest.TestCase):
 
 
 
+class VerbTableTests(unittest.TestCase):
+    """The verb table has to cover the whole server, not the part we wrote first.
+
+    `_tool_failure` names the refused grant by looking the verb up in
+    VERB_CAPABILITY. A verb the server serves and this table omits turns a
+    refusal an agent could act on ("ask an owner for branch:merge") into
+    `capability=None`, so the count is worth pinning: the ledger at minor 1.9
+    serves forty-three verbs.
+    """
+
+    def test_every_verb_the_ledger_serves_is_priced(self) -> None:
+        self.assertEqual(len(LEDGER.VERB_CAPABILITY), 43)
+        self.assertEqual(LEDGER.LEDGER_PROTOCOL_MINOR, "1.9")
+        # Every price is drawn from the closed capability set; a typo here
+        # would make capability_for() report a grant no owner can give.
+        self.assertEqual(
+            set(LEDGER.VERB_CAPABILITY.values()) - set(LEDGER.CAPABILITIES),
+            set(),
+        )
+
+    def test_the_verbs_that_redefine_main_cost_branch_merge(self) -> None:
+        spot_check = {
+            "config_pull": "context:read",
+            "document_put": "context:write",
+            # Datasets and the fact ledger, added after v1.6 and priced the
+            # same way documents are.
+            "dataset_query": "context:read",
+            "dataset_row_put": "context:write",
+            "dataset_row_revert": "context:revert",
+            "context_note": "context:write",
+            "context_compose": "context:read",
+            "venture_state": "context:read",
+            # The three that change what every other agent reads as truth.
+            "branch_merge": "branch:merge",
+            "merge_revert": "branch:merge",
+            "venture_sync": "branch:merge",
+        }
+        for verb, capability in spot_check.items():
+            self.assertEqual(LEDGER.VERB_CAPABILITY.get(verb), capability, verb)
+            self.assertEqual(
+                LEDGER.ContextLedgerClient(
+                    "https://ledger.example/mcp", "cos_test", transport=lambda p: {}
+                ).capability_for(verb),
+                capability,
+                verb,
+            )
+
+
 if __name__ == "__main__":
     unittest.main()

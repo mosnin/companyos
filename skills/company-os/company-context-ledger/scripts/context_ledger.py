@@ -119,7 +119,7 @@ class LedgerTransportError(ContextLedgerError):
 MCP_PROTOCOL_VERSION = "2025-06-18"
 #: The context-ledger contract revision this client implements.
 LEDGER_PROTOCOL = "context-ledger.v1"
-LEDGER_PROTOCOL_MINOR = "1.6"
+LEDGER_PROTOCOL_MINOR = "1.9"
 
 # JSON-RPC error codes the ledger uses outside a tool result. Auth failures
 # cannot be tool errors — they happen before a tool is chosen.
@@ -159,13 +159,24 @@ CAPABILITY_MEANING: dict[str, str] = {
     "run:append": "Append execution telemetry from a mission.",
 }
 
-# Which capability each verb needs. THE AUTHORITY RULE IS VISIBLE HERE:
-# reading is ordinary and writing is ordinary — every verb below wants a
-# capability a working agent normally has — except `branch_merge` and
-# `merge_revert`, the two verbs that redefine main for everyone, which want
-# `branch:merge`, and `document_revert`, which moves a document backwards
-# and wants `context:revert`.
+# Which capability each verb needs, for every verb the ledger serves at
+# minor 1.9, all forty-three of them, mirrored from the server's own
+# TOOL_CAPABILITY table.
+#
+# THE AUTHORITY RULE IS VISIBLE HERE: reading is ordinary and writing is
+# ordinary: nearly every verb below wants a capability a working agent
+# normally has, except the three verbs that redefine main for everyone
+# (`branch_merge`, `merge_revert` and `venture_sync`, which promotes a whole
+# venture to an operating company), which want `branch:merge`, and the two
+# that move something backwards (`document_revert`, `dataset_row_revert`),
+# which want `context:revert`.
+#
+# Completeness matters more than it looks: `_tool_failure` reports the
+# refused grant by looking a verb up here, so a verb missing from this table
+# turns a nameable refusal into `capability=None` and an agent that cannot
+# tell a person which grant to ask for.
 VERB_CAPABILITY: dict[str, str] = {
+    # Reading the store.
     "config_pull": "context:read",
     "document_get": "context:read",
     "document_list": "context:read",
@@ -177,11 +188,44 @@ VERB_CAPABILITY: dict[str, str] = {
     "merge_list": "context:read",
     "schema_describe": "context:read",
     "feedback_list": "context:read",
+    # Reading the connected canvases and the portfolio.
+    "canvas_graph": "context:read",
+    "canvas_validate": "context:read",
+    "portfolio_snapshot": "context:read",
+    # Reading typed datasets.
+    "dataset_list": "context:read",
+    "dataset_describe": "context:read",
+    "dataset_query": "context:read",
+    "dataset_row_history": "context:read",
+    # Reading the venture build state and its optional method Library.
+    "venture_state": "context:read",
+    "venture_handover_preview": "context:read",
+    "venture_method": "context:read",
+    "venture_brief": "context:read",
+    "venture_publish_check": "context:read",
+    # Reading the fact ledger.
+    "context_known": "context:read",
+    "context_gaps": "context:read",
+    "context_compose": "context:read",
+    # Committing.
     "document_put": "context:write",
+    "dataset_create": "context:write",
+    "dataset_row_put": "context:write",
+    "dataset_row_delete": "context:write",
+    "venture_artifact_set": "context:write",
+    "venture_artifact_accept": "context:write",
+    "venture_artifact_skip": "context:write",
+    "venture_define_kind": "context:write",
+    "context_note": "context:write",
+    # Moving something backwards.
     "document_revert": "context:revert",
+    "dataset_row_revert": "context:revert",
+    # Branching, and the three verbs that change what main says.
     "branch_create": "branch:create",
     "branch_merge": "branch:merge",
     "merge_revert": "branch:merge",
+    "venture_sync": "branch:merge",
+    # The rest.
     "feedback_add": "feedback:write",
     "run_append": "run:append",
 }

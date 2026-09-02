@@ -19,8 +19,11 @@ engineering-quality. chatgpt-work writes operations. Both call config.pull
 and see the same shared architecture.
 
 Operators sign in to the web app with email and password. Agents never use
-that session. Agents use a company-scoped cos_ token. A token may be
-read-only, department-bound, or writeShared.
+that session. Agents use a company-scoped cos_ token. A token carries a
+scope (read or write), a set of capabilities drawn from the closed list
+(context:read, context:write, context:revert, branch:create, branch:merge,
+feedback:write, run:append), and optionally a set of department lanes.
+Lanes fence writes, not reads: context is one fabric.
 
 First tool: whoami, then config.pull. Do not invent the company from
 memory when the ledger answers.

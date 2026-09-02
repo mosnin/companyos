@@ -5,18 +5,18 @@ document.put
   New documents start at revision 1.
   Updates require expectedRevision or expected_revision equal to the
   current revision. A conflict is a stop, not an overwrite.
-  Shared kinds (identity, brand, voice, blueprint, architecture,
-  organization, capabilities, agent-registry, knowledge, scorecard)
-  require a writeShared token unless the write is department-scoped.
-  A department-scoped write must match the token's departmentIds.
+  Every write costs context:write, whatever the kind. Authority is not
+  a property of the kind; it is a property of the key. A key bound to
+  department lanes is refused a kind filed outside them, and the refusal
+  names the lanes it holds.
 
 run.append
   Append a loop or run record. This records work. It does not accept
   an outcome and does not close a Company OS loop.
 
 project.create and harness.bind
-  Require a shared-write token. Binding a harness names its department
-  lanes. It does not start a runtime.
+  Require context:write. Binding a harness names its department lanes.
+  It does not start a runtime.
 
 company.create
   Operator only. Agents write into an existing company.
