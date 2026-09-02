@@ -8,4 +8,4 @@ Company Context Ledger source pack
 
 03-write-contract.txt
   document.put is revision-checked. run.append is append-only.
-  Shared writes need writeShared. Department writes stay in lane.
+  Writing costs context:write. A lane-bound key writes only in its lanes.

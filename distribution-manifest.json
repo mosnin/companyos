@@ -627,8 +627,8 @@
     },
     {
       "path": "company-os/company-context-ledger/SKILL.md",
-      "sha256": "010a7fa6c3a32fa76c88b7ffd96738f32ff0eb2b9dd092f42345fa3d5c4abfcf",
-      "size": 4929
+      "sha256": "6e868e7a60f584d46ba0372e1b07e6afde5064881299c8b0d4e4424db0848f63",
+      "size": 5001
     },
     {
       "path": "company-os/company-context-ledger/agents/claude.yaml",
@@ -652,13 +652,13 @@
     },
     {
       "path": "company-os/company-context-ledger/references/protocol-v1.md",
-      "sha256": "125ea490d8d9aba4e4dbaa97f5aa145278401eac4ec59038e89ba87d0c34f772",
-      "size": 23058
+      "sha256": "6143e6837aadf335375e27f5745202834e2488124b638d2f8c295441cf663563",
+      "size": 47397
     },
     {
       "path": "company-os/company-context-ledger/references/source/00-index.txt",
-      "sha256": "a06c0f39ac22a3cfca7cd433563c34afb1f6fec8082203b910550041ec6c0527",
-      "size": 374
+      "sha256": "daf6018360b427f3955f3538e50e9e3902b34ba5ccbb80f02b6c3d687b449811",
+      "size": 382
     },
     {
       "path": "company-os/company-context-ledger/references/source/01-what-it-is.txt",
@@ -667,18 +667,18 @@
     },
     {
       "path": "company-os/company-context-ledger/references/source/02-connect-harnesses.txt",
-      "sha256": "34dc8ef4a799510d21499b3f11f265e6ab97608cd476f1ea275ea4d9b00f4ff9",
-      "size": 874
+      "sha256": "e954fcbaef64192cf608925134072101bb5d1a64bae0b68d63f942dc2e661abf",
+      "size": 1104
     },
     {
       "path": "company-os/company-context-ledger/references/source/03-write-contract.txt",
-      "sha256": "6ca21514f025cd1e8f79979abf378e9766fc644ddc91679c23c393c858d90622",
-      "size": 1163
+      "sha256": "8a6a81a2454c8748e8aeec23a19aaad6b8848f70060c15ec856b18bc6cc8535c",
+      "size": 1130
     },
     {
       "path": "company-os/company-context-ledger/scripts/context_ledger.py",
-      "sha256": "56855c80192aba79a8834cb1db1072683450247d1071ecc2697cb8cea2ebec35",
-      "size": 50201
+      "sha256": "1a5b34a18be500cfd6f6452e0470e322c1915797db27304abfecb4b85daed0d6",
+      "size": 52066
     },
     {
       "path": "company-os/company-context-ledger/scripts/ledger_runner.py",

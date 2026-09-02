@@ -70,7 +70,8 @@ Do not dispatch, spend, or enable the scheduler or runtime from this overlay.
 
 - One MCP URL for every harness. Never add a second server per product.
 - operate.to, marketer.sh, govern.sh, tryscalar.xyz, and glove.so stay `coming_soon` until those products expose OAuth.
-- Shared kinds need a writeShared token. Department kinds stay in the bound lane.
+- A key carries a scope, a capability set, and optional department lanes.
+  Writing costs `context:write`; a lane-bound key is refused outside its lanes.
 - Operators sign in with a session. Agents use `cos_` bearer tokens.
 - Never assume merge authority. `branch:merge` is granted per key by an owner or admin.
 - `$force-first-execution` still wins. A pulled config without a written artifact is not progress.
