@@ -165,6 +165,187 @@ class ControlStoreTests(unittest.TestCase):
             [],
         )
 
+    def _two_committed_revisions(self) -> None:
+        source = self.fixture.valid_state()
+        store.initialize(
+            self.project,
+            source,
+            {
+                "at": controller.utc_now(),
+                "type": "instance_initialized",
+                "project_id": source["instance"]["project_id"],
+                "program_version": 1,
+            },
+        )
+        second = deepcopy(source)
+        second["controller"]["ledger_probe"] = "revision-two"
+        transaction = store.begin(self.project)
+        try:
+            transaction.stage(
+                second,
+                {
+                    "at": controller.utc_now(),
+                    "type": "ledger_probe_event",
+                    "project_id": second["instance"]["project_id"],
+                    "program_version": 1,
+                },
+            )
+            transaction.close(True)
+        except BaseException:
+            transaction.close(False)
+            raise
+
+    def test_ledger_chain_catches_consistent_single_row_state_rewrite(self) -> None:
+        self._two_committed_revisions()
+        self.assertTrue(store.audit(self.project)["ok"])
+        connection = store.connect(self.project)
+        try:
+            row = connection.execute(
+                "SELECT state_json FROM state_revisions WHERE revision=1"
+            ).fetchone()
+            forged = json.loads(row["state_json"])
+            forged["controller"]["silently_rewritten"] = True
+            forged_text = controller.canonical_json(forged)
+            # A pre-chain audit would accept this: the row's own hash is recomputed
+            # to stay internally consistent, and the project binding is preserved.
+            connection.execute(
+                "UPDATE state_revisions SET state_json=?, state_sha256=? WHERE revision=1",
+                (forged_text, store.sha256_bytes(forged_text.encode())),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        report = store.audit(self.project)
+        self.assertFalse(report["ok"])
+        self.assertIn(
+            "an audit event does not commit to its state revision digest",
+            report["errors"],
+        )
+
+    def test_ledger_chain_catches_consistent_event_rewrite(self) -> None:
+        self._two_committed_revisions()
+        connection = store.connect(self.project)
+        try:
+            row = connection.execute(
+                "SELECT payload_json FROM events WHERE state_revision=1"
+            ).fetchone()
+            forged = json.loads(row["payload_json"])
+            forged["at"] = "2000-01-01T00:00:00Z"
+            forged_text = controller.canonical_json(forged)
+            connection.execute(
+                "UPDATE events SET payload_json=?, payload_sha256=? WHERE state_revision=1",
+                (forged_text, store.sha256_bytes(forged_text.encode())),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        report = store.audit(self.project)
+        self.assertFalse(report["ok"])
+        self.assertIn("the audit event hash chain is broken", report["errors"])
+
+    def _strip_chain_fields(self) -> list[str]:
+        """Rewrite every event as an unchained payload with a consistent hash."""
+        event_ids: list[str] = []
+        connection = store.connect(self.project)
+        try:
+            rows = connection.execute(
+                "SELECT state_revision,event_id,payload_json FROM events ORDER BY sequence"
+            ).fetchall()
+            for row in rows:
+                payload = json.loads(row["payload_json"])
+                payload.pop("state_sha256", None)
+                payload.pop("prev_event_sha256", None)
+                payload_text = store.canonical_json(payload)
+                connection.execute(
+                    "UPDATE events SET payload_json=?, payload_sha256=? WHERE state_revision=?",
+                    (
+                        payload_text,
+                        store.sha256_bytes(payload_text.encode()),
+                        row["state_revision"],
+                    ),
+                )
+                event_ids.append(row["event_id"])
+            connection.commit()
+        finally:
+            connection.close()
+        return event_ids
+
+    def _forget_chain_marker(self) -> None:
+        """Rebuild store metadata as it looked before the chain marker existed."""
+        connection = sqlite3.connect(store.database_path(self.project))
+        try:
+            connection.execute(
+                "CREATE TABLE store_metadata_pre_chain AS"
+                " SELECT singleton,schema_version,project_id,project_root,created_at"
+                " FROM store_metadata"
+            )
+            connection.execute("DROP TABLE store_metadata")
+            connection.execute(
+                "ALTER TABLE store_metadata_pre_chain RENAME TO store_metadata"
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+    def _set_chain_marker(self, revision: int) -> None:
+        connection = sqlite3.connect(store.database_path(self.project))
+        try:
+            connection.execute(
+                "UPDATE store_metadata SET chain_from_revision=? WHERE singleton=1",
+                (revision,),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+    def test_ledger_chain_catches_stripped_chain_fields(self) -> None:
+        self._two_committed_revisions()
+        self.assertTrue(store.audit(self.project)["ok"])
+        connection = store.connect(self.project)
+        try:
+            head = connection.execute(
+                "SELECT state_json FROM state_revisions WHERE revision=2"
+            ).fetchone()
+            forged = json.loads(head["state_json"])
+            forged["controller"]["silently_rewritten"] = True
+            forged_text = controller.canonical_json(forged)
+            connection.execute(
+                "UPDATE state_revisions SET state_json=?, state_sha256=? WHERE revision=2",
+                (forged_text, store.sha256_bytes(forged_text.encode())),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+        # Deleting the chain fields from every event and rehashing each payload
+        # must not downgrade the ledger to a pre-chain store.
+        event_ids = self._strip_chain_fields()
+        report = store.audit(self.project)
+        self.assertFalse(report["ok"])
+        self.assertEqual(report["chain_from_revision"], 1)
+        self.assertIn(
+            f"audit event {event_ids[0]} is missing its required ledger chain fields",
+            report["errors"],
+        )
+
+    def test_pre_chain_events_audit_clean_only_before_the_chain_marker(self) -> None:
+        self._two_committed_revisions()
+        event_ids = self._strip_chain_fields()
+        self._forget_chain_marker()
+        report = store.audit(self.project)
+        self.assertTrue(report["ok"], report["errors"])
+        self.assertEqual(report["chain_from_revision"], 3)
+        self._set_chain_marker(2)
+        report = store.audit(self.project)
+        self.assertFalse(report["ok"])
+        self.assertIn(
+            f"audit event {event_ids[1]} is missing its required ledger chain fields",
+            report["errors"],
+        )
+        self.assertNotIn(
+            f"audit event {event_ids[0]} is missing its required ledger chain fields",
+            report["errors"],
+        )
+
     def test_migration_is_exact_idempotent_and_preserves_legacy_events(self) -> None:
         state = self.migrate_valid_state()
         revision, loaded = store.load(self.project)

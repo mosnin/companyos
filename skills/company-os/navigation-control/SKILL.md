@@ -1,11 +1,11 @@
 ---
 name: navigation-control
-description: Drive Company OS toward the original objective as a closed-loop autonomous controller. Treat research, audits, tests, browser/runtime evidence, and reports as sensors; choose and execute the highest-value safe action; observe the resulting state; replan; detect low objective velocity and stop sensor/document spirals.
+description: Internal navigation mechanism of the Company OS dispatch loop. mission-execution-control evaluates it programmatically on every boundary to treat research, audits, tests, and runtime evidence as sensors, choose the highest-value safe action, and stop sensor/document spirals. Use when inspecting, tuning, or extending the navigation decision itself — not as a separate dispatch-boundary layer beside mission-execution-control.
 ---
 
 # Navigation Control
 
-Use this skill for every autonomous Company OS objective.
+This module runs inside the `$mission-execution-control` dispatch loop: `mission_control.py` evaluates `scripts/navigation_control.py` programmatically at every boundary. Load this skill directly only to inspect, tune, or extend the navigation decision — never as a second control layer at dispatch.
 
 The objective is the destination. Product changes, integration, runtime execution, repair, checkpointing, and packaging are actuators. Research, architecture analysis, audits, tests, browser observations, logs, and evaluation are sensors. Sensors exist to improve or safely constrain the next action; they are not a competing destination.
 

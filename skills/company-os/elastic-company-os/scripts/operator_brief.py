@@ -280,6 +280,49 @@ def _describe_changes(
     return changes
 
 
+def _execution_economics(state: dict[str, Any]) -> dict[str, Any]:
+    """Cost per accepted outcome — the number the bureaucracy hides behind.
+
+    The system scores many quality dimensions of artifacts and, without this,
+    zero dimensions of its own overhead. Tokens observed through runtime
+    telemetry divided by governed completions makes planning burn visible on
+    the same page as the gate it starves.
+    """
+    adapter = state.get("runtime_adapter") if isinstance(state.get("runtime_adapter"), dict) else {}
+    attempts = adapter.get("attempts", []) if isinstance(adapter.get("attempts"), list) else []
+    tokens_observed = 0
+    token_budget_granted = 0
+    attempts_with_telemetry = 0
+    for attempt in _objects(attempts):
+        budget = attempt.get("budget") if isinstance(attempt.get("budget"), dict) else {}
+        limit = budget.get("token_limit")
+        if isinstance(limit, int) and not isinstance(limit, bool) and limit > 0:
+            token_budget_granted += limit
+        lifecycle = attempt.get("lifecycle") if isinstance(attempt.get("lifecycle"), dict) else {}
+        telemetry = lifecycle.get("telemetry") if isinstance(lifecycle.get("telemetry"), dict) else {}
+        total = telemetry.get("total_tokens")
+        if not (isinstance(total, int) and not isinstance(total, bool)):
+            parts = [telemetry.get("input_tokens"), telemetry.get("output_tokens")]
+            usable = [part for part in parts if isinstance(part, int) and not isinstance(part, bool)]
+            total = sum(usable) if usable else None
+        if isinstance(total, int) and total >= 0:
+            tokens_observed += total
+            attempts_with_telemetry += 1
+    completed = _objects(state.get("portfolio", {}).get("completed_work", []))
+    accepted_receipts = len(completed)
+    tokens_per_accepted = (
+        round(tokens_observed / accepted_receipts) if accepted_receipts and tokens_observed else None
+    )
+    return {
+        "tokens_observed": tokens_observed,
+        "token_budget_granted": token_budget_granted,
+        "attempts_with_telemetry": attempts_with_telemetry,
+        "accepted_receipts": accepted_receipts,
+        "tokens_per_accepted_receipt": tokens_per_accepted,
+        "unconverted_spend": tokens_observed if accepted_receipts == 0 and tokens_observed else 0,
+    }
+
+
 def build_operator_brief(
     state: dict[str, Any],
     report: dict[str, Any],
@@ -303,7 +346,13 @@ def build_operator_brief(
         error for error in errors
         if error.startswith("quality.") or error.startswith("quality threshold")
     ]
-    dimensions = state.get("quality", {}).get("dimensions", {})
+    quality_state = state.get("quality", {}) if isinstance(state.get("quality"), dict) else {}
+    dimensions = quality_state.get("dimensions", {})
+    # Source the critical threshold from governed state rather than repeating the
+    # controller's literal, so the brief cannot misreport the gate if it changes.
+    critical_threshold = quality_state.get("threshold", 9)
+    if not isinstance(critical_threshold, (int, float)) or isinstance(critical_threshold, bool):
+        critical_threshold = 9
     quality_rows: list[dict[str, Any]] = []
     missing_quality: list[str] = []
     below_quality: list[str] = []
@@ -311,7 +360,7 @@ def build_operator_brief(
     for name in required:
         item = dimensions.get(name, {}) if isinstance(dimensions, dict) else {}
         score = item.get("score") if isinstance(item, dict) else None
-        threshold = 9 if critical_dimensions.get(name, True) else 8
+        threshold = critical_threshold if critical_dimensions.get(name, True) else 8
         dimension_errors = [error for error in errors if f"quality dimension {name}" in error] + global_quality_errors
         if not isinstance(score, (int, float)) or isinstance(score, bool) or not math.isfinite(score):
             status = "missing"
@@ -529,6 +578,7 @@ def build_operator_brief(
             "lease_active": state.get("controller", {}).get("lease") is not None,
             "cancellation_requested": bool(state.get("controller", {}).get("cancellation_requested")),
         },
+        "economics": _execution_economics(state),
         "feedback": {
             "cycles": len(cycles),
             "accepted_cycles": sum(1 for item in cycles if item.get("reviewer_decision") == "accepted"),
@@ -704,6 +754,18 @@ def render_markdown(brief: dict[str, Any]) -> str:
         f"- Tokens: **{_markdown(metric_text(feedback['metrics']['tokens']))}**",
         f"- Cost: **{_markdown(metric_text(feedback['metrics']['cost'], money=True))}**",
         f"- Lead time: **{_markdown(metric_text(feedback['metrics']['lead_time']))}**",
+        "",
+        "## Execution economics",
+        "",
+        f"- Tokens observed: **{brief['economics']['tokens_observed']:,}** across **{brief['economics']['attempts_with_telemetry']}** telemetered runs (granted: {brief['economics']['token_budget_granted']:,})",
+        f"- Accepted receipts: **{brief['economics']['accepted_receipts']}** · Tokens per accepted receipt: **{brief['economics']['tokens_per_accepted_receipt']:,}**"
+        if brief["economics"]["tokens_per_accepted_receipt"] is not None
+        else f"- Accepted receipts: **{brief['economics']['accepted_receipts']}** · Tokens per accepted receipt: **not yet earned**",
+        *(
+            [f"- ⚠ Unconverted spend: **{brief['economics']['unconverted_spend']:,} tokens** consumed with zero governed completions"]
+            if brief["economics"]["unconverted_spend"]
+            else []
+        ),
         "",
         "## Blockers",
         "",

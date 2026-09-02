@@ -1,0 +1,18 @@
+{
+  "authority": "thinking_overlay",
+  "forbidden_roles": [],
+  "role": "any",
+  "schema": "company-os.mental-models-spawn-template.v1",
+  "skills": [
+    "mental-models"
+  ],
+  "source_pack": "references",
+  "template_id": "mental-models",
+  "use_when": [
+    "acceptance_decision",
+    "branch_merge",
+    "metric_interpretation",
+    "repair_triage",
+    "work_admission"
+  ]
+}

@@ -154,6 +154,11 @@ def evaluate(payload: Mapping[str, Any]) -> dict[str, Any]:
     objective_id = _text(payload.get("objective_id"), "objective_id")
     objective = _text(payload.get("objective"), "objective")
     budget_fraction = _fraction(payload.get("budget_fraction_consumed", 0.0), "budget_fraction_consumed")
+    first_artifact_fraction = _fraction(
+        payload.get("first_artifact_budget_fraction", 0.25), "first_artifact_budget_fraction"
+    )
+    if first_artifact_fraction <= 0.0:
+        raise GovernorError("first_artifact_budget_fraction must be positive")
     reality_raw = payload.get("reality", {})
     if not isinstance(reality_raw, Mapping):
         raise GovernorError("reality must be an object")
@@ -163,6 +168,11 @@ def evaluate(payload: Mapping[str, Any]) -> dict[str, Any]:
     bottleneck = _dominant_bottleneck(capabilities)
 
     first_reality_incident = budget_fraction >= 0.25 and reality_level < 3
+    # Planning meter: the metered resource is everything spent before the first
+    # real mutation. Past the first-artifact share of the budget with NOTHING
+    # materialized (reality below R1), planning has consumed its allowance, and
+    # every non-execution work class is paused rather than merely discouraged.
+    planning_overrun = budget_fraction >= first_artifact_fraction and reality_level < 1
     if reality_level >= 5:
         mode = "accepted"
     elif budget_fraction >= 0.88:
@@ -202,13 +212,24 @@ def evaluate(payload: Mapping[str, Any]) -> dict[str, Any]:
         paused = ["documentation"]
         if reality_level < 2:
             paused.extend(["governance"])
+        if planning_overrun:
+            # Enforcement, not doctrine: research and architecture join the
+            # paused set, so admit_work rejects further planning fail-closed
+            # until at least one internal primitive actually exists.
+            paused.extend(["research", "architecture", "governance"])
         paused = sorted(set(paused))
+        allowed = [name for name in allowed if name not in set(paused)]
     else:
         allowed = list(WORK_CLASSES)
         paused = []
 
     orders: list[str] = []
     if mode != "accepted":
+        if planning_overrun:
+            orders.append(
+                "Planning allowance is exhausted: the first-artifact budget share passed with nothing materialized. "
+                "Research, architecture, and governance admissions are paused fail-closed until one real internal primitive exists."
+            )
         if bottleneck:
             orders.append(f"Make {bottleneck['capability_id']} the global execution bottleneck until observable progress changes its state.")
         if reality_level < 3:
@@ -236,6 +257,8 @@ def evaluate(payload: Mapping[str, Any]) -> dict[str, Any]:
         "reality_level_index": reality_level,
         "mode": mode,
         "first_reality_incident": first_reality_incident,
+        "planning_overrun": planning_overrun,
+        "first_artifact_budget_fraction": first_artifact_fraction,
         "allocation_incident": allocation_incident,
         "dominant_bottleneck": bottleneck,
         "existing_capability_preference": existing_capability_preference,

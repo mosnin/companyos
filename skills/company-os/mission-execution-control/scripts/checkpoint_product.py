@@ -40,8 +40,11 @@ def digest_file(path: Path) -> str:
 
 
 def run_git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+    # Neutralize repository hooks: the checkpoint commits into an arbitrary target
+    # project, and a planted .git/hooks/pre-commit must never execute as a side
+    # effect of a governed product checkpoint.
     return subprocess.run(
-        ["git", "-C", str(root), *args],
+        ["git", "-c", "core.hooksPath=/dev/null", "-C", str(root), *args],
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

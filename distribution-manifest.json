@@ -422,8 +422,8 @@
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/SKILL.md",
-      "sha256": "a8fb2bf80d3f7299a566096a0745417765419a590eaae732d2d470d0833f196c",
-      "size": 1412
+      "sha256": "b77b841f323def877803ec07f451458bb9696476acb0f0b04743028e3044dbd3",
+      "size": 1628
     },
     {
       "path": "company-os/calibrate-outcome-evaluator/references/calibration-request.example.json",
@@ -627,8 +627,8 @@
     },
     {
       "path": "company-os/company-context-ledger/SKILL.md",
-      "sha256": "019c74656d95d6130bf6d2bb3f05a9efc821b400637bc99da55971656998aa49",
-      "size": 2409
+      "sha256": "010a7fa6c3a32fa76c88b7ffd96738f32ff0eb2b9dd092f42345fa3d5c4abfcf",
+      "size": 4929
     },
     {
       "path": "company-os/company-context-ledger/agents/claude.yaml",
@@ -651,6 +651,11 @@
       "size": 484
     },
     {
+      "path": "company-os/company-context-ledger/references/protocol-v1.md",
+      "sha256": "125ea490d8d9aba4e4dbaa97f5aa145278401eac4ec59038e89ba87d0c34f772",
+      "size": 23058
+    },
+    {
       "path": "company-os/company-context-ledger/references/source/00-index.txt",
       "sha256": "a06c0f39ac22a3cfca7cd433563c34afb1f6fec8082203b910550041ec6c0527",
       "size": 374
@@ -671,14 +676,24 @@
       "size": 1163
     },
     {
+      "path": "company-os/company-context-ledger/scripts/context_ledger.py",
+      "sha256": "56855c80192aba79a8834cb1db1072683450247d1071ecc2697cb8cea2ebec35",
+      "size": 50201
+    },
+    {
+      "path": "company-os/company-context-ledger/scripts/ledger_runner.py",
+      "sha256": "c0d580a79eab0d939de88dd486d40c96b298007cb16d060046d750e7f540b360",
+      "size": 11212
+    },
+    {
       "path": "company-os/company-context-ledger/scripts/validate_company_context_ledger.py",
       "sha256": "015a90f755101ae4ad67ce5ed09eccdd0d04370da8a51090f2fd6b22aa23f65d",
       "size": 5564
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "c2a5e56e52fbc273f69908bc17f0af5dd251607f3d3e6b9f03e7dc139736682d",
-      "size": 22143
+      "sha256": "7e5fdec088f91f9bf357170bbc35aad2a7cdb0eae58a1c785b44143c913cf873",
+      "size": 22848
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",
@@ -922,8 +937,8 @@
     },
     {
       "path": "company-os/define-outcome-artifacts/scripts/compile_artifact_observations.py",
-      "sha256": "f218377f4ec43d821616d6b89ad457a32ee62d64049e905c33af6258fecc9c2f",
-      "size": 4150
+      "sha256": "8b474dc5c301d4b3faa727c106ce928ec67059e4721dc727f7dd3b5a8733b7cb",
+      "size": 4751
     },
     {
       "path": "company-os/department-charters/SKILL.md",
@@ -1217,13 +1232,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/company_os_controller.py",
-      "sha256": "c2632f24788ed7b2a449cb5792a083f7c413a0291280b09649da0046b21ad77c",
-      "size": 429228
+      "sha256": "e275c9b8d81c482bb18c0a379ea499352d79b8bc85e52fd66378f2c13de92d02",
+      "size": 443671
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "1e0fd414aef5a1e76356a6b82cfa746ec09bdf5e6aa25934fbca167211ba1722",
-      "size": 63488
+      "sha256": "cdc13676836a8e06b98e0e2fbaba629eaf93d61395878bb3d6dbfa6702832115",
+      "size": 68565
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
@@ -1237,8 +1252,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/operator_brief.py",
-      "sha256": "ef20959026ad4f7ebea5031d0dff967b136ce8f453b0fa58c8352589e372582e",
-      "size": 68373
+      "sha256": "ad6fac355f01e5f5c359237541fc7848bdb92a8e2c58ad4e0a022f0453cbb9b0",
+      "size": 72081
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_control.py",
@@ -1252,8 +1267,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_loop.py",
-      "sha256": "6c742d3fe5bacd28bf92f677f254358ff2117e269a0994e2e2c815d3aa42d1a3",
-      "size": 30314
+      "sha256": "c161b277f3603dc66e0ad8e615e3ad3df3a93beffad690c06744ba6cb7cd2a79",
+      "size": 30695
     },
     {
       "path": "company-os/elastic-company-os/scripts/outcome_runtime_bridge.py",
@@ -1282,13 +1297,13 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_company_os_controller.py",
-      "sha256": "2fd178c106393756ebe09d880d04db02ed2cb20aa07cba0c65b72c7caf367008",
-      "size": 233294
+      "sha256": "f9ded71efae9238659721e5cf627327d945c6d15cf93ffd15d12e9626634cd5e",
+      "size": 248185
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "4d7614b38e980aa4165f4648e286c67449566cf1e57195a63599fc7fba4b8073",
-      "size": 78677
+      "sha256": "6308da4900606bca07231dbaaa35135220476b2ce8dcf8c19ce9555a51815c5a",
+      "size": 86161
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",
@@ -1302,8 +1317,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_operator_brief.py",
-      "sha256": "ef19133dacba7f8f67f958dbfe4cc3cb46b36dfc41da852aed1a506169be52b9",
-      "size": 32552
+      "sha256": "4ad58234afaecc321dfbcdfe16c57d82a667daa41c477ae2c4bc06f0310cd453",
+      "size": 34600
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_runtime_gateway.py",
@@ -1327,8 +1342,8 @@
     },
     {
       "path": "company-os/engineering-execution-constitution/SKILL.md",
-      "sha256": "0eb561711eec0f68a1a811b8d0ab6824421ea671d538793be34e1fbd527d76e5",
-      "size": 5303
+      "sha256": "fedc68755a8bb238b64b846182c01db97ae6c3fb3d481e62eeecb84d707aca38",
+      "size": 5774
     },
     {
       "path": "company-os/engineering-execution-constitution/scripts/engineering_contract.py",
@@ -1482,8 +1497,8 @@
     },
     {
       "path": "company-os/goal-route-system/SKILL.md",
-      "sha256": "872cd4b7497d82be438b443f6b683c1f900b22737862ff9e995d725f7e4efd87",
-      "size": 6644
+      "sha256": "c504ae1ef87933a830879599d6d414591e58aa016d0c449e15fdc340e33b5fe6",
+      "size": 6928
     },
     {
       "path": "company-os/goal-route-system/agents/claude.yaml",
@@ -1517,13 +1532,13 @@
     },
     {
       "path": "company-os/govern-outcome-execution/SKILL.md",
-      "sha256": "50522cbbf4fc93e4d01498df83b2b752211c4a084f2017319ea1f09a89a04d39",
-      "size": 5576
+      "sha256": "11962f2c2a3efca45944e741181f826addccee32270f5fe675565901e18d8722",
+      "size": 5996
     },
     {
       "path": "company-os/govern-outcome-execution/scripts/executive_governor.py",
-      "sha256": "f331d864261691a9884bb680340a812059d30391fd8e69113b060cbf060232ed",
-      "size": 12289
+      "sha256": "eeca2fc44fd988849b51370985e205f6cb18bba643ac368fc21c46dc95b8b3e8",
+      "size": 13780
     },
     {
       "path": "company-os/hr-architect/SKILL.md",
@@ -1772,8 +1787,8 @@
     },
     {
       "path": "company-os/interface-design/SKILL.md",
-      "sha256": "afefa7625a957346dda357faedb3f4d055ec72d46c0d7da81d33f1641379e4ff",
-      "size": 3253
+      "sha256": "49461523f12dbbf8b02c2f12b8d6c0df64a917f57b903f56205981a0d1f4fcbc",
+      "size": 3384
     },
     {
       "path": "company-os/interface-design/UPSTREAM.json",
@@ -2292,8 +2307,8 @@
     },
     {
       "path": "company-os/materialize-outcome-stack/SKILL.md",
-      "sha256": "10495af9bb6d7fcfa10674c4ff854cfcdf0ecfabe0cb1fd14dddbc722ad7d4b9",
-      "size": 1835
+      "sha256": "4b61cfd2da2be8b2473c40fa9d09f562782e645259b6b4ba386511416a74ed6a",
+      "size": 1953
     },
     {
       "path": "company-os/materialize-outcome-stack/scripts/materialize_outcome_stack.py",
@@ -2301,9 +2316,29 @@
       "size": 13338
     },
     {
+      "path": "company-os/mental-models/SKILL.md",
+      "sha256": "20b0766e3288dbe714ddef26e3c47d13d9f7638ca9a7bc3ff9cc1b8f8ea52f5b",
+      "size": 4373
+    },
+    {
+      "path": "company-os/mental-models/assets/spawn-template.json",
+      "sha256": "fdadba51dc1820b88b21e553d04107e72984824ddf63517a8572e194b38f7c82",
+      "size": 381
+    },
+    {
+      "path": "company-os/mental-models/references/models.md",
+      "sha256": "146b0670e38b301413a7a4e5057a5276cdbac70ed2605c03173b62235bbf9db6",
+      "size": 8852
+    },
+    {
+      "path": "company-os/mental-models/scripts/validate_mental_models.py",
+      "sha256": "e701f76c76f0511548c7845091c1ca618cf666d33e0e5cc223d4c43ec58b16e3",
+      "size": 4785
+    },
+    {
       "path": "company-os/middle-manager-operating-doctrine/SKILL.md",
-      "sha256": "48bcda5249630728aa1a1faaa40c2f9b73b4c5c4f4cb9015f0d90b49a3925339",
-      "size": 3459
+      "sha256": "b25e3415bee5f7bc3e37ed1cf060fb30bf1caa68d94bf5de7baf905462c9deae",
+      "size": 3745
     },
     {
       "path": "company-os/middle-manager-operating-doctrine/agents/claude.yaml",
@@ -2402,8 +2437,8 @@
     },
     {
       "path": "company-os/mission-execution-control/SKILL.md",
-      "sha256": "19bd467ea8adbc31831be8e6947edf6a156deff4a6c8025d3fa1ccb8df85ecac",
-      "size": 2406
+      "sha256": "4ec1cbcd026cd2f20209042227ce37ff7a06a6e87331055d74f977583247f7b1",
+      "size": 3438
     },
     {
       "path": "company-os/mission-execution-control/agents/claude.yaml",
@@ -2477,8 +2512,8 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/checkpoint_product.py",
-      "sha256": "f25d2c71142849a5e845d283199f041f7ab8259eb222999119fd09b4646fb7a8",
-      "size": 6871
+      "sha256": "027a69ca3727ba31319adae0bf428c95b75b1f523e626c3dc6c43c01b247ccbc",
+      "size": 7115
     },
     {
       "path": "company-os/mission-execution-control/scripts/execution_regression_lab.py",
@@ -2487,13 +2522,13 @@
     },
     {
       "path": "company-os/mission-execution-control/scripts/mission_control.py",
-      "sha256": "2ccaca08bc948a0fe444bd1781aeef7e7ce1165460bf0d20315342182310f2a5",
-      "size": 64875
+      "sha256": "a13ed89fabd146f8226b21b821012a69c71ca9f05cc05d63b125937b6a1e3b7e",
+      "size": 69698
     },
     {
       "path": "company-os/navigation-control/SKILL.md",
-      "sha256": "1114a4abc8b6f6bbd920baf3e909dbc17b7a5a7583aaef8f11c23eebcde217de",
-      "size": 2624
+      "sha256": "282a752b304d4ce4e1d31ab608a6fed395cc157290d22cd7622749673bb3d20b",
+      "size": 2978
     },
     {
       "path": "company-os/navigation-control/agents/claude.yaml",
@@ -2717,8 +2752,8 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/SKILL.md",
-      "sha256": "e4156b0486a4598e702583d146226afc02751c573d714b993c6eef9d66d97909",
-      "size": 7423
+      "sha256": "8e17f54ea6bb266fdd304785adc7bacf543a8a06374587f62e4b94d2733f1b88",
+      "size": 9200
     },
     {
       "path": "company-os/recursive-skill-foundry/agents/claude.yaml",
@@ -2747,8 +2782,13 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/references/foundry-contract.md",
-      "sha256": "20d2693bb5af7f51bda23b6070338968cf05c73ea117c79dfad74a174bad45cb",
-      "size": 1939
+      "sha256": "0fdf0ad6c21becb2fd68a049fb919601c96c47b70988fc0d3c6000c8f1d95a11",
+      "size": 3091
+    },
+    {
+      "path": "company-os/recursive-skill-foundry/references/yao-adaptation.md",
+      "sha256": "6622e3a98a36b6a114a4aeee537ce17dbc8fad03ec6017983d95c074102c9b15",
+      "size": 1969
     },
     {
       "path": "company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py",
@@ -2757,8 +2797,8 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/scripts/skill_foundry.py",
-      "sha256": "80273d01a7c91851887d0c69fa2eb931459219866931d5cc1d8096a3d00cd65f",
-      "size": 61985
+      "sha256": "7a23665b2160fe7d3829ac5590cfdccbce363fc76468645733f6dbf7ecf48a9e",
+      "size": 70547
     },
     {
       "path": "company-os/register-outcome-evaluators/SKILL.md",
@@ -2772,8 +2812,8 @@
     },
     {
       "path": "company-os/run-outcome-loop/SKILL.md",
-      "sha256": "f62e947f9aa8ea767597b2ba614788a3edbd60c05ab5b21586d9a67db7738ed2",
-      "size": 5002
+      "sha256": "737b6dc0da9d4eedf3365efe92b8c017cba93e735f57ba2b98d20c13179c8d37",
+      "size": 5217
     },
     {
       "path": "company-os/sales-architect/SKILL.md",
@@ -3017,8 +3057,8 @@
     },
     {
       "path": "company-os/ui-design-quality/SKILL.md",
-      "sha256": "a84966f224a005111cee327d735cda60939526adc751aff7b98cc430afd26426",
-      "size": 5917
+      "sha256": "b37c964d4852ae2f801a154903f10d486da2c1cd16f506956b8d6a5ade92c081",
+      "size": 6054
     },
     {
       "path": "company-os/ui-design-quality/UPSTREAM.json",

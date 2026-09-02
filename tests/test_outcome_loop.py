@@ -87,6 +87,18 @@ class OutcomeLoopTests(unittest.TestCase):
         self.assertEqual(self.bound["organization_plan"]["production_lanes"][0]["artifact_class_id"],"playable_game")
         self.assertEqual(self.bound["organization_plan"]["evaluation_lanes"][0]["evaluator_id"],"gameplay-evaluator")
 
+    def test_direct_topology_for_small_outcomes(self):
+        # At or below the direct-topology ceiling, a pilot compiles ONE
+        # production lane (one manager, one worker): hierarchy is earned by
+        # scale, not paid by default.
+        self.assertEqual(len(M._production_lanes(["a"], "pilot")), 1)
+        self.assertEqual(len(M._production_lanes(["a", "b"], "pilot")), 1)
+        self.assertEqual(len(M._production_lanes(["a", "b", "c"], "pilot")), 2)
+        self.assertEqual(len(M._production_lanes(["a", "b"], "production_scale")), 2)
+        self.assertEqual(self.bound["organization_plan"]["mode"], "direct_pilot")
+        bundled = M._production_lanes(["a", "b"], "pilot")[0]
+        self.assertEqual(bundled["artifact_classes"], ["a", "b"])
+
     def test_candidate_missing_required_artifact_is_rejected(self):
         bad=self.project/"bad.txt"; bad.write_text("x")
         with self.assertRaises(M.OutcomeLoopError) as ctx:

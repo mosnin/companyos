@@ -32,7 +32,18 @@ runtime, scheduler, permission, cancellation, and recovery gates pass.
 
 ## Outcome control plane
 
-Company OS accepts broad objectives as input. Before a new elastic execution fabric can be configured, the system must compile the original objective into measurable claims, close blocking unknowns with cited evidence, define observable artifact classes, compile executable independent evaluators, bind benchmark tiers, and calibrate those evaluators. A bounded pilot is capped at the legacy 2/3/6 topology. Production scale requires a content-bound authorization over the exact outcome, artifact, evaluator, benchmark, and calibration contracts. Final completion requires an accepted reality receipt from actual artifact evidence, not a production team narrative.
+Company OS accepts broad objectives as input. Before a new elastic execution fabric can be configured, the system must compile the original objective into measurable claims, close blocking unknowns with cited evidence, define observable artifact classes, compile executable independent evaluators, bind benchmark tiers, and calibrate those evaluators. A bounded pilot is capped at the legacy 2/3/6 topology; at or below two required artifact classes it compiles a single direct production lane instead. Production scale requires a content-bound authorization over the exact outcome, artifact, evaluator, benchmark, and calibration contracts. Final completion requires an accepted reality receipt from actual artifact evidence, not a production team narrative.
+
+## Execution economics
+
+The control plane enforces action-over-planning economics in code: a
+token-aware planning meter pauses research/architecture/governance work
+classes when budget burn outruns the first real artifact, artifact gates
+reject text-only observation methods, quality checkpoints can be scored under
+one batched scorer/reviewer grant pair, and the operator brief prices tokens
+per accepted receipt. See
+[EXECUTION_ECONOMICS.md](EXECUTION_ECONOMICS.md) for the diagnosis, each
+mechanism's code and tests, and what deliberately remains doctrine.
 
 ## Loop strategy plane
 
@@ -133,7 +144,20 @@ Legacy JSON instances continue to use the write-ahead pair until an explicit,
 validated `migrate-control-store` operation publishes their database. New
 instances begin transactionally. Version 0.4 adds the Operator Command Center
 and a transaction-safe two-bundle distribution upgrade path; it still does not
-enable a provider runtime or recurring scheduling.
+enable a provider runtime or recurring scheduling. Version 0.5 preserves the
+0.5.1 Operator Command Center review as a signed historical bundle and hardens
+blueprint compilation, scheduler cadence, and secret rejection. Version 0.6 adds
+the outcome control plane: broad-objective discovery, observable artifact
+classes, compiled executable independent evaluators, benchmark tiers, evaluator
+calibration, and execution-bound reality acceptance, with contract drift
+invalidating the execution fabric. The provider runtime and protected recurring
+scheduling remain feature-off behind their acceptance gates.
+
+The audit ledger is additionally hash-chained: every control-store event commits
+to its own state-revision digest and to the prior event's digest, so a single
+rewritten historical revision or event breaks continuity under `audit()`. Full
+tamper-proofing (a signed chain head and a signed distribution manifest) remains
+future work.
 
 ## Feedback target
 

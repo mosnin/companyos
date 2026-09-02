@@ -56,6 +56,14 @@ def compile_contract(req:Mapping[str,Any])->dict[str,Any]:
             blockers.append({"artifact_class_id":aid,"code":"NO_OBSERVATION_METHOD"})
         if required and rich and not strong:
             blockers.append({"artifact_class_id":aid,"code":"RICH_ARTIFACT_TEXT_ONLY"})
+        # Executed evidence only: a REQUIRED class observed solely through weak
+        # methods (text_review, file_exists, hashes, ...) can be satisfied by a
+        # prose document, which is exactly the currency that lets planning
+        # substitute for acting. Every required class must carry at least one
+        # executed observation method; a document-shaped deliverable either
+        # gains an executable check or is declared required:false (advisory).
+        if required and methods and not strong:
+            blockers.append({"artifact_class_id":aid,"code":"TEXT_ONLY_OBSERVATION"})
         if required and not evidence:
             blockers.append({"artifact_class_id":aid,"code":"NO_CAPTURED_EVIDENCE"})
         normalized.append({

@@ -17,6 +17,8 @@ jobs:
           python-version: "3.11"
       - name: Verify distribution manifest
         run: python3 scripts/distribution.py verify-manifest
+      - name: Verify skill surface
+        run: python3 scripts/validate_skill_surface.py
       - name: Verify repository suite
         run: python3 -m unittest discover -s tests -v
       - name: Verify execution regression lab
@@ -33,10 +35,22 @@ jobs:
         run: python3 skills/company-os/elastic-company-os/scripts/test_runtime_observation_integration.py RuntimeObservationIntegrationTests
       - name: Verify operator brief
         run: python3 skills/company-os/elastic-company-os/scripts/test_operator_brief.py -v
+      - name: Verify provider responses gateway contract
+        run: python3 skills/company-os/elastic-company-os/scripts/test_openai_responses_gateway_contract.py
+      - name: Verify native task runtime
+        run: python3 skills/company-os/elastic-company-os/scripts/test_native_task_runtime.py
+      - name: Verify runtime lifecycle
+        run: python3 skills/company-os/elastic-company-os/scripts/test_runtime_lifecycle.py
+      - name: Verify runtime gateway
+        run: python3 skills/company-os/elastic-company-os/scripts/test_runtime_gateway.py
+      - name: Verify runtime receipts
+        run: python3 skills/company-os/elastic-company-os/scripts/test_runtime_receipts.py
       - name: Verify self hosting references
         run: python3 -m unittest discover -s programs/company-os-self-hosting/reference -v
       - name: Verify execution fabric
         run: python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/validate_fabric.py --self-test
+      - name: Verify codex-native fabric validation
+        run: python3 skills/autonomy-suite/orchestration/luna-execution-fabric/scripts/test_validate_codex_native_fabric.py
       - name: Verify Chippi north star guard
         run: python3 skills/company-os/company-blueprint/scripts/assert_chippi_north_star.py --self-test
       - name: Verify Python compilation

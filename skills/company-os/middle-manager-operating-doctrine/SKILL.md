@@ -23,6 +23,8 @@ After the existing executive heartbeat, answer these before dispatching work:
 
 If a belief is being tested, bind it to an existing outcome hypothesis, innovation bet, or adaptation. Do not invent a second hypothesis store.
 
+Name the models you reasoned with. `$mental-models` is the default reasoning layer under this doctrine: inversion and circle of competence before dispatch, falsifiability and necessity-versus-sufficiency at acceptance, second-order before a merge or reorg, Hanlon and Occam in repair.
+
 ## Forced moves
 
 - Optimize the system objective and interfaces, not departmental vanity.

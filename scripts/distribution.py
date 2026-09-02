@@ -325,6 +325,39 @@ def write_transaction_journal(path: Path, journal: dict[str, object]) -> None:
     _fsync_directory(path.parent)
 
 
+def _transaction_operations() -> list[str]:
+    """The exact ordered operation markers a real transaction can record.
+
+    The order mirrors ``_transactional_replace``: no target bundle is mutated
+    until its ``before-install`` (or, for a replaced bundle, ``before-backup``)
+    marker. Recovery uses this order to refuse deleting a target bundle the
+    journal never claims to have touched, which is what a planted journal with
+    all-``False`` ``prior_present`` and empty recovery material would otherwise
+    achieve.
+    """
+    operations = ["prepared"]
+    for bundle in BUNDLES:
+        operations.extend(
+            [
+                f"before-backup-{bundle}",
+                f"after-backup-{bundle}",
+                f"before-install-{bundle}",
+                f"after-install-{bundle}",
+            ]
+        )
+    for bundle in BUNDLES:
+        operations.extend([f"before-cleanup-{bundle}", f"after-cleanup-{bundle}"])
+    operations.extend(["before-cleanup-staged", "after-cleanup-staged", "committed"])
+    return operations
+
+
+def _operation_index(operation: object, path: Path) -> int:
+    operations = _transaction_operations()
+    if not isinstance(operation, str) or operation not in operations:
+        raise DistributionError(f"transaction journal operation is invalid: {path}")
+    return operations.index(operation)
+
+
 def load_transaction_journal(path: Path) -> dict[str, object]:
     try:
         journal = json.loads(path.read_text(encoding="utf-8"))
@@ -348,6 +381,10 @@ def load_transaction_journal(path: Path) -> dict[str, object]:
         snapshot = snapshot_from_record(snapshots[bundle], path)
         if bool(prior[bundle]) != bool(snapshot):
             raise DistributionError(f"transaction journal snapshot presence is invalid: {path}")
+    # Reject any operation outside the exact vocabulary a real transaction writes.
+    # A recovery whose operation cannot be placed in the lifecycle is not a
+    # trustworthy rollback and must not be allowed to mutate the target.
+    _operation_index(journal.get("operation"), path)
     return journal
 
 
@@ -430,10 +467,21 @@ def _restore_prior_bundles(
     for bundle in reversed(BUNDLES):
         destination = target / bundle
         try:
+            if not prior_present[bundle]:
+                # A bundle the journal claims was absent before the transaction
+                # has no journal-bound prior state and no recovery copy. Deleting
+                # a live target bundle here would be irreversible, and is exactly
+                # the primitive a planted journal (all-False prior_present, empty
+                # recovery) would use to erase a real install. Refuse and retain
+                # the incident rather than delete.
+                if destination.exists():
+                    errors.append(
+                        f"{bundle}: refusing to delete a target bundle with no "
+                        "journal-bound prior state"
+                    )
+                continue
             if destination.exists():
                 remove_tree(destination)
-            if not prior_present[bundle]:
-                continue
             backup = backups / bundle
             if backup.exists():
                 durable_rename(backup, destination)

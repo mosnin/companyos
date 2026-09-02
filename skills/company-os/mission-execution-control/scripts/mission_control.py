@@ -42,6 +42,10 @@ WORK_CLASSES = {
     "checkpoint",
 }
 EXECUTION_CLASSES = {"implementation", "integration", "runtime", "repair"}
+# Share of the mission budget (time or tokens, whichever runs out first) that
+# may be spent before the first real artifact exists. Past this point the
+# governor pauses every non-execution work class fail-closed.
+FIRST_ARTIFACT_BUDGET_FRACTION = 0.25
 CAPABILITY_ORDER = {"missing": 0, "partial": 1, "runnable": 2, "connected": 3, "verified": 4}
 EVENT_KINDS = {
     "work_recorded",
@@ -167,6 +171,70 @@ def verify_seal(value: Mapping[str, Any], field: str = "state_sha256") -> dict[s
         raise MissionControlError("E_DIGEST", f"{field} changed")
     result[field] = observed
     return result
+
+
+def ledger_canonical(value: Any) -> str:
+    """The context-ledger encoding — ensure_ascii=True, NOT this module's
+    own ``canonical``. Ledger bundles and revision hashes are sealed with
+    this exact encoding (golden-vectored in the controller); mixing the two
+    encodings would silently break every cross-system hash check."""
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def ledger_digest(value: Any) -> str:
+    return hashlib.sha256(ledger_canonical(value).encode("ascii")).hexdigest()
+
+
+def bind_context(
+    state: Mapping[str, Any], bundle: Mapping[str, Any], *, bound_at: str
+) -> dict[str, Any]:
+    """Bind a hash-pinned context bundle from the company ledger into
+    mission state — offline and fail-closed.
+
+    The controller never fetches: `context_ledger.py bundle` pulls the
+    bundle over the network at compile time, and this function only
+    *verifies* it — the bundle's self-seal and every document's content
+    hash are recomputed here before anything is bound. A mission then
+    carries `{slug, kind, revision, content_hash}` references (never the
+    prose), so goal contracts cite exact ledger revisions and stay lean.
+    """
+    if not isinstance(bundle, Mapping):
+        raise MissionControlError("E_SCHEMA", "context bundle must be an object")
+    if bundle.get("protocol") != "context-ledger.v1":
+        raise MissionControlError("E_SCHEMA", "context bundle protocol is not context-ledger.v1")
+    observed_seal = sha256(bundle.get("bundle_sha256"), "bundle_sha256")
+    unsealed = {key: value for key, value in bundle.items() if key != "bundle_sha256"}
+    if ledger_digest(unsealed) != observed_seal:
+        raise MissionControlError("E_DIGEST", "context bundle seal does not match its content")
+    documents = bundle.get("documents")
+    if not isinstance(documents, list) or not documents:
+        raise MissionControlError("E_SCHEMA", "context bundle needs a non-empty documents list")
+    references: list[dict[str, Any]] = []
+    for document in documents:
+        if not isinstance(document, Mapping):
+            raise MissionControlError("E_SCHEMA", "context bundle documents must be objects")
+        slug = text(document.get("slug"), "context document slug")
+        revision = integer(document.get("revision"), "context document revision", minimum=1)
+        content_hash = sha256(document.get("content_hash"), f"content_hash of {slug}")
+        if ledger_digest(document.get("content")) != content_hash:
+            raise MissionControlError(
+                "E_DIGEST", f"context document {slug} content does not match its content_hash"
+            )
+        references.append(
+            {
+                "slug": slug,
+                "kind": text(document.get("kind"), f"kind of {slug}"),
+                "revision": revision,
+                "content_hash": content_hash,
+            }
+        )
+    result = deepcopy(dict(state))
+    result["context_bundle"] = {
+        "bundle_sha256": observed_seal,
+        "bound_at": format_time(parse_time(bound_at, "bound_at")),
+        "documents": references,
+    }
+    return seal(result)
 
 
 def company_root() -> Path:
@@ -453,6 +521,7 @@ def initialize_state(
     started_at: str | None = None,
     mission_class: str | None = None,
     duration_minutes: int | None = None,
+    token_budget: int | None = None,
     artifact_contract: Mapping[str, Any] | None = None,
     explicit_first_reality: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -461,6 +530,8 @@ def initialize_state(
     klass = classify_mission(objective, mission_class)
     duration = duration_minutes or MISSION_CLASSES[klass]["duration_minutes"]
     integer(duration, "duration_minutes", minimum=1)
+    if token_budget is not None:
+        integer(token_budget, "token_budget", minimum=1)
     start = parse_time(started_at, "started_at") if started_at is not None else now_utc()
     expiry = start + timedelta(minutes=duration)
     first_reality = None
@@ -486,6 +557,8 @@ def initialize_state(
         "expires_at": format_time(expiry),
         "status": "active",
         "generation": 1,
+        "token_budget": token_budget,
+        "tokens_consumed": 0.0,
         "deadlines": deadline_schedule(start, duration, klass),
         "deadline_status": {},
         "first_reality": first_reality,
@@ -633,7 +706,18 @@ def _budget_fraction(state: Mapping[str, Any], now: datetime) -> float:
     start = parse_time(state.get("started_at"), "started_at")
     expiry = parse_time(state.get("expires_at"), "expires_at")
     total = max((expiry - start).total_seconds(), 1.0)
-    return max(0.0, min(1.0, (now - start).total_seconds() / total))
+    time_fraction = max(0.0, min(1.0, (now - start).total_seconds() / total))
+    # A mission can burn its entire token allowance in minutes of wall clock;
+    # the governor must see that spend as consumed budget or the planning
+    # meter never fires on exactly the failure it exists to stop. The meter
+    # advances on whichever resource is scarcer.
+    token_budget = state.get("token_budget")
+    token_fraction = 0.0
+    if isinstance(token_budget, int) and not isinstance(token_budget, bool) and token_budget > 0:
+        consumed = state.get("tokens_consumed", 0)
+        if isinstance(consumed, (int, float)) and not isinstance(consumed, bool) and math.isfinite(float(consumed)):
+            token_fraction = max(0.0, min(1.0, float(consumed) / float(token_budget)))
+    return max(time_fraction, token_fraction)
 
 
 def _governor_input(state: Mapping[str, Any], now: datetime) -> dict[str, Any]:
@@ -642,6 +726,7 @@ def _governor_input(state: Mapping[str, Any], now: datetime) -> dict[str, Any]:
         "objective_id": state["objective_id"],
         "objective": state["objective"],
         "budget_fraction_consumed": _budget_fraction(state, now),
+        "first_artifact_budget_fraction": FIRST_ARTIFACT_BUDGET_FRACTION,
         "reality": reality_signals(state),
         "required_capabilities": [
             {
@@ -1018,6 +1103,9 @@ def record_event(raw_state: Mapping[str, Any], raw_event: Mapping[str, Any]) -> 
     if event.get("work_class"):
         units = finite(event.get("units", 1.0), "event.units")
         state["work_units"][event["work_class"]] = float(state["work_units"].get(event["work_class"], 0.0)) + units
+    if event.get("tokens") is not None:
+        tokens = finite(event.get("tokens"), "event.tokens")
+        state["tokens_consumed"] = float(state.get("tokens_consumed", 0.0)) + tokens
     kind = event["kind"]
     if kind in {"artifact_materialized", "runtime_observed", "journey_connected", "independent_accepted"}:
         capability_id = text(event.get("capability_id"), "event.capability_id")
@@ -1062,6 +1150,7 @@ def make_event(
     occurred_at: str | None = None,
     work_class: str | None = None,
     units: float | None = None,
+    tokens: float | None = None,
     capability_id: str | None = None,
     evidence: Mapping[str, Any] | None = None,
     observation_kind: str | None = None,
@@ -1082,6 +1171,8 @@ def make_event(
             raise MissionControlError("E_EVENT", "work_class is invalid")
         value["work_class"] = work_class
         value["units"] = 1.0 if units is None else finite(units, "units")
+    if tokens is not None:
+        value["tokens"] = finite(tokens, "tokens")
     if capability_id is not None:
         value["capability_id"] = text(capability_id, "capability_id")
     if evidence is not None:
@@ -1354,6 +1445,7 @@ def main() -> int:
     init.add_argument("--objective", required=True)
     init.add_argument("--mission-class", choices=sorted(MISSION_CLASSES))
     init.add_argument("--duration-minutes", type=int)
+    init.add_argument("--token-budget", type=int)
     init.add_argument("--started-at")
     init.add_argument("--artifact-contract", type=Path)
     init.add_argument("--output", type=Path, required=True)
@@ -1400,6 +1492,7 @@ def main() -> int:
                 started_at=args.started_at,
                 mission_class=args.mission_class,
                 duration_minutes=args.duration_minutes,
+                token_budget=args.token_budget,
                 artifact_contract=artifact_contract,
             )
             save(args.output, result)
