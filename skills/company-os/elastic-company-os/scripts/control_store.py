@@ -23,6 +23,11 @@ DATABASE_NAME = "control.db"
 # Fixed anchor for the first event's prev-event link. Rewriting revision 1 must
 # still break the chain, so genesis is a constant, not an empty string.
 LEDGER_CHAIN_GENESIS = "company-os.ledger.genesis.v1"
+# Store-level marker naming the first state revision at which ledger chaining is
+# mandatory. New stores chain from revision 1; a store written before chaining
+# adopts the marker on its next open, so its unchained history stays auditable
+# while every later event must carry the chain fields.
+CHAIN_MARKER_COLUMN = "chain_from_revision"
 
 
 class StoreError(ValueError):
@@ -81,7 +86,9 @@ def exists(project: Path) -> bool:
 def connect(project: Path) -> sqlite3.Connection:
     path = _store_layout(project, require_database=True)[1]
     connection = sqlite3.connect(f"file:{path}?mode=rw", uri=True, timeout=10.0)
-    return _configure_connection(connection, journal_mode="WAL")
+    connection = _configure_connection(connection, journal_mode="WAL")
+    _ensure_chain_marker(connection)
+    return connection
 
 
 def _configure_connection(
@@ -103,7 +110,8 @@ CREATE TABLE IF NOT EXISTS store_metadata (
   schema_version INTEGER NOT NULL,
   project_id TEXT NOT NULL,
   project_root TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  chain_from_revision INTEGER NOT NULL DEFAULT 1
 );
 CREATE TABLE IF NOT EXISTS state_revisions (
   revision INTEGER PRIMARY KEY CHECK (revision > 0),
@@ -179,6 +187,56 @@ CREATE INDEX IF NOT EXISTS entities_revision_idx ON entities(project_id, state_r
 CREATE INDEX IF NOT EXISTS inbox_revision_idx ON inbox_messages(project_id, state_revision);
 CREATE INDEX IF NOT EXISTS outbox_status_idx ON outbox_messages(project_id, status, not_before);
 """
+
+
+def _metadata_columns(connection: sqlite3.Connection) -> set[str]:
+    return {row["name"] for row in connection.execute("PRAGMA table_info(store_metadata)")}
+
+
+def _derive_chain_from_revision(connection: sqlite3.Connection) -> int:
+    """Pick the chain marker for a store written before the marker existed."""
+    for row in connection.execute("SELECT state_revision,payload_json FROM events ORDER BY sequence"):
+        try:
+            payload = json.loads(row["payload_json"])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict) and ("state_sha256" in payload or "prev_event_sha256" in payload):
+            return int(row["state_revision"])
+    highest = connection.execute(
+        "SELECT COALESCE(MAX(revision), 0) AS value FROM state_revisions"
+    ).fetchone()["value"]
+    return int(highest) + 1
+
+
+def _ensure_chain_marker(connection: sqlite3.Connection) -> None:
+    """Record once, at open time, the revision from which chaining is mandatory."""
+    if CHAIN_MARKER_COLUMN in _metadata_columns(connection):
+        return
+    marker = _derive_chain_from_revision(connection)
+    try:
+        connection.execute(
+            f"ALTER TABLE store_metadata ADD COLUMN {CHAIN_MARKER_COLUMN} INTEGER NOT NULL DEFAULT 1"
+        )
+        connection.execute(
+            f"UPDATE store_metadata SET {CHAIN_MARKER_COLUMN} = ? WHERE singleton = 1",
+            (marker,),
+        )
+        connection.commit()
+    except sqlite3.OperationalError:
+        connection.rollback()
+        # Another writer may have added the column first; its marker wins.
+        if CHAIN_MARKER_COLUMN not in _metadata_columns(connection):
+            raise
+
+
+def _chain_from_revision(metadata: sqlite3.Row) -> int:
+    """The first revision whose event must carry both ledger chain fields."""
+    if CHAIN_MARKER_COLUMN not in metadata.keys():
+        return 1
+    value = metadata[CHAIN_MARKER_COLUMN]
+    if not isinstance(value, int) or isinstance(value, bool) or value < 1:
+        raise StoreError("transactional control store chain marker is invalid")
+    return value
 
 
 def _metadata(connection: sqlite3.Connection) -> sqlite3.Row:
@@ -477,7 +535,8 @@ def initialize(project: Path, state: dict[str, Any], event: dict[str, Any]) -> i
         connection.executescript(SCHEMA_SQL)
         connection.execute("BEGIN IMMEDIATE")
         connection.execute(
-            "INSERT INTO store_metadata VALUES (1,?,?,?,?)",
+            "INSERT INTO store_metadata(singleton,schema_version,project_id,project_root,created_at,chain_from_revision)"
+            " VALUES (1,?,?,?,?,1)",
             (STORE_SCHEMA_VERSION, project_id, str(project), event.get("at")),
         )
         connection.executemany("INSERT INTO legacy_events VALUES (?,?,?,?)", legacy)
@@ -1046,6 +1105,7 @@ def audit(project: Path) -> dict[str, Any]:
                 errors.append("a retained state revision is not bound to this project")
                 break
         revisions_by_number = {row["revision"]: row for row in revision_rows}
+        chain_from_revision = _chain_from_revision(metadata)
         prev_event_sha256 = LEDGER_CHAIN_GENESIS
         for expected_sequence, row in enumerate(event_rows, start=1):
             if row["sequence"] != expected_sequence or row["state_revision"] != expected_sequence:
@@ -1074,12 +1134,19 @@ def audit(project: Path) -> dict[str, Any]:
             ):
                 errors.append("an audit event does not exactly bind its state revision")
                 break
-            # Verify the ledger hash chain when an event carries it. Chained
-            # events (all events written by this store version) must commit to
-            # their paired state digest and to the prior event's digest; a
-            # rewritten historical revision or event breaks continuity here.
-            # Fields are absent only on pre-chain legacy events, which stay
-            # auditable through the bindings above.
+            # Verify the ledger hash chain. Every event at or after the store's
+            # recorded chain marker must commit to its paired state digest and to
+            # the prior event's digest, so stripping those fields from a rewritten
+            # ledger is an audit failure and not a silent legacy pass. Only events
+            # written before the marker, by a store version that predates chaining,
+            # may omit them and stay auditable through the bindings above.
+            if row["state_revision"] >= chain_from_revision and not (
+                "state_sha256" in payload and "prev_event_sha256" in payload
+            ):
+                errors.append(
+                    f"audit event {row['event_id']} is missing its required ledger chain fields"
+                )
+                break
             if "state_sha256" in payload or "prev_event_sha256" in payload:
                 if payload.get("state_sha256") != paired_revision["state_sha256"]:
                     errors.append("an audit event does not commit to its state revision digest")
@@ -1232,6 +1299,7 @@ def audit(project: Path) -> dict[str, Any]:
         "errors": errors,
         "backend": "sqlite",
         "store_schema_version": STORE_SCHEMA_VERSION,
+        "chain_from_revision": chain_from_revision,
         "revision": revision,
         "project_id": metadata["project_id"],
         "state_export_match": state_export_match,

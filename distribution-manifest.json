@@ -1237,8 +1237,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/control_store.py",
-      "sha256": "3d33ad4c131f7335f94cbfaec050576eff17550a9ed8275de732e7d283c8ad4a",
-      "size": 65412
+      "sha256": "cdc13676836a8e06b98e0e2fbaba629eaf93d61395878bb3d6dbfa6702832115",
+      "size": 68565
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",
@@ -1302,8 +1302,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_control_store.py",
-      "sha256": "47df3ed5b810c4b8e84e2f27334253df3544dbd4d33daa938c259869cee6d3ce",
-      "size": 81830
+      "sha256": "6308da4900606bca07231dbaaa35135220476b2ce8dcf8c19ce9555a51815c5a",
+      "size": 86161
     },
     {
       "path": "company-os/elastic-company-os/scripts/test_native_task_runtime.py",
