@@ -95,3 +95,17 @@ Load only the file needed.
 | Writes | `references/source/03-write-contract.txt` |
 
 Index: `references/source/00-index.txt`. Spawn with `assets/spawn-template.json`.
+
+## The founding protocol
+
+A new company is founded by an agent in conversation, not by a person filling
+forms. Read `playbook_get("founding-interview")` before asking a single
+question. Open `founding/<yyyymmdd>` with `branch_create` and write only
+there. Interview in phases, one question at a time; research between phases
+with `research_search` and `research_scrape` (record the pages you rely on
+and cite them by row); record every fact with `context_note` as it is
+learned; write documents with `document_put` as each phase closes. When the
+shelf holds together, run `proposal_review`, show the person its brief, ask
+the exact question it ends with, and call `proposal_commit` with their name
+only after an explicit yes. Never write to main directly during a founding.
+

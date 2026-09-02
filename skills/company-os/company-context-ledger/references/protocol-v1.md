@@ -570,26 +570,26 @@ and read back by topic. They are company-wide by design and are the reason
 
 ### What the framework client covers
 
-`scripts/context_ledger.py` **prices** all forty-six verbs: `VERB_CAPABILITY`
+`scripts/context_ledger.py` **prices** all fifty-one verbs: `VERB_CAPABILITY`
 is a mirror of the server's table, so `capability_for()` names the grant behind
 any refusal and `assert_can()` can be asked about any verb before work is
-planned. It **wraps** the v1.6 set, `context_search` and the three work-queue
-verbs. There is no typed method for `dataset_row_put` or `context_note`; reach
+planned. It **wraps** the v1.6 set, `context_search`, the three work-queue
+verbs and the five founding-protocol verbs. There is no typed method for `dataset_row_put` or `context_note`; reach
 them through the client's tool-call path, and expect the return verbatim as
 documented above.
 
 ### The complete verb index
 
-Forty-six verbs at minor 1.10. `tools/list` is authoritative; this table is
+Fifty-one verbs at minor 1.11. `tools/list` is authoritative; this table is
 what it should say.
 
 | Capability | Verbs |
 | --- | --- |
-| `context:read` | `config_pull`, `document_get`, `document_list`, `document_history`, `context_search`, `context_changes`, `feedback_list`, `branch_list`, `branch_diff`, `merge_list`, `schema_describe`, `canvas_graph`, `canvas_validate`, `portfolio_snapshot`, `dataset_list`, `dataset_describe`, `dataset_query`, `dataset_row_history`, `venture_state`, `venture_handover_preview`, `venture_method`, `venture_brief`, `venture_publish_check`, `context_known`, `context_gaps`, `context_compose`, `work_list` (27) |
+| `context:read` | `config_pull`, `document_get`, `document_list`, `document_history`, `context_search`, `context_changes`, `feedback_list`, `branch_list`, `branch_diff`, `merge_list`, `schema_describe`, `canvas_graph`, `canvas_validate`, `portfolio_snapshot`, `dataset_list`, `dataset_describe`, `dataset_query`, `dataset_row_history`, `venture_state`, `venture_handover_preview`, `venture_method`, `venture_brief`, `venture_publish_check`, `context_known`, `context_gaps`, `context_compose`, `work_list`, `playbook_get`, `research_search`, `research_scrape`, `proposal_review` (31) |
 | `context:write` | `document_put`, `dataset_create`, `dataset_row_put`, `dataset_row_delete`, `venture_artifact_set`, `venture_artifact_accept`, `venture_artifact_skip`, `venture_define_kind`, `context_note`, `work_claim`, `work_complete` (11) |
 | `context:revert` | `document_revert`, `dataset_row_revert` (2) |
 | `branch:create` | `branch_create` (1) |
-| `branch:merge` | `branch_merge`, `merge_revert`, `venture_sync` (3) |
+| `branch:merge` | `branch_merge`, `merge_revert`, `venture_sync`, `proposal_commit` (4) |
 | `feedback:write` | `feedback_add` (1) |
 | `run:append` | `run_append` (1) |
 
@@ -627,6 +627,47 @@ rests on; `facts` are live fact-ledger claims `{id, topic, claim, source,
 source_detail, confidence}`. The envelope only ever appears when asked for,
 which keeps the array rule above intact.
 
+## v1.11 additions (additive)
+
+Five verbs and the MCP `prompts` primitive: the founding protocol. A person
+creates a company, hands an agent (ChatGPT, Claude, Cursor, anything that
+speaks MCP) the endpoint and a key, and the agent conducts the founding
+interview at consulting depth, researches the market, writes everything onto
+a branch, checks that the result holds together, and pushes to main only
+after the person has said yes in the conversation. The ledger is what makes
+that safe: nothing reaches main without a receipt naming who approved it.
+
+### Playbooks
+
+| Verb | Capability | Contract |
+| --- | --- | --- |
+| `playbook_get` `{slug?}` | `context:read` | Without `slug`: `{playbooks: [{slug, title, purpose, version, words}]}`. With one: `{slug, title, purpose, version, body}`, `body` being the playbook Markdown. `founding-interview` is the master; `department-<view>` is the deep dive per department. The same text is served without auth at `<site>/skills/<slug>.md` for agents with a shell. |
+
+The server also answers `prompts/list` and `prompts/get`: one prompt per
+playbook, so a client that surfaces prompts (Claude Desktop, claude.ai) can
+start the interview from a menu. The founding prompt takes an optional
+`company_name` argument.
+
+### Research
+
+| Verb | Capability | Contract |
+| --- | --- | --- |
+| `research_search` `{query, limit?, scrape?}` | `context:read` | Web search through the server's research provider: `{provider, query, results: [{url, title, description, markdown?}]}`. `limit` 1 to 10, default 5; `markdown` only with `scrape` true, capped per result. A server with no research key refuses with a sentence naming the variable to set. |
+| `research_scrape` `{url, record?, branch?}` | `context:read`, `context:write` when `record` | One public page as Markdown: `{url, title, markdown, truncated, evidence?}`. Private and local hosts are refused. With `record` true the server files an `evidence-source` document (on `branch` when given) with the page's origin, URL, capture date and a summary, and returns `evidence: {slug, title, branch}`. The agent adds the quotes it relies on with `document_put` and cites them by row; the server never invents a quote. |
+
+### The proposal
+
+| Verb | Capability | Contract |
+| --- | --- | --- |
+| `proposal_review` `{branch}` | `context:read` | The cohesion check: `{branch, documents, changed, coverage: [{view, essentials, present, missing}], citations: {claim_rows, cited, uncited: [{slug, field, row_id}]}, references: {resolved, broken: [{slug, field, target}]}, metrics: {referenced, undefined: [{slug, field, name}]}, facts: {recorded, unevidenced, contradictions}, conflicts: [{slug, main_revision, forked_from}], ready, blockers, brief}`. `ready` is true when there are no fork conflicts, no broken references and no uncited claim rows on changed documents; `blockers` name the rule behind each false; `brief` is the Markdown summary to show the person, ending in the exact permission question. |
+| `proposal_commit` `{branch, approved_by, message?, force?, force_reason?}` | `branch:merge` | `branch_merge` with the person's yes on record: `approved_by` (1 to 200 characters, their name as given in the conversation) is written on the merge receipt and on a `proposal_committed` event. Refused while `proposal_review` is not ready unless `force` is set with a `force_reason`. Returns the merge receipt plus `{approved_by, review: {ready, blockers}}`. |
+
+The rule an agent follows, in order: read the playbook, open `founding/<date>`
+with `branch_create`, interview and research, write with `document_put` and
+`context_note` as each phase closes, run `proposal_review`, show the brief,
+ask the question, and only on an explicit yes call `proposal_commit`. A no
+leaves the branch open for the person to read in the web app's review queue.
+
 ## Tenancy & security model
 
 One deployment serves many companies. The boundary is enforced server-side
@@ -650,19 +691,20 @@ by an owner or admin and held by no legacy key.
 ## Versioning
 
 This is `context-ledger.v1` (`config_pull` echoes it as `protocol`), at
-minor **1.10**. Additive fields are non-breaking; verb or hashing changes
+minor **1.11**. Additive fields are non-breaking; verb or hashing changes
 require `v2` and a deliberate, reviewed update to this document.
 
 **`protocol_minor`.** `config_pull` returns the minor as a string beside the
 unchanging protocol name:
 
 ```json
-{ "protocol": "context-ledger.v1", "protocol_minor": "1.10", "...": "…" }
+{ "protocol": "context-ledger.v1", "protocol_minor": "1.11", "...": "…" }
 ```
 
 That is how a client tells which additive tier answered without probing
 `tools/list` verb by verb: whether `document_list` (1.6) exists, or
-`dataset_query` and `context_known` (1.9), or `work_list` (1.10). The minor
+`dataset_query` and `context_known` (1.9), `work_list` (1.10) or
+`proposal_review` (1.11). The minor
 is a string of two integers, not a decimal: 1.10 follows 1.9 and compares as
 `(1, 10) > (1, 9)`, never as `1.10 < 1.9`. It is itself an additive field: a
 server that omits it is a ledger of unknown minor, which a client must treat
@@ -670,7 +712,7 @@ as *unknown*, never as 1.6. The framework client sends its own minor as
 `clientInfo.version` in `initialize`, and the server ignores it: the client
 asks for nothing, it reports what it is.
 
-**Why 1.10 and not 2.0.** Everything added since 1.6 is additive: 28 new
+**Why 1.11 and not 2.0.** Everything added since 1.6 is additive: 33 new
 verbs, new optional parameters, new fields on existing returns. No verb was
 removed, no return shape changed, and the wire `protocol` string is
 unchanged. A major would mean a new wire name and a new document, and there
@@ -681,6 +723,6 @@ no verb is ever removed, no return shape ever changes from an array to an
 object (or the reverse, with the two documented `branch_list` / `merge_list`
 exceptions above, which shipped as envelopes and never as arrays), and no
 parameter that was optional ever becomes required. New capability means a new
-verb or a new optional parameter. A v1.5 agent runs unchanged against a v1.10
-ledger; it simply never merges, never sees a dataset, and never takes work
-from the queue.
+verb or a new optional parameter. A v1.5 agent runs unchanged against a v1.11
+ledger; it simply never merges, never sees a dataset, never takes work from
+the queue, and never runs a founding interview.
