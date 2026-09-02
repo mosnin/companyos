@@ -627,8 +627,8 @@
     },
     {
       "path": "company-os/company-context-ledger/SKILL.md",
-      "sha256": "79e34ff1d2ce8237716d9bc7e1016abbe107fade41ec0a2e8a2bf7a239df748f",
-      "size": 5777
+      "sha256": "3a68d305002c41fe63f21d4aeebb4955d2b1e0f6f654a470b8c4ae6e1313e7ed",
+      "size": 5027
     },
     {
       "path": "company-os/company-context-ledger/agents/claude.yaml",
