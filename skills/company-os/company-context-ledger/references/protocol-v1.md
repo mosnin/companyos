@@ -329,6 +329,7 @@ something or a caller to send something different.
 | Budget exhausted | `error.code -32029` | `LedgerRateLimitError` |
 | Key lacks the capability | tool result with `isError`, message naming the capability in double quotes | `LedgerCapabilityError` |
 | Stale write, unknown branch, bad input | tool result with `isError` | `ContextLedgerError` |
+| Ledger unreachable, timed out, connection dropped, or an HTTP status whose body is not a JSON-RPC frame | no frame at all | `LedgerTransportError` |
 
 A capability refusal is a tool result rather than a protocol error because
 the key authenticated perfectly well — it simply may not do this. The

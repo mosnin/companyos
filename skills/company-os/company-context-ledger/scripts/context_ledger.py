@@ -27,6 +27,7 @@ import hmac
 import json
 import re
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any, Callable
@@ -92,6 +93,26 @@ class LedgerRateLimitError(ContextLedgerError):
         self.reset_at = reset_at
         self.limit = limit
         self.remaining = remaining
+
+
+class LedgerTransportError(ContextLedgerError):
+    """The call never produced a ledger answer: the wire failed.
+
+    A DNS failure, a refused or reset connection, a timeout, or an HTTP
+    status whose body is not a JSON-RPC frame at all (a proxy's 502 page,
+    say). It is a ContextLedgerError like every other failure in this
+    module, so a caller that catches the base type keeps working and a
+    polling loop logs it and tries again on the next interval instead of
+    dying on one unreachable poll.
+
+    ``status`` is the HTTP status when there was one, otherwise ``None``.
+    Note what is NOT here: a 401 carrying the ledger's own ``-32001`` frame
+    is an auth refusal, so it stays a LedgerAuthError.
+    """
+
+    def __init__(self, message: str, *, status: int | None = None) -> None:
+        super().__init__(message)
+        self.status = status
 
 
 #: MCP protocol revision this client speaks in `initialize`.
@@ -294,8 +315,48 @@ class ContextLedgerClient:
             },
             method="POST",
         )
-        with urllib.request.urlopen(request, timeout=30) as response:
-            return json.loads(response.read().decode("utf-8"))
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                body = response.read()
+        except urllib.error.HTTPError as exc:
+            # An auth refusal is HTTP 401 whose body IS the JSON-RPC error
+            # frame (code -32001). Hand that frame back so `_rpc` classifies
+            # it exactly as it would on a 200, which makes it a
+            # LedgerAuthError rather than a raw HTTPError escaping the
+            # module's ContextLedgerError contract.
+            try:
+                error_body = exc.read()
+            except Exception:
+                error_body = b""
+            frame: Any = None
+            try:
+                frame = json.loads(error_body.decode("utf-8", "replace"))
+            except json.JSONDecodeError:
+                frame = None
+            if isinstance(frame, dict) and ("error" in frame or "result" in frame):
+                return frame
+            detail = error_body.decode("utf-8", "replace").strip()
+            raise LedgerTransportError(
+                f"ledger returned HTTP {exc.code} with no JSON-RPC body"
+                + (f": {detail[:200]}" if detail else ""),
+                status=exc.code,
+            ) from exc
+        except urllib.error.URLError as exc:
+            raise LedgerTransportError(
+                f"ledger unreachable at {self.url}: {exc.reason}"
+            ) from exc
+        except OSError as exc:
+            # Timeouts and dropped connections (socket.timeout,
+            # http.client.RemoteDisconnected) land here.
+            raise LedgerTransportError(
+                f"ledger call to {self.url} failed: {exc}"
+            ) from exc
+        try:
+            return json.loads(body.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            raise LedgerTransportError(
+                f"ledger returned a body that is not JSON: {exc}"
+            ) from exc
 
     def _rpc(self, method: str, params: dict[str, Any] | None = None) -> Any:
         """One JSON-RPC round trip; an `error` frame becomes a typed exception."""

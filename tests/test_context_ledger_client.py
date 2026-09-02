@@ -10,9 +10,12 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import io
 import json
 import tempfile
 import unittest
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -346,6 +349,97 @@ class V16WireShapeTests(FakeTransport, unittest.TestCase):
         self.assertEqual(self.requests[0]["params"]["arguments"], {})
         self.responses.append(self._ok([{"text": "love it"}]))
         self.assertEqual(self.client.feedback_list()[0]["text"], "love it")
+
+
+class HttpTransportFailureTests(unittest.TestCase):
+    """Every wire failure has to arrive as a ContextLedgerError.
+
+    The CLI documents "exit 2 on every failure" and the runner loop catches
+    only ContextLedgerError, so an HTTPError, a URLError or a socket
+    timeout escaping this module is a crash in both. Offline throughout:
+    urlopen is replaced, nothing is dialed.
+    """
+
+    def setUp(self) -> None:
+        self.client = LEDGER.ContextLedgerClient(
+            "https://ledger.example/mcp", "cos_test"
+        )
+        self._real_urlopen = urllib.request.urlopen
+        self.addCleanup(setattr, urllib.request, "urlopen", self._real_urlopen)
+
+    def _urlopen_raises(self, exc: Exception) -> None:
+        def fake_urlopen(request, timeout=None):
+            raise exc
+
+        urllib.request.urlopen = fake_urlopen
+
+    def test_http_401_with_the_auth_frame_becomes_a_ledger_auth_error(self) -> None:
+        body = json.dumps(
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "error": {
+                    "code": LEDGER.AUTH_ERROR_CODE,
+                    "message": "That agent key is unknown or has been revoked.",
+                },
+            }
+        ).encode("utf-8")
+        self._urlopen_raises(
+            urllib.error.HTTPError(
+                "https://ledger.example/mcp",
+                401,
+                "Unauthorized",
+                {"Content-Type": "application/json"},
+                io.BytesIO(body),
+            )
+        )
+        with self.assertRaises(LEDGER.LedgerAuthError) as caught:
+            self.client.config_pull()
+        self.assertIn("revoked", str(caught.exception))
+
+    def test_a_non_json_502_body_becomes_a_transport_error(self) -> None:
+        self._urlopen_raises(
+            urllib.error.HTTPError(
+                "https://ledger.example/mcp",
+                502,
+                "Bad Gateway",
+                {"Content-Type": "text/html"},
+                io.BytesIO(b"<html>proxy could not reach upstream</html>"),
+            )
+        )
+        with self.assertRaises(LEDGER.LedgerTransportError) as caught:
+            self.client.config_pull()
+        self.assertEqual(caught.exception.status, 502)
+        self.assertIsInstance(caught.exception, LEDGER.ContextLedgerError)
+
+    def test_an_unreachable_url_raises_a_transport_error_not_a_url_error(self) -> None:
+        self._urlopen_raises(urllib.error.URLError("Name or service not known"))
+        with self.assertRaises(LEDGER.LedgerTransportError) as caught:
+            self.client.config_pull()
+        self.assertIn("unreachable", str(caught.exception))
+        self.assertIsNone(caught.exception.status)
+
+    def test_a_dropped_connection_and_a_timeout_stay_inside_the_contract(self) -> None:
+        for failure in (TimeoutError("timed out"), ConnectionResetError("reset")):
+            with self.subTest(failure=type(failure).__name__):
+                self._urlopen_raises(failure)
+                with self.assertRaises(LEDGER.ContextLedgerError):
+                    self.client.config_pull()
+
+    def test_a_body_that_is_not_json_is_a_transport_error(self) -> None:
+        class _Response:
+            def read(self) -> bytes:
+                return b"not json at all"
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args) -> bool:
+                return False
+
+        urllib.request.urlopen = lambda request, timeout=None: _Response()
+        with self.assertRaises(LEDGER.LedgerTransportError):
+            self.client.config_pull()
 
 
 
