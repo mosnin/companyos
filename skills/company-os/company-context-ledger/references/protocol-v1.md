@@ -300,7 +300,9 @@ document described. They were envelopes from the day they shipped, so no
 deployed client ever saw the array form; the framework client's `_as_list`
 accepts either and is the reason nothing broke. They are the *only* two
 exceptions: everywhere else, a return that is an array stays an array.
-`feedback_list` and `context_search`, in particular, are still bare arrays.
+`feedback_list` and `context_search`, in particular, are still bare arrays
+(`context_search` answers with an envelope only when asked to with `include`,
+see the 1.10 additions).
 
 ### The review block
 
@@ -568,27 +570,62 @@ and read back by topic. They are company-wide by design and are the reason
 
 ### What the framework client covers
 
-`scripts/context_ledger.py` **prices** all forty-three verbs: `VERB_CAPABILITY`
+`scripts/context_ledger.py` **prices** all forty-six verbs: `VERB_CAPABILITY`
 is a mirror of the server's table, so `capability_for()` names the grant behind
 any refusal and `assert_can()` can be asked about any verb before work is
-planned. It **wraps** the v1.6 set only. There is no typed method for
-`dataset_row_put` or `context_note`; reach them through the client's tool-call
-path, and expect the return verbatim as documented above.
+planned. It **wraps** the v1.6 set, `context_search` and the three work-queue
+verbs. There is no typed method for `dataset_row_put` or `context_note`; reach
+them through the client's tool-call path, and expect the return verbatim as
+documented above.
 
 ### The complete verb index
 
-Forty-three verbs at minor 1.9. `tools/list` is authoritative; this table is
+Forty-six verbs at minor 1.10. `tools/list` is authoritative; this table is
 what it should say.
 
 | Capability | Verbs |
 | --- | --- |
-| `context:read` | `config_pull`, `document_get`, `document_list`, `document_history`, `context_search`, `context_changes`, `feedback_list`, `branch_list`, `branch_diff`, `merge_list`, `schema_describe`, `canvas_graph`, `canvas_validate`, `portfolio_snapshot`, `dataset_list`, `dataset_describe`, `dataset_query`, `dataset_row_history`, `venture_state`, `venture_handover_preview`, `venture_method`, `venture_brief`, `venture_publish_check`, `context_known`, `context_gaps`, `context_compose` (26) |
-| `context:write` | `document_put`, `dataset_create`, `dataset_row_put`, `dataset_row_delete`, `venture_artifact_set`, `venture_artifact_accept`, `venture_artifact_skip`, `venture_define_kind`, `context_note` (9) |
+| `context:read` | `config_pull`, `document_get`, `document_list`, `document_history`, `context_search`, `context_changes`, `feedback_list`, `branch_list`, `branch_diff`, `merge_list`, `schema_describe`, `canvas_graph`, `canvas_validate`, `portfolio_snapshot`, `dataset_list`, `dataset_describe`, `dataset_query`, `dataset_row_history`, `venture_state`, `venture_handover_preview`, `venture_method`, `venture_brief`, `venture_publish_check`, `context_known`, `context_gaps`, `context_compose`, `work_list` (27) |
+| `context:write` | `document_put`, `dataset_create`, `dataset_row_put`, `dataset_row_delete`, `venture_artifact_set`, `venture_artifact_accept`, `venture_artifact_skip`, `venture_define_kind`, `context_note`, `work_claim`, `work_complete` (11) |
 | `context:revert` | `document_revert`, `dataset_row_revert` (2) |
 | `branch:create` | `branch_create` (1) |
 | `branch:merge` | `branch_merge`, `merge_revert`, `venture_sync` (3) |
 | `feedback:write` | `feedback_add` (1) |
 | `run:append` | `run_append` (1) |
+
+## v1.10 additions (additive)
+
+Three verbs and one optional parameter. Nothing removed, no return shape
+changed, every price drawn from the same closed capability list.
+
+### The work queue
+
+An owner writes down what they want done ("Draft the Q4 pricing page from
+the offer ladder", filed under marketing) on the company's Work page. Agents
+pull from that queue instead of guessing what the company needs next: list,
+claim, do the work through the ordinary verbs, complete. The queue lives on
+main only; the work itself lands wherever the agent commits it, normally a
+branch named in the completion.
+
+| Verb | Capability | Contract |
+| --- | --- | --- |
+| `work_list` `{status?, view?, limit?}` | `context:read` | `{requests, count}`, each request `{seq, title, brief, view, priority, status, requested_by, claimed_by, created_at, updated_at, due_at, result}`. `status` is `open` (default), `claimed`, `done` or `cancelled`; `view` narrows to one department; `limit` 1 to 100, default 50. A lane-scoped key sees only requests filed in its departments or company-wide (`view` null). Call it before starting work. |
+| `work_claim` `{seq}` | `context:write` | Take an open request: `{seq, status: "claimed", claimed_by, claimed_at}`. Refused, with the holder named, when the request is not open ("Work request #7 is claimed by writer"). Lane-checked against the request's `view`. |
+| `work_complete` `{seq, summary, documents?, branch?}` | `context:write` | Finish a request this key claimed: `{seq, status: "done", done_at}`. `summary` is what was done, at most 4000 characters; `documents` is `[{slug, branch?}]` for what was touched, at most twenty; `branch` is where the work landed. Only the claiming key may complete; a request claimed by another key is refused with that key named. |
+
+Requests are created, cancelled, released and human-completed on the web
+only; there is no verb for an agent to file work for itself.
+
+### Search that reaches quotes and facts
+
+`context_search` gains an optional `include` array. Without it the verb
+returns the bare array it always has. With `include` naming `"quotes"`,
+`"facts"` or both, it returns an envelope `{documents, quotes?, facts?}`:
+`quotes` are the matching rows of evidence-source key-quote tables
+`{slug, title, row_id, quote, ...}`, so a claim can be cited at the row it
+rests on; `facts` are live fact-ledger claims `{id, topic, claim, source,
+source_detail, confidence}`. The envelope only ever appears when asked for,
+which keeps the array rule above intact.
 
 ## Tenancy & security model
 
@@ -613,25 +650,27 @@ by an owner or admin and held by no legacy key.
 ## Versioning
 
 This is `context-ledger.v1` (`config_pull` echoes it as `protocol`), at
-minor **1.9**. Additive fields are non-breaking; verb or hashing changes
+minor **1.10**. Additive fields are non-breaking; verb or hashing changes
 require `v2` and a deliberate, reviewed update to this document.
 
 **`protocol_minor`.** `config_pull` returns the minor as a string beside the
 unchanging protocol name:
 
 ```json
-{ "protocol": "context-ledger.v1", "protocol_minor": "1.9", "...": "…" }
+{ "protocol": "context-ledger.v1", "protocol_minor": "1.10", "...": "…" }
 ```
 
 That is how a client tells which additive tier answered without probing
 `tools/list` verb by verb: whether `document_list` (1.6) exists, or
-`dataset_query` and `context_known` (1.9). It is itself an additive field: a
+`dataset_query` and `context_known` (1.9), or `work_list` (1.10). The minor
+is a string of two integers, not a decimal: 1.10 follows 1.9 and compares as
+`(1, 10) > (1, 9)`, never as `1.10 < 1.9`. It is itself an additive field: a
 server that omits it is a ledger of unknown minor, which a client must treat
 as *unknown*, never as 1.6. The framework client sends its own minor as
 `clientInfo.version` in `initialize`, and the server ignores it: the client
 asks for nothing, it reports what it is.
 
-**Why 1.9 and not 2.0.** Everything added since 1.6 is additive: 25 new
+**Why 1.10 and not 2.0.** Everything added since 1.6 is additive: 28 new
 verbs, new optional parameters, new fields on existing returns. No verb was
 removed, no return shape changed, and the wire `protocol` string is
 unchanged. A major would mean a new wire name and a new document, and there
@@ -642,5 +681,6 @@ no verb is ever removed, no return shape ever changes from an array to an
 object (or the reverse, with the two documented `branch_list` / `merge_list`
 exceptions above, which shipped as envelopes and never as arrays), and no
 parameter that was optional ever becomes required. New capability means a new
-verb or a new optional parameter. A v1.5 agent runs unchanged against a v1.9
-ledger; it simply never merges, and never sees a dataset.
+verb or a new optional parameter. A v1.5 agent runs unchanged against a v1.10
+ledger; it simply never merges, never sees a dataset, and never takes work
+from the queue.

@@ -652,8 +652,8 @@
     },
     {
       "path": "company-os/company-context-ledger/references/protocol-v1.md",
-      "sha256": "6143e6837aadf335375e27f5745202834e2488124b638d2f8c295441cf663563",
-      "size": 47397
+      "sha256": "167f93bd6440263446bf2aacd34382d7865694158fb647cb13b7c65d4af17f57",
+      "size": 50290
     },
     {
       "path": "company-os/company-context-ledger/references/source/00-index.txt",
@@ -677,8 +677,8 @@
     },
     {
       "path": "company-os/company-context-ledger/scripts/context_ledger.py",
-      "sha256": "1a5b34a18be500cfd6f6452e0470e322c1915797db27304abfecb4b85daed0d6",
-      "size": 52066
+      "sha256": "7075de59e430ee892468b14896dddcad57c2a70922f70fb8d2eaa3d49ab4803b",
+      "size": 55849
     },
     {
       "path": "company-os/company-context-ledger/scripts/ledger_runner.py",
