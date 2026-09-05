@@ -37,8 +37,8 @@
     },
     {
       "path": "company-os/assign-capability-skills/SKILL.md",
-      "sha256": "94f59c89d2e4f8f1a18e078d4eb24cdddcd4f778f4c13953ece505c18a0bbbcf",
-      "size": 6497
+      "sha256": "77dfdbfedbac4f5affcd16794b2fcc79eb45daa1af8e520f19490206d9adc456",
+      "size": 7166
     },
     {
       "path": "company-os/assign-capability-skills/agents/claude.yaml",
@@ -92,8 +92,8 @@
     },
     {
       "path": "company-os/assign-capability-skills/scripts/build_capability_catalog.py",
-      "sha256": "328833b9b0a5e2af8b9b89fcdd33da1ba681d8c276dcc18b1c927b5efdd36082",
-      "size": 12898
+      "sha256": "842e5161a2fadeaef6f37b28af782313e370a7c50e198a3291e175f02b750cb7",
+      "size": 15087
     },
     {
       "path": "company-os/assign-capability-skills/scripts/capability_catalog.py",
@@ -627,8 +627,8 @@
     },
     {
       "path": "company-os/company-context-ledger/SKILL.md",
-      "sha256": "3a68d305002c41fe63f21d4aeebb4955d2b1e0f6f654a470b8c4ae6e1313e7ed",
-      "size": 5027
+      "sha256": "83fca11727de979ca8408c8fe6cb7999dafe2965f93d8ab5a818d788f5f58474",
+      "size": 4147
     },
     {
       "path": "company-os/company-context-ledger/agents/claude.yaml",
@@ -652,8 +652,8 @@
     },
     {
       "path": "company-os/company-context-ledger/references/protocol-v1.md",
-      "sha256": "c546326a77bfd833b4d25a9045d29e38df9c173ab60c3ac6eced8d0d2537446c",
-      "size": 54303
+      "sha256": "bfe6e63d263339d0801835d33ead98ebb15dc97a01a794a38bcd56e2dc3c0da6",
+      "size": 56179
     },
     {
       "path": "company-os/company-context-ledger/references/source/00-index.txt",
@@ -677,8 +677,8 @@
     },
     {
       "path": "company-os/company-context-ledger/scripts/context_ledger.py",
-      "sha256": "9a11b89dfbe3eccfa03bbaa7fe6d0494aee5a51f3561cadbd2456a9ea003d6db",
-      "size": 60302
+      "sha256": "de3767ffa1e141b8453511cee0a3105e1972350d4c6b0a91715aa5512f2c30ec",
+      "size": 66896
     },
     {
       "path": "company-os/company-context-ledger/scripts/ledger_runner.py",
@@ -692,8 +692,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "7e5fdec088f91f9bf357170bbc35aad2a7cdb0eae58a1c785b44143c913cf873",
-      "size": 22848
+      "sha256": "59017b191936cc302ebcd5b34acc05a41a7a6bae6699700e80afd7dfc2cc0883",
+      "size": 23136
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",

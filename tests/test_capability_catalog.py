@@ -698,6 +698,44 @@ class CapabilityCatalogTests(unittest.TestCase):
             with self.assertRaisesRegex(MODULE.CatalogError, "may not create approved"):
                 BUILDER.build_catalog(campaign)
 
+    def test_builder_accepts_a_tracked_intelligence_node_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            campaign, checkout = self.source_campaign(root)
+            manifest = checkout / "integrations/companyos/intelligence-node.json"
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text(json.dumps({
+                "$schema": "company-os.intelligence-node.v1",
+                "schema_version": 1,
+                "node_id": "business-os",
+                "controller": "company-os",
+                "role": "passive_expert_kernel",
+                "effects": [],
+                "authority": {"dispatch": False, "external_write": False},
+            }) + "\n", encoding="utf-8")
+            self.git(checkout, "add", ".")
+            self.git(checkout, "commit", "-qm", "add intelligence manifest")
+            campaign["sources"][0]["source_commit"] = self.git(checkout, "rev-parse", "HEAD")
+            campaign["sources"][0]["source_tree"] = self.git(checkout, "rev-parse", "HEAD^{tree}")
+            campaign["sources"][0]["intelligence_node_manifest"] = manifest.relative_to(checkout).as_posix()
+            result = BUILDER.build_catalog(campaign)
+            self.assertEqual(2, len(result["capabilities"]))
+
+            manifest.write_text(manifest.read_text().replace('"dispatch": false', '"dispatch": true'))
+            self.git(checkout, "add", ".")
+            self.git(checkout, "commit", "-qm", "make node active")
+            campaign["sources"][0]["source_commit"] = self.git(checkout, "rev-parse", "HEAD")
+            campaign["sources"][0]["source_tree"] = self.git(checkout, "rev-parse", "HEAD^{tree}")
+            with self.assertRaisesRegex(MODULE.CatalogError, "passive"):
+                BUILDER.build_catalog(campaign)
+
+    def test_builder_rejects_an_untracked_intelligence_node_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            campaign, _ = self.source_campaign(Path(directory))
+            campaign["sources"][0]["intelligence_node_manifest"] = "missing-node.json"
+            with self.assertRaisesRegex(MODULE.CatalogError, "manifest is missing"):
+                BUILDER.build_catalog(campaign)
+
     def test_builder_rejects_checkout_head_or_tree_drift(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

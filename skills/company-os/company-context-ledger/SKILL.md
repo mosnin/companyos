@@ -9,46 +9,29 @@ This is a thinking overlay for the hosted company-os-web ledger. It does not own
 
 company-os-web is Convex storage and display. Open-source Company OS remains the installable operating system. The ledger is shared company context. It is not a control plane.
 
+Before Business OS advice, call `business_context_packet(decision)`. It indexes
+all active documents and seals relevant bodies, facts, gaps, and portfolio
+state. Use `full=True` only when needed. Send the packet, never the credential;
+Business OS cannot fetch, dispatch, or write.
+
 Do not send this skill to Luna workers. Do not use it as the master persona.
 
 ## Wire contract (context-ledger.v1)
 
-The verbs are pinned in [references/protocol-v1.md](references/protocol-v1.md)
-and implemented by `scripts/context_ledger.py` (stdlib-only). On the wire the
-dotted names use MCP-safe underscores: `config_pull`, `document_get`,
-`document_put`, `run_append`. Writes are revision-checked (`base_revision`
-must equal the revision read; 0 for new documents). Ledger `contentHash` is
-sha256 over the framework's frozen canonical JSON, so
-`context_ledger.py materialize` yields files whose file sha256 equals the
-ledger hash — record them with `record-evidence` and every grant and audit
-cites the exact ledger revision. `push_brief` appends the operator brief's
-economics block as a `brief_snapshot` run event for the company overview.
-
-v1.3 adds the change signal: `context_changes {since?, limit?}` polls, and
-registered webhooks push the same events HMAC-signed (`verify_webhook_signature`
-checks the raw body first). `scripts/ledger_runner.py` turns the signal into
-work orders carrying sealed `bundle_for` bundles for `mission_control.bind_context`;
-it emits invitations, never leases.
+Verbs are pinned in [references/protocol-v1.md](references/protocol-v1.md) and
+implemented by the stdlib-only `scripts/context_ledger.py`. Wire names use
+underscores: `config_pull`, `document_get`, `document_put`, `run_append`.
+Writes are revision-checked. `contentHash` is canonical JSON sha256, so
+`materialize` produces exact evidence bytes. Change signals create invitations,
+never leases.
 
 ## Branch, commit, ask to merge (v1.6)
 
-The ledger is version-controlled and the authority is enforced. Writing is
-ordinary; merging to main is not.
-
-1. `branch_create` an overlay, then `document_put` into it with `branch`.
-   Any write key may do both — this is where agent work belongs.
-2. `branch_diff` to see exactly what landing it would change.
-3. **Ask an owner or admin to merge.** `branch_merge` needs the
-   `branch:merge` capability, which no legacy key and no ordinary member
-   holds. A `LedgerCapabilityError` there is the design, not a bug: report
-   the branch and its diff to a person instead of retrying.
-
-Ask the key what it holds (`granted_capabilities()`, `can()`) before
-planning work you will not be allowed to land.
-
-History is never rewritten: `document_revert` and `merge_revert` commit the
-old content FORWARD as a new revision, `git revert` never `git reset`.
-`schema_describe` returns the kind registry; read shapes, do not guess them.
+Agents may `branch_create`, `document_put`, and `branch_diff`. Ask an owner or
+admin to land changes: `branch_merge` requires `branch:merge`; report
+`LedgerCapabilityError` instead of retrying. Check `granted_capabilities()`
+before planning. Reverts commit forward; history is never rewritten. Read
+shapes from `schema_describe`.
 
 ## Every heartbeat
 
@@ -56,8 +39,10 @@ Before reading or writing the hosted ledger, answer these:
 
 1. Name the harness and department lane. Claude may code while ChatGPT Work runs operations. They share one company.
 2. Call `config.pull` before writing. Do not invent architecture the ledger already holds.
-3. Write with `document.put` (revision-checked) and `run.append` (append-only).
-4. Pause if asked to dispatch, lease, enable the scheduler or runtime, accept an outcome, spend, or mutate CRM/HRIS.
+3. Before Business OS advice, create a sealed business-context packet and bind
+   its `packet_sha256` to the manager assignment.
+4. Write with `document.put` (revision-checked) and `run.append` (append-only).
+5. Pause if asked to dispatch, lease, enable the scheduler or runtime, accept an outcome, spend, or mutate CRM/HRIS.
 
 Do not dispatch, spend, or enable the scheduler or runtime from this overlay.
 
@@ -98,4 +83,3 @@ first, write only to a `founding/<date>` branch, research with `research_search`
 and `research_scrape`, record facts with `context_note`, then `proposal_review`,
 show the brief, ask, and `proposal_commit` with the person's name only after an
 explicit yes.
-

@@ -33,6 +33,7 @@ SOURCE_KEYS = {
     "entrypoint_paths",
     "entrypoint_globs",
 }
+OPTIONAL_SOURCE_KEYS = {"intelligence_node_manifest"}
 FRONTMATTER_RE = re.compile(r"\A---\s*\n(?P<body>.*?)\n---\s*(?:\n|\Z)", re.DOTALL)
 FIELD_RE = re.compile(r"^(?P<key>name|description):\s*(?P<value>.+?)\s*$", re.MULTILINE)
 TOKEN_RE = re.compile(r"[a-z0-9]+")
@@ -124,7 +125,13 @@ def _validate_campaign(value: Mapping[str, Any]) -> list[dict[str, Any]]:
     sources: list[dict[str, Any]] = []
     for raw_source in value["sources"]:
         source = dict(catalog_contract._object(raw_source, "campaign source"))
-        _exact_keys(source, SOURCE_KEYS, "campaign source")
+        missing = SOURCE_KEYS - set(source)
+        extra = set(source) - SOURCE_KEYS - OPTIONAL_SOURCE_KEYS
+        if missing or extra:
+            raise catalog_contract.CatalogError(
+                "E_SCHEMA",
+                f"campaign source keys differ; missing={sorted(missing)!r}, extra={sorted(extra)!r}",
+            )
         catalog_contract._id(source["source_id"], "campaign source.source_id")
         checkout = Path(catalog_contract._string(source["checkout_path"], "campaign source.checkout_path"))
         if checkout.is_symlink() or not checkout.is_dir():
@@ -163,6 +170,14 @@ def _validate_campaign(value: Mapping[str, Any]) -> list[dict[str, Any]]:
                 raise catalog_contract.CatalogError(
                     "E_PATH", f"campaign source glob is not bounded: {pattern!r}"
                 )
+        if "intelligence_node_manifest" in source:
+            catalog_contract._relative_path(
+                catalog_contract._string(
+                    source["intelligence_node_manifest"],
+                    "campaign source.intelligence_node_manifest",
+                ),
+                "campaign source intelligence node manifest",
+            )
         sources.append(source)
     if [item["source_id"] for item in sources] != sorted(item["source_id"] for item in sources):
         raise catalog_contract.CatalogError("E_SCHEMA", "campaign sources must be sorted by source_id")
@@ -194,6 +209,32 @@ def build_catalog(campaign: Mapping[str, Any]) -> dict[str, Any]:
             if item
         )
         tracked_set = set(tracked)
+        manifest_path = source.get("intelligence_node_manifest")
+        if manifest_path and manifest_path not in tracked_set:
+            raise catalog_contract.CatalogError(
+                "E_SOURCE",
+                f"source {source['source_id']!r} intelligence node manifest is missing: {manifest_path!r}",
+            )
+        if manifest_path:
+            manifest_raw = _git(checkout, "cat-file", "blob", f"{commit}:{manifest_path}", binary=True)
+            assert isinstance(manifest_raw, bytes)
+            try:
+                manifest = json.loads(manifest_raw)
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise catalog_contract.CatalogError("E_SCHEMA", "intelligence node manifest is not valid JSON") from exc
+            authority = manifest.get("authority") if isinstance(manifest, dict) else None
+            if (
+                manifest.get("$schema") != "company-os.intelligence-node.v1"
+                or manifest.get("schema_version") != 1
+                or manifest.get("controller") != "company-os"
+                or manifest.get("role") != "passive_expert_kernel"
+                or manifest.get("effects") != []
+                or not isinstance(authority, dict)
+                or any(value is not False for value in authority.values())
+            ):
+                raise catalog_contract.CatalogError(
+                    "E_TRUST", "intelligence node manifest must declare a passive Company OS controlled node"
+                )
         glob_matches = {
             path
             for path in tracked
