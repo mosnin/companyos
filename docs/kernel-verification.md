@@ -4,17 +4,20 @@ Local verification on 2026-09-05; package publication and live deployment are
 separate, still-required release steps.
 
 - Full host suite: `env PATH=/opt/homebrew/opt/openssl@3/bin:$PATH
-  TMPDIR=/private/tmp python3 -m unittest discover -s tests -q`: 777 tests,
+  TMPDIR=/private/tmp python3 -m unittest discover -s tests -q`: 780 tests,
   OK, one skipped. OpenSSL 3 and the physical macOS temporary path are required
   for existing RSA output/path-sensitive tests. Default macOS LibreSSL 3.3.6
   produced seven failures and four errors in the RSA-3072 text-output check;
   no production/test code was altered to bypass it.
-- Kernel unit suite: nine tests pass; existing controller suite: 164 pass.
+- Kernel unit suite: twelve tests pass; existing controller suite: 164 pass.
+- Regression checks prove same-configuration sync is offline/idempotent, adding
+  a kernel preserves existing versions, replacement dependencies require an
+  explicit update, and web-bound update-kernels preserves binding and reports.
 - `python3 scripts/check_kernel_repos.py`: all three sibling kernel repositories
   match the canonical schema/validator and validate (Product OS allowed as draft).
 - `python3 scripts/test_kernel_packages.py`: real local npm archives for
-  Business OS and Design OS installed, verified, initialized and retained after
-  a failed update. Business package includes all 732 skill entrypoints; Design
+  Business OS and Design OS installed, verified and initialized. Failure atomicity
+  is covered by the unit suite. Business includes all 732 skill entrypoints; Design
   includes all 32. No publish/network call or package script execution occurs.
 - Distribution manifest and 75 first-class skill surface verification pass.
 - Business OS generated-surface/build checks pass; Design OS 28 tests and complete
@@ -25,8 +28,10 @@ passive-adapter 1.3.0 integration must be combined and revalidated before releas
 the package allowlist preserves its business_os_kernel directory. Package version
 0.1.0 is intentionally independent from the source-library VERSION.
 
-The companion web suite's only full-suite failure was reproduced on unchanged
-main (`7116d6b`): provisioning fetch count expected 1, received 2. See its
+The companion web suite's earlier full-suite failure was reproduced on unchanged
+main (`7116d6b`): provisioning fetch count expected 1, received 2. The latest run
+passes 1724 tests with two skipped; treat the provisioning test as intermittent,
+not fixed by this work. See its
 docs/KERNEL-VERIFICATION.md for exact commands and counts. Kernel/MCP tests and
 four light/dark browser cases pass. Docs test/lint/typecheck/build pass.
 

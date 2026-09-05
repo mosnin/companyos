@@ -692,8 +692,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "13d37283f5a360ea1c8df05cca4c9de17429f598c9ec8b891e67e0bca71963bd",
-      "size": 24460
+      "sha256": "51be90cbe626902183f60ae66deca8f0d9303275c9c288ab0205827f6ed9381e",
+      "size": 24713
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",
@@ -1242,8 +1242,8 @@
     },
     {
       "path": "company-os/elastic-company-os/scripts/kernel_manager.py",
-      "sha256": "54fefa3de87e0a07a7632354c2b6744d4d8d3153b47b83c908062e7826cc0d98",
-      "size": 22121
+      "sha256": "06c3533d1cb992b1ae0a13b5ce374874b1cd5179a56749c38b3a02670110215b",
+      "size": 23367
     },
     {
       "path": "company-os/elastic-company-os/scripts/native_task_runtime.py",

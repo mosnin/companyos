@@ -273,7 +273,8 @@ class KernelManager:
             atomic_json(self.root / "state.json", state)
             return state
 
-    def install(self, desired, binding=None):
+    def install(self, desired, binding=None, *, allow_updates=False):
+        """Reconcile selections; only an explicit host update may replace installed versions."""
         require(isinstance(desired, dict) and 0 < len(desired) <= 32, "Select 1 to 32 kernels")
         for ident, constraint in desired.items():
             kernel_id(ident)
@@ -292,6 +293,15 @@ class KernelManager:
                         return
                     require(len(selected) + len(visiting) < 32, "Dependency graph too large")
                     visiting.add(ident)
+                    old = state["installed"].get(ident)
+                    if old and not allow_updates:
+                        require(satisfies(old["version"], constraint), "Installed " + ident + " requires explicit Company OS update-kernels")
+                        manifest = validate(self.root / "objects" / old["object"])
+                        for dep, exact in manifest["dependencies"].items():
+                            resolve(dep, exact)
+                        selected[ident] = old
+                        visiting.remove(ident)
+                        return
                     releases = self.registry.metadata(ident)["versions"]
                     candidates = [v for v in releases if re.fullmatch(VERSION, v) and satisfies(v, constraint)]
                     require(candidates, "No release satisfies " + ident + " " + constraint)
@@ -304,7 +314,6 @@ class KernelManager:
                     unpack(archive, integrity, dest)
                     manifest = validate(dest)
                     require(manifest["id"] == ident and manifest["version"] == chosen, "Registry identity mismatch")
-                    old = state["installed"].get(ident)
                     require(not old or old["dataSchemaVersion"] == manifest["dataSchemaVersion"], "Data migration requires an explicit migration plan")
                     require(not old or version(chosen) >= version(old["version"]), "Downgrade requires rollback, not update")
                     for dep, exact in manifest["dependencies"].items():
@@ -315,6 +324,9 @@ class KernelManager:
                 roots = {**state["desired"], **desired}
                 for ident, constraint in sorted(roots.items()):
                     resolve(ident, constraint)
+                same_binding = (state.get("companyId") == binding["companyId"] and state.get("desiredRevision") == binding["revision"]) if binding else "desiredRevision" not in state
+                if selected == state["installed"] and roots == state["desired"] and same_binding and state["companyOSVersion"] == HOST_VERSION:
+                    return state  # Repeated configuration sync is not an update or a new activation.
                 objects = self.root / "objects"
                 require(not objects.is_symlink(), "Unsafe objects directory")
                 objects.mkdir(exist_ok=True)
@@ -394,11 +406,11 @@ def main(argv=None):
                 manager.verify(result)
             elif args.command == "rollback":
                 result = manager.rollback(args.generation)
-            elif args.command in ("sync", "report"):
+            elif args.command in ("sync", "report") or (args.command == "update-kernels" and manager.state().get("companyId")):
                 remote = mcp_call("kernels_status", {})
-                if args.command == "sync":
+                if args.command != "report":
                     require(remote["desired"], "No kernels requested in the web app")
-                    result = manager.install(remote["desired"], binding=remote)
+                    result = manager.install(remote["desired"], binding=remote, allow_updates=args.command == "update-kernels")
                 else:
                     result = manager.state()
                     manager.verify(result)
@@ -410,7 +422,7 @@ def main(argv=None):
                 if args.kernel:
                     require(args.version, "--version required")
                     desired = {**desired, args.kernel: args.version}
-                result = manager.install(desired)
+                result = manager.install(desired, allow_updates=args.command == "update-kernels")
         print(json.dumps({"ok": True, "result": result}, indent=2))
         return 0
     except (ValueError, OSError, KeyError, TypeError, tarfile.TarError) as error:

@@ -58,6 +58,9 @@ Read access is implied. Only a key changing selections needs kernels:manage.
 Old write credentials acquire neither permission. In the web app open Settings,
 Manage kernels, then Install. Connected Company OS registers and installs the
 selection on its next sync; the web app shows installed versions after confirmation.
+The web page is configuration only and contains no Company OS runtime or Update
+button. Repeating a selection is idempotent. Only Company OS performs registry
+checks and updates: adding a selection never authorizes upgrading another kernel.
 
 From the Company OS checkout:
 
@@ -87,10 +90,11 @@ commands. Native slash registration differs by client. The Company OS coordinato
 also maps explicit natural-language update requests to this workflow.
 
 ```sh
-# Web-bound installation and /update-kernels
+# Reconcile web configuration, preserving already installed versions
 python3 scripts/kernels.py sync --project /absolute/project
-# Local-only installation and update within saved constraints
+# Local-only installation, also preserving already installed versions
 python3 scripts/kernels.py install --kernel design-os --version '^0.1.0' --project /absolute/project
+# Explicit update inside Company OS, for web-bound or local-only projects
 python3 scripts/kernels.py update-kernels --project /absolute/project
 # Check only, bypassing the initialization cache
 python3 scripts/kernels.py check --project /absolute/project
@@ -107,6 +111,12 @@ previous files and leaves company data/overrides untouched. Data schema changes
 require a separately reviewed migration plan and are refused. Receipt failure
 after activation does not mean installation failed: inspect status then report,
 without repeating the update. A newer web request requires fresh sync.
+Sync preserves each existing version and verifies it satisfies all configured
+constraints and exact dependencies. Missing kernels are installed. A selection
+requiring an existing version to change stops for explicit Company OS update;
+it cannot silently upgrade. Unchanged selections and bindings do not create a
+new activation. update-kernels is the separate, explicit upgrade-enabled path;
+for web-bound projects it pulls configuration and submits its runtime receipt.
 
 ## Safety and compatibility
 

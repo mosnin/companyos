@@ -43,8 +43,11 @@ kernel content never grants new execution authority.
 When the operator asks to install the selections in Company OS Web, run `sync`.
 It pulls tenant-bound desired state through MCP, validates packages, atomically
 activates the local lock state, and reports the installation back to the same tenant.
-On `/update-kernels` or an explicit update request, use `sync` for a web-bound
-project and `update-kernels` for a local-only project. Resolve only the approved
+Configuration sync preserves installed versions and only adds missing kernels.
+The web app stores selections, not executable update requests. Repeating a
+selection is not update authority. On `/update-kernels` or an explicit update
+request, run `update-kernels` inside Company OS for both web-bound and local-only
+projects. A web-bound update pulls approved selections and reports back. Resolve only the approved
 version constraints. Do not invent broader ranges or override incompatibility.
 If a report fails after activation, use `report` to retry without reinstalling.
 
