@@ -34,6 +34,40 @@ MCP-safe underscores.
 Deliberately absent: dispatch, leases, scheduler control, acceptance,
 spend. Authority stays in the framework's signed, hash-chained controller.
 
+### Business intelligence packet (client convention)
+
+`business_context_packet(decision)` bridges company-os-web to a passive expert
+kernel. It drains the full document index, includes compact metadata and hashes
+for every active document, retrieves the most relevant exact document bodies,
+and adds `context_known`, `context_gaps`, and `portfolio_snapshot`. Optional
+`full=True` retrieves every active document body. The client seals the result as
+`company-os.business-context.v1`; Business OS verifies the packet, ledger
+bundle, and document hashes offline.
+
+This is deliberately a client convention, not a new MCP verb. The server stays
+a shared context ledger, Company OS stays the controller, and the Business OS
+node receives neither credentials nor authority. The CLI equivalent is:
+
+    context_ledger.py --url URL --token TOKEN business-context \
+      --decision "Choose the next enterprise growth bet" --out /tmp/context.json
+
+### Business intelligence packet (client convention)
+
+`business_context_packet(decision)` bridges company-os-web to a passive expert
+kernel. It drains the full document index, includes compact metadata and hashes
+for every active document, retrieves the most relevant exact document bodies,
+and adds `context_known`, `context_gaps`, and `portfolio_snapshot`. Optional
+`full=True` retrieves every active document body. The client seals the result as
+`company-os.business-context.v1`; Business OS verifies the packet, ledger
+bundle, and document hashes offline.
+
+This is deliberately a client convention, not a new MCP verb. The server stays
+a shared context ledger, Company OS stays the controller, and the Business OS
+node receives neither credentials nor authority. The CLI equivalent is:
+
+    context_ledger.py --url URL --token TOKEN business-context \
+      --decision "Choose the next enterprise growth bet" --out /tmp/context.json
+
 ## Content addressing (the evidence bridge)
 
 `contentHash` is **sha256 over Company OS canonical JSON** — exactly

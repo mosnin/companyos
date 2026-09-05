@@ -324,6 +324,14 @@ BRAND_VOICE_KINDS = (
     "brand-messaging-architecture",
 )
 WORK_CLASS_CONTEXT: dict[str, tuple[str, ...]] = {
+    "business-intelligence": CORE_CONTEXT_KINDS
+    + (
+        "icp", "buyer-persona", "buyer-psychology", "competitor-matrix",
+        "pestle-analysis", "product", "pricing-packaging", "north-star-metric",
+        "voice-of-customer", "gtm-strategy", "financial-policies",
+        "operating-model-canvas", "capabilities-map",
+    )
+    + BRAND_VOICE_KINDS,
     "research": CORE_CONTEXT_KINDS
     + ("icp", "buyer-persona", "buyer-psychology", "competitor-matrix", "pestle-analysis"),
     "architecture": CORE_CONTEXT_KINDS
@@ -345,6 +353,7 @@ WORK_CLASS_CONTEXT: dict[str, tuple[str, ...]] = {
     + ("icp", "buyer-persona", "pricing-packaging", "qualification-framework", "command-of-message", "objection-handling", "battle-card", "sales-process", "elevator-pitch", "customer-touchpoints"),
 }
 MAX_BUNDLE_DOCUMENTS = 12
+MAX_BUSINESS_CONTEXT_DOCUMENTS = 24
 
 
 class ContextLedgerClient:
@@ -855,6 +864,34 @@ class ContextLedgerClient:
             arguments["include"] = list(include)
         return self._call_tool("context_search", arguments)
 
+    def context_known(
+        self, *, topic: str | None = None, search: str | None = None
+    ) -> dict[str, Any]:
+        """Company-wide fact ledger, optionally narrowed by topic or text."""
+        arguments: dict[str, Any] = {}
+        if topic is not None:
+            arguments["topic"] = topic
+        if search is not None:
+            arguments["search"] = search
+        return self._call_tool("context_known", arguments)
+
+    def context_gaps(self) -> dict[str, Any]:
+        """Known contradictions, stale claims, and missing evidence."""
+        return self._call_tool("context_gaps", {})
+
+    def context_compose(self, kind: str) -> dict[str, Any]:
+        """Decision-ready context for authoring one registered document kind."""
+        if not isinstance(kind, str) or not kind.strip():
+            raise ContextLedgerError("context_compose requires a nonempty kind")
+        return self._call_tool("context_compose", {"kind": kind})
+
+    def portfolio_snapshot(self, *, branch: str | None = None) -> dict[str, Any]:
+        """Read the current cross-document operating portfolio."""
+        arguments: dict[str, Any] = {}
+        if branch is not None:
+            arguments["branch"] = branch
+        return self._call_tool("portfolio_snapshot", arguments)
+
     def work_list(
         self,
         *,
@@ -1190,11 +1227,13 @@ class ContextLedgerClient:
         path.write_bytes(canonical_json(document["content"]).encode("ascii"))
         return path
 
-    def context_bundle(self, slugs: list[str]) -> dict[str, Any]:
+    def context_bundle(
+        self, slugs: list[str], *, branch: str | None = None
+    ) -> dict[str, Any]:
         """A compact, hash-pinned context block for goal contracts."""
         documents = []
         for slug in slugs:
-            document = self.document_get(slug)
+            document = self.document_get(slug, branch=branch)
             if not self.verify_content_hash(document) and document.get("contentHash"):
                 raise ContextLedgerError(f'"{slug}" failed hash verification')
             documents.append(
@@ -1211,7 +1250,11 @@ class ContextLedgerClient:
         return {**bundle, "bundle_sha256": content_hash(bundle)}
 
     def bundle_for(
-        self, work_class: str, *, extra_slugs: list[str] | None = None
+        self,
+        work_class: str,
+        *,
+        extra_slugs: list[str] | None = None,
+        branch: str | None = None,
     ) -> dict[str, Any]:
         """The hash-pinned context bundle a mission of this work class binds.
 
@@ -1225,7 +1268,7 @@ class ContextLedgerClient:
         # Drain the index: on a large store the selection must still see
         # every committed document, not just the first page.
         slugs: list[str] = []
-        for document in self.config_documents():
+        for document in self.config_documents(branch=branch):
             if (
                 document.get("kind") in kinds
                 and document.get("contentHash")
@@ -1235,7 +1278,90 @@ class ContextLedgerClient:
         for slug in extra_slugs or []:
             if slug not in slugs:
                 slugs.append(slug)
-        return self.context_bundle(slugs[:MAX_BUNDLE_DOCUMENTS])
+        return self.context_bundle(slugs[:MAX_BUNDLE_DOCUMENTS], branch=branch)
+
+    def business_context_packet(
+        self,
+        decision: str,
+        *,
+        work_class: str = "business-intelligence",
+        extra_slugs: list[str] | None = None,
+        branch: str | None = None,
+        full: bool = False,
+        target_kind: str | None = None,
+    ) -> dict[str, Any]:
+        """Seal company-os-web context for the passive Business OS node.
+
+        Every active document is addressable through ``context_index``. The
+        default packet carries the most relevant exact bodies; ``full=True``
+        carries every active body. Business OS receives no ledger credential
+        and therefore cannot fetch, mutate, or broaden this context itself.
+        """
+        if not isinstance(decision, str) or not decision.strip():
+            raise ContextLedgerError("business context requires a nonempty decision")
+        indexed = [
+            document
+            for document in self.config_documents(branch=branch)
+            if document.get("status") == "active" and document.get("contentHash")
+        ]
+        context_index = [
+            {
+                "slug": document["slug"],
+                "kind": document.get("kind"),
+                "title": document.get("title"),
+                "revision": document.get("revision"),
+                "content_hash": document.get("contentHash"),
+            }
+            for document in indexed
+        ]
+        search_result: Any = None
+        if full:
+            slugs = [document["slug"] for document in indexed]
+        else:
+            indexed_slugs = {document["slug"] for document in indexed}
+            kinds = set(WORK_CLASS_CONTEXT.get(work_class, CORE_CONTEXT_KINDS))
+            slugs = [document["slug"] for document in indexed if document.get("kind") in kinds]
+            search_result = self.context_search(
+                decision,
+                branch=branch,
+                limit=MAX_BUSINESS_CONTEXT_DOCUMENTS,
+                include=["quotes", "facts"],
+            )
+            search_documents = (
+                search_result.get("documents", [])
+                if isinstance(search_result, dict)
+                else search_result
+            )
+            for document in search_documents if isinstance(search_documents, list) else []:
+                slug = document.get("slug") if isinstance(document, dict) else None
+                if isinstance(slug, str) and slug in indexed_slugs and slug not in slugs:
+                    slugs.append(slug)
+            for slug in extra_slugs or []:
+                if slug not in indexed_slugs:
+                    raise ContextLedgerError(
+                        f'"{slug}" is not an active company-os-web document'
+                    )
+                if slug not in slugs:
+                    slugs.append(slug)
+            slugs = slugs[:MAX_BUSINESS_CONTEXT_DOCUMENTS]
+        if not slugs:
+            raise ContextLedgerError("company-os-web has no active business context to bind")
+        base: dict[str, Any] = {
+            "protocol": "company-os.business-context.v1",
+            "decision": decision,
+            "scope": "full" if full else "relevant",
+            "branch": branch or "main",
+            "context_index": context_index,
+            "ledger": self.context_bundle(slugs, branch=branch),
+            "known": self.context_known(search=decision),
+            "gaps": self.context_gaps(),
+            "portfolio": self.portfolio_snapshot(branch=branch),
+        }
+        if target_kind is not None:
+            base["composed"] = self.context_compose(target_kind)
+        if search_result is not None:
+            base["search_evidence"] = search_result
+        return {**base, "packet_sha256": content_hash(base)}
 
 
 def main() -> int:
@@ -1270,6 +1396,16 @@ def main() -> int:
     )
     bundle_parser.add_argument("--work-class", required=True)
     bundle_parser.add_argument("--out", help="write the bundle JSON here")
+    business_parser = commands.add_parser(
+        "business-context", help="sealed company-os-web context for Business OS"
+    )
+    business_parser.add_argument("--decision", required=True)
+    business_parser.add_argument("--work-class", default="business-intelligence")
+    business_parser.add_argument("--extra-slug", action="append")
+    business_parser.add_argument("--branch")
+    business_parser.add_argument("--target-kind")
+    business_parser.add_argument("--full", action="store_true")
+    business_parser.add_argument("--out")
     materialize_parser = commands.add_parser(
         "materialize", help="write canonical bytes for record-evidence"
     )
@@ -1343,6 +1479,19 @@ def main() -> int:
             )
         elif args.command == "bundle":
             result = client.bundle_for(args.work_class)
+            if args.out:
+                Path(args.out).write_text(
+                    json.dumps(result, indent=2) + "\n", encoding="utf-8"
+                )
+        elif args.command == "business-context":
+            result = client.business_context_packet(
+                args.decision,
+                work_class=args.work_class,
+                extra_slugs=args.extra_slug,
+                branch=args.branch,
+                full=args.full,
+                target_kind=args.target_kind,
+            )
             if args.out:
                 Path(args.out).write_text(
                     json.dumps(result, indent=2) + "\n", encoding="utf-8"
