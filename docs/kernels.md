@@ -56,7 +56,8 @@ Set secrets using a secret manager, never literal tokens in chat or source:
 
 Read access is implied. Only a key changing selections needs kernels:manage.
 Old write credentials acquire neither permission. In the web app open Settings,
-Manage kernels, then Request install. The action saves intent, not installed files.
+Manage kernels, then Install. Connected Company OS registers and installs the
+selection on its next sync; the web app shows installed versions after confirmation.
 
 From the Company OS checkout:
 
