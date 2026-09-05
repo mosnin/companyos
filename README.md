@@ -1,5 +1,9 @@
 # Company OS Core
 
+Optional private kernels are independently versioned dependencies. See
+[kernel setup, updates and authoring](docs/kernels.md). Company OS owns the
+installer; Company OS Web owns requested versions, not filesystem installation.
+
 Company OS is a project-isolated control plane for turning ambitious direction
 into attributable, independently verified outcomes. This repository is the
 canonical source for its controller, operating skills, execution contracts,

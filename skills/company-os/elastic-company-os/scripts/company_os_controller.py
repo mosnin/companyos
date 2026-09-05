@@ -3161,6 +3161,13 @@ def init_instance(args: argparse.Namespace) -> int:
         "core_version": state["core_version"],
     }
     control_store_module().initialize(project, state, event)
+    # Kernel metadata lives beside the ledger, never inside its governed schema.
+    # This boundary checks only; task dispatch never fetches registry metadata.
+    kernel_spec = importlib.util.spec_from_file_location("company_os_kernels", Path(__file__).with_name("kernel_manager.py"))
+    if kernel_spec is not None and kernel_spec.loader is not None:
+        kernel_module = importlib.util.module_from_spec(kernel_spec)
+        kernel_spec.loader.exec_module(kernel_module)
+        kernel_module.KernelManager(project).initialize()
     print(json.dumps({"ok": True, "path": str(target), "project_id": state["instance"]["project_id"]}))
     return 0
 

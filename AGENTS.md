@@ -1,5 +1,10 @@
 # Company OS Core
 
+Read docs/kernels.md before changing kernel packaging, initialization, updates or
+MCP integration. Preserve private repositories, data outside package objects,
+revision-bound receipts and opt-in capabilities. Update contract, tests, dependent
+repositories and public docs together. Regenerate the distribution manifest.
+
 This repository is the canonical source for Company OS. Installed Codex skills
 and installed Grok Bot / Cursor / Claude skills are distributions and must not be edited
 as the source of truth.
