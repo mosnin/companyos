@@ -374,6 +374,92 @@ class V110WireShapeTests(FakeTransport, unittest.TestCase):
         )
         self.assertEqual(hits["quotes"][0]["quote"], "we churn")
 
+    def test_business_context_read_verbs_shape_their_calls(self) -> None:
+        self.responses.extend([
+            self._ok({"facts": [], "total": 0}),
+            self._ok({"unevidenced": []}),
+            self._ok({"kind": "okrs", "facts": []}),
+            self._ok({"programs": []}),
+        ])
+        self.client.context_known(topic="pricing", search="enterprise")
+        self.client.context_gaps()
+        self.client.context_compose("okrs")
+        self.client.portfolio_snapshot(branch="growth-plan")
+        calls = [request["params"] for request in self.requests]
+        self.assertEqual(calls[0], {"name": "context_known", "arguments": {"topic": "pricing", "search": "enterprise"}})
+        self.assertEqual(calls[1], {"name": "context_gaps", "arguments": {}})
+        self.assertEqual(calls[2], {"name": "context_compose", "arguments": {"kind": "okrs"}})
+        self.assertEqual(calls[3], {"name": "portfolio_snapshot", "arguments": {"branch": "growth-plan"}})
+
+    def test_business_context_packet_indexes_all_and_binds_relevant_bodies(self) -> None:
+        value_content = {"statement": "For governed agent teams"}
+        research_content = {"findings": ["Enterprise teams need auditability"]}
+        index = [
+            {
+                "slug": "value-proposition",
+                "kind": "value-proposition",
+                "title": "Value Proposition",
+                "revision": 2,
+                "contentHash": LEDGER.content_hash(value_content),
+                "status": "active",
+            },
+            {
+                "slug": "market-research",
+                "kind": "market-research",
+                "title": "Market Research",
+                "revision": 4,
+                "contentHash": LEDGER.content_hash(research_content),
+                "status": "active",
+            },
+        ]
+        self.responses.extend([
+            self._ok({"documents": index, "documents_has_more": False}),
+            self._ok({"documents": [{"slug": "market-research"}], "quotes": [], "facts": []}),
+            self._ok({**index[0], "content": value_content}),
+            self._ok({**index[1], "content": research_content}),
+            self._ok({"facts": [{"claim": "Auditability is required"}]}),
+            self._ok({"unevidenced": [{"topic": "pricing"}]}),
+            self._ok({"programs": [{"id": "growth"}]}),
+        ])
+        packet = self.client.business_context_packet("Choose an enterprise segment")
+        self.assertEqual("company-os.business-context.v1", packet["protocol"])
+        self.assertEqual(2, len(packet["context_index"]))
+        self.assertEqual(2, len(packet["ledger"]["documents"]))
+        self.assertEqual("relevant", packet["scope"])
+        self.assertEqual([], packet["search_evidence"]["quotes"])
+        unsealed = {key: value for key, value in packet.items() if key != "packet_sha256"}
+        self.assertEqual(LEDGER.content_hash(unsealed), packet["packet_sha256"])
+        self.assertEqual(
+            ["config_pull", "context_search", "document_get", "document_get", "context_known", "context_gaps", "portfolio_snapshot"],
+            [request["params"]["name"] for request in self.requests],
+        )
+
+    def test_full_business_context_binds_every_active_document(self) -> None:
+        contents = [{"value": "one"}, {"value": "two"}]
+        index = [
+            {
+                "slug": f"doc-{number}",
+                "kind": "custom",
+                "title": f"Document {number}",
+                "revision": 1,
+                "contentHash": LEDGER.content_hash(contents[number - 1]),
+                "status": "active",
+            }
+            for number in (1, 2)
+        ]
+        self.responses.extend([
+            self._ok({"documents": index, "documents_has_more": False}),
+            self._ok({**index[0], "content": contents[0]}),
+            self._ok({**index[1], "content": contents[1]}),
+            self._ok({"facts": []}),
+            self._ok({"unevidenced": []}),
+            self._ok({"programs": []}),
+        ])
+        packet = self.client.business_context_packet("Review the company", full=True)
+        self.assertEqual("full", packet["scope"])
+        self.assertEqual(["doc-1", "doc-2"], [item["slug"] for item in packet["ledger"]["documents"]])
+        self.assertNotIn("context_search", [request["params"]["name"] for request in self.requests])
+
     def test_work_verbs_shape_their_arguments(self) -> None:
         self.responses.append(self._ok({"requests": [], "count": 0}))
         self.client.work_list(status="open", view="marketing", limit=10)

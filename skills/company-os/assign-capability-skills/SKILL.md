@@ -101,3 +101,15 @@ does not count.
 Before selecting from the static curated catalog, search the current project registry through `$recursive-skill-foundry`. A promoted project skill may be assigned only when its registry digest, entrypoint digest, role, selection rationale, and execution order are bound in the work packet. Keep the combined assignment limit at four skills.
 
 The static catalog remains the cross project control plane. The project foundry registry is a local compounding layer and never silently mutates the static catalog or Company OS core.
+
+## Business OS intelligence node
+
+Treat Business OS as a curated passive capability source, never as another
+manager or runtime. Before resolving a Business OS capability, use
+`$company-context-ledger` to create a hash-sealed
+`company-os.business-context.v1` packet from the user's company-os-web MCP.
+Search Business OS metadata, select at most four nonoverlapping expert
+entrypoints, and bind their rationale, order, hashes, and the context packet
+hash into the Company OS assignment. Business OS returns advisory instructions
+only. Company OS remains responsible for agent dispatch, evaluation,
+permissions, approvals, tools, spend, writes, and outcome acceptance.

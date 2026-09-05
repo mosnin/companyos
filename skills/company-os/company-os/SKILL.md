@@ -21,7 +21,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system`, `$brand-architect`, `$steve` |
 | UI design quality | Require high-craft interaction, motion, accessibility, responsive, performance, and visual evidence for every interface change | `$ui-design-quality`, `$design`, `$interface-design`, `$steve` |
 | Reasoning layer | Bind the twelve general-thinking models to decision gates so every role reasons the same way before the controller enforces | `$mental-models` |
-| Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context | `$assign-capability-skills` |
+| Capability library | Discover and bind a minimal audited skill bundle without loading the whole library into agent context; Business OS may plug in here as a passive expert node | `$assign-capability-skills` |
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system`, `$marketing-architect`, `$sales-architect`, `$steve`, `$value-creation-delivery` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
 | Mission dispatch loop | The single dispatch-boundary control layer: enforce First Reality scope, work admission, planning-budget metering, hard deadlines, scheduler leases, evidence-bound capability state, replacement, and product checkpoints. Route compilation (`$goal-route-system`), navigation (`$navigation-control`), and the executive governor (`$govern-outcome-execution`) run programmatically inside its controller — they are internal mechanisms, not additional dispatch skills to load | `$mission-execution-control` |
@@ -120,7 +120,10 @@ staff. When compiling named departments, also send `$corporate-departments` to
 the department manager. When compiling Marketing, also send `$marketing-os` to
 that department manager. When a hosted company-os-web ledger is in use, send
 `$company-context-ledger` to the master or department manager that will pull or
-write company context. The ledger is not a control plane.
+write company context. Before using the Business OS intelligence node, that
+manager must build and hash-bind a business-context packet from the ledger.
+Business OS never receives the MCP credential and never becomes a manager,
+scheduler, or control plane. The ledger is not a control plane.
 
 Do not send `$steve` to workers. Do not send `$brand-architect` to workers. Do
 not send `$civilization-builder` to workers. Do not send `$design` to workers.
