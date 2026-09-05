@@ -92,8 +92,8 @@
     },
     {
       "path": "company-os/assign-capability-skills/scripts/build_capability_catalog.py",
-      "sha256": "328833b9b0a5e2af8b9b89fcdd33da1ba681d8c276dcc18b1c927b5efdd36082",
-      "size": 12898
+      "sha256": "842e5161a2fadeaef6f37b28af782313e370a7c50e198a3291e175f02b750cb7",
+      "size": 15087
     },
     {
       "path": "company-os/assign-capability-skills/scripts/capability_catalog.py",
