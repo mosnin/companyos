@@ -32,7 +32,7 @@ class LocalRegistry:
 with tempfile.TemporaryDirectory() as temporary:
     stage = Path(temporary)
     registry = LocalRegistry()
-    for repo in ("business-OS", "design-os"):
+    for repo in ("business-OS", "design-os", "dev-os"):
         source = args.root / repo
         packed = subprocess.run(["npm", "pack", "--ignore-scripts", "--json", "--pack-destination", str(stage)], cwd=source, check=True, capture_output=True, text=True)
         package = json.loads(packed.stdout)[0]
@@ -42,6 +42,11 @@ with tempfile.TemporaryDirectory() as temporary:
         if repo == "business-OS":
             assert "LICENSE" in paths
             assert len([p for p in paths if p.startswith("skills/") and p.endswith("SKILL.md")]) >= 732
+        elif repo == "dev-os":
+            assert ".agents/skills/dev-os/SKILL.md" in paths
+            assert "tools/route.py" in paths
+            assert len([p for p in paths if p.endswith("SKILL.md") and ((p.startswith(".claude/skills/") and len(p.split("/")) == 4) or (p.startswith("library/") and len(p.split("/")) == 3))]) == 380
+            assert ".claude/settings.json" not in paths
         else:
             assert ".agents/skills/design-os/SKILL.md" in paths
             assert len([p for p in paths if p.endswith("SKILL.md")]) == 32
@@ -51,9 +56,9 @@ with tempfile.TemporaryDirectory() as temporary:
     project = stage / "project"
     project.mkdir()
     manager = k.KernelManager(project, registry)
-    state = manager.install({"business-os": "^0.1.0", "design-os": "^0.1.0"}, binding={"companyId": "fixture-company", "revision": 1})
+    state = manager.install({"business-os": "^0.1.0", "design-os": "^0.1.0", "dev-os": "^0.1.0"}, binding={"companyId": "fixture-company", "revision": 1})
     manager.verify(state)
-    assert set(state["installed"]) == {"business-os", "design-os"}
+    assert set(state["installed"]) == {"business-os", "design-os", "dev-os"}
     assert state["desiredRevision"] == 1
     manager.initialize()
     print("PASS: real npm archives installed, verified and initialized; no package code executed")
