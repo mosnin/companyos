@@ -167,3 +167,17 @@ contract and behavior validation.
 
 References: [GitHub registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry),
 [Bun scopes](https://bun.sh/docs/pm/scopes-registries).
+
+## Dev OS engineering kernel
+
+Dev OS is an optional private `@mosnin/dev-os` protocol-v1 content package. It
+provides engineering implementation, debugging, testing and verification guidance.
+Company OS retains authority, state and acceptance; Design OS retains UX/UI
+direction. Business OS remains the default baseline. Select Dev OS per company
+and let the connected host install and report the requested revision.
+
+The host activates one engineering navigator and loads specialist guidance on
+demand. Installation runs no scripts and grants no permissions. Company outputs
+and overrides remain outside immutable package objects. The standalone Dev OS
+installer is not part of host initialization. Local package verification does not
+prove registry publication, deployed availability or improved product outcomes.
