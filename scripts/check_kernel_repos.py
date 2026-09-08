@@ -12,12 +12,24 @@ canonical = core / "skills/company-os/elastic-company-os/scripts/kernel_manager.
 schema = core / "schemas/kernel-v1.schema.json"
 for repo in ("business-OS", "design-os", "product-os"):
     target = args.root / repo
-    schema_copy = target / ("contracts/kernel-v1.schema.json" if repo == "business-OS" else "schemas/kernel-v1.schema.json")
-    for original, copy in ((canonical, target / "scripts/validate_company_os_kernel.py"), (schema, schema_copy)):
+    schema_copy = target / (
+        "contracts/kernel-v1.schema.json"
+        if repo == "business-OS"
+        else "schemas/kernel-v1.schema.json"
+    )
+    copies = (
+        (canonical, target / "scripts/validate_company_os_kernel.py"),
+        (schema, schema_copy),
+    )
+    for original, copy in copies:
         if original.read_bytes() != copy.read_bytes():
             raise SystemExit("Contract drift: " + str(copy))
-    command = [sys.executable, str(canonical), "validate", "--package", str(target)]
-    if repo == "product-os":
-        command.append("--allow-draft")
+    command = [
+        sys.executable,
+        str(canonical),
+        "validate",
+        "--package",
+        str(target),
+    ]
     subprocess.run(command, check=True)
 print("PASS: three repositories, one kernel contract")

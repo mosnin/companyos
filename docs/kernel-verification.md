@@ -14,11 +14,13 @@ separate, still-required release steps.
   a kernel preserves existing versions, replacement dependencies require an
   explicit update, and web-bound update-kernels preserves binding and reports.
 - `python3 scripts/check_kernel_repos.py`: all three sibling kernel repositories
-  match the canonical schema/validator and validate (Product OS allowed as draft).
+  match the canonical schema/validator and validate as ready kernels.
 - `python3 scripts/test_kernel_packages.py`: real local npm archives for
-  Business OS and Design OS installed, verified and initialized. Failure atomicity
-  is covered by the unit suite. Business includes all 732 skill entrypoints; Design
-  includes all 32. No publish/network call or package script execution occurs.
+  Business OS, Design OS, and Product OS installed, verified and initialized.
+  Failure atomicity is covered by the unit suite. Business includes all 732 skill
+  entrypoints; Design includes all 32; Product includes all 85 while excluding
+  development-only scripts, tests, evaluations, and research. No publish/network
+  call or package script execution occurs.
 - Distribution manifest and 75 first-class skill surface verification pass.
 - Business OS generated-surface/build checks pass; Design OS 28 tests and complete
   principle/journey registry validation pass.
