@@ -15,7 +15,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Company blueprint | Compile identity, objectives, organization, capabilities, routines, knowledge, assets, integrations, and storage | `$company-blueprint`, `$civilization-builder`, `$corporate-management` |
 | Loop strategy | Select one finite task-shaped feedback loop and compatible diagnostic, learning, or event adapters | `$select-execution-loop` |
 | Strategy and portfolio | Decide what matters and what stops | `$strategy-pillar`, `$portfolio-direction`, `$business-architect`, `$civilization-builder`, `$economics-architect` |
-| Project and program management | Turn bets into accountable roadmaps | `$project-program-management`, `$project-kickoff-roadmap`, `$project-manager` |
+| Project and program management | Turn bets into accountable roadmaps | `$pm-os` when installed; `$project-program-management`, `$project-kickoff-roadmap`, `$project-manager` as local fallbacks |
 | Operations | Run metrics, incidents, process health, and continuous improvement | `$operational-control`, `$ops-architect` |
 | Functional departments | Define mandates, interfaces, decisions, and service levels | `$department-charters`, `$corporate-management`, `$corporate-departments`, `$hr-architect` |
 | Brand and creative | Keep product, language, content, and motion cohesive and differentiated | `$brand-creative-system`, `$brand-architect`, `$steve` |
@@ -282,3 +282,7 @@ Do not force Agile or Waterfall as identity. Define decision cadence, evidence g
 Use `$recursive-skill-foundry` as the project local learning and capability compounding layer. Search promoted project skills before external capability selection. Forge a new skill only when the user explicitly requests one, the active navigation route is concretely blocked by a missing reusable mechanism, or accepted field evidence proves repeated reuse value.
 
 A skill candidate is not product progress unless skill creation is the original destination. For normal product missions, finish and checkpoint the real route first, then capture the reusable mechanism. Project skills install under `.agents/skills`, remain content addressed, and must be verified before assignment. Learned mechanisms require two accepted independent uses. Shared core promotion requires three independent projects plus fresh independent review and is never automatic.
+
+## PM OS kernel routing
+
+For product scope, project kickoff, charter, WBS, RACI, baseline, scope changes, KPIs and delivery acceptance, load the installed `$pm-os` kernel and preserve the Company OS objective and authority. Prefer its direct Company OS Web and Operate MCP workflow when connected: recover company/project identity, revise context documents on the correct branch, manage execution through native Operate plans/tasks and retain provider IDs and read-back evidence. Company OS retains priorities, budgets, authority and final acceptance. A PM baseline decision does not authorize execution by itself. If the kernel or connections are absent, use the existing project-management skills and identify that limitation; do not claim a live platform write from a local plan.
