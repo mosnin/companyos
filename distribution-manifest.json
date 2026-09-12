@@ -692,8 +692,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "7e5fdec088f91f9bf357170bbc35aad2a7cdb0eae58a1c785b44143c913cf873",
-      "size": 22848
+      "sha256": "8b6778800f552c509df91b87deda0e12246b6dd17415530cf0e09b1f37370850",
+      "size": 23676
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",
