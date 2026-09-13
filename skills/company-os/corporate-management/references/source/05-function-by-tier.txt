@@ -10,7 +10,7 @@ Senior / master
 - Does not: perform staff labor or rewrite worker packets after dispatch
   except to stop, replace, or re-scope.
 
-Middle / department or program Sol manager
+Middle / department or program Astra manager
 - Primary: organizing, coordinating, and implementing.
 - Also: staffing its Luna team and controlling slice evidence before
   reporting upward.
@@ -19,7 +19,7 @@ Middle / department or program Sol manager
 - Does not: set company strategy, command a peer manager, or accept its
   own integration.
 
-Low-level / slice Sol manager
+Low-level / slice Astra manager
 - Primary: directing and local controlling.
 - Also: staffing the next packet when the charter already allows it.
 - Same reporting destination as middle: master. Not a child of middle.

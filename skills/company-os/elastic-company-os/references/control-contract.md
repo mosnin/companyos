@@ -194,7 +194,7 @@ The meta-loop audits itself through its decision latency, false-positive adaptat
    to that exact cycle.
 9. Record manager reports in the fixed order charter, discovery, design,
    execution, verification, and integration. Each report cites project-local
-   evidence bound to the same program, work, and cycle. A distinct Sol reviewer
+   evidence bound to the same program, work, and cycle. A distinct Astra reviewer
    must accept verification.
 10. Require a separately signed master decision for every manager barrier.
     Rework is capped at two rounds, blocked reports cannot continue, and phase

@@ -460,7 +460,7 @@ class CompanyBlueprintTests(unittest.TestCase):
             "management_tier": "staff",
             "origin": "stored",
             "outcome": "Illegal staff manager",
-            "requested_model": "gpt-5.6-sol",
+            "requested_model": "gpt-6-astra",
             "role": "manager",
             "skills": ["manage-company-program", "strategy-pillar"],
             "source_slot_id": "executive-strategy-manager",

@@ -4,7 +4,7 @@ Contract: `company-os.codex-native-task-fabric.v2`.
 
 ## Authority and runtime
 
-The native hierarchy is master Sol task → Sol manager task → Luna worker task.
+The native hierarchy is master Astra task → Astra manager task → Luna worker task.
 Codex tasks are peers in the app, so lineage comes from Company OS mission IDs
 and explicit parent IDs, never from host ID or sidebar position. The host may
 expose a task/thread ID, host ID, status, timestamps, and elapsed duration.
@@ -90,3 +90,7 @@ Validate deterministic simulation exports with:
 `python3 scripts/validate_codex_native_fabric.py path/to/simulation.json`
 
 This validator exercises evidence rules; it does not invoke native task tools.
+
+## Current management model routing
+
+Request `gpt-6-astra` with `medium` reasoning for executive/master and manager conversations. On Codex task creation, pass `model: "gpt-6-astra"` and `thinking: "medium"`; on sub-agent surfaces pass the explicit model and reasoning effort with a generic role, never the fixed `sol_master` or `sol_manager` preset. Preserve `gpt-5.6-luna` for workers. Record requested settings separately from host-observed settings. If this exact model is unavailable, report the host capability gap instead of silently reverting to Sol. Existing running conversations change only after an explicit host update and subsequent observation.

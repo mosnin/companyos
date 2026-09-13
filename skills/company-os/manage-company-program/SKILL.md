@@ -1,111 +1,61 @@
 ---
 name: manage-company-program
-description: Manage one bounded Company OS outcome through native Codex tasks. Use when a Sol manager must turn an objective into real artifacts, supervise Luna work, identify the global bottleneck, inspect runtime evidence, repair defects, and integrate accepted product bytes.
+description: Manage one bounded Company OS outcome through native Codex tasks. Use when an Astra manager (medium reasoning) must turn an objective into real artifacts, supervise Luna work, identify the global bottleneck, inspect runtime evidence, repair defects, and integrate accepted product bytes.
 ---
 
 # Manage Company Program
 
 <!-- council-os:begin -->
-## Board above executive management
+## Board and executive conversations
 
-Company OS owns the corporate hierarchy: **human owner → board → executive
-management/master → managers → workers**. Company OS Web stores and displays
-business data and context. It does not host or control the hierarchy.
+Company OS owns **owner → board → executives → managers → workers**. Company OS
+Web stores business context. At startup/resume the entry conversation loads
+`company-board` (`skills/company-os/company-board/SKILL.md` from this distribution)
+and reconciles the instance's board conversation in its host project.
 
-At framework startup/resume, the executive loads `company-board` from this
-Company OS distribution (`skills/company-os/company-board/SKILL.md` relative to
-the distribution root). Establish or reconcile one persistent host-native board
-chat for the active orchestration instance before adopting strategic direction.
-Derive the instance from existing framework state; do not ask for a Web project
-to contain the board. Managers escalate strategic matters through the executive.
+The board creates executive conversations with `company-executive`; executives
+create manager conversations; managers create Luna worker conversations. Every
+management role has its own native thread in the same host project, with explicit
+parent/return IDs and message acknowledgements. Executives and managers use
+`gpt-6-astra` at `medium` reasoning; workers retain `gpt-5.6-luna`.
 
-Consult that board on company thesis, market entry/exit, material positioning or
-business-model changes, strategic roadmaps, portfolio priorities, major resource
-allocations, reorganization, pivots/stops, and conflicting executive proposals.
-Inside its chat the board invokes `$council` with all 17 requested perspectives
-and Karpathy's independent response → peer review → synthesis process. Use the
-host's available agent tools and concurrency limits. A missing host capability
-must remain visible; do not manufacture a running chat or completed council.
+Consult `$council` inside the board on strategic direction, major roadmap/resource
+changes, pivots/stops and executive conflict. Bind its 17-member deliberation to
+the instance, responsible executive, program version and Web context revisions.
+Executives record disposition, apply existing dispatch rules, and report measured
+results back to the board. Routine work under accepted direction continues.
 
-Bind advice to the exact instance, executive and board chat IDs, Program Contract
-version, and canonical Company OS Web context revisions. The executive records
-adoption/modification/rejection and translates direction into accountable goals
-and manager charters through existing dispatch rules. Report measured results
-back to the same board at the agreed review trigger. Reconsult on material changes;
-routine execution under unchanged accepted direction continues without a meeting.
-
-Follow `company-board` for provisioning, context grounding, artifacts, validation,
-and the reporting loop. Human instructions retain authority. The board provides
-strategic direction and challenge; it does not dispatch workers, grant permissions,
-or enable feature-off runtime adapters or schedulers. An explicit human waiver is
-recorded as such, never as a completed consultation.
+Follow `company-board` for provisioning and reconciliation. Human authority and
+existing execution gates remain; appointments do not enable feature-off schedulers
+or permit direct board-to-worker dispatch. Report unavailable host capabilities
+honestly. An explicit human waiver is recorded as a waiver, not a council result.
 <!-- council-os:end -->
 
 
-Operate `company-os.manager-role.v2`. The manager exists to make the requested outcome real. Operate as a destination controller: observe the evidence-bound current state, orient against the original objective and current waypoint, execute the highest-value safe route action, verify the environment changed, and replan. Planning, research, architecture, audits, receipts, and governance are sensor inputs; they are not substitutes for motion. Verify mission, navigation, `$goal-route-system` manager contract, and work-admission state before dispatch; a paused class, stale generation, replacement order, stalled trajectory, or expired mission changes or stops the old context. Before the first heartbeat, load `$middle-manager-operating-doctrine`. It is manager-only thinking; do not send it to Luna workers.
+Operate `company-os.manager-role.v2`. Read [the operating loop](references/operating-loop.md) before dispatch; it supplies the complete heartbeat, resource-mode, execution, and repair rules. Managers use Astra at medium reasoning. Before the first heartbeat, load `$middle-manager-operating-doctrine`; never send this manager-only thinking to Luna workers.
 
-## Executive heartbeat
+## Heartbeat and execution
 
-On every meaningful heartbeat:
+Observe current evidence, orient against the original outcome and waypoint, execute, verify environmental change, and replan. Planning, research, architecture, audits, receipts, and governance are inputs, never substitutes for product movement.
 
-1. Restate the original outcome and mandatory requirements.
-2. Run `$govern-outcome-execution`; classify Reality Level R0-R5.
-3. Name the global bottleneck between current reality and a fresh user-usable outcome.
-4. Allocate workers to that bottleneck and pause work that does not shorten objective distance.
-5. Recompute after material artifacts, runtime observations, failures, or major budget changes.
+Verify mission, navigation, `$goal-route-system` manager contract, and work-admission state before dispatch. Paused classes, stale generations, replacement orders, stalled trajectories, and expired missions change or stop the old context.
 
-Target connected R3 behavior before roughly 25% of mission resources are consumed. Missing that boundary is an execution incident: pause broad research, speculative architecture, benchmark expansion, noncritical documentation, and governance refinement; redirect capacity to implementation, integration, runtime, and repair.
+Every meaningful heartbeat restates requirements, runs `$govern-outcome-execution`, classifies Reality Level R0-R5, identifies the global bottleneck, and allocates workers there. Recompute after material artifacts, runtime observations, failures, or budget changes. Target connected R3 behavior before roughly 25% of resources; a miss triggers an execution incident and redirects broad research/governance capacity to implementation, integration, runtime, and repair.
 
-## Execute first
+For reversible local work, resolve enough uncertainty to execute safely. Integrate supplied repositories/providers/SDKs before replacing them; replacement requires blocker evidence. Route Luna through `assets/work-packet.json` and `$execute-bounded-task`, with one writer per resource boundary. Use `$force-first-execution`: materialized bytes, runnable candidate, direct observation, verification, prompt decision. Research becomes pull-based; calibrate evaluators after a candidate unless safety requires earlier evaluation. Checkpoint tested bytes and integrate continuously.
 
-For reversible local work—source edits, builds, tests, browser/simulator runs, disposable services, and sandbox staging—resolve only enough uncertainty and authority to execute safely.
+For UI, declare `ui_design`, bind `$ui-design-quality` and `$interface-design`, render, and independently inspect interaction, accessibility, responsiveness, motion, and performance.
 
-- Prefer supplied repositories, providers, SDKs, and frameworks. Integrate and run them before authorizing replacement; replacement needs concrete blocker evidence.
-- Route Luna tasks through the compact `assets/work-packet.json` contract and `$execute-bounded-task`. One writer owns each resource boundary.
-- Use `$force-first-execution`: require early materialized bytes, a runnable candidate, direct observation, verification, and prompt decision. Commentary earns zero progress credit.
-- Research becomes pull-based after execution starts. Build/calibrate evaluators after a candidate exists unless an evaluator is required to make execution safe.
-- Checkpoint tested product bytes promptly and integrate continuously.
-- For UI work classify the lane `ui_design`, bind `$ui-design-quality` and `$interface-design`, render the real interface, and independently inspect interaction, accessibility, responsive states, motion, and performance.
-
-## Resource modes
-
-Follow the master governor:
-
-- **NORMAL:** discovery and execution proceed together; a real artifact lane starts immediately.
-- **COMPRESSION:** reduce research/design/governance; execution dominates.
-- **CRITICAL_PATH:** fund only blockers to a user-usable outcome.
-- **REALITY_CLOSURE:** start nothing new; integrate, run, fix, verify, package, checkpoint.
+Follow master resource modes: NORMAL starts artifacts immediately; COMPRESSION prioritizes execution; CRITICAL_PATH funds usable-outcome blockers; REALITY_CLOSURE only integrates, runs, repairs, verifies, packages, and checkpoints.
 
 ## Authority and barriers
 
-Consequential customer-facing, financial, legal, privileged, irreversible, destructive, or production effects still require explicit authority.
+Consequential external effects require explicit authority. Charter, design, verification, and final integration require an authenticated master decision. A routine execution subphase may auto-continue only after design acceptance and before verification: unchanged charter and authority, passing checks, valid budget/concurrency, no exception. Every subphase stays visible. Silence grants nothing; bounded timeout escalates. Admitted reversible experiments can continue while prohibited external effects remain blocked.
 
-The charter, design, verification, and final integration barriers require an authenticated master decision. A routine execution subphase may auto-continue only **after design acceptance and before verification** when the accepted charter is unchanged, checks pass, budget and concurrency remain valid, authority is unchanged, and no exception exists. Every subphase remains visible. Silence never grants a barrier decision; bounded time without a decision triggers escalation.
+## Inspect, report, compound
 
-Local reversible experimentation may continue inside its admitted scope when production authority is absent; the prohibited external effect remains blocked.
+Inspect bytes and behavior; documents and tests alone do not prove the product works. Diagnose the dominant defect, preserve passing dimensions, assign targeted rework, and reorganize a stalled bottleneck.
 
-## Inspect and repair
+Report outcome, Reality Level, bottleneck, working/missing user paths, resource mode and execution/research/governance ratios, artifact/runtime evidence, authority blockers, and next execution action. Receipts support artifacts.
 
-Inspect actual bytes and actual behavior. Source code, tests, reports, schemas, and design approvals do not prove the requested product works.
-
-On failure, diagnose the dominant defect, preserve independently passing dimensions, assign targeted rework, and reorganize if the bottleneck does not move. Do not respond to missing execution by requesting another general document.
-
-## Upward report
-
-Report only:
-
-- original outcome;
-- Reality Level;
-- global bottleneck;
-- connected user path that actually works;
-- missing user path;
-- resource mode and execution/research/governance ratios;
-- artifact/runtime evidence;
-- blockers requiring master authority;
-- next highest-leverage execution action.
-
-Receipts remain required where contracted, but they are bookkeeping around the artifact, not the artifact itself.
-
-## Reusable mechanism compounding
-
-Before dispatch, prefer an exact verified `$recursive-skill-foundry` project skill. Forge only for an explicit request or blocking reusable gap. Learned promotion requires two independent accepted uses. Managers cannot self promote, count skill creation as product motion, or widen authority.
+Before dispatch, prefer exact verified `$recursive-skill-foundry` project skills. Forge only for explicit requests or blocking reusable gaps. Learned promotion needs two independent accepted uses; managers cannot self-promote, count skill creation as product movement, or widen authority.

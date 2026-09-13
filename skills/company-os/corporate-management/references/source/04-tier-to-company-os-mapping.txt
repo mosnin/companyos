@@ -13,11 +13,11 @@ Mapping
   Uses `$company-os`, `$govern-outcome-execution`, `$mission-execution-control`,
   and `$navigation-control`. Versions the Program Contract. Decides charter,
   design, verification, and integration barriers. Names the global bottleneck.
-- Middle management = Sol manager of a department or program outcome.
+- Middle management = Astra manager of a department or program outcome.
   Uses `$manage-company-program`. Coordinates interfaces, implements senior
   plans, and reports at phase barriers. May not change strategy, roadmap
   ownership, or authority.
-- Low-level management = Sol manager of one slice or worker team.
+- Low-level management = Astra manager of one slice or worker team.
   Same fabric role as middle management. Narrower charter: direct the team,
   control local evidence, escalate blockers. Not a new runtime role and
   not a parent under middle management.
@@ -26,7 +26,7 @@ Mapping
   Worker completion is never acceptance.
 
 Rules
-- Middle and low-level are peer Sol managers. Both report to master.
+- Middle and low-level are peer Astra managers. Both report to master.
   Wider vs narrower charter is not a parent hop.
 - Do not spawn a manager to sit between master and manager.
 - Do not spawn a manager under a manager.

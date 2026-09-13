@@ -1,11 +1,11 @@
 ---
 name: middle-manager-operating-doctrine
-description: Force first-principles, constraint, and tight-feedback thinking on one Sol manager outcome. Use when spawning a middle manager. Do not load on the Company OS master or on Luna workers.
+description: Force first-principles, constraint, and tight-feedback thinking on one Astra manager outcome. Use when spawning a middle manager. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Middle Manager Operating Doctrine
 
-This is a thinking overlay for Sol managers only. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$mission-execution-control`, `$navigation-control`, and `$govern-outcome-execution` still win.
+This is a thinking overlay for Astra managers only. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$mission-execution-control`, `$navigation-control`, and `$govern-outcome-execution` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, or quoted speech.
 

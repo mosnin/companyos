@@ -131,7 +131,7 @@ the following:
 - less than 20% rework;
 - zero write collisions and duplicate artifacts;
 - observed Luna/max labor with at least 70% of measured execution tokens;
-- at least 40% fewer Sol tokens than the single-thread baseline;
+- at least 40% fewer Astra tokens than the single-thread baseline;
 - no lead-time regression;
 - complete mandatory-requirement and capability-application closure;
 - independently proven cancellation and recovery for the relevant runtime.

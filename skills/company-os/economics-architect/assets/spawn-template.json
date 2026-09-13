@@ -4,7 +4,7 @@
     "master",
     "worker"
   ],
-  "requested_model": "gpt-5.6-sol",
+  "requested_model": "gpt-6-astra",
   "role": "manager",
   "schema": "company-os.economics-architect-spawn-template.v1",
   "skills": [
@@ -19,5 +19,6 @@
     "opportunity_cost",
     "pricing",
     "unit_economics"
-  ]
+  ],
+  "requested_reasoning_effort": "medium"
 }

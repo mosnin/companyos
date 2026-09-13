@@ -1,6 +1,6 @@
 ---
 name: compile-outcome-organization
-description: Compile the current Company OS outcome loop state into the smallest executable Sol manager and Luna worker organization that can move the present quality bottleneck. Use before configuring an outcome owned execution fabric.
+description: Compile the current Company OS outcome loop state into the smallest executable Astra manager and Luna worker organization that can move the present quality bottleneck. Use before configuring an outcome owned execution fabric.
 ---
 
 # Compile Outcome Organization

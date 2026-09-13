@@ -6,39 +6,29 @@ description: Own the durable Company OS objective lifecycle and automatically pe
 # Direct Outcome
 
 <!-- council-os:begin -->
-## Board above executive management
+## Board and executive conversations
 
-Company OS owns the corporate hierarchy: **human owner → board → executive
-management/master → managers → workers**. Company OS Web stores and displays
-business data and context. It does not host or control the hierarchy.
+Company OS owns **owner → board → executives → managers → workers**. Company OS
+Web stores business context. At startup/resume the entry conversation loads
+`company-board` (`skills/company-os/company-board/SKILL.md` from this distribution)
+and reconciles the instance's board conversation in its host project.
 
-At framework startup/resume, the executive loads `company-board` from this
-Company OS distribution (`skills/company-os/company-board/SKILL.md` relative to
-the distribution root). Establish or reconcile one persistent host-native board
-chat for the active orchestration instance before adopting strategic direction.
-Derive the instance from existing framework state; do not ask for a Web project
-to contain the board. Managers escalate strategic matters through the executive.
+The board creates executive conversations with `company-executive`; executives
+create manager conversations; managers create Luna worker conversations. Every
+management role has its own native thread in the same host project, with explicit
+parent/return IDs and message acknowledgements. Executives and managers use
+`gpt-6-astra` at `medium` reasoning; workers retain `gpt-5.6-luna`.
 
-Consult that board on company thesis, market entry/exit, material positioning or
-business-model changes, strategic roadmaps, portfolio priorities, major resource
-allocations, reorganization, pivots/stops, and conflicting executive proposals.
-Inside its chat the board invokes `$council` with all 17 requested perspectives
-and Karpathy's independent response → peer review → synthesis process. Use the
-host's available agent tools and concurrency limits. A missing host capability
-must remain visible; do not manufacture a running chat or completed council.
+Consult `$council` inside the board on strategic direction, major roadmap/resource
+changes, pivots/stops and executive conflict. Bind its 17-member deliberation to
+the instance, responsible executive, program version and Web context revisions.
+Executives record disposition, apply existing dispatch rules, and report measured
+results back to the board. Routine work under accepted direction continues.
 
-Bind advice to the exact instance, executive and board chat IDs, Program Contract
-version, and canonical Company OS Web context revisions. The executive records
-adoption/modification/rejection and translates direction into accountable goals
-and manager charters through existing dispatch rules. Report measured results
-back to the same board at the agreed review trigger. Reconsult on material changes;
-routine execution under unchanged accepted direction continues without a meeting.
-
-Follow `company-board` for provisioning, context grounding, artifacts, validation,
-and the reporting loop. Human instructions retain authority. The board provides
-strategic direction and challenge; it does not dispatch workers, grant permissions,
-or enable feature-off runtime adapters or schedulers. An explicit human waiver is
-recorded as such, never as a completed consultation.
+Follow `company-board` for provisioning and reconciliation. Human authority and
+existing execution gates remain; appointments do not enable feature-off schedulers
+or permit direct board-to-worker dispatch. Report unavailable host capabilities
+honestly. An explicit human waiver is recorded as a waiver, not a council result.
 <!-- council-os:end -->
 
 

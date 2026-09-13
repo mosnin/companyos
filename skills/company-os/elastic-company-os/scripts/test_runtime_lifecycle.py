@@ -69,7 +69,7 @@ class RuntimeLifecycleTests(unittest.TestCase):
             "cycle_id": "cycle-1",
             "parent_runtime_id": "master",
             "role": "manager",
-            "requested_model": "gpt-5.6-sol",
+            "requested_model": "gpt-6-astra",
             "provider": "codex",
             "surface": "desktop",
             "account": "workspace-1",
@@ -379,7 +379,7 @@ class RuntimeLifecycleTests(unittest.TestCase):
     def test_success_path_requires_exact_model_terminal_usage_receipt_and_reconciliation(self) -> None:
         attempt = self.advance_to_success()
         self.assertEqual(attempt["lifecycle"]["status"], "succeeded")
-        self.assertEqual(attempt["lifecycle"]["observed_model"], "gpt-5.6-sol")
+        self.assertEqual(attempt["lifecycle"]["observed_model"], "gpt-6-astra")
         self.assertEqual(attempt["lifecycle"]["telemetry"]["total_tokens"], 125)
         receipt = self.receipt(attempt)
         attempt = lifecycle.record_receipt(

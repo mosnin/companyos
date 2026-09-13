@@ -21,8 +21,11 @@ def text(value, name):
 def validate(session, request, record, disposition, current_context, program_version):
     if session.get('schema') != 'company-os.board-session.v1':
         raise ValueError('unsupported board session')
+    text(request.get('decision_id'), 'decision_id')
+    if session.get('decision_id') != request['decision_id']:
+        raise ValueError('session belongs to another decision')
     binding = request.get('framework', {})
-    for key in ('instance_id', 'host', 'board_thread_id', 'executive_thread_id'):
+    for key in ('instance_id', 'host', 'host_project_id', 'board_thread_id', 'executive_thread_id'):
         if text(session.get(key), key) != binding.get(key):
             raise ValueError(f'framework binding mismatch: {key}')
     text(session.get('creation_ref'), 'creation_ref')

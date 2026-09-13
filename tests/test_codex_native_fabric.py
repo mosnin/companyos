@@ -18,6 +18,12 @@ SIMULATION = ROOT / "programs/company-os-self-hosting/CODEX_NATIVE_TASK_FABRIC_S
 class CodexNativeFabricRepositoryTests(unittest.TestCase):
     def setUp(self) -> None:
         self.payload = json.loads(SIMULATION.read_text(encoding="utf-8"))
+        # Replay copies under current requested routing; archived observations remain intact.
+        for scenario in self.payload["scenarios"]:
+            for task in scenario["tasks"]:
+                if task.get("role") in {"master", "manager"}:
+                    task["requested_model"] = "gpt-6-astra"
+                    task["requested_reasoning_effort"] = "medium"
 
     def test_simulation_ladder_matches_all_five_oracles(self) -> None:
         result = FABRIC.validate_simulation(self.payload)

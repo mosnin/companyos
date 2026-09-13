@@ -429,7 +429,7 @@ class FixtureResponsesGateway:
         required_attempt = set(runtime_gateway.IMMUTABLE_ATTEMPT_FIELDS)
         if not isinstance(attempt, dict) or set(attempt) != required_attempt:
             raise ResponsesGatewayError("gateway request attempt is invalid")
-        if attempt.get("provider") != "openai" or attempt.get("surface") != "responses-api" or attempt.get("requested_model") not in {"gpt-5.6-sol", "gpt-5.6-luna"}:
+        if attempt.get("provider") != "openai" or attempt.get("surface") != "responses-api" or attempt.get("requested_model") not in {"gpt-6-astra", "gpt-5.6-luna"}:
             raise ResponsesGatewayError("gateway request is outside the fixture canary")
         for field in ("attempt_id", "project_id", "work_id", "cycle_id", "parent_runtime_id", "role", "account", "idempotency_key"):
             _text(attempt.get(field), field)
@@ -440,7 +440,7 @@ class FixtureResponsesGateway:
         if not isinstance(attempt.get("scope"), list) or attempt.get("scope_digest") != _digest(attempt["scope"]):
             raise ResponsesGatewayError("gateway request scope binding is invalid")
         if attempt.get("role") == "manager":
-            if attempt.get("requested_model") != "gpt-5.6-sol" or attempt.get("parent_runtime_id") != "master":
+            if attempt.get("requested_model") != "gpt-6-astra" or attempt.get("parent_runtime_id") != "master":
                 raise ResponsesGatewayError("gateway request manager identity is invalid")
         elif attempt.get("role") == "worker":
             if attempt.get("requested_model") != "gpt-5.6-luna" or attempt.get("parent_runtime_id") == "master":
@@ -831,7 +831,7 @@ class FixtureResponsesGateway:
                         state["nonces"][nonce] = command_digest
                         self._write_state(state)  # durable pre-effect launch tombstone
                         try:
-                            raw = transport.create(_canonical({"background": True, "input": FIXED_INPUT, "model": request["attempt"]["requested_model"], "store": False, "tools": []}).encode("utf-8"))
+                            raw = transport.create(_canonical({"background": True, "input": FIXED_INPUT, "model": request["attempt"]["requested_model"], **({"reasoning": {"effort": "medium"}} if request["attempt"]["role"] == "manager" else {}), "store": False, "tools": []}).encode("utf-8"))
                         except Exception:
                             result, details = self._unknown(request, request_digest, 1)
                             entry["status"] = "launch_unknown"

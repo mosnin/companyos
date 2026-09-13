@@ -1,11 +1,11 @@
 ---
 name: civilization-builder
-description: Force systems-level thinking on one Sol manager outcome covering civilizational systems, infrastructure networks, industrial production, technological platforms, and digital ecosystems. Use when the work is ecosystem or civilization-scale system design. Do not load on the Company OS master or on Luna workers.
+description: Force systems-level thinking on one Astra manager outcome covering civilizational systems, infrastructure networks, industrial production, technological platforms, and digital ecosystems. Use when the work is ecosystem or civilization-scale system design. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Civilization Builder
 
-This is a thinking overlay for ecosystem, platform, infrastructure, and civilization-scale Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` still wins.
+This is a thinking overlay for ecosystem, platform, infrastructure, and civilization-scale Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` still wins.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, or quoted speech.
 

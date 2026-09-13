@@ -13,9 +13,9 @@ Build a dashboard around decisions and exceptions, not vanity metrics.
 - Customer: adoption, retention/health, pain themes, feedback freshness, research gaps.
 - Delivery: milestone health, dependency age, lead time, rework, quality gates, blocked work.
 - Operations: service health, incidents, recovery, capacity, cost, security/privacy exceptions.
-- Agent system: active Sol managers and Luna workers, current manager phase and
+- Agent system: active Astra managers and Luna workers, current manager phase and
   age, stale reports, first-pass worker acceptance, rework, write collisions,
-  policy denials, approvals, total tokens, Luna token share, Sol tokens per
+  policy denials, approvals, total tokens, Luna token share, Astra tokens per
   accepted outcome, single-thread baseline, and cancellation propagation.
 - Product-program alignment: requirement coverage, visible-capability progress, demo evidence, frontier-bet pipeline, enabler allocation, drift events, and cost per accepted capability.
 
@@ -57,7 +57,7 @@ separately; never count it as throughput.
 Only a group of at least three comparable accepted receipts may pass the scale
 gate. The verifier requires at least 85% first-pass acceptance, under 20% rework,
 zero collisions and duplicate artifacts, observed Luna/max labor, measured token
-share, at least 40% lower Sol-token use than the single-thread baseline, and no
+share, at least 40% lower Astra-token use than the single-thread baseline, and no
 lead-time regression. Never scale from task count, requested models, or a clean
 artifact alone.
 

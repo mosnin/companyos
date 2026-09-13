@@ -12,13 +12,13 @@ spec.loader.exec_module(board)
 
 class BoardHandoffTests(unittest.TestCase):
     def setUp(self):
-        self.session = dict(schema='company-os.board-session.v1', instance_id='fixture-instance-a',
-                            host='fixture-host', board_thread_id='fixture-board',
+        self.session = dict(schema='company-os.board-session.v1', decision_id='fixture-decision', instance_id='fixture-instance-a',
+                            host='fixture-host', host_project_id='fixture-project', board_thread_id='fixture-board',
                             executive_thread_id='fixture-executive', creation_ref='fixture-observation')
         self.context = dict(organization_id='fixture-org', business_slug='fixture-business',
                             retrieved_at='2026-09-13T10:00:00Z',
                             documents=[dict(id='strategy', revision=4, content_hash='fixture-hash')])
-        binding = {key: self.session[key] for key in ('instance_id', 'host', 'board_thread_id', 'executive_thread_id')}
+        binding = {key: self.session[key] for key in ('instance_id', 'host', 'host_project_id', 'board_thread_id', 'executive_thread_id')}
         binding.update(program_version=3, context_snapshot=copy.deepcopy(self.context))
         self.request = dict(decision_id='fixture-decision', project='fixture-instance-a', framework=binding)
         self.record = dict(schema='council-os.decision.v2', status='advisory', request_sha256=board.digest(self.request))
@@ -34,11 +34,15 @@ class BoardHandoffTests(unittest.TestCase):
         self.assertFalse(self.check()['authority_granted'])
 
     def test_cross_instance_or_chat_replay_rejected(self):
-        for key in ('instance_id', 'host', 'board_thread_id', 'executive_thread_id'):
+        for key in ('instance_id', 'host', 'host_project_id', 'board_thread_id', 'executive_thread_id'):
             original = self.session[key]
             self.session[key] = 'different'
             with self.assertRaises(ValueError): self.check()
             self.session[key] = original
+
+    def test_other_decision_session_rejected(self):
+        self.session['decision_id'] = 'other-decision'
+        with self.assertRaisesRegex(ValueError, 'another decision'): self.check()
 
     def test_stale_program_rejected(self):
         with self.assertRaises(ValueError): self.check(4)

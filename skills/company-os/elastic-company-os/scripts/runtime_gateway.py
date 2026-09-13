@@ -237,8 +237,8 @@ def validate_vertical_slice_manifest(manifest: Any) -> dict[str, Any]:
     if not isinstance(workers, list) or len(workers) != 1:
         errors.append("first runtime slice requires exactly one worker")
         workers = []
-    if isinstance(manager, dict) and manager.get("model") != "gpt-5.6-sol":
-        errors.append("runtime manager must use exact gpt-5.6-sol")
+    if isinstance(manager, dict) and manager.get("model") != "gpt-6-astra":
+        errors.append("runtime manager must use exact gpt-6-astra")
     worker = workers[0] if workers else {}
     if worker.get("model") != "gpt-5.6-luna":
         errors.append("runtime worker must use exact gpt-5.6-luna")
@@ -339,8 +339,8 @@ def build_request(
         raise GatewayError("runtime admission is missing immutable launch fields")
     _manifest_identity(manifest, attempt)
     if attempt.get("role") == "manager":
-        if attempt.get("requested_model") != "gpt-5.6-sol" or attempt.get("parent_runtime_id") != "master":
-            raise GatewayError("manager launch requires exact Sol identity and master parent")
+        if attempt.get("requested_model") != "gpt-6-astra" or attempt.get("parent_runtime_id") != "master":
+            raise GatewayError("manager launch requires exact Astra identity and master parent")
     elif attempt.get("role") == "worker":
         if attempt.get("requested_model") != "gpt-5.6-luna" or attempt.get("parent_runtime_id") == "master":
             raise GatewayError("worker launch requires exact Luna identity and manager parent")

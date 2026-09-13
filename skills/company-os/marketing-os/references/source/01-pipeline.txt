@@ -2,7 +2,7 @@ MARKETING OS — SECTION 01: Pipeline
 
 Purpose
 Replace an always-on marketing orchestrator with a four-stage playbook
-that any Sol manager can run. The manager names the stage. Workers
+that any Astra manager can run. The manager names the stage. Workers
 produce one artifact. Schemas carry context between packets.
 
 Stages

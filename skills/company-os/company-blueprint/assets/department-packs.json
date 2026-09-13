@@ -13,7 +13,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Coordinate one independently accountable strategy or portfolio outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -21,7 +21,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "executive-strategy-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -112,7 +113,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable program outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -120,7 +121,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "program-management-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -209,7 +211,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable product outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -217,7 +219,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "product-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -308,7 +311,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable engineering outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -316,7 +319,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "engineering-quality-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -409,7 +413,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable brand or creative outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -417,7 +421,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "brand-creative-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -507,7 +512,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable marketing outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -516,7 +521,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "marketing-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -527,7 +533,7 @@
           "management_tier": "low_level",
           "origin": "catalog",
           "outcome": "Manage one independently accountable campaign or client slice",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -535,7 +541,8 @@
             "commercial-customer-system"
           ],
           "source_slot_id": "marketing-campaign-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -677,7 +684,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable sales outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -685,7 +692,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "sales-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -782,7 +790,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable customer-success outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -790,7 +798,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "customer-success-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -880,7 +889,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable finance outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -888,7 +897,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "finance-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -981,7 +991,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable operations outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -989,7 +999,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "operations-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -1079,14 +1090,15 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable people outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
             "corporate-departments"
           ],
           "source_slot_id": "human-resources-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [
@@ -1177,7 +1189,7 @@
           "management_tier": "middle",
           "origin": "catalog",
           "outcome": "Manage one independently accountable security or compliance outcome",
-          "requested_model": "gpt-5.6-sol",
+          "requested_model": "gpt-6-astra",
           "role": "manager",
           "skills": [
             "manage-company-program",
@@ -1185,7 +1197,8 @@
             "corporate-departments"
           ],
           "source_slot_id": "security-compliance-manager",
-          "status": "template"
+          "status": "template",
+          "requested_reasoning_effort": "medium"
         },
         {
           "forbidden_roles": [

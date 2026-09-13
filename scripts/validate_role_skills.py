@@ -24,7 +24,8 @@ ROLE_SPECS = {
         "asset": "mission-charter.json",
         "schema": "company-os.mission-charter.v2",
         "version_key": "charter_version",
-        "requested_model": "gpt-5.6-sol",
+        "requested_model": "gpt-6-astra",
+        "extra_keys": {"requested_reasoning_effort"},
         "authorization_phase": "charter",
         "barriers": ["charter", "design", "verification", "integration"],
         "routine_conditions": {
@@ -672,6 +673,8 @@ def _validate_contract_payload(
         errors.append("outcome digest does not match outcome")
     if payload.get("requested_model") != spec["requested_model"]:
         errors.append("requested_model does not match role")
+    if spec["requested_model"] == "gpt-6-astra" and payload.get("requested_reasoning_effort") != "medium":
+        errors.append("manager requested_reasoning_effort must be medium")
 
     parent_payload: dict[str, Any] | None = None
     parent_definition_digest: str | None = None

@@ -6,39 +6,29 @@ description: Coordinate a lightweight autonomous company operating system across
 # Company OS
 
 <!-- council-os:begin -->
-## Board above executive management
+## Board and executive conversations
 
-Company OS owns the corporate hierarchy: **human owner → board → executive
-management/master → managers → workers**. Company OS Web stores and displays
-business data and context. It does not host or control the hierarchy.
+Company OS owns **owner → board → executives → managers → workers**. Company OS
+Web stores business context. At startup/resume the entry conversation loads
+`company-board` (`skills/company-os/company-board/SKILL.md` from this distribution)
+and reconciles the instance's board conversation in its host project.
 
-At framework startup/resume, the executive loads `company-board` from this
-Company OS distribution (`skills/company-os/company-board/SKILL.md` relative to
-the distribution root). Establish or reconcile one persistent host-native board
-chat for the active orchestration instance before adopting strategic direction.
-Derive the instance from existing framework state; do not ask for a Web project
-to contain the board. Managers escalate strategic matters through the executive.
+The board creates executive conversations with `company-executive`; executives
+create manager conversations; managers create Luna worker conversations. Every
+management role has its own native thread in the same host project, with explicit
+parent/return IDs and message acknowledgements. Executives and managers use
+`gpt-6-astra` at `medium` reasoning; workers retain `gpt-5.6-luna`.
 
-Consult that board on company thesis, market entry/exit, material positioning or
-business-model changes, strategic roadmaps, portfolio priorities, major resource
-allocations, reorganization, pivots/stops, and conflicting executive proposals.
-Inside its chat the board invokes `$council` with all 17 requested perspectives
-and Karpathy's independent response → peer review → synthesis process. Use the
-host's available agent tools and concurrency limits. A missing host capability
-must remain visible; do not manufacture a running chat or completed council.
+Consult `$council` inside the board on strategic direction, major roadmap/resource
+changes, pivots/stops and executive conflict. Bind its 17-member deliberation to
+the instance, responsible executive, program version and Web context revisions.
+Executives record disposition, apply existing dispatch rules, and report measured
+results back to the board. Routine work under accepted direction continues.
 
-Bind advice to the exact instance, executive and board chat IDs, Program Contract
-version, and canonical Company OS Web context revisions. The executive records
-adoption/modification/rejection and translates direction into accountable goals
-and manager charters through existing dispatch rules. Report measured results
-back to the same board at the agreed review trigger. Reconsult on material changes;
-routine execution under unchanged accepted direction continues without a meeting.
-
-Follow `company-board` for provisioning, context grounding, artifacts, validation,
-and the reporting loop. Human instructions retain authority. The board provides
-strategic direction and challenge; it does not dispatch workers, grant permissions,
-or enable feature-off runtime adapters or schedulers. An explicit human waiver is
-recorded as such, never as a completed consultation.
+Follow `company-board` for provisioning and reconciliation. Human authority and
+existing execution gates remain; appointments do not enable feature-off schedulers
+or permit direct board-to-worker dispatch. Report unavailable host capabilities
+honestly. An explicit human waiver is recorded as a waiver, not a council result.
 <!-- council-os:end -->
 
 
@@ -62,7 +52,7 @@ Use this as the control layer above the Autonomy Suite. It runs the company oper
 | Commercial and customer | Connect discovery, adoption, sales, support, and retention to decisions | `$commercial-customer-system`, `$marketing-architect`, `$sales-architect`, `$steve`, `$value-creation-delivery` |
 | Research and intelligence | Gather evidence, customer signal, tech options, and innovation bets | `$research-intelligence` |
 | Mission dispatch loop | The single dispatch-boundary control layer: enforce First Reality scope, work admission, planning-budget metering, hard deadlines, scheduler leases, evidence-bound capability state, replacement, and product checkpoints. Route compilation (`$goal-route-system`), navigation (`$navigation-control`), and the executive governor (`$govern-outcome-execution`) run programmatically inside its controller — they are internal mechanisms, not additional dispatch skills to load | `$mission-execution-control` |
-| Execution | Deliver work through Sol manager tasks and bounded Luna labor with early real artifacts, runtime observation, targeted rework, verification, and decisions | `$manage-company-program`, `$execute-bounded-task`, `$force-first-execution`, `$autonomy-suite`, `$luna-execution-fabric` |
+| Execution | Deliver work through Astra manager tasks and bounded Luna labor with early real artifacts, runtime observation, targeted rework, verification, and decisions | `$manage-company-program`, `$execute-bounded-task`, `$force-first-execution`, `$autonomy-suite`, `$luna-execution-fabric` |
 | Elastic control | Create an isolated project operating model and improve it through independently reviewed feedback | `$elastic-company-os` |
 | Hosted company ledger | Pull and write shared company context through one company-os-web MCP across Claude, ChatGPT Work, and Grok | `$company-context-ledger` |
 
@@ -113,8 +103,8 @@ Use `$company-scorecard` as the ChatGPT Work decision dashboard. It should link 
 
 Use an exception-based model: report decisions and deviations, not ritual status. Every meeting or loop must update a decision record, metric, or next action.
 
-For a multi-manager delivery program, the primary thread acts as the Company OS
-master. It versions the Program Contract, spawns one Sol manager thread per
+For a multi-manager delivery program, each board-appointed executive conversation
+acts as the Company OS master for its own portfolio. It versions the Program Contract, spawns one Astra manager thread per
 bounded roadmap outcome, and receives a compact report at charter, discovery,
 design, execution, verification, and integration. Managers use
 `$manage-company-program`, `$middle-manager-operating-doctrine`, and

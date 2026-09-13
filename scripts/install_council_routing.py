@@ -45,30 +45,31 @@ def install(target):
         planned.append((p, original, changed))
     # Install the role before routing any entrypoint to it. Preserve an existing
     # role snapshot as a sibling backup; source remains this repository.
-    role = target / 'company-os/company-board'
-    if any(part.is_symlink() for part in [role, *role.parents]):
-        raise ValueError(f'refusing symlink: {role}')
-    source_role = ROOT / 'skills/company-os/company-board'
-    role_digest = hashlib.sha256(b''.join(
-        str(p.relative_to(source_role)).encode() + p.read_bytes()
-        for p in sorted(source_role.rglob('*')) if p.is_file() and '__pycache__' not in p.parts
-    )).hexdigest()[:12]
-    with tempfile.TemporaryDirectory(dir=role.parent, prefix='.board-install-') as scratch:
-        staged = Path(scratch) / 'company-board'
-        shutil.copytree(source_role, staged, ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
-        if role.exists():
-            backup = Path(scratch) / 'previous'
-            os.replace(role, backup)
-            try:
+    for role_name in ('company-board', 'company-executive'):
+        role = target / 'company-os' / role_name
+        if any(part.is_symlink() for part in [role, *role.parents]):
+            raise ValueError(f'refusing symlink: {role}')
+        source_role = ROOT / 'skills/company-os' / role_name
+        role_digest = hashlib.sha256(b''.join(
+            str(p.relative_to(source_role)).encode() + p.read_bytes()
+            for p in sorted(source_role.rglob('*')) if p.is_file() and '__pycache__' not in p.parts
+        )).hexdigest()[:12]
+        with tempfile.TemporaryDirectory(dir=role.parent, prefix='.board-install-') as scratch:
+            staged = Path(scratch) / role_name
+            shutil.copytree(source_role, staged, ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+            if role.exists():
+                backup = Path(scratch) / 'previous'
+                os.replace(role, backup)
+                try:
+                    os.replace(staged, role)
+                except Exception:
+                    os.replace(backup, role)
+                    raise
+                archive = target / '.company-role-backups'
+                archive.mkdir(exist_ok=True)
+                shutil.make_archive(str(archive / (role_name + '-before-' + hashlib.sha256(b''.join(p.read_bytes() for p in sorted(backup.rglob('*')) if p.is_file())).hexdigest()[:12])), 'gztar', backup)
+            else:
                 os.replace(staged, role)
-            except Exception:
-                os.replace(backup, role)
-                raise
-            archive = target / '.company-board-backups'
-            archive.mkdir(exist_ok=True)
-            shutil.make_archive(str(archive / ('before-' + role_digest)), 'gztar', backup)
-        else:
-            os.replace(staged, role)
     receipt = []
     for p, original, changed in planned:
         if p.read_bytes() != original:

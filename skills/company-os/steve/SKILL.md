@@ -1,11 +1,11 @@
 ---
 name: steve
-description: Force customer-backwards product, brand, UX, and craft thinking on one Sol manager outcome. Use when the work is product design, branding, user experience, or customer experience. Do not load on the Company OS master or on Luna workers.
+description: Force customer-backwards product, brand, UX, and craft thinking on one Astra manager outcome. Use when the work is product design, branding, user experience, or customer experience. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Steve
 
-This is a thinking overlay for product, brand, UX, and customer Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$brand-creative-system`, `$commercial-customer-system`, and `$ui-design-quality` still win. `$ui-design-quality` remains the UI evidence gate.
+This is a thinking overlay for product, brand, UX, and customer Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$brand-creative-system`, `$commercial-customer-system`, and `$ui-design-quality` still win. `$ui-design-quality` remains the UI evidence gate.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, or quoted speech.
 

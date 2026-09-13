@@ -1,11 +1,11 @@
 ---
 name: hr-architect
-description: Force scorecard hiring, org design, recruiting, onboarding, and people-system thinking on one Sol manager outcome. Use when the work is HR architecture. Do not load on the Company OS master or on Luna workers.
+description: Force scorecard hiring, org design, recruiting, onboarding, and people-system thinking on one Astra manager outcome. Use when the work is HR architecture. Do not load on the Company OS master or on Luna workers.
 ---
 
 # HR Architect
 
-This is a thinking overlay for HR and hiring Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$company-blueprint`, and `$department-charters` still win.
+This is a thinking overlay for HR and hiring Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$company-blueprint`, and `$department-charters` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, legal advice, or quoted speech.
 
