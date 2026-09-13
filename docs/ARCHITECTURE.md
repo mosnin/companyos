@@ -85,7 +85,7 @@ command keys provide exact retry semantics. JSON and JSONL are repairable
 exports. This is the accepted single-host authority substrate, not a claim of
 distributed or multi-region consensus.
 
-One Sol master owns each program. Sol-manager count is derived from independently
+One Astra master owns each program. Astra-manager count is derived from independently
 accountable outcomes and interface boundaries; each manager's GPT-5.6 Luna team
 is derived from its dependency DAG. Declared organizational capacity is
 separate from active concurrency, which is bounded by host availability,
@@ -96,7 +96,7 @@ manifests retain their historical 2/3/6 replay limits; new programs explicitly
 use `elastic_work_graph`.
 
 The interactive Codex host is the target execution surface. It can host tasks
-requested for Sol-manager and Luna-worker roles, while Company OS provides
+requested for Astra-manager and Luna-worker roles, while Company OS provides
 mission lineage, scope, budgets, phase rules, evidence, and reconciliation. App task tools are
 not repository-callable APIs. The controller does not yet admit or durably
 observe native task creation, so the full runtime remains disabled.

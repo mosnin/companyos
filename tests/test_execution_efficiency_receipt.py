@@ -35,7 +35,7 @@ def manager(manager_id: str, lane_ids: list[str]) -> dict:
     return {
         "manager_task_id": manager_id,
         "lane_ids": lane_ids,
-        "requested_model": "gpt-5.6-sol",
+        "requested_model": "gpt-6-astra",
         "requested_effort": "xhigh",
         "observed_model": None,
         "observed_effort": None,
@@ -277,9 +277,9 @@ def scalable_receipt(index: int) -> dict:
         {
             "manager_task_id": f"manager-{index}",
             "lane_ids": ["lane-a", "lane-b", "lane-c", "lane-d"],
-            "requested_model": "gpt-5.6-sol",
+            "requested_model": "gpt-6-astra",
             "requested_effort": "xhigh",
-            "observed_model": "gpt-5.6-sol",
+            "observed_model": "gpt-6-astra",
             "observed_effort": "xhigh",
         }
     ]

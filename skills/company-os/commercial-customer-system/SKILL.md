@@ -7,7 +7,7 @@ description: Connect customer discovery, product adoption, sales, support, reten
 
 Operate commercial work as a learning system, not an activity factory.
 
-When a Sol manager owns customer or commercial experience, load `$steve` as
+When a Astra manager owns customer or commercial experience, load `$steve` as
 the customer-backwards overlay. When it owns market strategy, segmentation,
 go-to-market, advertising, or growth lifecycle work, load
 `$marketing-architect` as the marketing overlay. When it owns prospecting,

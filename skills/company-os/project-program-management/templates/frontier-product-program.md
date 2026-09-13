@@ -46,7 +46,7 @@ State the category-defining product outcome in one sentence.
 
 ## Execution fabric
 
-| Manager outcome | Sol manager | Luna worker DAG | Write scope | Phase barrier | Acceptance evidence | Budget |
+| Manager outcome | Astra manager | Luna worker DAG | Write scope | Phase barrier | Acceptance evidence | Budget |
 | --- | --- | --- | --- | --- | --- | --- |
 |  |  |  |  | Charter |  |  |
 
@@ -56,7 +56,7 @@ State the category-defining product outcome in one sentence.
 - Master decision owner:
 - Independent verification owner:
 - Cancellation and rollback:
-- Single-thread Sol-token baseline:
+- Single-thread Astra-token baseline:
 - Target Luna token share:
 
 ## Frontier bets

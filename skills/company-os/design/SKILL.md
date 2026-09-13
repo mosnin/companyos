@@ -1,11 +1,11 @@
 ---
 name: design
-description: Force user-backwards design thinking and interaction architecture on one Sol manager outcome covering problem framing, prototyping, service design, and discoverable interfaces. Use when the work is design. Do not load on the Company OS master or on Luna workers.
+description: Force user-backwards design thinking and interaction architecture on one Astra manager outcome covering problem framing, prototyping, service design, and discoverable interfaces. Use when the work is design. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Design
 
-This is a thinking overlay for design Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` still wins. `$ui-design-quality` remains the UI evidence gate.
+This is a thinking overlay for design Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` still wins. `$ui-design-quality` remains the UI evidence gate.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, or quoted speech.
 

@@ -2,7 +2,7 @@
 """Validate deterministic evidence for a host-operated Codex task fabric.
 
 This module never calls Codex app tools.  It validates exported task records
-that a Sol master or manager captured from the interactive host.
+that a Astra master or manager captured from the interactive host.
 """
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ from typing import Any
 
 SCHEMA = "company-os.codex-native-task-fabric-simulation.v2"
 REQUESTED_MODELS = {
-    "master": "gpt-5.6-sol",
-    "manager": "gpt-5.6-sol",
+    "master": "gpt-6-astra",
+    "manager": "gpt-6-astra",
     "worker": "gpt-5.6-luna",
 }
 CURRENT_STATUSES = {"planned", "created", "active", "accepted", "blocked", "failed", "refused", "cancelled"}
@@ -178,6 +178,9 @@ def validate_scenario(scenario: Any) -> dict[str, Any]:
             _error(errors, "role", f"{task_id} role is invalid")
         elif task.get("requested_model") != REQUESTED_MODELS[role]:
             _error(errors, "requested_model", f"{task_id} requested model does not match role")
+
+        if role in {"master", "manager"} and task.get("requested_reasoning_effort", "medium") != "medium":
+            _error(errors, "requested_reasoning_effort", f"{task_id} managers must request medium reasoning")
 
         observed_model = task.get("observed_model")
         if not isinstance(observed_model, dict) or set(observed_model) != {"status", "value", "source"}:

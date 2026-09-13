@@ -16,6 +16,28 @@ SIMULATION = ROOT / "programs/company-os-self-hosting/CODEX_NATIVE_TASK_FABRIC_S
 class CodexNativeFabricTests(unittest.TestCase):
     def setUp(self) -> None:
         self.payload = json.loads(SIMULATION.read_text(encoding="utf-8"))
+        # Preserve archived evidence bytes; replay copied requests under the current routing policy.
+        for scenario in self.payload["scenarios"]:
+            for task in scenario["tasks"]:
+                if task.get("role") in {"master", "manager"}:
+                    task["requested_model"] = "gpt-6-astra"
+                    task["requested_reasoning_effort"] = "medium"
+
+    def test_manager_rejects_old_model_or_nonmedium_reasoning(self) -> None:
+        scenario = self.payload["scenarios"][0]
+        manager = next(task for task in scenario["tasks"] if task["role"] == "manager")
+        manager["requested_model"] = "gpt-5.6-sol"
+        self.assertIn("requested_model", fabric.validate_scenario(scenario)["error_codes"])
+        manager["requested_model"] = "gpt-6-astra"
+        manager["requested_reasoning_effort"] = "high"
+        self.assertIn("requested_reasoning_effort", fabric.validate_scenario(scenario)["error_codes"])
+
+    def test_worker_remains_luna(self) -> None:
+        scenario = self.payload["scenarios"][0]
+        worker = next(task for task in scenario["tasks"] if task["role"] == "worker")
+        self.assertEqual(worker["requested_model"], "gpt-5.6-luna")
+        worker["requested_model"] = "gpt-6-astra"
+        self.assertIn("requested_model", fabric.validate_scenario(scenario)["error_codes"])
 
     def test_five_scenario_ladder_matches_oracles(self) -> None:
         result = fabric.validate_simulation(self.payload)
@@ -27,7 +49,7 @@ class CodexNativeFabricTests(unittest.TestCase):
         scenario = json.loads(json.dumps(self.payload["scenarios"][0]))
         scenario["tasks"][0]["observed_model"] = {
             "status": "observed",
-            "value": "gpt-5.6-sol",
+            "value": "gpt-6-astra",
             "source": "requested_model",
         }
         result = fabric.validate_scenario(scenario)
@@ -37,7 +59,7 @@ class CodexNativeFabricTests(unittest.TestCase):
         scenario = json.loads(json.dumps(self.payload["scenarios"][2]))
         scenario["tasks"][0]["observed_model"] = {
             "status": "observed",
-            "value": "gpt-5.6-sol",
+            "value": "gpt-6-astra",
             "source": "charter.requested_model",
         }
         result = fabric.validate_scenario(scenario)
@@ -47,7 +69,7 @@ class CodexNativeFabricTests(unittest.TestCase):
         scenario = json.loads(json.dumps(self.payload["scenarios"][2]))
         scenario["tasks"][0]["observed_model"] = {
             "status": "observed",
-            "value": "gpt-5.6-sol",
+            "value": "gpt-6-astra",
             "source": "host_observation:list_threads:model",
         }
         result = fabric.validate_scenario(scenario)

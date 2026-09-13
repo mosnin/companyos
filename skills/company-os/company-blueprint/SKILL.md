@@ -47,7 +47,7 @@ work graph, knowledge graph, asset registry, integration registry, storage
 plan, and manifest. Verification accepts only that complete canonical set.
 
 Each department pack is a reusable module. It stores agent slots: one middle
-or low-level Sol-manager template and staff Luna-worker templates. Created
+or low-level Astra-manager template and staff Luna-worker templates. Created
 agents are stored by cloning a slot into a project-local catalog. Slots are
 templates, not running threads. Department labels are not dispatch quotas.
 

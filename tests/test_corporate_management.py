@@ -50,7 +50,7 @@ class CorporateManagementTests(unittest.TestCase):
         self.assertIn("master → manager → worker", mapping)
         self.assertIn("not a new runtime role", mapping.casefold())
         self.assertIn("not a parent hop", mapping.casefold())
-        self.assertIn("peer Sol managers", mapping)
+        self.assertIn("peer Astra managers", mapping)
         self.assertIn("department agent slots", mapping)
 
     def test_audit_keeps_four_names_on_three_hops(self) -> None:
@@ -63,7 +63,7 @@ class CorporateManagementTests(unittest.TestCase):
         self.assertIn("directing and locally controlling the slice", levels)
         self.assertNotIn("executing the slice", levels)
         escalation = source["06-charter-and-escalation.txt"]
-        self.assertIn("Every Sol manager escalates", escalation)
+        self.assertIn("Every Astra manager escalates", escalation)
         self.assertIn("not a parent hop", escalation)
         self.assertNotIn("to middle or to master", escalation)
         self.assertIn("existing `reporting_destination` field", escalation)

@@ -1,11 +1,11 @@
 ---
 name: economics-architect
-description: Force scarcity, opportunity-cost, pricing, unit-economics, and market-structure thinking on one Sol manager outcome. Use when the work is economics architecture. Do not load on the Company OS master or on Luna workers.
+description: Force scarcity, opportunity-cost, pricing, unit-economics, and market-structure thinking on one Astra manager outcome. Use when the work is economics architecture. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Economics Architect
 
-This is a thinking overlay for economics Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$strategy-pillar`, and `$portfolio-direction` still win.
+This is a thinking overlay for economics Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$strategy-pillar`, and `$portfolio-direction` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, or quoted speech.
 

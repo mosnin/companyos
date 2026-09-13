@@ -73,7 +73,7 @@ class RuntimeReceiptTests(unittest.TestCase):
             "cycle_id": "cycle-1",
             "parent_runtime_id": "master",
             "role": "manager",
-            "requested_model": "gpt-5.6-sol",
+            "requested_model": "gpt-6-astra",
             "provider": "provider-a",
             "surface": "isolated-task",
             "account": "workspace-a",
@@ -97,7 +97,7 @@ class RuntimeReceiptTests(unittest.TestCase):
                 "terminal_decision_digest": None,
                 "terminal_provider_event_id": "event-terminal-manager",
                 "provider_task_id": "provider-task-manager",
-                "observed_model": "gpt-5.6-sol",
+                "observed_model": "gpt-6-astra",
                 "model_evidence_digest": digest("4"),
                 "terminal_observation_digest": digest("5"),
                 "telemetry": {
@@ -396,7 +396,7 @@ class RuntimeReceiptTests(unittest.TestCase):
         with self.assertRaises(receipts.ReceiptError):
             self.record_value(self.attempt, value, children=[])
         wrong_child = deepcopy(self.child_attempt)
-        wrong_child["requested_model"] = "gpt-5.6-sol"
+        wrong_child["requested_model"] = "gpt-6-astra"
         with self.assertRaises(receipts.ReceiptError):
             self.record_value(self.attempt, self.receipt(), children=[wrong_child])
         stub_child = {

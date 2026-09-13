@@ -1,6 +1,6 @@
 ---
 name: force-first-execution
-description: Drive a bounded Company OS task from objective to materialized artifact, runnable candidate, observed behavior, verified evidence, and prompt decision. Use when a Sol manager supervises Luna work and must prevent planning, research, documentation, or receipt ceremony from replacing real delivery.
+description: Drive a bounded Company OS task from objective to materialized artifact, runnable candidate, observed behavior, verified evidence, and prompt decision. Use when a Astra manager supervises Luna work and must prevent planning, research, documentation, or receipt ceremony from replacing real delivery.
 ---
 
 # Force-First Execution

@@ -1,11 +1,11 @@
 ---
 name: sales-architect
-description: Force ICP-to-close sales-system thinking on one Sol manager outcome covering prospecting, qualification, discovery, pipeline, and closing. Use when the work is sales architecture. Do not load on the Company OS master or on Luna workers.
+description: Force ICP-to-close sales-system thinking on one Astra manager outcome covering prospecting, qualification, discovery, pipeline, and closing. Use when the work is sales architecture. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Sales Architect
 
-This is a thinking overlay for sales Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` and `$commercial-customer-system` still win. `$commercial-customer-system` remains the commercial operating contract.
+This is a thinking overlay for sales Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` and `$commercial-customer-system` still win. `$commercial-customer-system` remains the commercial operating contract.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, or quoted speech.
 

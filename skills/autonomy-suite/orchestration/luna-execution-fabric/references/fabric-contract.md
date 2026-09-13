@@ -4,8 +4,8 @@
 
 | Compute concept | Agent fabric |
 | --- | --- |
-| Kubernetes control plane | Master Sol thread plus durable Program Contract |
-| Namespace controller | One isolated Sol manager thread |
+| Kubernetes control plane | Master Astra thread plus durable Program Contract |
+| Namespace controller | One isolated Astra manager thread |
 | Job or pod | One bounded Luna worker task |
 | Container isolation | Worktree or sandbox plus permission envelope |
 | Desired state | Outcome, acceptance criteria, budget, and task DAG |
@@ -18,7 +18,7 @@ Threads alone do not isolate files, tools, credentials, or side effects.
 
 ## Runtime modes
 
-Use one authoritative mode: the Sol manager creates an isolated native Codex
+Use one authoritative mode: the Astra manager creates an isolated native Codex
 task requesting `gpt-5.6-luna`, then coordinates it through bounded waits,
 reads, follow-up messages, and list reconciliation. If the manager lacks native
 task authority, it asks the master to create the task and returns the resulting
@@ -73,7 +73,7 @@ described after this legacy example.
   "managers": [
     {
       "id": "manager-a",
-      "model": "gpt-5.6-sol",
+      "model": "gpt-6-astra",
       "outcome": "Bounded outcome",
       "acceptance": ["Manager-owned verification"],
       "phase_ids": [
@@ -288,7 +288,7 @@ not authority. It must bind:
 - program start, first manager dispatch, first worker dispatch, first usable
   result, first artifact, and final acceptance, with unavailable and
   not-applicable fields explicit;
-- role-level total, Luna, and Sol tokens, cost, single-thread Sol-token and
+- role-level total, Luna, and Astra tokens, cost, single-thread Astra-token and
   lead-time baselines when exposed;
 - required/accepted artifact counts, first-pass decision, rework, collisions,
   duplicates, and independent-review truth;
@@ -308,7 +308,7 @@ policy as a group.
 
 ## Acceptance sampling
 
-- Critical/high risk: manager, independent Sol reviewer, and master verify 100%.
+- Critical/high risk: manager, independent Astra reviewer, and master verify 100%.
 - Medium risk: manager verifies 100%; master verifies the integrated result and
   one underlying artifact.
 - Low risk: manager verifies 100%; master samples one result per manager and
@@ -324,7 +324,7 @@ time after three comparable accepted cycles satisfy:
 - first-pass worker acceptance at least 85%;
 - total rework below 20%;
 - zero write collisions or duplicate side effects;
-- at least 40% lower Sol-token use per accepted outcome;
+- at least 40% lower Astra-token use per accepted outcome;
 - no regression in acceptance quality or lead time.
 
 Scale down immediately when any invariant fails.
