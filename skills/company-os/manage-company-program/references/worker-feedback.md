@@ -95,3 +95,11 @@ budget. Rebuild packets from current native observations and existing work recor
 retain delivery history and reconcile in-flight sends first, even if the revision
 changed. Do not clear history to upgrade. A rollback also retains delivery and
 budget records; pause dispatch if an older reader cannot honor the new controls.
+
+## Reflect resolved conditions in shared context
+
+After fresh source verification changes an alert, use the Company Context Ledger
+[alert reconciliation procedure](../../company-context-ledger/references/alert-reconciliation.md)
+when that context write is authorized. This replaces obsolete actionable status
+with resolved or uncertain status while retaining evidence and revision history.
+A successful context write does not prove delivery, repair, merge, or acceptance.

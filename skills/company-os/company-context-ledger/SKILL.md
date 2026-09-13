@@ -99,3 +99,5 @@ and `research_scrape`, record facts with `context_note`, then `proposal_review`,
 show the brief, ask, and `proposal_commit` with the person's name only after an
 explicit yes.
 
+
+[Reconcile alerts](references/alert-reconciliation.md).

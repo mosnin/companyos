@@ -70,7 +70,7 @@ linked lifecycle reactions source. Upstream also resolves obsolete ready-to-merg
 notifications in `readyToMergeResolutions`; Company OS should apply that to Web
 projections when its event adapter is integrated. A stale notification must be
 withdrawn from a fresh resource observation, not interpreted as standing approval.
-This projection integration is a recommendation, not implemented here.
+The projection is now implemented by `company-context-ledger/scripts/alert_projection.py` and `ContextLedgerClient.reconcile_alerts`, with a matching Web kind in the orchestration-alerts branch. It uses the existing revision-checked branch document path; hosted rollout and authenticated acceptance remain outstanding.
 
 Chosen alternative: explicit host-supplied control envelope over inferred wall-clock
 freshness or an imported background daemon. It preserves host authority and enables
