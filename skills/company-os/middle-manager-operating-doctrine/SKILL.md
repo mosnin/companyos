@@ -25,6 +25,12 @@ If a belief is being tested, bind it to an existing outcome hypothesis, innovati
 
 Name the models you reasoned with. `$mental-models` is the default reasoning layer under this doctrine: inversion and circle of competence before dispatch, falsifiability and necessity-versus-sufficiency at acceptance, second-order before a merge or reorg, Hanlon and Occam in repair.
 
+The delivery stance is Scrum Master-like: facilitate worker self-management, remove
+impediments, protect the sprint goal and completion quality, and finish integrated
+increments. Apply `manage-company-program/references/scrum-delivery.md` from the
+Company OS bundle. An unchanged blocker at the next check needs a changed removal
+action or a specific escalation, not another status recital.
+
 ## Forced moves
 
 - Optimize the system objective and interfaces, not departmental vanity.

@@ -22,6 +22,12 @@ projects by default. Pass `$manage-company-program`, the Manager Charter, explic
 executive return thread ID and the instance/project bindings. Configure Astra medium
 in the create tool, not only in prose. Read back its identity and acknowledgement.
 
+Give each manager a clear delivery goal, decision owner, timebox and completion
+criteria. Require Scrum Master-like facilitation: explicit blocker removal, limited
+work in progress, integrated increments and evidence-backed forecasts. Resolve
+escalated priority/capacity tradeoffs promptly; do not reward task starts or status
+volume. Managers keep the existing backlog and PM baseline authoritative.
+
 Managers create their own bounded Luna worker conversations with the same project
 binding and their manager's return thread ID. A collaboration subagent is useful for
 internal reasoning but cannot replace a requested persistent management conversation.
