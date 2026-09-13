@@ -9,10 +9,10 @@ module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
 
 class FeedbackTests(unittest.TestCase):
     def setUp(self):
-        self.packet = dict(schema='company-os.worker-feedback.v1', instance_id='fixture', worker_thread_id='worker',
+        self.packet = dict(schema='company-os.worker-feedback.v2', instance_id='fixture', worker_thread_id='worker',
             resource_id='repo/pr/1', current_revision='head-a', worker_state='idle', observation_ref='fixture-read',
-            attempt_limit=2, history=[], events=[dict(kind=k, id=k, revision='head-a', evidence_ref='fixture-'+k,
-            occurrence_id='occurrence-1') for k in ('ci_failure', 'review_changes', 'merge_conflict')])
+            control=dict(now_s=100, observed_at_s=95, max_age_s=10, deadline_s=200, repair_attempts=0, repair_limit=10), attempt_limit=2, history=[], events=[dict(kind=k, id=k, revision='head-a', evidence_ref='fixture-'+k,
+            occurrence_id='occurrence-1', **({'dependency_state': 'ready'} if k == 'merge_conflict' else {})) for k in ('ci_failure', 'review_changes', 'merge_conflict')])
 
     def actions(self):
         return module.plan(self.packet)['actions']
@@ -68,4 +68,54 @@ class FeedbackTests(unittest.TestCase):
         self.prior('sent'); self.packet['history'][0].pop('delivery_ref')
         with self.assertRaises(ValueError): self.actions()
         self.packet['history'] = []; self.packet['worker_thread_id'] = 'client-new-thread:pending'
+        with self.assertRaises(ValueError): self.actions()
+
+    def test_unknown_send_reconciles_even_after_revision_change(self):
+        self.prior('unknown'); self.packet['current_revision'] = 'head-b'
+        self.assertEqual(self.actions()[0]['action'], 'reconcile_delivery')
+
+    def test_stale_observation_and_freshness_boundary(self):
+        self.packet['control']['observed_at_s'] = 90
+        self.assertEqual(self.actions()[0]['action'], 'send_to_owner')
+        self.packet['control']['observed_at_s'] = 89
+        self.assertTrue(all(r['action'] == 'refresh_observation' for r in self.actions()))
+
+    def test_deadline_prevents_permanent_active_deferral(self):
+        self.packet['worker_state'] = 'active'
+        self.packet['control']['deadline_s'] = 100
+        self.assertTrue(all(r['action'] == 'escalate_deadline' for r in self.actions()))
+
+    def test_delivered_feedback_still_has_deadline_alert(self):
+        self.prior('sent'); self.packet['control']['deadline_s'] = 100
+        result = module.plan(self.packet)
+        self.assertEqual(result['actions'][0]['action'], 'already_delivered')
+        self.assertEqual(result['alerts'], ['blocker_deadline_reached'])
+
+    def test_shared_budget_bounds_entire_batch(self):
+        self.packet['control'].update(repair_attempts=9, repair_limit=10)
+        self.assertEqual([r['action'] for r in self.actions()],
+                         ['send_to_owner', 'escalate_repair_budget', 'escalate_repair_budget'])
+
+    def test_new_occurrence_does_not_reset_shared_budget(self):
+        self.packet['control'].update(repair_attempts=10)
+        self.packet['events'][0]['occurrence_id'] = 'new'
+        self.assertEqual(self.actions()[0]['action'], 'escalate_repair_budget')
+
+    def test_parent_blocks_conflict_only_and_release_preserves_identity(self):
+        before = self.actions()[2]
+        for state, action in [('blocked', 'wait_for_dependency'), ('unknown', 'refresh_dependency')]:
+            self.packet['events'][2]['dependency_state'] = state
+            result = self.actions()
+            self.assertEqual(result[0]['action'], 'send_to_owner')
+            self.assertEqual(result[2]['action'], action)
+            self.assertEqual(result[2]['signature'], before['signature'])
+        self.packet['events'][2]['dependency_state'] = 'ready'
+        self.assertEqual(self.actions()[2]['action'], 'send_to_owner')
+
+    def test_bad_control_and_ambiguous_identity_rejected(self):
+        original = copy.deepcopy(self.packet)
+        for key, value in [('now_s', True), ('observed_at_s', 101), ('max_age_s', 0), ('repair_limit', -1)]:
+            self.packet = copy.deepcopy(original); self.packet['control'][key] = value
+            with self.assertRaises(ValueError): self.actions()
+        self.packet = original; self.packet['worker_thread_id'] = ' client-new-thread:pending'
         with self.assertRaises(ValueError): self.actions()

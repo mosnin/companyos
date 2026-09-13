@@ -2127,8 +2127,8 @@
     },
     {
       "path": "company-os/manage-company-program/references/worker-feedback.md",
-      "sha256": "a8e3dd74bc1bad895bbac8b86d151c876f1099db65cf86c61fdaf8ae207af660",
-      "size": 4408
+      "sha256": "fd7f0adc24945263974e7a3cfac80bbce00bc64668fd622118f18cbd3d2230fb",
+      "size": 6875
     },
     {
       "path": "company-os/manage-company-program/schemas/compiled-preflight.schema.json",
@@ -2157,8 +2157,8 @@
     },
     {
       "path": "company-os/manage-company-program/scripts/feedback_router.py",
-      "sha256": "2bbb314cb1017658eac9956c0f8240bbfe0482323f0caebe67bf32b759f791d4",
-      "size": 4909
+      "sha256": "cb1ceb6dfe86cb5a35090fe6a9e9eb270854362d7971bb1920bbd7a1f9d82301",
+      "size": 6487
     },
     {
       "path": "company-os/marketing-architect/SKILL.md",
