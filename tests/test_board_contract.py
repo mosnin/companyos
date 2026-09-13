@@ -12,7 +12,7 @@ spec.loader.exec_module(board)
 
 class BoardHandoffTests(unittest.TestCase):
     def setUp(self):
-        self.session = dict(schema='company-os.board-session.v1', decision_id='fixture-decision', instance_id='fixture-instance-a',
+        self.session = dict(schema='company-os.board-session.v2', decision_id='fixture-decision', instance_id='fixture-instance-a',
                             host='fixture-host', host_project_id='fixture-project', board_thread_id='fixture-board',
                             executive_thread_id='fixture-executive', creation_ref='fixture-observation')
         self.context = dict(organization_id='fixture-org', business_slug='fixture-business',
@@ -43,6 +43,10 @@ class BoardHandoffTests(unittest.TestCase):
     def test_other_decision_session_rejected(self):
         self.session['decision_id'] = 'other-decision'
         with self.assertRaisesRegex(ValueError, 'another decision'): self.check()
+
+    def test_legacy_session_requires_rebinding(self):
+        self.session['schema'] = 'company-os.board-session.v1'
+        with self.assertRaisesRegex(ValueError, 'unsupported'): self.check()
 
     def test_stale_program_rejected(self):
         with self.assertRaises(ValueError): self.check(4)

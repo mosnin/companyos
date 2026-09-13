@@ -627,12 +627,12 @@
     },
     {
       "path": "company-os/company-board/SKILL.md",
-      "sha256": "58580c65f5824af40c49467d5105a42ccd95844152a200df360f3d3b86caca02",
-      "size": 9982
+      "sha256": "1e58a536101879765d3d45f5cc9fda6ee53d5e09dc04e63f8017381824160d41",
+      "size": 10741
     },
     {
       "path": "company-os/company-board/scripts/board_contract.py",
-      "sha256": "ec1fa3b3d89245d13bf4c0c56ad2446f246d46da8dbc3780d2b868d3acecd5f7",
+      "sha256": "f9456c7ef70326fe38234e5cb0bf01e53523ace486ea5248409bf8210e5c1ed9",
       "size": 4801
     },
     {

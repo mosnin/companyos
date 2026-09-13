@@ -56,11 +56,19 @@ subagent, or invented ID is not proof of project conversation membership.
 Serialize provisioning through the instance's host ownership mechanism. Record a
 pending creation intent keyed by instance, role, parent and charter before dispatch.
 On timeout/restart reconcile that intent with native task inventory before retrying.
+A stale task listing may omit an existing conversation: read its stored canonical
+ID directly before treating it as missing. Never recreate it solely because it is
+absent from a list. If creation only returns a pending client ID, wait for actual
+canonical identity; do not claim completion or manufacture a replacement.
 Use returned canonical thread IDs, not pending client IDs, and read back project
 membership and the role assignment. Reuse the registered conversation on subsequent
 work; archive/delete/replacement requires a lineage record and reconciliation of
 outstanding tasks. Never spawn another organization just because a turn resumed.
 If the host lacks project-bound conversations, report the missing capability.
+Parents inspect child status as well as messages. If a child is waiting on host
+approval, report that state and the exact pending action when exposed; preserve
+the creation intent, continue independent work, and never claim autonomous
+completion or repeatedly resubmit the same launch.
 
 The board appoints one executive per independently accountable executive portfolio,
 not one for every tiny task. Give each executive `$company-executive`, its strategic
@@ -85,9 +93,11 @@ are deliberation participants; executive and management roles must be actual nat
 conversations. The board can appoint an executive to formulate an initial proposal
 before consultation, but adopting new strategic direction requires the council result.
 For each decision materialize `board/decisions/<decision-id>/session.json` as a binding to the board and its
-responsible executive: schema `company-os.board-session.v1`, `instance_id`, `host`,
+responsible executive: schema `company-os.board-session.v2`, `instance_id`, `host`,
 `host_project_id`, `decision_id`, `board_thread_id`, `executive_thread_id`, and `creation_ref`.
 This per-decision binding does not limit an organization to one executive.
+Retain older v1 sessions as history; reconstruct v2 bindings from actual host
+observations rather than inventing missing project or decision identities.
 
 ## Ground each consultation in business context
 

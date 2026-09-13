@@ -19,7 +19,7 @@ def text(value, name):
 
 
 def validate(session, request, record, disposition, current_context, program_version):
-    if session.get('schema') != 'company-os.board-session.v1':
+    if session.get('schema') != 'company-os.board-session.v2':
         raise ValueError('unsupported board session')
     text(request.get('decision_id'), 'decision_id')
     if session.get('decision_id') != request['decision_id']:
