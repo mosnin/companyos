@@ -626,6 +626,16 @@
       "size": 52501
     },
     {
+      "path": "company-os/company-board/SKILL.md",
+      "sha256": "e0b1ab4e329f20ecca13f036f34b6eb81af2fd354597786d4d0ecc6c2c5f14f4",
+      "size": 6865
+    },
+    {
+      "path": "company-os/company-board/scripts/board_contract.py",
+      "sha256": "1c7db6be848a1f10fe813844b97426b0be3b6e8b5d611251c9ab50657159d50c",
+      "size": 4605
+    },
+    {
       "path": "company-os/company-context-ledger/SKILL.md",
       "sha256": "3a68d305002c41fe63f21d4aeebb4955d2b1e0f6f654a470b8c4ae6e1313e7ed",
       "size": 5027
@@ -692,8 +702,8 @@
     },
     {
       "path": "company-os/company-os/SKILL.md",
-      "sha256": "f26471d662356fb51660fec7bd2dab971b76bb9311710884a1f64187310a3d48",
-      "size": 25286
+      "sha256": "c438dfded845c2eb1ad8fbf7e88c1ce16be241d468a9e9300e8ba579fdd82bea",
+      "size": 25075
     },
     {
       "path": "company-os/company-os/agents/claude.yaml",
@@ -1107,8 +1117,8 @@
     },
     {
       "path": "company-os/direct-outcome/SKILL.md",
-      "sha256": "ce639643bf0090cbcd31481c1974fd1877ff4d15304dee65feccc0bc41ca30f6",
-      "size": 6255
+      "sha256": "491f4d34f3b47ebe0c0ef214a8fd7bb7bf01ffafd3f2dfb59f628cf3507ede56",
+      "size": 6044
     },
     {
       "path": "company-os/direct-outcome/scripts/direct_outcome.py",
@@ -2037,8 +2047,8 @@
     },
     {
       "path": "company-os/manage-company-program/SKILL.md",
-      "sha256": "73b3f21af36a2fae03e150191a6ad9355871483b8adb1a208bbab18b9d9ca8ef",
-      "size": 5450
+      "sha256": "a35b9d1cb0de92c1e98ac920ede017f2577e9cb30bf6a07567e89a44d933f337",
+      "size": 7677
     },
     {
       "path": "company-os/manage-company-program/agents/claude.yaml",
@@ -3392,8 +3402,8 @@
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/SKILL.md",
-      "sha256": "57b520c0d531c3ae0cf3f56adc18b3118a5caf47776ad2fe3d94c1584ef2407c",
-      "size": 4152
+      "sha256": "2dd05ebe84ef4b861c76472f91ca75811a97589fe645ebc661cf9b962b35d374",
+      "size": 3941
     },
     {
       "path": "autonomy-suite/strategy/portfolio-direction/agents/claude.yaml",
@@ -3432,8 +3442,8 @@
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/SKILL.md",
-      "sha256": "23ae68e228119b59aa7839dbfd5a6871260aa8debd4d6f738c23134c7139d785",
-      "size": 4407
+      "sha256": "df029972fd79734c60dc21451534cb82071929cd0686b1e6a11c50c0bd70b214",
+      "size": 4196
     },
     {
       "path": "autonomy-suite/strategy/strategy-pillar/agents/claude.yaml",
