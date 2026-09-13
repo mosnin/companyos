@@ -2117,13 +2117,18 @@
     },
     {
       "path": "company-os/manage-company-program/references/operating-loop.md",
-      "sha256": "2ccf79106bf6ff34eb2f5db96e4925899ecbc5db784d6be9fba95369cc59f40c",
-      "size": 5377
+      "sha256": "221022c0c317656415938d293e95d2e2f8cd6d181b7d0f0ff0c226d9f3b96398",
+      "size": 5603
     },
     {
       "path": "company-os/manage-company-program/references/scrum-delivery.md",
       "sha256": "ffcce3a0cfb7e4e2df4ea717a5ee30df1ef141a5205e4817054eadba36a4291f",
       "size": 5887
+    },
+    {
+      "path": "company-os/manage-company-program/references/worker-feedback.md",
+      "sha256": "a8e3dd74bc1bad895bbac8b86d151c876f1099db65cf86c61fdaf8ae207af660",
+      "size": 4408
     },
     {
       "path": "company-os/manage-company-program/schemas/compiled-preflight.schema.json",
@@ -2149,6 +2154,11 @@
       "path": "company-os/manage-company-program/scripts/compile_program_preflight.py",
       "sha256": "37f0a148ad05eaf2682de1bf2bc7026770825751242004618499d9024d5fcfd8",
       "size": 105788
+    },
+    {
+      "path": "company-os/manage-company-program/scripts/feedback_router.py",
+      "sha256": "2bbb314cb1017658eac9956c0f8240bbfe0482323f0caebe67bf32b759f791d4",
+      "size": 4909
     },
     {
       "path": "company-os/marketing-architect/SKILL.md",

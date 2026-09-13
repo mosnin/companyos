@@ -52,6 +52,10 @@ Inspect actual bytes and actual behavior. Source code, tests, reports, schemas, 
 
 On failure, diagnose the dominant defect, preserve independently passing dimensions, assign targeted rework, and reorganize if the bottleneck does not move. Do not respond to missing execution by requesting another general document.
 
+For CI failures, review changes, or merge conflicts, apply the
+[owning-worker feedback procedure](worker-feedback.md). Preserve delivery history,
+reconcile uncertain sends, and keep permission waits distinct from idle state.
+
 ## Upward report
 
 Report only:
