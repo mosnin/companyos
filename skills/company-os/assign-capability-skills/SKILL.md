@@ -101,3 +101,8 @@ does not count.
 Before selecting from the static curated catalog, search the current project registry through `$recursive-skill-foundry`. A promoted project skill may be assigned only when its registry digest, entrypoint digest, role, selection rationale, and execution order are bound in the work packet. Keep the combined assignment limit at four skills.
 
 The static catalog remains the cross project control plane. The project foundry registry is a local compounding layer and never silently mutates the static catalog or Company OS core.
+
+For an external source gap, use Find Skills OS and its mandatory integration plus
+OS Formatter gates before native admission. Original GitHub/npm links belong in
+the skill's provenance metadata. A staged receipt never substitutes for this
+resolver's approved source, permission, digest, and Program Preflight checks.

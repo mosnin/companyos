@@ -165,3 +165,12 @@ Return the create, skip, validate, fail, promote, or block decision, candidate v
 ## Safety
 
 Never let generated skills widen authority, expose secrets, bypass approvals, hide behavior, suppress monitoring, create covert persistence, or perform destructive or consequential external effects outside the active Company OS packet. A skill candidate cannot self promote or declare itself accepted.
+
+## Import a formatted external candidate
+
+Use `forge --staged-package STAGED_ROOT --project-root PROJECT --name SKILL
+--request "Create a reusable skill for ..." --promote` after Find Skills OS staging.
+The foundry checks receipt owner, exact skill bytes, plan and formatter digests,
+then applies its native validation and simulation to the imported bytes. It does
+not replace the adapted procedure with generated boilerplate. skill.json is inert
+metadata included in the immutable skill manifest.

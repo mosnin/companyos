@@ -1,0 +1,29 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "frontend-design",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Source repository and skill path recorded; null revision means current development source, not a pinned release.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": "skills/frontend-design/SKILL.md",
+      "revision": "2235be7c60b551f5de82ade908fd3816455afcda",
+      "role": "original",
+      "url": "https://github.com/anthropics/skills"
+    },
+    {
+      "kind": "github",
+      "path": "skills/company-os/interface-design/references/source/frontend-design/SKILL.md",
+      "revision": null,
+      "role": "adaptation",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}

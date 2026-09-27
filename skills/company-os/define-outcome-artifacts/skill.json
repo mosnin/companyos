@@ -1,0 +1,22 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "define-outcome-artifacts",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Source repository and skill path recorded; null revision means current development source, not a pinned release.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": "skills/company-os/define-outcome-artifacts/SKILL.md",
+      "revision": null,
+      "role": "original",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}
