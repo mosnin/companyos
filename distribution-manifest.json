@@ -52,8 +52,8 @@
     },
     {
       "path": "company-os/assign-capability-skills/SKILL.md",
-      "sha256": "d1be3bcc5ea570f9b2a1d74229e4dfcc54c2eb4a579a59f71344976f30e49362",
-      "size": 6815
+      "sha256": "623875bae3a2f18ac52c8db3171738796f4346f274c6cf4dda7fc33c3a27c760",
+      "size": 6886
     },
     {
       "path": "company-os/assign-capability-skills/agents/claude.yaml",
@@ -117,8 +117,8 @@
     },
     {
       "path": "company-os/assign-capability-skills/scripts/promote_curated_capabilities.py",
-      "sha256": "a5b5f5744436276f5a563678cbb7a180db66fb02245bf30ca7509f92ee5073bc",
-      "size": 10959
+      "sha256": "467c6e346ae4a90915ac2398c7003ede7e4ee35728b1932f21060e63c7da41c2",
+      "size": 11704
     },
     {
       "path": "company-os/assign-capability-skills/skill.json",

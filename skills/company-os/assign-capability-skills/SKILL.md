@@ -55,7 +55,8 @@ language query and treat an empty result as proof that no skill is needed.
    then reads only the listed entrypoints in `execution_order`. Packet-bound
    companions may work together, but no wrapper may discover an unassigned
    wrapper or use a companion to widen authority. Catalog v1 admits standalone
-   wrappers and rejects sidecar files so no unbound resource can enter context.
+   wrappers and inert skill.json discovery metadata; that metadata is never loaded
+   into assignment packets. Other unbound sidecars remain rejected.
    Company OS authority, scope, prohibitions, budgets, cancellation, and
    acceptance always override vendor instructions.
 

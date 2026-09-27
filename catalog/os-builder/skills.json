@@ -179,7 +179,7 @@
       "description": "Discover, select, bind, and verify the smallest audited external skill bundle for a Company OS manager or worker. Use before Program Preflight when specialized engineering, creative, business, legal, security, research, browser, commerce, video, cloud, or operating expertise could improve a bounded task without adding every skill to the prompt.",
       "entrypoint": "skills/company-os/assign-capability-skills/SKILL.md",
       "files": {
-        "skills/company-os/assign-capability-skills/SKILL.md": "d1be3bcc5ea570f9b2a1d74229e4dfcc54c2eb4a579a59f71344976f30e49362",
+        "skills/company-os/assign-capability-skills/SKILL.md": "623875bae3a2f18ac52c8db3171738796f4346f274c6cf4dda7fc33c3a27c760",
         "skills/company-os/assign-capability-skills/agents/claude.yaml": "a65f89f5e220a8d81425261e9168a365937503ad43e4b650d64fbf817e186f89",
         "skills/company-os/assign-capability-skills/agents/grok.yaml": "a65f89f5e220a8d81425261e9168a365937503ad43e4b650d64fbf817e186f89",
         "skills/company-os/assign-capability-skills/agents/openai.yaml": "a65f89f5e220a8d81425261e9168a365937503ad43e4b650d64fbf817e186f89",
@@ -192,7 +192,7 @@
         "skills/company-os/assign-capability-skills/references/source-catalog.json": "2cc73b5e93aa6d5751395a5f6705b0b137787d80ba105613f71c20a475073abf",
         "skills/company-os/assign-capability-skills/scripts/build_capability_catalog.py": "328833b9b0a5e2af8b9b89fcdd33da1ba681d8c276dcc18b1c927b5efdd36082",
         "skills/company-os/assign-capability-skills/scripts/capability_catalog.py": "ddc623b33e734222f0eb7b8af3a64c84ca42b564616108e5ebb0be3676c2612d",
-        "skills/company-os/assign-capability-skills/scripts/promote_curated_capabilities.py": "a5b5f5744436276f5a563678cbb7a180db66fb02245bf30ca7509f92ee5073bc",
+        "skills/company-os/assign-capability-skills/scripts/promote_curated_capabilities.py": "467c6e346ae4a90915ac2398c7003ede7e4ee35728b1932f21060e63c7da41c2",
         "skills/company-os/assign-capability-skills/skill.json": "e1dde228a6bd850bd68371b3c8e4849bf90f9d5ad754b2cb89bd52c3b9bca77e",
         "skills/company-os/assign-capability-skills/vendor/business/capability-assessment/SKILL.md": "cad4e40591237f871fa872d7613a9decdec7a01b8d2e5a87f11db06027742f6d",
         "skills/company-os/assign-capability-skills/vendor/business/capability-assessment/skill.json": "2d21cd7bf69faeafb5049ab1f19578bdddacc0e859c814603073bbd06bdc9e77",
