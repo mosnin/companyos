@@ -1,11 +1,11 @@
 ---
 name: value-creation-delivery
-description: Force offer design, value-lever choice, validation, and reliable delivery-system thinking on one Sol manager outcome. Use when the work is value creation or value delivery. Do not load on the Company OS master or on Luna workers.
+description: Force offer design, value-lever choice, validation, and reliable delivery-system thinking on one Astra manager outcome. Use when the work is value creation or value delivery. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Value Creation Delivery
 
-This is a thinking overlay for value-creation and value-delivery Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` and `$commercial-customer-system` still win.
+This is a thinking overlay for value-creation and value-delivery Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` and `$commercial-customer-system` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, quoted speech, or affiliation with any named offer-design school.
 

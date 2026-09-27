@@ -166,13 +166,13 @@ class OperatorBriefTests(unittest.TestCase):
     def test_supervision_and_feedback_are_safe_aggregates(self) -> None:
         state = self.fixture.valid_state()
         state["execution_fabric"]["managers"] = {
-            "manager-a": {"status": "awaiting_decision", "next_phase": "discovery", "model": "gpt-5.6-sol", "reports": [{"phase": "charter"}, {"phase": "discovery"}]},
-            "manager-b": {"status": "pending", "next_phase": "charter", "model": "gpt-5.6-sol", "reports": []},
+            "manager-a": {"status": "awaiting_decision", "next_phase": "discovery", "model": "gpt-6-astra", "reports": [{"phase": "charter"}, {"phase": "discovery"}]},
+            "manager-b": {"status": "pending", "next_phase": "charter", "model": "gpt-6-astra", "reports": []},
         }
         state["runtime_adapter"]["attempts"] = [
             {
                 "attempt_id": "attempt-1", "manifest_identity_id": "manager-a", "role": "manager", "status": "running",
-                "requested_model": "gpt-5.6-sol", "observed_model": None,
+                "requested_model": "gpt-6-astra", "observed_model": None,
                 "provider": "test", "parent_runtime_id": "master-1",
                 "secret": "must-not-leak",
             }
@@ -185,7 +185,7 @@ class OperatorBriefTests(unittest.TestCase):
         self.assertEqual(brief["execution"]["manager_count"], 2)
         self.assertEqual(brief["execution"]["manager_reports"], 2)
         self.assertEqual(len(brief["execution"]["runtime_attempts"]), 1)
-        self.assertEqual(brief["execution"]["managers"][0]["requested_model"], "gpt-5.6-sol")
+        self.assertEqual(brief["execution"]["managers"][0]["requested_model"], "gpt-6-astra")
         self.assertEqual(brief["execution"]["managers"][0]["decision_required"], "discovery")
         self.assertNotIn("must-not-leak", json.dumps(brief))
         self.assertEqual(brief["feedback"]["metrics"]["cost"]["value"], 1.25)
@@ -201,7 +201,7 @@ class OperatorBriefTests(unittest.TestCase):
         state = self.fixture.valid_state()
         state["runtime_adapter"]["attempts"] = [{
             "attempt_id": "attempt-observed", "manifest_identity_id": "manager-a",
-            "role": "manager", "status": "admitted", "requested_model": "gpt-5.6-sol",
+            "role": "manager", "status": "admitted", "requested_model": "gpt-6-astra",
             "observed_model": "untrusted-admission-field", "provider": "provider",
             "parent_runtime_id": "master", "budget": {"max_tokens": 100},
         }]
@@ -223,7 +223,7 @@ class OperatorBriefTests(unittest.TestCase):
         }
         state["runtime_adapter"]["attempts"] = [{
             "attempt_id": "attempt-budget", "manifest_identity_id": "manager-a",
-            "role": "manager", "status": "admitted", "requested_model": "gpt-5.6-sol",
+            "role": "manager", "status": "admitted", "requested_model": "gpt-6-astra",
             "provider": "provider", "parent_runtime_id": "master", "budget": {"max_tokens": 100},
         }]
         report = controller.validate_state(state, expected_project=self.project)
@@ -252,7 +252,7 @@ class OperatorBriefTests(unittest.TestCase):
                 state = self.fixture.valid_state()
                 state["execution_fabric"]["managers"] = {
                     "manager-a": {
-                        "id": "manager-a", "model": "gpt-5.6-sol", "next_phase": "design",
+                        "id": "manager-a", "model": "gpt-6-astra", "next_phase": "design",
                         "rework_rounds": 1 if expected == "in_rework" else 0,
                         **manager,
                     },
@@ -269,17 +269,17 @@ class OperatorBriefTests(unittest.TestCase):
         state["runtime_adapter"]["attempts"] = [
             {
                 "attempt_id": "attempt-unobserved", "manifest_identity_id": "manager-a", "role": "manager",
-                "status": "admitted", "requested_model": "gpt-5.6-sol", "provider": "provider",
+                "status": "admitted", "requested_model": "gpt-6-astra", "provider": "provider",
                 "parent_runtime_id": "master",
             },
             {
                 "attempt_id": "attempt-provider-unknown", "manifest_identity_id": "manager-b", "role": "manager",
-                "status": "admitted", "requested_model": "gpt-5.6-sol", "provider": "provider",
+                "status": "admitted", "requested_model": "gpt-6-astra", "provider": "provider",
                 "parent_runtime_id": "master", "budget": {"max_tokens": 100},
             },
             {
                 "attempt_id": "attempt-observed", "manifest_identity_id": "manager-c", "role": "manager",
-                "status": "admitted", "requested_model": "gpt-5.6-sol", "provider": "provider",
+                "status": "admitted", "requested_model": "gpt-6-astra", "provider": "provider",
                 "parent_runtime_id": "master", "budget": {"max_tokens": 100},
             },
         ]

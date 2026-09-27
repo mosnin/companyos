@@ -1,6 +1,6 @@
 ---
 name: luna-execution-fabric
-description: Orchestrate a hierarchical, cost-aware agent organization in which a GPT-5.6 Sol master supervises isolated GPT-5.6 Sol manager threads and bounded GPT-5.6 Luna worker teams. Use when a user asks for manager threads, Luna-heavy execution, parallel low-cost labor, Kubernetes-like agent orchestration, hierarchical delegation, or lower-cost multi-agent delivery with independent review.
+description: Orchestrate a hierarchical, cost-aware agent organization in which a GPT-6 Astra master supervises isolated GPT-6 Astra manager threads and bounded GPT-5.6 Luna worker teams. Use when a user asks for manager threads, Luna-heavy execution, parallel low-cost labor, Kubernetes-like agent orchestration, hierarchical delegation, or lower-cost multi-agent delivery with independent review.
 ---
 
 # Luna Execution Fabric
@@ -17,16 +17,16 @@ level merely because the pattern is recursive.
 
 ## Roles
 
-- **Master / CEO — GPT-5.6 Sol:** define the Program Contract, allocate
+- **Master / CEO — GPT-6 Astra:** define the Program Contract, allocate
   manager outcomes and budgets, resolve conflicts, audit every phase, and
   accept the integrated program.
-- **Manager / orchestrator — GPT-5.6 Sol:** own exactly one bounded outcome,
+- **Manager / orchestrator — GPT-6 Astra:** own exactly one bounded outcome,
   create a worker roadmap, supervise execution, inspect artifacts, report at
   every phase, and return one compressed manager receipt.
 - **Worker — GPT-5.6 Luna:** perform one bounded task and return evidence.
   Workers cannot delegate, approve themselves, deploy, change authority, or
   expand scope.
-- **Independent reviewer — GPT-5.6 Sol:** challenge a manager's design or
+- **Independent reviewer — GPT-6 Astra:** challenge a manager's design or
   acceptance evidence at a high-risk phase boundary. It stays read-only.
 - **Exception lane — GPT-5.6 Terra:** use only when a Luna task fails twice
   because the implementation itself needs more reasoning.
@@ -40,7 +40,7 @@ with worktrees, sandboxes, file ownership, permission envelopes, and leases.
 2. Derive manager outcomes from the accepted work graph. Use one manager for
    each independently accountable outcome or interface boundary; never combine
    unrelated departments merely to fit a fixed agent count.
-3. Spawn a separate Sol manager thread for each outcome. Send its Manager
+3. Spawn a separate Astra manager thread for each outcome. Send its Manager
    Charter and establish master ↔ manager communication before work.
 4. Require each manager to acknowledge the program ID, version, outcome digest,
    owned phases, interfaces, and limits.
@@ -69,7 +69,7 @@ launching manager threads or changing the default limits.
 ## Runtime adapter
 
 The execution surface is the native Codex task runtime operated from the
-interactive host: master Sol task → Sol manager task → Luna worker tasks. Read
+interactive host: master Astra task → Astra manager task → Luna worker tasks. Read
 [references/codex-native-task-fabric.md](references/codex-native-task-fabric.md)
 before dispatch or acceptance.
 
@@ -86,7 +86,7 @@ admission, cancellation authority, and durable reconciliation are accepted.
 Record requested model separately from observed model. Record thread/task and
 host metadata only when exposed. Treat tokens, cost, and cancellation
 acknowledgement as unavailable when absent; elapsed duration may be observed
-independently. Never substitute Terra or Sol while labeling labor Luna.
+independently. Never substitute Terra or Astra while labeling labor Luna.
 
 ## Live topology and efficiency gate
 
@@ -117,7 +117,7 @@ efficiency, or scaling proof. Requested Luna/max is intent until observed.
 
 - The program declares capacity from its accepted work graph. Manager count,
   workers per manager, and total workers are not fixed defaults. A large
-  program may validly declare 30 Sol managers with 10 Luna tasks each.
+  program may validly declare 30 Astra managers with 10 Luna tasks each.
 - Outcome-owned manifests compile from the current `$run-outcome-loop` state and declare `topology_mode: outcome_closed_loop`. They carry both the portable outcome control binding and the exact current outcome loop state, organization, next action, and lane digests. If the bottleneck or loop state changes, the old fabric becomes stale and must be recompiled.
 - `topology_mode: elastic_work_graph` remains compatible for non-loop orchestration. Manifests without an outcome control binding retain the frozen 2/3/6 Phase 1 limits solely for replay compatibility and cannot establish elastic scale evidence.
 - The pilot lane may use no more than 2 managers, 3 workers per manager, and 6 total workers. Any larger organization is production scale and requires current outcome authorization before configuration.
@@ -136,7 +136,7 @@ efficiency, or scaling proof. Requested Luna/max is intent until observed.
 - Delegation depth two: master → manager → worker.
 - One retry per worker; two manager review/rework rounds.
 - One write-enabled worker per ownership scope.
-- One read-only Sol reviewer per manager at high-risk design, verification, or
+- One read-only Astra reviewer per manager at high-risk design, verification, or
   integration gates; close the reviewer after the gate.
 - No production, deployment, spending, customer communication, privilege
   expansion, or destructive operation without the existing user approval gate.
@@ -145,7 +145,7 @@ efficiency, or scaling proof. Requested Luna/max is intent until observed.
 
 Raise concurrency after accepted cycles show at least 85% first-pass worker
 acceptance, under 20% rework, zero write collisions, and at least 40% less
-Sol-token use per accepted outcome than the single-thread baseline. Lower
+Astra-token use per accepted outcome than the single-thread baseline. Lower
 concurrency when collision, rework, provider throttling, or integration queues
 rise. Scaling is a reconciliation decision, not a one-time phase unlock.
 
@@ -178,7 +178,7 @@ Each manager independently verifies the work and returns:
 - accepted artifacts or commit;
 - evidence and failed checks;
 - worker acceptance/rework statistics;
-- Luna, Terra, manager Sol, and reviewer Sol usage;
+- Luna, Terra, manager Astra, and reviewer Astra usage;
 - collisions, policy events, and residual risks;
 - next exact action.
 
@@ -233,9 +233,9 @@ feature-off migration drafts, and artifact production.
 
 Keep architecture, prioritization, cross-cutting design, permission changes,
 security decisions, schema authority, conflict resolution, and final acceptance
-with Sol.
+with Astra.
 
-Allow a manager to spawn one read-only Sol reviewer at a material phase gate.
+Allow a manager to spawn one read-only Astra reviewer at a material phase gate.
 The reviewer receives the Program Contract, phase report, artifacts, and rubric,
 but not the manager's preferred conclusion.
 
@@ -264,3 +264,7 @@ Stop when the outcome is accepted, a material safety boundary is reached, the
 budget expires, two manager cycles produce no accepted movement, worker rework
 exceeds 30%, a write collision occurs, or the user stops it. Cancellation
 propagates from master to managers to workers.
+
+## Current management model routing
+
+Request `gpt-6-astra` with `medium` reasoning for executive/master and manager conversations. On Codex task creation, pass `model: "gpt-6-astra"` and `thinking: "medium"`; on sub-agent surfaces pass the explicit model and reasoning effort with a generic role, never the fixed `sol_master` or `sol_manager` preset. Preserve `gpt-5.6-luna` for workers. Record requested settings separately from host-observed settings. If this exact model is unavailable, report the host capability gap instead of silently reverting to Sol. Existing running conversations change only after an explicit host update and subsequent observation.

@@ -1,11 +1,11 @@
 ---
 name: marketing-architect
-description: Force market-first demand, positioning, go-to-market, and measurement thinking on one Sol manager outcome. Use when the work is marketing architecture. Do not load on the Company OS master or on Luna workers.
+description: Force market-first demand, positioning, go-to-market, and measurement thinking on one Astra manager outcome. Use when the work is marketing architecture. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Marketing Architect
 
-This is a thinking overlay for marketing Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` and `$commercial-customer-system` still win. `$commercial-customer-system` remains the commercial operating contract. `$brand-creative-system` remains the brand quality gate.
+This is a thinking overlay for marketing Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` and `$commercial-customer-system` still win. `$commercial-customer-system` remains the commercial operating contract. `$brand-creative-system` remains the brand quality gate.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, or quoted speech.
 

@@ -1,11 +1,11 @@
 ---
 name: business-architect
-description: Force business-model, value-proposition, competitive-strategy, and market-analysis thinking on one Sol manager outcome. Use when the work is business architecture. Do not load on the Company OS master or on Luna workers.
+description: Force business-model, value-proposition, competitive-strategy, and market-analysis thinking on one Astra manager outcome. Use when the work is business architecture. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Business Architect
 
-This is a thinking overlay for business-architecture Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$strategy-pillar`, and `$portfolio-direction` still win.
+This is a thinking overlay for business-architecture Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$strategy-pillar`, and `$portfolio-direction` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, quoted speech, or affiliation with McKinsey, Porter, Jobs, or Strategyzer.
 

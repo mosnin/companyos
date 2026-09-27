@@ -342,7 +342,7 @@ def skill_manifest(skill_dir: Path) -> dict[str, dict[str, Any]]:
         if not path.is_file():
             continue
         relative = path.relative_to(skill_dir).as_posix()
-        if PurePosixPath(relative).parts[0] not in INSTALLABLE_TOP_LEVEL:
+        if relative != "skill.json" and PurePosixPath(relative).parts[0] not in INSTALLABLE_TOP_LEVEL:
             raise FoundryError("E_PATH", f"unsupported skill file: {relative}")
         size = path.stat().st_size
         total += size
@@ -583,8 +583,69 @@ def latest_candidate_path(project_root: Path, name: str) -> Path:
     return versions[-1]
 
 
-def forge_candidate(project_root: Path, request: str, *, name: str | None = None, source_kind: str = "explicit_skill_request", parent_skill: str | None = None, depth: int = 0, dependencies: Sequence[str] = (), max_rounds: int = 2, threshold: int = 88, force_skill_request: bool = True) -> dict[str, Any]:
-    project_root = project_root.resolve(); project_root.mkdir(parents=True, exist_ok=True)
+def staged_skill_source(package: Path, name: str) -> Path:
+    """Check integration/formatter byte bindings before native validation."""
+    package = package.absolute()
+    if any(p.is_symlink() for p in (package, *package.parents)):
+        raise FoundryError("E_PATH", "staged package must not traverse symlinks")
+    receipt = require_object(read_json(package / "integration-receipt.json", "integration receipt"), "integration receipt")
+    if receipt.get("owner") != "company-os" or receipt.get("skill") != name or receipt.get("status") != "pending_host_admission":
+        raise FoundryError("E_BINDING", "staged package owner, skill or status differs")
+    if receipt.get("schema_version") != 2 or receipt.get("permissions") != []:
+        raise FoundryError("E_BINDING", "restage with receipt v2 and no added permissions")
+    artifacts = {}
+    for artifact in package.rglob("*"):
+        if artifact.is_symlink(): raise FoundryError("E_PATH", "symlink in staged artifact")
+        if artifact.is_file() and artifact != package / "integration-receipt.json":
+            artifacts[artifact.relative_to(package).as_posix()] = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    if artifacts != receipt.get("artifact_files"):
+        raise FoundryError("E_DIGEST", "staged artifact inventory changed")
+    plan = require_object(read_json(package / "integration-plan.json", "integration plan"), "integration plan")
+    if plan.get("owner") != receipt["owner"] or plan.get("id") != name or plan.get("adapted_files") != receipt.get("adapted_files"):
+        raise FoundryError("E_BINDING", "plan and receipt identities differ")
+    if plan.get("skill_owner", plan["owner"]) != receipt.get("skill_owner"):
+        raise FoundryError("E_BINDING", "subkernel ownership binding differs")
+    registry_path_value = package / "integration-registry.json"
+    registry_digest = hashlib.sha256(registry_path_value.read_bytes()).hexdigest()
+    if registry_digest != receipt.get("registry_sha256") or registry_digest != plan.get("registry_sha256"):
+        raise FoundryError("E_DIGEST", "registry binding changed")
+    ownership = require_object(read_json(registry_path_value, "ownership registry"), "ownership registry")
+    if not isinstance(ownership.get("owners"), list) or not ownership["owners"]:
+        raise FoundryError("E_SCHEMA", "ownership registry requires owners")
+    for owner in ownership["owners"]:
+        owner = require_object(owner, "owner")
+        owner_root = Path(require_text(owner.get("root"), "owner root"))
+        if not owner_root.is_absolute() or any(p.is_symlink() for p in (owner_root, *owner_root.parents)):
+            raise FoundryError("E_PATH", "owner root must be canonical and absolute")
+        require_object(owner.get("contracts"), "owner contracts")
+        for relative, expected in owner["contracts"].items():
+            contract = safe_child(owner_root, relative, "owner contract")
+            if not contract.is_file() or hashlib.sha256(contract.read_bytes()).hexdigest() != expected:
+                raise FoundryError("E_BINDING", "ownership changed after staging; review and restage")
+    source = package / "skills" / name
+    if source.is_symlink(): raise FoundryError("E_PATH", "staged skill is a symlink")
+    metadata = require_object(read_json(source / "skill.json", "skill metadata"), "skill metadata")
+    if metadata.get("owner") != receipt.get("skill_owner") or metadata.get("id") != name:
+        raise FoundryError("E_BINDING", "skill metadata differs from the reviewed owner")
+    if metadata.get("depends_on"):
+        raise FoundryError("E_DEPENDENCY", "staged imports with dependencies require native composition admission; standalone import cannot silently drop them")
+    observed = {}
+    for path in source.rglob("*"):
+        if path.is_symlink(): raise FoundryError("E_PATH", "symlink in staged skill")
+        if path.is_file(): observed[path.relative_to(source).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+    if not observed or observed != receipt.get("adapted_files"):
+        raise FoundryError("E_DIGEST", "staged skill bytes changed")
+    bindings = receipt.get("formatter", {})
+    for relative, key in (("os.config.json", "config_sha256"), ("catalog/os-builder/skills.json", "index_sha256")):
+        if hashlib.sha256((package / relative).read_bytes()).hexdigest() != bindings.get(key):
+            raise FoundryError("E_DIGEST", "formatter binding changed or absent")
+    if hashlib.sha256((package / "integration-plan.json").read_bytes()).hexdigest() != receipt.get("plan_sha256"):
+        raise FoundryError("E_DIGEST", "integration plan changed")
+    return source
+
+
+def forge_candidate(project_root: Path, request: str, *, name: str | None = None, source_kind: str = "explicit_skill_request", parent_skill: str | None = None, depth: int = 0, dependencies: Sequence[str] = (), max_rounds: int = 2, threshold: int = 88, force_skill_request: bool = True, staged_package: Path | None = None) -> dict[str, Any]:
+    project_root = project_root.resolve()
     request = require_text(request, "request")
     if source_kind not in SOURCE_KINDS:
         raise FoundryError("E_SCHEMA", "unsupported source kind")
@@ -598,6 +659,7 @@ def forge_candidate(project_root: Path, request: str, *, name: str | None = None
     dependencies = [normalize_name(item) for item in dependencies]
     if skill_name in dependencies or parent == skill_name or len(dependencies) != len(set(dependencies)):
         raise FoundryError("E_RECURSION", "self or duplicate dependencies are not allowed")
+    imported = staged_skill_source(staged_package, skill_name) if staged_package else None
     version = next_version(project_root, skill_name); path = candidate_path(project_root, skill_name, version); path.parent.mkdir(parents=True, exist_ok=True)
     temporary = Path(tempfile.mkdtemp(prefix=f".{skill_name}.", dir=path.parent))
     try:
@@ -607,7 +669,16 @@ def forge_candidate(project_root: Path, request: str, *, name: str | None = None
         resources = infer_resources(request)
         if dependencies and "assets" not in resources:
             resources = [item for item in ("references", "scripts", "assets", "examples") if item in set(resources) | {"assets"}]
-        create_skill_files(skill_dir, skill_name, request, resources, dependencies)
+        if imported:
+            shutil.copytree(imported, skill_dir)
+            staged_skill_source(staged_package, skill_name)
+            if skill_manifest(imported) != skill_manifest(skill_dir):
+                raise FoundryError("E_DIGEST", "staged skill changed during native import")
+            front, _ = parse_frontmatter((skill_dir / "SKILL.md").read_text())
+            description = front.get("description", "")
+            description_eval = evaluate_triggers(skill_name, description, examples_from(skill_dir))
+        else:
+            create_skill_files(skill_dir, skill_name, request, resources, dependencies)
         history = []
         validation = validate_skill(skill_dir, threshold); simulation = simulate_skill(skill_dir)
         for round_number in range(1, max_rounds + 1):
@@ -911,7 +982,7 @@ def foundry_simulation(project_root: Path) -> dict[str, Any]:
 
 def build_parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description=__doc__); sub = root.add_subparsers(dest="command", required=True)
-    forge = sub.add_parser("forge"); forge.add_argument("--project-root", type=Path, required=True); forge.add_argument("--request"); forge.add_argument("--request-file", type=Path); forge.add_argument("--name"); forge.add_argument("--source-kind", choices=sorted(SOURCE_KINDS), default="explicit_skill_request"); forge.add_argument("--parent-skill"); forge.add_argument("--depth", type=int, default=0); forge.add_argument("--dependency", action="append", default=[]); forge.add_argument("--max-rounds", type=int, default=2); forge.add_argument("--threshold", type=int, default=88); forge.add_argument("--allow-learned", action="store_true"); forge.add_argument("--promote", action="store_true")
+    forge = sub.add_parser("forge"); forge.add_argument("--project-root", type=Path, required=True); forge.add_argument("--request"); forge.add_argument("--request-file", type=Path); forge.add_argument("--name"); forge.add_argument("--source-kind", choices=sorted(SOURCE_KINDS), default="explicit_skill_request"); forge.add_argument("--parent-skill"); forge.add_argument("--depth", type=int, default=0); forge.add_argument("--dependency", action="append", default=[]); forge.add_argument("--max-rounds", type=int, default=2); forge.add_argument("--threshold", type=int, default=88); forge.add_argument("--allow-learned", action="store_true"); forge.add_argument("--promote", action="store_true"); forge.add_argument("--staged-package", type=Path)
     system = sub.add_parser("forge-system"); system.add_argument("--project-root", type=Path, required=True); system.add_argument("--spec", type=Path, required=True); system.add_argument("--threshold", type=int, default=88); system.add_argument("--promote", action="store_true")
     validate = sub.add_parser("validate"); validate.add_argument("--skill", type=Path, required=True); validate.add_argument("--threshold", type=int, default=88)
     simulate = sub.add_parser("simulate"); simulate.add_argument("--skill", type=Path, required=True)
@@ -933,7 +1004,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "forge":
             request = args.request if args.request is not None else args.request_file.read_text(encoding="utf-8") if args.request_file else None
             if request is None: raise FoundryError("E_SCHEMA", "provide request or request file")
-            result = forge_candidate(args.project_root, request, name=args.name, source_kind=args.source_kind, parent_skill=args.parent_skill, depth=args.depth, dependencies=args.dependency, max_rounds=args.max_rounds, threshold=args.threshold, force_skill_request=not args.allow_learned)
+            result = forge_candidate(args.project_root, request, name=args.name, source_kind=args.source_kind, parent_skill=args.parent_skill, depth=args.depth, dependencies=args.dependency, max_rounds=args.max_rounds, threshold=args.threshold, force_skill_request=not args.allow_learned, staged_package=args.staged_package)
             if args.promote and result.get("status") == "validated": result["promotion"] = promote_candidate(args.project_root, result["skill_name"])
         elif args.command == "forge-system": result = forge_system(args.project_root, args.spec, promote=args.promote, threshold=args.threshold)
         elif args.command == "validate": result = validate_skill(args.skill, args.threshold)

@@ -16,8 +16,8 @@ Use this as the single entry point for the named Autonomy Suite. Load only the c
 | Quality-critical work | `$verified-work-loop` | Plan-execute-verify-replan cycles with independent challenge. |
 | Nested delegation | `$supervised-subagent-tree` | Approval-gated child tasks, restricted inheritance, lineage, and budgets. |
 | Cost and capability selection | `$tiered-agent-routing` | Strong planning/review with cheaper bounded execution lanes. |
-| Sol-managed Luna labor | `$luna-execution-fabric` | Isolated Sol manager threads supervising bounded Luna worker teams with compressed evidence handoffs. |
-| Sol manager role | `$manage-company-program` | Decompose one charter, coordinate native Luna tasks, inspect evidence, and integrate or escalate. |
+| Astra-managed Luna labor | `$luna-execution-fabric` | Isolated Astra manager threads supervising bounded Luna worker teams with compressed evidence handoffs. |
+| Astra manager role | `$manage-company-program` | Decompose one charter, coordinate native Luna tasks, inspect evidence, and integrate or escalate. |
 | Luna worker role | `$execute-bounded-task` | Execute one exact work packet with no child delegation and an honest evidence receipt. |
 | Portfolio and product direction | `$strategy-pillar` | Run the separate strategy layer that chooses outcomes before execution. |
 | Adaptive project operating model | `$elastic-company-os` | Create one isolated project control instance and evolve its method through reviewed feedback. |
@@ -31,8 +31,8 @@ Use this as the single entry point for the named Autonomy Suite. Load only the c
 5. Add **Verified Work Loop** before changes with material safety, customer, production, financial, or quality impact.
 6. Add **Supervised Subagent Tree** only if nested delegation is necessary; define approvals and budgets first.
 7. Add **Tiered Agent Routing** whenever tasks vary materially in ambiguity, blast radius, or verification cost.
-8. Add **Luna Execution Fabric** when the user explicitly wants hierarchical manager threads or Luna-heavy parallel execution. Keep the master at Sol, managers at Sol, and bounded labor at Luna.
-9. Invoke **Manage Company Program** for every Sol manager and **Execute
+8. Add **Luna Execution Fabric** when the user explicitly wants hierarchical manager threads or Luna-heavy parallel execution. Keep the master at Astra, managers at Astra, and bounded labor at Luna.
+9. Invoke **Manage Company Program** for every Astra manager and **Execute
    Bounded Task** for every Luna worker. Pass only the compact versioned charter
    or packet; keep stable role policy in the skills.
 
@@ -50,7 +50,7 @@ Use [references/control-plane-schema.md](references/control-plane-schema.md) to 
 
 - Route deterministic, repetitive, inventory, formatting, and narrow-check work to **GPT-5.6 Luna**.
 - Route scoped implementation, debugging, targeted research, and test creation to **GPT-5.6 Terra**.
-- Route architecture, decomposition, risk decisions, delegation, conflict resolution, security review, and final acceptance to **GPT-5.6 Sol**.
+- Route architecture, decomposition, risk decisions, delegation, conflict resolution, security review, and final acceptance to **GPT-6 Astra**.
 
 Escalate to a higher tier when ambiguity, blast radius, novelty, or verification difficulty exceeds the current tier. Never use lower cost as a reason to bypass independent verification or a required approval.
 
@@ -62,7 +62,7 @@ Escalate to a higher tier when ambiguity, blast radius, novelty, or verification
 - Do not use all components by default. Avoid complexity that produces no measurable improvement.
 - Do not let safety, audit, or maintenance lanes become the product roadmap. If two accepted tasks fail to advance a visible milestone, emit a drift event and re-plan from the product program.
 - Do not broadcast the root transcript to all workers. Managers must send task-local context and return compressed evidence receipts.
-- Do not assume more agents reduce tokens. Measure total tokens, Sol-token share, cache use, rework, and accepted lead time against a single-thread baseline.
+- Do not assume more agents reduce tokens. Measure total tokens, Astra-token share, cache use, rework, and accepted lead time against a single-thread baseline.
 
 ## Handoff
 

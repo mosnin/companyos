@@ -1,0 +1,29 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "durable-state-design",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Source repository and skill path recorded; null revision means current development source, not a pinned release.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": "skills/durable-objects/SKILL.md",
+      "revision": "30553f89ae1ef1e3c2917cd09d72dac992bb4e9a",
+      "role": "original",
+      "url": "https://github.com/cloudflare/skills"
+    },
+    {
+      "kind": "github",
+      "path": "skills/company-os/assign-capability-skills/vendor/engineering/durable-state-design/SKILL.md",
+      "revision": null,
+      "role": "adaptation",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}

@@ -8,10 +8,10 @@ description: Mandatory Company OS design-engineering gate for any work that crea
 Use this skill for every Company OS work packet classified as `ui_design` and
 for any packet that touches UI source such as HTML, CSS, JSX/TSX, Vue, or
 Svelte. This is a required delivery gate, not optional inspiration. The
-managing Sol may load `$steve` as taste overlay; this skill remains the
+managing Astra may load `$steve` as taste overlay; this skill remains the
 evidence gate. Do not send `$steve` to Luna workers.
 
-When a Sol manager owns design-process or interaction-architecture work, load
+When a Astra manager owns design-process or interaction-architecture work, load
 `$design` as the design overlay. This skill remains the UI evidence gate.
 Do not send `$design` to Luna workers.
 

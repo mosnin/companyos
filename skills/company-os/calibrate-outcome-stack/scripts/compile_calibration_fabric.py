@@ -340,7 +340,7 @@ def compile_manifest(
         managers.append(
             {
                 "id": manager_id,
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra", "reasoning_effort": "medium",
                 "outcome": manager_outcome,
                 "acceptance": [
                     "Three distinct ranked candidate artifact sets are materialized",

@@ -1,11 +1,11 @@
 ---
 name: project-manager
-description: Force project scoping, methodology choice, work breakdown, risk, and executable workflow thinking on one Sol manager outcome. Use when the work is project management. Do not load on the Company OS master or on Luna workers.
+description: Force project scoping, methodology choice, work breakdown, risk, and executable workflow thinking on one Astra manager outcome. Use when the work is project management. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Project Manager
 
-This is a thinking overlay for project-management Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$project-program-management`, and `$project-kickoff-roadmap` still win.
+This is a thinking overlay for project-management Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program`, `$project-program-management`, and `$project-kickoff-roadmap` still win.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, quoted speech, or affiliation with PMI, PMBOK, or Agile Alliance.
 

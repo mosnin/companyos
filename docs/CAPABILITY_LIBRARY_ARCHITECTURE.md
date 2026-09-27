@@ -3,7 +3,7 @@
 ## Outcome
 
 Company OS can discover thousands of external skills without placing their
-instructions in the master, manager, or worker context. A Sol manager selects a
+instructions in the master, manager, or worker context. A Astra manager selects a
 small exact bundle for a bounded outcome; Program Preflight binds that bundle;
 the worker reads only the verified entrypoints it was assigned.
 

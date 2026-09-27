@@ -1,0 +1,29 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "browser-boundary-design",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Source repository and skill path recorded; null revision means current development source, not a pinned release.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": "skills/safe-browser/SKILL.md",
+      "revision": "6afe8663693372e59e167dfa5be37932af09ae3d",
+      "role": "original",
+      "url": "https://github.com/browserbase/skills"
+    },
+    {
+      "kind": "github",
+      "path": "skills/company-os/assign-capability-skills/vendor/engineering/browser-boundary-design/SKILL.md",
+      "revision": null,
+      "role": "adaptation",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}

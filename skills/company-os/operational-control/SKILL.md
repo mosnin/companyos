@@ -5,7 +5,7 @@ description: Operate a reliable autonomous or hybrid organization through servic
 
 # Operational Control
 
-When a Sol manager owns process flow, capacity, queueing, inventory, or
+When a Astra manager owns process flow, capacity, queueing, inventory, or
 supply chain work, load `$ops-architect` as the operations overlay. This skill
 remains the operations operating contract.
 Do not send `$ops-architect` to Luna workers.
@@ -18,9 +18,9 @@ Observe service and business health; detect meaningful deviation; triage impact 
 
 Track customer experience, service availability, error/recovery rate, response and resolution time, queue age, delivery predictability, cost, capacity, security/privacy risk, control effectiveness, and process friction. Define threshold, owner, response, and escalation for each material metric.
 
-For hierarchical delivery, also track active Sol managers, active Luna workers,
+For hierarchical delivery, also track active Astra managers, active Luna workers,
 phase age, stale reports, first-pass worker acceptance, rework, write
-collisions, total tokens, Luna share, Sol tokens per accepted outcome,
+collisions, total tokens, Luna share, Astra tokens per accepted outcome,
 single-thread baseline, and cancellation propagation. Scale concurrency only
 after three accepted comparable cycles meet the execution-fabric policy.
 

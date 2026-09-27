@@ -1,0 +1,29 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "better-typography",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Original source and immutable commit recovered from the native UPSTREAM.json; exact upstream path is not asserted.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": null,
+      "revision": "ba35986bcf433fdca78ea571b0a3dc329cea89ba",
+      "role": "original",
+      "url": "https://github.com/jakubkrehel/skills"
+    },
+    {
+      "kind": "github",
+      "path": "skills/company-os/interface-design/vendor/better-typography/SKILL.md",
+      "revision": null,
+      "role": "adaptation",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}

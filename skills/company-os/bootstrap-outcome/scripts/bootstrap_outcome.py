@@ -226,7 +226,7 @@ def discovery_manifest(state: Mapping[str, Any], request: Mapping[str, Any], con
         managers.append(
             {
                 "id": manager_id,
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra", "reasoning_effort": "medium",
                 "outcome": manager_outcome,
                 "acceptance": [
                     "Worker proposal is independently checked against the assigned agenda",

@@ -312,7 +312,7 @@ def validate_department_catalog(value: dict[str, Any]) -> dict[str, dict[str, An
 
 
 def validate_agent_slot(slot: Any, department_id: str, slot_ids: set[str]) -> dict[str, Any]:
-    if not isinstance(slot, dict) or set(slot) != AGENT_SLOT_FIELDS:
+    if not isinstance(slot, dict) or set(slot) not in (AGENT_SLOT_FIELDS, AGENT_SLOT_FIELDS | {"requested_reasoning_effort"}):
         raise BlueprintError(f"department {department_id} agent slot fields differ from the contract")
     slot_id = require_id(slot["id"], f"department {department_id}.agent_slot.id")
     if slot_id in slot_ids:
@@ -344,8 +344,10 @@ def validate_agent_slot(slot: Any, department_id: str, slot_ids: set[str]) -> di
             raise BlueprintError(f"{slot_id} manager slot must include manage-company-program")
         if not MANAGER_FORBIDDEN.issubset(set(forbidden)):
             raise BlueprintError(f"{slot_id} manager slot must forbid master and worker")
-        if model != "gpt-5.6-sol":
-            raise BlueprintError(f"{slot_id} manager requested_model must remain gpt-5.6-sol")
+        if model != "gpt-6-astra":
+            raise BlueprintError(f"{slot_id} manager requested_model must remain gpt-6-astra")
+        if slot.get("requested_reasoning_effort", "medium") != "medium":
+            raise BlueprintError(f"{slot_id} manager requested_reasoning_effort must be medium")
     elif role == "worker":
         if tier != "staff":
             raise BlueprintError(f"{slot_id} worker tier must be staff")

@@ -1,0 +1,29 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "market-opportunity-artifact",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Source repository and skill path recorded; null revision means current development source, not a pinned release.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": "stratarts/commands/market-opportunity-analyzer.md",
+      "revision": "aea77df147c02445e2e10ece7ae771fcf47009b4",
+      "role": "original",
+      "url": "https://github.com/maigentic/stratarts"
+    },
+    {
+      "kind": "github",
+      "path": "skills/company-os/assign-capability-skills/vendor/business/market-opportunity-artifact/SKILL.md",
+      "revision": null,
+      "role": "adaptation",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}

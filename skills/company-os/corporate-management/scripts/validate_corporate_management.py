@@ -40,6 +40,7 @@ TOP_LEVEL = {
     "template_id",
     "role",
     "requested_model",
+    "requested_reasoning_effort",
     "skills",
     "forbidden_roles",
     "source_pack",
@@ -54,8 +55,8 @@ SKILL_MARKERS = (
     "fourth executable hop",
     "master → manager → worker",
     "not a claim of personal identity",
-    "narrower sol-manager charter",
-    "peer sol managers",
+    "narrower astra-manager charter",
+    "peer astra managers",
     "not a parent hop",
     "four names do not require four agent layers",
     "tokens follow the global bottleneck",
@@ -142,8 +143,10 @@ def validate_spawn_template(payload: Any) -> list[str]:
         errors.append("template_id drifted")
     if payload.get("role") != "manager":
         errors.append("spawn role must be manager")
-    if payload.get("requested_model") != "gpt-5.6-sol":
-        errors.append("requested_model must remain gpt-5.6-sol")
+    if payload.get("requested_model") != "gpt-6-astra":
+        errors.append("requested_model must remain gpt-6-astra")
+    if payload.get("requested_reasoning_effort") != "medium":
+        errors.append("requested_reasoning_effort must be medium")
     if payload.get("authority") != "thinking_overlay":
         errors.append("authority must be thinking_overlay")
     if payload.get("source_pack") != "references/source":

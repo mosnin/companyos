@@ -12,7 +12,7 @@ Treat delegation as a governed capability, not an unrestricted tool.
 - Define the root outcome, allowed systems, prohibited actions, approval thresholds, maximum depth, concurrency, token/cost/time budgets, and stop conditions.
 - Give every child a durable parent link, task contract, permission envelope, lease, audit trail, and return artifact.
 - Children inherit the narrowest permission set; they may never escalate their own authority.
-- For the Luna Execution Fabric, use exactly two delegation edges: Sol master → Sol manager → Luna worker. Luna workers may not create children.
+- For the Luna Execution Fabric, use exactly two delegation edges: Astra master → Astra manager → Luna worker. Luna workers may not create children.
 
 ## Delegation rules
 

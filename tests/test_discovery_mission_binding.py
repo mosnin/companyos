@@ -84,7 +84,7 @@ def manifest():
         "managers": [
             {
                 "id": "research-manager",
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra",
                 "outcome": research_outcome,
                 "acceptance": ["Research resolves a live blocker"],
                 "phase_ids": ["charter", "discovery", "design", "execution", "verification", "integration"],
@@ -94,7 +94,7 @@ def manifest():
             },
             {
                 "id": "implementation-manager",
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra",
                 "outcome": implementation_outcome,
                 "acceptance": ["A real artifact runs"],
                 "phase_ids": ["charter", "discovery", "design", "execution", "verification", "integration"],

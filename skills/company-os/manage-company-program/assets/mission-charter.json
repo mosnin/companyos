@@ -12,7 +12,7 @@
   },
   "outcome": "",
   "outcome_digest": null,
-  "requested_model": "gpt-5.6-sol",
+  "requested_model": "gpt-6-astra",
   "authorization_expectation": {
     "phase": "charter",
     "decision_id": "",
@@ -24,12 +24,34 @@
     "record_sha256": null
   },
   "artifact_references": [
-    {"kind": "architecture", "project_id": "", "path": "", "version": 1, "sha256": null},
-    {"kind": "roadmap", "project_id": "", "path": "", "version": 1, "sha256": null},
-    {"kind": "interfaces", "project_id": "", "path": "", "version": 1, "sha256": null}
+    {
+      "kind": "architecture",
+      "project_id": "",
+      "path": "",
+      "version": 1,
+      "sha256": null
+    },
+    {
+      "kind": "roadmap",
+      "project_id": "",
+      "path": "",
+      "version": 1,
+      "sha256": null
+    },
+    {
+      "kind": "interfaces",
+      "project_id": "",
+      "path": "",
+      "version": 1,
+      "sha256": null
+    }
   ],
-  "task_local_context": {"artifact_paths": []},
-  "scope": {"owned_paths": []},
+  "task_local_context": {
+    "artifact_paths": []
+  },
+  "scope": {
+    "owned_paths": []
+  },
   "permissions": {
     "allowed_actions": [],
     "allowed_tools": [],
@@ -42,14 +64,29 @@
     "checks": [],
     "independent_review": {
       "required": true,
-      "barriers": ["design", "verification"],
+      "barriers": [
+        "design",
+        "verification"
+      ],
       "evidence_requirements": []
     }
   },
   "decision_barriers": {
-    "authenticated_master_decision_required": ["charter", "design", "verification", "integration"],
+    "authenticated_master_decision_required": [
+      "charter",
+      "design",
+      "verification",
+      "integration"
+    ],
     "routine_auto_continue_phase": "execution",
-    "routine_conditions": ["unchanged_charter", "checks_pass", "budget_valid", "concurrency_valid", "authority_unchanged", "no_exception"]
+    "routine_conditions": [
+      "unchanged_charter",
+      "checks_pass",
+      "budget_valid",
+      "concurrency_valid",
+      "authority_unchanged",
+      "no_exception"
+    ]
   },
   "budget": {
     "max_tokens": null,
@@ -59,6 +96,10 @@
     "max_concurrency": null,
     "max_retries": null
   },
-  "stop_escalation": {"stop_conditions": [], "escalate_on": []},
-  "reporting_destination": ""
+  "stop_escalation": {
+    "stop_conditions": [],
+    "escalate_on": []
+  },
+  "reporting_destination": "",
+  "requested_reasoning_effort": "medium"
 }

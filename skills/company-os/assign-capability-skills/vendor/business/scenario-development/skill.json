@@ -1,0 +1,29 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "scenario-development",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Source repository and skill path recorded; null revision means current development source, not a pinned release.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": "bp-strategic-decision/skills/scenario-development/SKILL.md",
+      "revision": "7737792630e2ba1dd98451619fd924486f6ed9fd",
+      "role": "original",
+      "url": "https://github.com/linuszz/business-strategy-planning-skills"
+    },
+    {
+      "kind": "github",
+      "path": "skills/company-os/assign-capability-skills/vendor/business/scenario-development/SKILL.md",
+      "revision": null,
+      "role": "adaptation",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}

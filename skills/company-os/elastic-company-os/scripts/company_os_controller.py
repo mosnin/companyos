@@ -2491,8 +2491,8 @@ def validate_fabric_report_payload(
         if not isinstance(review, dict):
             errors.append("verification requires an independent_review object")
         else:
-            if review.get("model") != "gpt-5.6-sol":
-                errors.append("independent_review.model must be gpt-5.6-sol")
+            if review.get("model") != "gpt-6-astra":
+                errors.append("independent_review.model must be gpt-6-astra")
             if (
                 not isinstance(review.get("reviewer"), str)
                 or not review["reviewer"].strip()
@@ -3805,8 +3805,8 @@ def validate_state(
                     if canonical_json(attempt.get("budget")) != canonical_json(identity.get("budget")):
                         errors.append("runtime attempt budget does not match its manifest identity")
                     if attempt.get("role") == "manager":
-                        if attempt.get("parent_runtime_id") != "master" or identity.get("model") != "gpt-5.6-sol":
-                            errors.append("manager runtime attempt must have master parent and exact Sol model")
+                        if attempt.get("parent_runtime_id") != "master" or identity.get("model") != "gpt-6-astra":
+                            errors.append("manager runtime attempt must have master parent and exact Astra model")
                     elif attempt.get("role") == "worker":
                         if identity.get("model") != "gpt-5.6-luna":
                             errors.append("worker runtime attempt must use the exact Luna model")
@@ -7860,8 +7860,8 @@ def admit_runtime_attempt(args: argparse.Namespace) -> int:
             if candidate is None or args.role not in {"manager", "worker"}:
                 raise ValueError("runtime identity or parent is not admitted by the manifest")
             if args.role == "manager":
-                if candidate.get("model") != "gpt-5.6-sol":
-                    raise ValueError("manager admission requires the exact Sol manifest model")
+                if candidate.get("model") != "gpt-6-astra":
+                    raise ValueError("manager admission requires the exact Astra manifest model")
             else:
                 if candidate.get("model") != "gpt-5.6-luna":
                     raise ValueError("worker admission requires the exact Luna manifest model")
@@ -8673,7 +8673,7 @@ def build_parser() -> argparse.ArgumentParser:
     finish_parser.set_defaults(handler=finish_cycle)
     fabric_parser = subparsers.add_parser(
         "configure-fabric",
-        help="bind a validated Sol-manager/Luna-worker manifest to primary work",
+        help="bind a validated Astra-manager/Luna-worker manifest to primary work",
     )
     fabric_parser.add_argument("--project", required=True)
     fabric_parser.add_argument("--work-id", required=True)

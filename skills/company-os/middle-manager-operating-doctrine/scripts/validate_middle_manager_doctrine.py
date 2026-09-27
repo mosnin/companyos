@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the middle-manager doctrine pack and spawn template.
 
-The template is a thinking overlay for Sol managers. It cannot be spawned as
+The template is a thinking overlay for Astra managers. It cannot be spawned as
 the master persona or as a Luna worker packet.
 """
 
@@ -40,13 +40,14 @@ TOP_LEVEL = {
     "template_id",
     "role",
     "requested_model",
+    "requested_reasoning_effort",
     "skills",
     "forbidden_roles",
     "source_pack",
     "authority",
 }
 SKILL_MARKERS = (
-    "sol managers only",
+    "astra managers only",
     "do not send this skill to luna workers",
     "do not use it as the master persona",
     "does not own",
@@ -132,8 +133,10 @@ def validate_spawn_template(payload: Any) -> list[str]:
         errors.append("template_id drifted")
     if payload.get("role") != "manager":
         errors.append("spawn role must be manager")
-    if payload.get("requested_model") != "gpt-5.6-sol":
-        errors.append("requested_model must remain gpt-5.6-sol")
+    if payload.get("requested_model") != "gpt-6-astra":
+        errors.append("requested_model must remain gpt-6-astra")
+    if payload.get("requested_reasoning_effort") != "medium":
+        errors.append("requested_reasoning_effort must be medium")
     if payload.get("authority") != "thinking_overlay":
         errors.append("authority must be thinking_overlay")
     if payload.get("source_pack") != "references/source":

@@ -270,7 +270,7 @@ def compile_manifest(
         managers.append(
             {
                 "id": manager_id,
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra", "reasoning_effort": "medium",
                 "outcome": manager_outcome,
                 "acceptance": [
                     "Every assigned adapter path exists or has an explicit prerequisite blocker",

@@ -1,0 +1,29 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "marketing-context-intake",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Source repository and skill path recorded; null revision means current development source, not a pinned release.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": "skills/en/product-marketing-context-global/SKILL.md",
+      "revision": "2c1b802b5504e14974d0231e1d74cc204bb17858",
+      "role": "original",
+      "url": "https://github.com/minhnv0807/ai-business-skills"
+    },
+    {
+      "kind": "github",
+      "path": "skills/company-os/assign-capability-skills/vendor/business/marketing-context-intake/SKILL.md",
+      "revision": null,
+      "role": "adaptation",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}

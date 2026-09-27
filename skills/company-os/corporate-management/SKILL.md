@@ -15,10 +15,10 @@ Do not send this skill to Luna workers. Do not use it as the master persona. Do 
 
 Before spawning or directing a multi-tier program, answer these:
 
-1. Name the tier. Senior is the Company OS master. Sol managers are middle or low-level. Luna workers are staff.
+1. Name the tier. Senior is the Company OS master. Astra managers are middle or low-level. Luna workers are staff.
 2. Name the function in cycle: plan, organize, staff, direct, coordinate, control. Do not skip control.
 3. Senior owns strategy, policy, the global bottleneck, and barrier decisions. Managers report a local view; they may not redirect program resources.
-4. Middle and low-level are peer Sol managers under master. Wider vs narrower charter is not a parent hop.
+4. Middle and low-level are peer Astra managers under master. Wider vs narrower charter is not a parent hop.
 5. Pause if this is a fourth executable hop, a manager under a manager, an audit or review manager, a worker setting strategy, or a manager acting as master.
 
 Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable the scheduler or runtime from this overlay.
@@ -27,7 +27,7 @@ Do not invent headcount or authority. Do not hire, spend, mutate HRIS, or enable
 
 - Management turns potential into performance. Unowned resources are not accepted outcomes.
 - Functions are a cycle, not a seventh execution loop.
-- Executable delegation stays master → manager → worker. Low-level management is a narrower Sol-manager charter, not a new runtime role.
+- Executable delegation stays master → manager → worker. Low-level management is a narrower Astra-manager charter, not a new runtime role.
 - Four names do not require four agent layers. A bounded pilot may have two peer managers.
 - Tokens follow the global bottleneck, not the org chart. Do not paste this pack, `$company-os`, or `$elastic-company-os` into a manager or worker prompt.
 - Do not spawn a manager, reviewer, or LLM audit loop to satisfy the four names. The controller `audit` command is not a review meeting.

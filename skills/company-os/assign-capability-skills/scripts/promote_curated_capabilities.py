@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -180,11 +181,18 @@ def promote(
             )
         path = catalog_contract._safe_entrypoint(skill_root, entry["entrypoint"])
         siblings = sorted(path.parent.iterdir(), key=lambda item: item.name)
-        if siblings != [path] or any(item.is_symlink() for item in siblings):
+        if {item.name for item in siblings} not in ({"SKILL.md"}, {"SKILL.md", "skill.json"}) or any(item.is_symlink() or not item.is_file() for item in siblings):
             raise catalog_contract.CatalogError(
                 "E_ENTRYPOINT",
-                f"curated capability {capability_id!r} must be a standalone SKILL.md with no sidecar files",
+                f"curated capability {capability_id!r} must be a standalone SKILL.md: no sidecar files except inert skill.json metadata",
             )
+        metadata_path = path.with_name("skill.json")
+        if metadata_path.exists():
+            metadata = json.loads(metadata_path.read_text())
+            allowed = {"schema_version", "id", "owner", "status", "tags", "aliases", "depends_on", "inputs", "outputs", "sources", "provenance_status", "provenance_note"}
+            if not isinstance(metadata, dict) or set(metadata) != allowed or metadata.get("schema_version") != 2:
+                raise catalog_contract.CatalogError("E_ENTRYPOINT", "invalid inert library metadata")
+        # Metadata is not loaded into assignment packets and grants no authority.
         raw = _validate_wrapper_entrypoint(path, capability_id)
         additions.append(
             {

@@ -1,0 +1,22 @@
+{
+  "aliases": [],
+  "depends_on": [],
+  "id": "middle-manager-operating-doctrine",
+  "inputs": [],
+  "outputs": [],
+  "owner": "company-os",
+  "provenance_note": "Source repository and skill path recorded; null revision means current development source, not a pinned release.",
+  "provenance_status": "known",
+  "schema_version": 2,
+  "sources": [
+    {
+      "kind": "github",
+      "path": "skills/company-os/middle-manager-operating-doctrine/SKILL.md",
+      "revision": null,
+      "role": "original",
+      "url": "https://github.com/mosnin/companyos"
+    }
+  ],
+  "status": "candidate",
+  "tags": []
+}

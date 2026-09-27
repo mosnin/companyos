@@ -333,8 +333,10 @@ def validate(manifest: dict[str, Any]) -> dict[str, Any]:
             errors.append(f"duplicate manager id: {manager_id}")
         manager_ids.add(str(manager_id))
 
-        if manager.get("model") != "gpt-5.6-sol":
-            errors.append(f"{prefix}.model must be gpt-5.6-sol")
+        if manager.get("model") != "gpt-6-astra":
+            errors.append(f"{prefix}.model must be gpt-6-astra")
+        if manager.get("reasoning_effort", "medium") != "medium":
+            errors.append(f"{prefix}.reasoning_effort must be medium")
         if not _nonempty(manager.get("outcome")):
             errors.append(f"{prefix}.outcome must be non-empty")
         if not _list_of_nonempty(manager.get("acceptance")):
@@ -512,9 +514,9 @@ def _self_test() -> int:
         "acceptance": ["Manager verifies artifact"],
         "program_contract": {
             "north_star": "Efficient verified execution",
-            "user_value": "Accepted work with less Sol usage",
+            "user_value": "Accepted work with less Astra usage",
             "rationale": "Exercise the fabric contract",
-            "architecture": "Sol managers supervise Luna workers",
+            "architecture": "Astra managers supervise Luna workers",
             "roadmap": PHASES,
             "dependencies": ["Local toolchain"],
             "non_goals": ["Production deployment"],
@@ -532,7 +534,7 @@ def _self_test() -> int:
         "managers": [
             {
                 "id": "manager-a",
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra", "reasoning_effort": "medium",
                 "outcome": "Bounded outcome",
                 "acceptance": ["Run exact check"],
                 "phase_ids": PHASES,
@@ -550,7 +552,7 @@ def _self_test() -> int:
                         "outcome_context": {
                             "program_version": 1,
                             "north_star": "Efficient verified execution",
-                            "user_value": "Accepted work with less Sol usage",
+                            "user_value": "Accepted work with less Astra usage",
                             "program_outcome": "Produce one accepted artifact",
                             "manager_outcome": "Bounded outcome",
                             "roadmap_position": "execution",
@@ -570,7 +572,7 @@ def _self_test() -> int:
         return 1
 
     invalid_manifest = json.loads(json.dumps(valid_manifest))
-    invalid_manifest["managers"][0]["workers"][0]["model"] = "gpt-5.6-sol"
+    invalid_manifest["managers"][0]["workers"][0]["model"] = "gpt-6-astra"
     invalid_manifest["managers"][0]["workers"][0]["may_delegate"] = True
     invalid_manifest["managers"][0]["workers"][0]["outcome_context"][
         "program_version"

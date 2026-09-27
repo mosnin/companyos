@@ -666,6 +666,20 @@ class ContextLedgerClient:
             arguments["branch"] = branch
         return self._call_tool("document_put", arguments)
 
+    def reconcile_alerts(self, packet: dict[str, Any], *, branch: str) -> dict[str, Any]:
+        """Publish an alert projection through the existing branch/revision contract.
+
+        Requires the hosted orchestration-alerts kind. Does not merge, schedule,
+        retry ambiguous writes, or authenticate the host's source observations.
+        """
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "company_os_alert_projection", Path(__file__).with_name("alert_projection.py")
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.sync(self, packet, branch=branch)
+
     def branch_create(
         self, name: str, *, description: str | None = None
     ) -> dict[str, Any]:

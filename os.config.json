@@ -1,0 +1,15 @@
+{
+  "id": "company-os",
+  "native_catalogs": [],
+  "owners": [
+    {
+      "decision_unit": "Outcome execution, native capability assignment and project skill foundry",
+      "exclusions": "Peer domain ownership and native authorization remain unchanged.",
+      "id": "company-os"
+    }
+  ],
+  "schema_version": 1,
+  "skill_roots": [
+    "skills"
+  ]
+}

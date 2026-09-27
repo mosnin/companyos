@@ -14,7 +14,7 @@ What does not scale
 What does scale
 - One middle marketing manager per department outcome.
 - One low-level campaign manager only when a campaign or client has
-  its own acceptance, budget, and kill rule. Peer Sol managers under
+  its own acceptance, budget, and kill rule. Peer Astra managers under
   master. Not a parent hop.
 - Staff templates: research, brief, copy. Clone a slot per packet.
   Slot count is not a dispatch quota. The accepted work graph decides

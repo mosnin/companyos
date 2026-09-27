@@ -83,7 +83,7 @@ class RuntimeGatewayTests(unittest.TestCase):
             "cycle_id": "cycle-runtime-v6-1",
             "parent_runtime_id": "master",
             "role": "manager",
-            "requested_model": "gpt-5.6-sol",
+            "requested_model": "gpt-6-astra",
             "provider": "provider-a",
             "surface": "isolated-task",
             "account": "workspace-a",
@@ -120,7 +120,7 @@ class RuntimeGatewayTests(unittest.TestCase):
             "managers": [
                 {
                     "id": "manager-1",
-                    "model": "gpt-5.6-sol",
+                    "model": "gpt-6-astra",
                     "write_scope": [".company-os/runtime-artifacts"],
                     "budget": deepcopy(self.attempt["budget"]),
                     "workers": [
@@ -190,7 +190,7 @@ class RuntimeGatewayTests(unittest.TestCase):
         *,
         event: str = "launch",
         task_id: str | None = "provider-task-1",
-        observed_model: str | None = "gpt-5.6-sol",
+        observed_model: str | None = "gpt-6-astra",
         sequence: int = 1,
         payload: dict | None = None,
         changes: dict | None = None,
@@ -282,7 +282,7 @@ class RuntimeGatewayTests(unittest.TestCase):
         )
         advanced = self.apply(self.attempt, record)
         self.assertEqual(advanced["lifecycle"]["status"], "launched")
-        self.assertEqual(advanced["lifecycle"]["observed_model"], "gpt-5.6-sol")
+        self.assertEqual(advanced["lifecycle"]["observed_model"], "gpt-6-astra")
         self.assertEqual(advanced["lifecycle"]["provider_task_id"], "provider-task-1")
 
     def test_signed_running_and_terminal_usage_is_monotonic_and_provider_attributable(self) -> None:
@@ -506,7 +506,7 @@ class RuntimeGatewayTests(unittest.TestCase):
             "managers": [
                 {
                     "id": "manager-1",
-                    "model": "gpt-5.6-sol",
+                    "model": "gpt-6-astra",
                     "workers": [
                         {
                             "id": "worker-1",
@@ -523,7 +523,7 @@ class RuntimeGatewayTests(unittest.TestCase):
         self.assertTrue(gateway.validate_vertical_slice_manifest(manifest)["valid"])
         for mutation in (
             lambda value: value["managers"].append(deepcopy(value["managers"][0])),
-            lambda value: value["managers"][0]["workers"][0].update({"model": "gpt-5.6-sol"}),
+            lambda value: value["managers"][0]["workers"][0].update({"model": "gpt-6-astra"}),
             lambda value: value["managers"][0]["workers"][0].update({"write_scope": ["src"]}),
             lambda value: value.update({"external_effects_allowed": True}),
         ):

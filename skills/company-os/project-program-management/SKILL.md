@@ -65,11 +65,11 @@ Use hybrids deliberately and record why.
 
 Track outcome metric, milestone health, dependency age, work in progress, lead time, rework, quality escapes, budget burn, capacity, risk trend, and decision latency. At every checkpoint decide continue, re-scope, re-sequence, pause, pivot, or stop.
 
-For a Luna-heavy program, assign each independent roadmap outcome to one Sol
+For a Luna-heavy program, assign each independent roadmap outcome to one Astra
 manager and represent the worker plan as a validated DAG. Require the Company
 OS master to decide every charter, discovery, design, execution, verification,
 and integration barrier. Track first-pass Luna acceptance, rework, collisions,
-actual model-token share, Sol-token reduction against baseline, and accepted
+actual model-token share, Astra-token reduction against baseline, and accepted
 lead time. Agent activity and phase reports are operating evidence, not
 milestone progress.
 

@@ -33,3 +33,25 @@ as the source of truth.
   movement by themselves.
 - Never claim a requested model is the observed runtime model.
 - Rejected commands must not mutate governed state.
+
+## External skill intake through Find Skills OS
+
+When a capability gap requires discovering or integrating an external skill, use
+`$find-skills-os`, then its mandatory `$skill-integration-os` stage. The shared
+plugin lives in the canonical `mosnin/find-skills-os` repository. Review actual
+kernel ownership, adapt the selected skill, and run its `integrate.py check` and
+`stage` commands before native admission. If the shared plugin is unavailable,
+report that intake dependency; do not silently bypass the adaptation gate.
+
+Use the project foundry and exact capability assignment/Program Preflight gates after staging. Never import an unapproved candidate directly into the approved catalog.
+A complete relevant ownership review may create a separate candidate peer kernel;
+a partial or inaccessible catalog cannot establish absence. Staging is not
+approval, execution authority, or accepted integration.
+
+## Portable library release gate
+
+The library uses os.config.json plus skill.json schema v2 and generated
+catalog/os-builder indexes. Record original GitHub/npm sources inside each skill;
+keep native provenance and authority intact. Regenerate native metadata first,
+then run OS Builder format and check before publication/distribution. Company OS
+and Business OS's local plugin updater now runs this check before replacement.

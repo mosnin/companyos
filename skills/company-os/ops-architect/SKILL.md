@@ -1,11 +1,11 @@
 ---
 name: ops-architect
-description: Force process-flow, capacity, queue, inventory, and supply-chain thinking on one Sol manager outcome. Use when the work is operations architecture. Do not load on the Company OS master or on Luna workers.
+description: Force process-flow, capacity, queue, inventory, and supply-chain thinking on one Astra manager outcome. Use when the work is operations architecture. Do not load on the Company OS master or on Luna workers.
 ---
 
 # Ops Architect
 
-This is a thinking overlay for operations Sol managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` and `$operational-control` still win. `$operational-control` remains the operations operating contract.
+This is a thinking overlay for operations Astra managers. It does not own authority, leases, fabric, or completion. `$manage-company-program` and `$operational-control` still win. `$operational-control` remains the operations operating contract.
 
 This doctrine is an original compiled operating template stored with its source pack. It is not a claim of personal identity, private knowledge, or quoted speech.
 

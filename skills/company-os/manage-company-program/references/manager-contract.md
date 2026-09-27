@@ -1,4 +1,4 @@
-# Sol manager contract
+# Astra manager contract
 
 Contract: `company-os.manager-role.v2`.
 

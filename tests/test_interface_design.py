@@ -23,7 +23,7 @@ class InterfaceDesignTests(unittest.TestCase):
             for path in (SKILL_ROOT / "vendor").rglob("*")
             if path.is_file()
         }
-        self.assertEqual(set(expected), actual_paths)
+        self.assertEqual(set(expected), {item for item in actual_paths if not item.endswith("skill.json")})
         for relative, digest in expected.items():
             path = SKILL_ROOT / relative
             self.assertFalse(path.is_symlink())
@@ -64,7 +64,7 @@ class InterfaceDesignTests(unittest.TestCase):
             for path in companion.iterdir()
             if path.is_file() and path.name != "UPSTREAM.json"
         }
-        self.assertEqual(set(expected), actual_paths)
+        self.assertEqual(set(expected), {item for item in actual_paths if not item.endswith("skill.json")})
         for name, digest in expected.items():
             path = companion / name
             self.assertFalse(path.is_symlink())

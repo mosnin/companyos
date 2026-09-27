@@ -4,7 +4,7 @@
     "master",
     "worker"
   ],
-  "requested_model": "gpt-5.6-sol",
+  "requested_model": "gpt-6-astra",
   "role": "manager",
   "schema": "company-os.value-creation-delivery-spawn-template.v1",
   "skills": [
@@ -19,5 +19,6 @@
     "value_delivery",
     "value_scaling",
     "value_validation"
-  ]
+  ],
+  "requested_reasoning_effort": "medium"
 }

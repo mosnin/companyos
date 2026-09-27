@@ -142,6 +142,10 @@ class ControllerTests(unittest.TestCase):
         charter = json.loads(
             (root / "programs/company-os-self-hosting/native-runtime-control/mission-charter.v7.json").read_text()
         )
+        # Signed historical evidence is replayed under its original routing policy.
+        # Current admission defaults are independently covered by runtime tests.
+        validator.ROLE_SPECS["manage-company-program"]["requested_model"] = "gpt-5.6-sol"
+        validator.ROLE_SPECS["manage-company-program"].pop("extra_keys", None)
         self.assertEqual(
             validator.validate_contract_payload(
                 charter,
@@ -932,8 +936,8 @@ class ControllerTests(unittest.TestCase):
             "program_contract": {
                 "north_star": north_star,
                 "user_value": "Users complete valuable work faster",
-                "rationale": "Use bounded Luna labor without weakening Sol acceptance",
-                "architecture": "Sol master and managers supervise Luna workers",
+                "rationale": "Use bounded Luna labor without weakening Astra acceptance",
+                "architecture": "Astra master and managers supervise Luna workers",
                 "roadmap": list(controller.FABRIC_PHASES),
                 "dependencies": ["Local repository and test toolchain"],
                 "non_goals": ["Production deployment"],
@@ -951,7 +955,7 @@ class ControllerTests(unittest.TestCase):
             "managers": [
                 {
                     "id": "manager-a",
-                    "model": "gpt-5.6-sol",
+                    "model": "gpt-6-astra",
                     "outcome": "Deliver the bounded user workflow",
                     "acceptance": ["Manager verifies the integrated artifact"],
                     "phase_ids": list(controller.FABRIC_PHASES),
@@ -1088,7 +1092,7 @@ class ControllerTests(unittest.TestCase):
         }
         if phase == "verification":
             report["independent_review"] = {
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra",
                 "reviewer": "independent-sol-reviewer",
                 "decision": "accepted",
                 "evidence": ["The bounded acceptance check passed"],
@@ -2817,7 +2821,7 @@ class ControllerTests(unittest.TestCase):
             "admit-runtime-attempt": lambda: controller.admit_runtime_attempt(namespace(
                 **common, work_id="cap-1", cycle_id="matrix-cycle", attempt_id="matrix-attempt",
                 manifest_identity_id="manager-a", parent_runtime_id="master", role="manager",
-                requested_model="gpt-5.6-sol", provider="test", surface="local", account="test-account",
+                requested_model="gpt-6-astra", provider="test", surface="local", account="test-account",
                 scope='["src/workflow"]', budget='{}', fabric_manifest_digest="missing",
                 contract_digest=controller.PHASE2_CONTRACT_DIGEST, idempotency_key="matrix-key",
                 admitted_by="master", actor_grant="",

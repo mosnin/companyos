@@ -17,8 +17,8 @@ Shared operating rules
   owner, plan, and check are not an accepted outcome.
 - Functions form a cycle: plan, organize, staff, direct, coordinate, control.
 - Executable delegation stays master → manager → worker.
-- Low-level management is a narrower Sol-manager charter, not a new runtime
-  role and not a parent hop. Middle and low-level are peer Sol managers.
+- Low-level management is a narrower Astra-manager charter, not a new runtime
+  role and not a parent hop. Middle and low-level are peer Astra managers.
   Staff are Luna workers.
 - Do not invent headcount, authority, or a second orchestrator.
 - Tokens follow the global bottleneck, not the org chart. Do not spawn an

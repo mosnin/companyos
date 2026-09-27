@@ -1,6 +1,6 @@
 ---
 name: execute-bounded-task
-description: Execute one exact bounded work packet and return an attributable evidence receipt. Use when a GPT-5.6 Luna worker receives task-local context, a fixed scope, dependencies, deliverables, acceptance checks, and a stop budget from a Sol manager, including read-only inventory, narrow implementation, deterministic testing, or honest blocked and failed work.
+description: Execute one exact bounded work packet and return an attributable evidence receipt. Use when a GPT-5.6 Luna worker receives task-local context, a fixed scope, dependencies, deliverables, acceptance checks, and a stop budget from a Astra manager, including read-only inventory, narrow implementation, deterministic testing, or honest blocked and failed work.
 ---
 
 # Execute Bounded Task

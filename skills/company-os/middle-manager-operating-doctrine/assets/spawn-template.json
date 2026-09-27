@@ -4,7 +4,7 @@
     "master",
     "worker"
   ],
-  "requested_model": "gpt-5.6-sol",
+  "requested_model": "gpt-6-astra",
   "role": "manager",
   "schema": "company-os.middle-manager-spawn-template.v1",
   "skills": [
@@ -12,5 +12,6 @@
     "middle-manager-operating-doctrine"
   ],
   "source_pack": "references/source",
-  "template_id": "middle-manager-operating-doctrine"
+  "template_id": "middle-manager-operating-doctrine",
+  "requested_reasoning_effort": "medium"
 }

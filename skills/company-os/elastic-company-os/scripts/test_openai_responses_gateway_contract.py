@@ -216,7 +216,7 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             "cycle_id": "cycle-phase-2-1",
             "parent_runtime_id": "master",
             "role": "manager",
-            "requested_model": "gpt-5.6-sol",
+            "requested_model": "gpt-6-astra",
             "provider": "openai",
             "surface": "responses-api",
             "account": "fixture-project",
@@ -249,7 +249,7 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             "external_effects_allowed": False,
             "managers": [{
                 "id": "manager-1",
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra",
                 "write_scope": [".company-os/runtime-artifacts"],
                 "budget": deepcopy(budget),
                 "workers": [{
@@ -362,7 +362,7 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
         self,
         *,
         status: str = "in_progress",
-        model: str = "gpt-5.6-sol",
+        model: str = "gpt-6-astra",
         response_id: str = "resp_phase2_1",
         usage: dict[str, Any] | None = None,
     ) -> bytes:
@@ -474,7 +474,8 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             self.assertEqual(payload, {
                 "background": True,
                 "input": "Return exactly READY. Do not call tools or perform external actions.",
-                "model": "gpt-5.6-sol",
+                "model": "gpt-6-astra",
+                "reasoning": {"effort": "medium"},
                 "store": False,
                 "tools": [],
             })
@@ -491,7 +492,7 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
             now=self.now,
         )
         self.assertEqual(verified["claims"]["provider_task_id"], "resp_phase2_1")
-        self.assertEqual(verified["claims"]["observed_model"], "gpt-5.6-sol")
+        self.assertEqual(verified["claims"]["observed_model"], "gpt-6-astra")
         self.assertEqual(verified["raw"]["payload"]["provider_status"], "in_progress")
         self.assertEqual(
             verified["raw"]["payload"]["provider_fixture_schema"],
@@ -514,15 +515,15 @@ class OpenAIResponsesGatewayContractTests(unittest.TestCase):
 
     def test_raw_bytes_response_id_model_status_timestamps_and_terminal_usage_are_mandatory(self) -> None:
         cases = {
-            "missing-id": b'{"created_at":1785671998,"status":"in_progress","model":"gpt-5.6-sol"}',
+            "missing-id": b'{"created_at":1785671998,"status":"in_progress","model":"gpt-6-astra"}',
             "missing-model": b'{"created_at":1785671998,"id":"resp_1","status":"in_progress"}',
-            "missing-status": b'{"created_at":1785671998,"id":"resp_1","model":"gpt-5.6-sol"}',
-            "missing-created-at": b'{"id":"resp_1","status":"in_progress","model":"gpt-5.6-sol"}',
-            "duplicate-key": b'{"created_at":1785671998,"id":"resp_1","id":"resp_2","status":"in_progress","model":"gpt-5.6-sol"}',
+            "missing-status": b'{"created_at":1785671998,"id":"resp_1","model":"gpt-6-astra"}',
+            "missing-created-at": b'{"id":"resp_1","status":"in_progress","model":"gpt-6-astra"}',
+            "duplicate-key": b'{"created_at":1785671998,"id":"resp_1","id":"resp_2","status":"in_progress","model":"gpt-6-astra"}',
             "missing-terminal-usage": (
                 b'{"completed_at":1785672001,'
                 b'"created_at":1785671998,'
-                b'"id":"resp_1","model":"gpt-5.6-sol",'
+                b'"id":"resp_1","model":"gpt-6-astra",'
                 b'"object":"response","status":"completed"}'
             ),
             "negative-usage": self.response_bytes(
