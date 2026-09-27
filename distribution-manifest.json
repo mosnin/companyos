@@ -3192,8 +3192,8 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/SKILL.md",
-      "sha256": "6ec8a5de48b065951b2eaebb8f97235baa193206877077c3abc42966290ab118",
-      "size": 9699
+      "sha256": "e3cebd66f687511eecf565abf45304a79d0a1ed906cc9bd69a9dc62cb3b26a10",
+      "size": 10100
     },
     {
       "path": "company-os/recursive-skill-foundry/agents/claude.yaml",
@@ -3237,8 +3237,8 @@
     },
     {
       "path": "company-os/recursive-skill-foundry/scripts/skill_foundry.py",
-      "sha256": "cdfe96eb1d27393fffb0b79b9553baae475739fd7922d7e79bb0c3e950aa8d60",
-      "size": 73013
+      "sha256": "dbd0a6f10ec3594c5089b62d08c06fb90d88376926426ab7bd2c32e5246ae6e0",
+      "size": 75955
     },
     {
       "path": "company-os/recursive-skill-foundry/skill.json",

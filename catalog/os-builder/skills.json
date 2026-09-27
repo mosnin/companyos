@@ -3324,7 +3324,7 @@
       "description": "Create, validate, simulate, iteratively repair, version, recursively compose, promote, search, and assign project local Codex skills inside Company OS. Use when the user explicitly asks for a reusable skill or skill system, or when accepted field evidence proves that a mechanism should compound across future work. Do not use for one off work, speculative abstraction, generic documentation, or as a substitute for completing the active product route.",
       "entrypoint": "skills/company-os/recursive-skill-foundry/SKILL.md",
       "files": {
-        "skills/company-os/recursive-skill-foundry/SKILL.md": "6ec8a5de48b065951b2eaebb8f97235baa193206877077c3abc42966290ab118",
+        "skills/company-os/recursive-skill-foundry/SKILL.md": "e3cebd66f687511eecf565abf45304a79d0a1ed906cc9bd69a9dc62cb3b26a10",
         "skills/company-os/recursive-skill-foundry/agents/claude.yaml": "b3afdc3a4d16dbd302d4467427c7d7ab4b49c46a3ecc674b94d721c9ab4643f4",
         "skills/company-os/recursive-skill-foundry/agents/grok.yaml": "b3afdc3a4d16dbd302d4467427c7d7ab4b49c46a3ecc674b94d721c9ab4643f4",
         "skills/company-os/recursive-skill-foundry/agents/openai.yaml": "b3afdc3a4d16dbd302d4467427c7d7ab4b49c46a3ecc674b94d721c9ab4643f4",
@@ -3333,7 +3333,7 @@
         "skills/company-os/recursive-skill-foundry/references/foundry-contract.md": "0fdf0ad6c21becb2fd68a049fb919601c96c47b70988fc0d3c6000c8f1d95a11",
         "skills/company-os/recursive-skill-foundry/references/yao-adaptation.md": "6622e3a98a36b6a114a4aeee537ce17dbc8fad03ec6017983d95c074102c9b15",
         "skills/company-os/recursive-skill-foundry/scripts/run_foundry_simulation.py": "411f36dd5900a7e634882f58cc76742de309c0fc7daf7b435f20226251cea881",
-        "skills/company-os/recursive-skill-foundry/scripts/skill_foundry.py": "cdfe96eb1d27393fffb0b79b9553baae475739fd7922d7e79bb0c3e950aa8d60",
+        "skills/company-os/recursive-skill-foundry/scripts/skill_foundry.py": "dbd0a6f10ec3594c5089b62d08c06fb90d88376926426ab7bd2c32e5246ae6e0",
         "skills/company-os/recursive-skill-foundry/skill.json": "d1bfe1d5870f0809a9cfea0a3e834a0e3613dd6d39d00015eb2c41b20fd2dad4"
       },
       "id": "company-os/recursive-skill-foundry",

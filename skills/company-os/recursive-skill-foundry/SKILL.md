@@ -174,3 +174,9 @@ The foundry checks receipt owner, exact skill bytes, plan and formatter digests,
 then applies its native validation and simulation to the imported bytes. It does
 not replace the adapted procedure with generated boilerplate. skill.json is inert
 metadata included in the immutable skill manifest.
+
+Receipt v2 binds every staged artifact and the archived ownership registry. Admission
+rechecks the registry contracts against current canonical owners; changed contracts
+require review and restaging. Older receipts must be restaged. The standalone
+importer rejects declared dependencies; use native composition admission for a
+skill requiring peer capabilities. It never silently drops dependencies.

@@ -588,11 +588,47 @@ def staged_skill_source(package: Path, name: str) -> Path:
     package = package.absolute()
     if any(p.is_symlink() for p in (package, *package.parents)):
         raise FoundryError("E_PATH", "staged package must not traverse symlinks")
-    receipt = read_json(package / "integration-receipt.json", "integration receipt")
+    receipt = require_object(read_json(package / "integration-receipt.json", "integration receipt"), "integration receipt")
     if receipt.get("owner") != "company-os" or receipt.get("skill") != name or receipt.get("status") != "pending_host_admission":
         raise FoundryError("E_BINDING", "staged package owner, skill or status differs")
+    if receipt.get("schema_version") != 2 or receipt.get("permissions") != []:
+        raise FoundryError("E_BINDING", "restage with receipt v2 and no added permissions")
+    artifacts = {}
+    for artifact in package.rglob("*"):
+        if artifact.is_symlink(): raise FoundryError("E_PATH", "symlink in staged artifact")
+        if artifact.is_file() and artifact != package / "integration-receipt.json":
+            artifacts[artifact.relative_to(package).as_posix()] = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    if artifacts != receipt.get("artifact_files"):
+        raise FoundryError("E_DIGEST", "staged artifact inventory changed")
+    plan = require_object(read_json(package / "integration-plan.json", "integration plan"), "integration plan")
+    if plan.get("owner") != receipt["owner"] or plan.get("id") != name or plan.get("adapted_files") != receipt.get("adapted_files"):
+        raise FoundryError("E_BINDING", "plan and receipt identities differ")
+    if plan.get("skill_owner", plan["owner"]) != receipt.get("skill_owner"):
+        raise FoundryError("E_BINDING", "subkernel ownership binding differs")
+    registry_path_value = package / "integration-registry.json"
+    registry_digest = hashlib.sha256(registry_path_value.read_bytes()).hexdigest()
+    if registry_digest != receipt.get("registry_sha256") or registry_digest != plan.get("registry_sha256"):
+        raise FoundryError("E_DIGEST", "registry binding changed")
+    ownership = require_object(read_json(registry_path_value, "ownership registry"), "ownership registry")
+    if not isinstance(ownership.get("owners"), list) or not ownership["owners"]:
+        raise FoundryError("E_SCHEMA", "ownership registry requires owners")
+    for owner in ownership["owners"]:
+        owner = require_object(owner, "owner")
+        owner_root = Path(require_text(owner.get("root"), "owner root"))
+        if not owner_root.is_absolute() or any(p.is_symlink() for p in (owner_root, *owner_root.parents)):
+            raise FoundryError("E_PATH", "owner root must be canonical and absolute")
+        require_object(owner.get("contracts"), "owner contracts")
+        for relative, expected in owner["contracts"].items():
+            contract = safe_child(owner_root, relative, "owner contract")
+            if not contract.is_file() or hashlib.sha256(contract.read_bytes()).hexdigest() != expected:
+                raise FoundryError("E_BINDING", "ownership changed after staging; review and restage")
     source = package / "skills" / name
     if source.is_symlink(): raise FoundryError("E_PATH", "staged skill is a symlink")
+    metadata = require_object(read_json(source / "skill.json", "skill metadata"), "skill metadata")
+    if metadata.get("owner") != receipt.get("skill_owner") or metadata.get("id") != name:
+        raise FoundryError("E_BINDING", "skill metadata differs from the reviewed owner")
+    if metadata.get("depends_on"):
+        raise FoundryError("E_DEPENDENCY", "staged imports with dependencies require native composition admission; standalone import cannot silently drop them")
     observed = {}
     for path in source.rglob("*"):
         if path.is_symlink(): raise FoundryError("E_PATH", "symlink in staged skill")
@@ -609,7 +645,7 @@ def staged_skill_source(package: Path, name: str) -> Path:
 
 
 def forge_candidate(project_root: Path, request: str, *, name: str | None = None, source_kind: str = "explicit_skill_request", parent_skill: str | None = None, depth: int = 0, dependencies: Sequence[str] = (), max_rounds: int = 2, threshold: int = 88, force_skill_request: bool = True, staged_package: Path | None = None) -> dict[str, Any]:
-    project_root = project_root.resolve(); project_root.mkdir(parents=True, exist_ok=True)
+    project_root = project_root.resolve()
     request = require_text(request, "request")
     if source_kind not in SOURCE_KINDS:
         raise FoundryError("E_SCHEMA", "unsupported source kind")
